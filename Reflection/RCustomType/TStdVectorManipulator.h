@@ -51,7 +51,7 @@ namespace Reflection::RCustomType
 
 				if (checkResult)
 				{
-					typedef bool (*FuncVerify)(UnkStruct*, int);
+					typedef bool (*FuncVerify)(UnkStruct*, uintptr_t);
 					FuncVerify pFuncVerify = (FuncVerify)getActualOffset(0x14FEDCC);
 
 					if (pFuncVerify(unkPtr, checkResult))
@@ -67,7 +67,7 @@ namespace Reflection::RCustomType
 							unkPtr->m_stackPtr++;
 						}
 
-						typedef uintptr_t(*FuncGetSize)(UnkStruct*, int);
+						typedef uintptr_t(*FuncGetSize)(UnkStruct*, uintptr_t);
 						uintptr_t vecSize = ((FuncGetSize)getActualOffset(0x14FEE04))(unkPtr, checkResult);
 
 						if (vecSize > 0)
@@ -113,7 +113,7 @@ namespace Reflection::RCustomType
 				return true;
 			}
 		}
-		int GetSize(GenericVector* vector)
+		uintptr_t GetSize(GenericVector* vector)
 		{
 			return vector->size();
 		}

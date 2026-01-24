@@ -1,0 +1,51 @@
+#pragma once
+#include "PvZ2/ZombieBasic.h"
+#include <Sexy/RtReflectionDelegateBase.h>
+#include <Reflection/ReflectionBuilder.h>
+
+using namespace Sexy;
+
+class ZombieDinoBasic : public ZombieBasic
+{
+public:
+    RtReflectionDelegateBase m_onPterodactylGrab;
+
+    uint8_t m_pad1[0x38];
+
+    RtReflectionDelegateBase m_onPterodactylDrop;
+
+    uint8_t m_pad2[0x38];
+};
+
+static_assert(sizeof(ZombieDinoBasic) == 1280);
+static_assert(offsetof(ZombieDinoBasic, m_onPterodactylGrab) == 1104);
+static_assert(offsetof(ZombieDinoBasic, m_onPterodactylDrop) == 1192);
+
+class ZombieDinoBully : public ZombieDinoBasic
+{
+public:
+
+};
+
+class ZombieDinoBullyVeteran : public ZombieDinoBully
+{
+public:
+    char pad[8];
+};
+
+class ZombieJourneyToTheWestGargantuar : public ZombieDinoBullyVeteran
+{
+public:
+	static void* vftable;
+	static Sexy::RtClass* s_rtClass;
+	static void modInit();;
+
+	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(ZombieJourneyToTheWestGargantuar, 0xC3AB1C);
+	RT_CLASS_CONSTRUCT_FUNCTION_END();
+
+	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombieDinoBullyVeteran);
+	RT_CLASS_BUILD_SYMBOLS_END();
+
+	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieJourneyToTheWestGargantuar);
+	RT_CLASS_GET_CLASS_FUNCTION(ZombieJourneyToTheWestGargantuar, 0xB0BB10);
+};

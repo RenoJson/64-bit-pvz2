@@ -27,6 +27,9 @@
 #include <PvZ2/ZombieAnimRig_EightiesPunk.h>
 #include <PvZ2/ZombieAnimRig_Consultant.h>
 #include <PvZ2/ZombieAnimRig_Hunter.h>
+#include <PvZ2/ZombieAnimRig_Gargantuar.h>
+#include <PvZ2/ZombieDinoBasic.h>
+#include <PvZ2/ZombieAnimRig_Basic.h>
 
 
 // usually using int64_t when hooking on 64 bit architecture, but i'm prefer uintptr_t since it's more flexible and less buggy
@@ -101,4 +104,8 @@ void libChair_main()
     ZombieAnimRig_EightiesPunk::modInit();
     ZombieAnimRig_Consultant::modInit();
     ZombieAnimRig_JourneyToTheWestTrident::modInit();
+    ZombieAnimRig_Gargantuar::modInit();
+    ZombieAnimRig_FairyTaleGargantuar::modInit();
+    ZombieJourneyToTheWestGargantuar::modInit();
+    ZombieAnimRig_JourneyToTheWestGargantuar::modInit();
 }

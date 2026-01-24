@@ -87,6 +87,9 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_EightiesPunk.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_Consultant.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_JourneyToTheWestTrident.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_Gargantuar.cpp" />
+    <ClCompile Include="PvZ2\ZombieJourneyToTheWestGargantuar.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_JourneyToTheWestGargantuar.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -116,5 +119,8 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_EightiesPunk.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Consultant.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Hunter.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_Gargantuar.h" />
+    <ClInclude Include="PvZ2\ZombieDinoBasic.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_Basic.h" />
   </ItemGroup>
 </Project>

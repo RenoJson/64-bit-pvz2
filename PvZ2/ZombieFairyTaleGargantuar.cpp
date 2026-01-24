@@ -16,15 +16,16 @@ void SpawnImpAfterDie(ZombieGargantuar* self) {
 	SexyString name = props->ImpType;
 	float impApex = props->ImpApex;
 	float flightTime = props->ImpFlightTime;
+	SexyVector3 spawnOffset = props->ImpSpawnOffset;
 
 	Zombie* spawnedRider = AddZombie(name, -1, 6, -1);
 
 	typedef SexyVector3(*boardEntitySetPosition)(Zombie*, SexyVector3*);
 	boardEntitySetPosition funBoardEntitySetPosition = (boardEntitySetPosition)getActualOffset(0x628058);
 
-	float newX = self->m_position.x - 60;
-	float newY = self->m_position.y;
-	float newZ = 0;
+	float newX = self->m_position.x - spawnOffset.x;
+	float newY = self->m_position.y - spawnOffset.y;
+	float newZ = self->m_position.z - spawnOffset.z;
 	SexyVector3 newCoords = SexyVector3(newX, newY, newZ);
 	funBoardEntitySetPosition(spawnedRider, &newCoords);
 	typedef void (*ZombieThrowVirtual)(Zombie*, int, float, float, float, float, float);
