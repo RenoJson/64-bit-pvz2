@@ -3,7 +3,11 @@
 
 namespace Reflection
 {
-	class RType : Sexy::RtObject
+	class RSymbol : public Sexy::RtObject
+	{
+
+	};
+	class RType : RSymbol
 	{
 	public:
 		virtual void Function7() {};

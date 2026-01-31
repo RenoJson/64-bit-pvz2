@@ -30,6 +30,8 @@
 #include <PvZ2/ZombieAnimRig_Gargantuar.h>
 #include <PvZ2/ZombieDinoBasic.h>
 #include <PvZ2/ZombieAnimRig_Basic.h>
+#include <PvZ2/ZombiePirateBoomBarrel.h>
+#include <PvZ2/ZombieAnimRig_Imp.h>
 
 
 // usually using int64_t when hooking on 64 bit architecture, but i'm prefer uintptr_t since it's more flexible and less buggy
@@ -64,6 +66,13 @@ void hkBoardWaveFunc(Board* thisPtr, int waveIndex, int waveType, bool isFinalWa
     }
 }
 
+void hkCamelZombieFunc(Zombie* thisPtr, int64_t a2, bool a3)
+{
+    // Redirect call to some function in CamelMinigameModule
+    // This fixes the crash when camels are rising from the ground
+    CallFunc<void, Zombie*, int64_t, bool>(0xB1BE04, thisPtr, a2, a3);
+}
+
 #pragma endregion
 
 #pragma region Boss Icon Softcode
@@ -92,7 +101,9 @@ void libChair_main()
     LOGI("Initializing %s", LIB_TAG);
     // Function hooks
     //PVZ2HookFunction(0x11F72B0, (void*)hkNPCDataSheetCtor, (void**)&oNPCDataSheetCtor);
+    // i should make softcode boss icon as level module xd
     //PVZ2HookFunction(0x540938, (void*)hkBossProgressMeterInit, (void**)&oBossProgressMeterInit);
+
     ZombieBullProps::modInit();
     ZombieBullVeteranProps::modInit();
     ZombieZcorpRacerProps::modInit();
@@ -108,4 +119,6 @@ void libChair_main()
     ZombieAnimRig_FairyTaleGargantuar::modInit();
     ZombieJourneyToTheWestGargantuar::modInit();
     ZombieAnimRig_JourneyToTheWestGargantuar::modInit();
+    ZombiePirateBoomBarrel::modInit();
+    ZombieAnimRig_PirateBoomBarrel::modInit();
 }

@@ -22,3 +22,12 @@ static_assert(offsetof(ZombieImp, m_invincibleWhileInAir) == 1100);
 static_assert(offsetof(ZombieImp, m_getsUpFromLanding) == 1101);
 static_assert(offsetof(ZombieImp, m_fallVelocity) == 1104);
 static_assert(offsetof(ZombieImp, m_animFailed) == 1108);
+
+class ZombieModernSuperfanImp : public ZombieImp
+{
+public:
+    int64_t m_selectedTriggerColumn;
+};
+static_assert(sizeof(ZombieModernSuperfanImp) == 1120);
+static_assert(offsetof(ZombieModernSuperfanImp, m_selectedTriggerColumn) == 1112);
+

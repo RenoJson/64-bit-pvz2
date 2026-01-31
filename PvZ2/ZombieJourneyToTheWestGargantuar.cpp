@@ -5,11 +5,11 @@ Sexy::RtClass* ZombieJourneyToTheWestGargantuar::s_rtClass = __null;;
 
 SexyString GetGargShockEffectName()
 {
-	return "POPANIM_EFFECTS_ZOMBIE_GARGANTUAR_SHOCK";
+	return "POPANIM_EFFECTS_ZOMBIE_BRONZE_SHOCK";
 }
 SexyString GetGargAshEffectName()
 {
-	return "POPANIM_EFFECTS_ZOMBIE_GARGANTUAR_ASH";
+	return "POPANIM_EFFECTS_ZOMBIE_BRONZE_ASH";
 }
 
 void ZombieJourneyToTheWestGargantuar::modInit() {

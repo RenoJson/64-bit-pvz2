@@ -9,6 +9,7 @@
 
 #include "ZcorpRacerZombie.h"
 #include "AddZombieType.h"
+#include "ZombiePirateBoomBarrel.h"
 
 Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc ZombieZcorpRacerProps::oZombieZcorpRacerPropsBuildSymbols = nullptr;
 
@@ -76,8 +77,21 @@ void hkZombieChairThrowRacer(Zombie * self, int a2)
 
             setCondition(spawnedRider, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
 
-            uintptr_t bullProperty = *((uintptr_t*)self + 0x24);
-            *((uintptr_t*)spawnedRider + 0x24) = bullProperty;
+            int valAtOffset36 = *(int*)((uintptr_t)self + 0x24);
+            typedef void (*func10B013C)(Zombie*, int);
+            auto* setTeamFlag = ((func10B013C)getActualOffset(0x10B013C));
+            setTeamFlag(spawnedRider, valAtOffset36);
+            LOGI("Clear 1");
+            typedef void* (*GetHypnoDataFunc)(Zombie*);
+            GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
+
+            void* hypnoData = funGetHypnoData(self);
+            LOGI("Clear 2");
+            typedef void (*ApplyHypnoDataFunc)(Zombie*, void*);
+            ApplyHypnoDataFunc funApplyHypnoData = (ApplyHypnoDataFunc)getActualOffset(0xC41290);
+
+            funApplyHypnoData(spawnedRider, hypnoData);
+            LOGI("Clear 3");
 
             targetX = launchDistance + currentX;
             if (targetX > 776.0f) {
@@ -153,6 +167,7 @@ bool hkAddZombieToAudioGroup(Zombie* imp)
     isDeadOrDying isDead = (isDeadOrDying)getActualOffset(0xC3E204);
     uintptr_t* vtable = *reinterpret_cast<uintptr_t**>(imp);
     bool isZombieRacer = (vtable == reinterpret_cast<uintptr_t*>(getActualOffset(0x2415298)));
+    bool isPirateBomber = (vtable == ZombiePirateBoomBarrel::vftable);
     return !IsInState(imp, 16)
         && !IsInState(imp, 19)
         && !isDead(imp)
@@ -160,7 +175,8 @@ bool hkAddZombieToAudioGroup(Zombie* imp)
         && !hasCondition(imp, 31) // these three are the imp stuck in GI
         && !hasCondition(imp, 34)
         && !hasCondition(imp, 60)
-        && !isZombieRacer;
+        && !isZombieRacer
+        && !isPirateBomber;
 }
 #pragma endregion
 

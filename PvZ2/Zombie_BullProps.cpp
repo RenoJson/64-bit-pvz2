@@ -20,117 +20,87 @@ using namespace Sexy;
 typedef void(*zombieBullHideLayer)(Zombie*, uintptr_t);
 zombieBullHideLayer oZombieBullHideLayer = nullptr;
 void HideCustomRiderLayer(Zombie* self, uintptr_t animRig) {
-
+    // [LOG] Bắt đầu hàm
+    LOGI("[HideCustomRiderLayer] Function called for Zombie: %p, AnimRig: 0x%X", self, animRig);
 
     auto* props = reinterpret_cast<ZombieBullProps*>(self->m_propertySheet.Get());
 
+    // [LOG] Kiểm tra Property Sheet
     if (!props) {
-
-        return oZombieBullHideLayer(self, animRig);
+        LOGI("[HideCustomRiderLayer] Error: PropertySheet is NULL!");
+        return;
     }
 
-    SexyString listType = props->LayerListType;
-
-
-    std::vector<SexyString> LayerList;
-
-    if (listType == "west_bull" || listType.empty()) {
-        LayerList = {
-            "zombie_cowboy_hat_back",
-            "zombie_cowboy_hat_front",
-            "zombie_imp_arm_inner_lower",
-            "zombie_imp_arm_inner_upper",
-            "zombie_imp_arm_outer_lower",
-            "zombie_imp_arm_outer_upper_01",
-            "zombie_imp_arm_outer_upper_02",
-            "zombie_imp_arms_outer_upper",
-            "zombie_imp_eye",
-            "zombie_imp_eye_sm",
-            "zombie_imp_hand_inner",
-            "zombie_imp_hand_outer",
-            "zombie_imp_jaw",
-            "zombie_imp_leg_inner_lower",
-            "zombie_imp_leg_inner_upper",
-            "zombie_imp_leg_outer_lower",
-            "zombie_imp_leg_outer_upper",
-            "zombie_imp_pupil",
-            "zombie_imp_skull",
-            "zombie_imp_toe_inner",
-            "zombie_imp_toe_outer",
-            "zombie_imp_torso",
-            "zombie_imp_waist",
-            "zombie_imp_leg_outer_upper",
-            "_zombie_imp_head_top"
-        };
-    }
-    else if (listType == "west_bull_veteran") {
-        LayerList = {
-            "helm",
-            "zombie_imp_arm_inner_lower",
-            "zombie_imp_arm_inner_upper",
-            "zombie_imp_arm_outer_lower",
-            "zombie_imp_arm_outer_upper_01",
-            "zombie_imp_arm_outer_upper_02",
-            "zombie_imp_arms_outer_upper",
-            "Symbol 57",
-            "zombie_imp_hand_inner",
-            "zombie_imp_hand_outer",
-            "zombie_imp_jaw",
-            "zombie_imp_leg_inner_lower",
-            "zombie_imp_leg_inner_upper",
-            "zombie_imp_leg_outer_lower",
-            "zombie_imp_leg_outer_upper",
-            "zombie_imp_pupil",
-            "zombie_imp_skull",
-            "zombie_imp_toe_inner",
-            "zombie_imp_toe_lower",
-            "zombie_imp_torso",
-            "zombie_imp_waist",
-            "zombie_imp_leg_outer_upper",
-            "_zombie_imp_head_top"
-        };
-    }
-    else if (listType == "dark_cavalry") {
-        LayerList = {
-            "zombie_arm_inner_lower",
-            "zombie_arm_inner_upper",
-            "zombie_arm_outer_lower",
-            "zombie_hand_outer",
-            "zombie_jaw",
-            "zombie_armor_crown_states_rider",
-            "zombie_armor_crown_states",
-            "zombie_arms_outer_upper",
-            "zombie_imp_arms_outer_upper_rider",
-            "zombie_foot_inner_heel",
-            "zombie_foot_inner_toe_01",
-            "zombie_foot_outer_heel",
-            "zombie_foot_outer_toe",
-            "zombie_leg_inner_lower",
-            "zombie_leg_inner_upper",
-            "zombie_leg_outer_lower",
-            "zombie_leg_upper_outer",
-            "zombie_hand_inner_01",
-            "zombie_hand_outer_01",
-            "zombie_shoulder_armor",
-            "zombie_skull_rider",
-            "zombie_torso",
-            "zombie_waist",
-            "_zombie_hand_outer",
-            "qiang_01"
-        };
-    }
-    else {
-        LOGI("HideCustomRiderLayer: WARNING! Unknown listType: %s. LayerList is empty.", listType.c_str());
-    }
+    std::vector<SexyString> HardcodedLayer = {
+         "zombie_cowboy_hat_back",
+         "zombie_cowboy_hat_front",
+         "zombie_imp_arm_inner_lower",
+         "zombie_imp_arm_inner_upper",
+         "zombie_imp_arm_outer_lower",
+         "zombie_imp_arm_outer_upper_01",
+         "zombie_imp_arm_outer_upper_02",
+         "zombie_imp_arms_outer_upper",
+         "zombie_imp_eye",
+         "zombie_imp_eye_sm",
+         "zombie_imp_hand_inner",
+         "zombie_imp_hand_outer",
+         "zombie_imp_jaw",
+         "zombie_imp_leg_inner_lower",
+         "zombie_imp_leg_inner_upper",
+         "zombie_imp_leg_outer_lower",
+         "zombie_imp_leg_outer_upper",
+         "zombie_imp_pupil",
+         "zombie_imp_skull",
+         "zombie_imp_toe_inner",
+         "zombie_imp_toe_outer",
+         "zombie_imp_torso",
+         "zombie_imp_waist",
+         "zombie_imp_leg_outer_upper",
+         "_zombie_imp_head_top"
+    };
 
     typedef int (*setLayerVisibleFunc)(uintptr_t, SexyString*, bool);
     setLayerVisibleFunc setLayerVisible = (setLayerVisibleFunc)getActualOffset(0x9DB8D0);
 
-    for (size_t i = 0; i < LayerList.size(); i++) {
-        const auto& layerStr = LayerList[i];
-        SexyString layerName(layerStr);
-        setLayerVisible(animRig, &layerName, false);
+    // [LOG] Kiểm tra hàm setLayerVisible
+    if (!setLayerVisible) {
+        LOGI("[HideCustomRiderLayer] Error: Failed to get setLayerVisible function address!");
+        return;
     }
+
+    size_t customLayersCount = props->RiderLayersToHide.size();
+    LOGI("[HideCustomRiderLayer] Found %zu layers in props->RiderLayersToHide", customLayersCount);
+
+    if (!props->RiderLayersToHide.empty()) {
+        // --- NHÁNH 1: DÙNG LIST TỪ FILE JSON/PROPS ---
+        LOGI("[HideCustomRiderLayer] Using CUSTOM list from Props.");
+
+        for (size_t i = 0; i < customLayersCount; i++) {
+            const auto& layerStr = props->RiderLayersToHide[i];
+            SexyString layerName(layerStr);
+
+            // [LOG] In tên layer đang ẩn
+            LOGI("[HideCustomRiderLayer] [Custom] Hiding layer [%zu]: %s", i, layerName.c_str());
+
+            setLayerVisible(animRig, &layerName, false);
+        }
+    }
+    else {
+        // --- NHÁNH 2: DÙNG LIST HARDCODED (FALLBACK) ---
+        LOGW("[HideCustomRiderLayer] Custom list empty. Using HARDCODED list.");
+
+        for (size_t i = 0; i < HardcodedLayer.size(); i++) {
+            const auto& layerStr = HardcodedLayer[i];
+            SexyString layerName(layerStr);
+
+            // [LOG] In tên layer đang ẩn
+            LOGI("[HideCustomRiderLayer] [Hardcoded] Hiding layer [%zu]: %s", i, layerName.c_str());
+
+            setLayerVisible(animRig, &layerName, false);
+        }
+    }
+
+    LOGI("[HideCustomRiderLayer] Finished.");
 }
 #pragma endregion
 
@@ -172,7 +142,6 @@ void hkZombieBullThrowRider(Zombie* self, int a2)
 
         name = props->RiderType;
         distance = props->LaunchDistance;
-        float coord = props->LaunchOffsetX;
         
     // we won't need to use RiderType anymore if the zombie spawn from the bull is wild west imp
     if (name.empty()) {
@@ -190,10 +159,14 @@ void hkZombieBullThrowRider(Zombie* self, int a2)
         ZombieImp* spawnedRider = (ZombieImp*)AddZombie(name, -1, 6, -1);
 
         spawnedRider->m_getsUpFromLanding = true;
-
-        float newX = self->m_position.x - coord;
-        float newY = self->m_position.y;
-        float newZ = self->m_position.z + 50;
+        bool isHypnotized = hasZCondition(self, zombie_condition_hypnotized);
+        float newX = self->m_position.x - props->RiderSpawnOffset.x;
+        if (isHypnotized)
+        {
+            newX = self->m_position.x + props->RiderSpawnOffset.x;
+        }
+        float newY = self->m_position.y + props->RiderSpawnOffset.y;
+        float newZ = self->m_position.z + props->RiderSpawnOffset.z;
         SexyVector3 newCoords = SexyVector3(newX, newY, newZ);
         ZfunBoardEntitySetPosition(spawnedRider, &newCoords);
         typedef void (*ZombieThrowVirtual)(Zombie*, int, float, float, float, float, float);
@@ -202,16 +175,27 @@ void hkZombieBullThrowRider(Zombie* self, int a2)
 
         float targetX, targetY, targetZ;
 
-        bool isHypnotized = hasZCondition(self, zombie_condition_hypnotized);
-
         if (isHypnotized) {
 
             setZCondition(spawnedRider, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
 
-            uintptr_t bullProperty = *((uintptr_t*)self + 0x24);
-            *((uintptr_t*)spawnedRider + 0x24) = bullProperty;
+            int valAtOffset36 = *(int*)((uintptr_t)self + 0x24);
+            typedef void (*func10B013C)(Zombie*, int);
+            auto* setTeamFlag = ((func10B013C)getActualOffset(0x10B013C));
+            setTeamFlag(spawnedRider, valAtOffset36);
+            LOGI("Clear 1");
+            typedef void* (*GetHypnoDataFunc)(Zombie*);
+            GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
 
-            targetX = self->m_position.x + distance;
+            void* hypnoData = funGetHypnoData(self);
+            LOGI("Clear 2");
+            typedef void (*ApplyHypnoDataFunc)(Zombie*, void*);
+            ApplyHypnoDataFunc funApplyHypnoData = (ApplyHypnoDataFunc)getActualOffset(0xC41290);
+
+            funApplyHypnoData(spawnedRider, hypnoData);
+            LOGI("Clear 3");
+
+            targetX = newX + distance;
             targetY = self->m_position.y;
             targetZ = self->m_position.z;
 
@@ -221,7 +205,7 @@ void hkZombieBullThrowRider(Zombie* self, int a2)
             }
         }
         else {
-            targetX = self->m_position.x - distance;
+            targetX = newX - distance;
             targetY = self->m_position.y;
             targetZ = self->m_position.z;
 
@@ -232,7 +216,6 @@ void hkZombieBullThrowRider(Zombie* self, int a2)
         launchApex = props->LaunchHeight;
         launchTime = props->LaunchAirTime;
         virtualThrow(spawnedRider, 0, targetX, targetY, targetZ, launchTime, launchApex);
-        LOGI("Done");
 
         // this one is prevent veteran bull throw further imp
         *(bool*)((uintptr_t)self + 0x448) = true;
@@ -252,7 +235,7 @@ void hkZombieBullVetThrowRider(Zombie* self, int a2)
   
     SexyString name = props->VetRiderType;
     float distance = props->LaunchDistance;
-    float coord = props->LaunchOffsetX;
+
 
     // we won't need to use RiderType anymore if the zombie spawn from the bull is wild west imp
     if (name.empty()) {
@@ -270,10 +253,14 @@ void hkZombieBullVetThrowRider(Zombie* self, int a2)
         ZombieImp* spawnedRider = (ZombieImp*)AddZombie(name, -1, 6, -1);
 
         spawnedRider->m_getsUpFromLanding = true;
-
-        float newX = self->m_position.x - coord;
-        float newY = self->m_position.y;
-        float newZ = self->m_position.z + 50;
+        bool isHypnotized = hasZCondition(self, zombie_condition_hypnotized);
+        float newX = self->m_position.x - props->RiderSpawnOffset.x;
+        if (isHypnotized)
+        {
+            newX = self->m_position.x + props->RiderSpawnOffset.x;
+        }
+        float newY = self->m_position.y + props->RiderSpawnOffset.y;
+        float newZ = self->m_position.z + props->RiderSpawnOffset.z;
         SexyVector3 newCoords = SexyVector3(newX, newY, newZ);
         ZfunBoardEntitySetPosition(spawnedRider, &newCoords);
         typedef void (*ZombieThrowVirtual)(Zombie*, int, float, float, float, float, float);
@@ -282,16 +269,29 @@ void hkZombieBullVetThrowRider(Zombie* self, int a2)
 
         float targetX, targetY, targetZ;
 
-        bool isHypnotized = hasZCondition(self, zombie_condition_hypnotized);
+        
 
         if (isHypnotized) {
 
             setZCondition(spawnedRider, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
 
-            uintptr_t bullProperty = *((uintptr_t*)self + 0x24);
-            *((uintptr_t*)spawnedRider + 0x24) = bullProperty;
+            int valAtOffset36 = *(int*)((uintptr_t)self + 0x24);
+            typedef void (*func10B013C)(Zombie*, int);
+            auto* setTeamFlag = ((func10B013C)getActualOffset(0x10B013C));
+            setTeamFlag(spawnedRider, valAtOffset36);
+            LOGI("Clear 1");
+            typedef void* (*GetHypnoDataFunc)(Zombie*);
+            GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
 
-            targetX = self->m_position.x + distance;
+            void* hypnoData = funGetHypnoData(self);
+            LOGI("Clear 2");
+            typedef void (*ApplyHypnoDataFunc)(Zombie*, void*);
+            ApplyHypnoDataFunc funApplyHypnoData = (ApplyHypnoDataFunc)getActualOffset(0xC41290);
+
+            funApplyHypnoData(spawnedRider, hypnoData);
+            LOGI("Clear 3");
+
+            targetX = newX + distance;
             targetY = self->m_position.y;
             targetZ = self->m_position.z;
 
@@ -301,7 +301,7 @@ void hkZombieBullVetThrowRider(Zombie* self, int a2)
             }
         }
         else {
-            targetX = self->m_position.x - distance;
+            targetX = newX - distance;
             targetY = self->m_position.y;
             targetZ = self->m_position.z;
 
@@ -331,7 +331,7 @@ void hkZombieCavalryThrowRider(Zombie* self, int a2)
 
     SexyString name = props->RiderType;
     float distance = props->LaunchDistance;
-    float coord = props->LaunchOffsetX;
+
     
 
     if (name.empty()) {
@@ -352,9 +352,14 @@ void hkZombieCavalryThrowRider(Zombie* self, int a2)
             setZCondition(spawnedRider, zombie_condition_shrunken, 0, 3.4028e38f, 0.0f);
         }
 
-        float newX = self->m_position.x - coord;
-        float newY = self->m_position.y;
-        float newZ = self->m_position.z + 50;
+        bool isHypnotized = hasZCondition(self, zombie_condition_hypnotized);
+        float newX = self->m_position.x - props->RiderSpawnOffset.x;
+        if (isHypnotized)
+        {
+            newX = self->m_position.x + props->RiderSpawnOffset.x;
+        }
+        float newY = self->m_position.y + props->RiderSpawnOffset.y;
+        float newZ = self->m_position.z + props->RiderSpawnOffset.z;
         SexyVector3 newCoords = SexyVector3(newX, newY, newZ);
         ZfunBoardEntitySetPosition(spawnedRider, &newCoords);
         typedef void (*ZombieThrowVirtual)(Zombie*, int, float, float, float, float, float);
@@ -363,16 +368,28 @@ void hkZombieCavalryThrowRider(Zombie* self, int a2)
 
         float targetX, targetY, targetZ;
 
-        bool isHypnotized = hasZCondition(self, zombie_condition_hypnotized);
 
         if (isHypnotized) {
 
             setZCondition(spawnedRider, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
 
-            uintptr_t bullProperty = *((uintptr_t*)self + 0x24);
-            *((uintptr_t*)spawnedRider + 0x24) = bullProperty;
+            int valAtOffset36 = *(int*)((uintptr_t)self + 0x24);
+            typedef void (*func10B013C)(Zombie*, int);
+            auto* setTeamFlag = ((func10B013C)getActualOffset(0x10B013C));
+            setTeamFlag(spawnedRider, valAtOffset36);
+            LOGI("Clear 1");
+            typedef void* (*GetHypnoDataFunc)(Zombie*);
+            GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
 
-            targetX = self->m_position.x + distance;
+            void* hypnoData = funGetHypnoData(self);
+            LOGI("Clear 2");
+            typedef void (*ApplyHypnoDataFunc)(Zombie*, void*);
+            ApplyHypnoDataFunc funApplyHypnoData = (ApplyHypnoDataFunc)getActualOffset(0xC41290);
+
+            funApplyHypnoData(spawnedRider, hypnoData);
+            LOGI("Clear 3");
+
+            targetX = newX + distance;
             targetY = self->m_position.y;
             targetZ = self->m_position.z;
 
@@ -382,7 +399,7 @@ void hkZombieCavalryThrowRider(Zombie* self, int a2)
             }
         }
         else {
-            targetX = self->m_position.x - distance;
+            targetX = newX - distance;
             targetY = self->m_position.y;
             targetZ = self->m_position.z;
 

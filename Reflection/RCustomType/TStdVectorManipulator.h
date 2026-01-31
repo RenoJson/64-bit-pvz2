@@ -1,121 +1,127 @@
-#pragma once
+﻿#pragma once
 #include "Sexy/RtWeakPtr.h"
 #include "Reflection/RType.h"
 
-namespace Reflection::RCustomType
+
+#define OFFSET_REFLECTION_RCUSTOMTYPE_TSTDVECTORMANIPULATOR_FUNC2 0x5B2440
+#define OFFSET_REFLECTION_RCUSTOMTYPE_TSTDVECTORMANIPULATOR_FUNC3 0x14F8794
+
+namespace Reflection
 {
-	struct UnkStruct
+	namespace RCustomType
 	{
-	public:
+        struct UnkStruct
+        {
+        public:
+            int64_t unk1;
+            int64_t unk2;
+            int64_t unk3;
+            int64_t unk4;
+            Sexy::RtWeakPtr<void>* weakPtrPtr;
+        };
 
-		int m_unk1;
-		int m_unk2;
-		int m_unk3;
-		int m_unk4;
-		Sexy::RtWeakPtr<void>* m_weakPtrPtr;
-		uintptr_t** m_stackPtr;
-		uintptr_t** m_stackEnd;
-	};
-
-	struct VectorManipulatorStruct
-	{
-	public:
-		UnkStruct* m_unkPtr;
-		void* m_unkPtr2;
-		bool m_unkBool;
-	};
-
-	template <typename T>
-	class TStdVectorManipulator
-	{
-	public:
-		using GenericVector = std::vector<T>;
-
-		virtual void NullSub() {};
-
-		void DestroyEffect(void* a1)
+        struct VectorManipulatorStruct
+        {
+        public:
+            UnkStruct* unkPtr;
+            void* unkPtr2;
+            bool unkBool;
+        };
+		template <typename T>
+		class TStdVectorManipulator
 		{
-			operator delete(a1);
-		}
+		public:
+           
+			using GenericVector = std::vector<T>;
 
-		bool Edit(GenericVector* vector, VectorManipulatorStruct* manipInfo, Sexy::RtWeakPtr<void>* unkWeakPtr, RType* reflectionType)
-		{
+			virtual void NullSub() {};
 
-			if (manipInfo->m_unkBool)
+			virtual void DestroyEffect(void* a1) {
+				operator delete(a1);
+			};
+
+			virtual bool Edit(GenericVector* vector,VectorManipulatorStruct* manipInfo,Sexy::RtWeakPtr<void>* unkWeakPtr,RType* reflectionType)
 			{
-				UnkStruct* unkPtr = manipInfo->m_unkPtr;
+                if (manipInfo->unkBool)
+                {
+                    typedef void* (*Func5B2AA4)(UnkStruct*, Sexy::RtWeakPtr<void>*);
+                    Func5B2AA4 resolveObj = (Func5B2AA4)getActualOffset(0x5B2AA4);
+                    void* resolvedObject = resolveObj(manipInfo->unkPtr, unkWeakPtr);
 
-				typedef uintptr_t (*FuncCheck)(UnkStruct*, Sexy::RtWeakPtr<void>*);
-				FuncCheck pFuncCheck = (FuncCheck)getActualOffset(0x5B2AA4);
-				uintptr_t checkResult = pFuncCheck(unkPtr, unkWeakPtr);
+                    typedef bool (*Func14FEDCC)(UnkStruct*, void*);
+                    Func14FEDCC pFunc = (Func14FEDCC)getActualOffset(0x14FEDCC);
 
-				if (checkResult)
+                        if (pFunc(manipInfo->unkPtr, resolvedObject))
+                        {
+                            void** currentStackTop = (void**)manipInfo->unkPtr->unk4;
+                            if (currentStackTop >= (void**)manipInfo->unkPtr->weakPtrPtr)
+                            {
+                                typedef void (*Func5B2BB0)(void*, void**);
+                                Func5B2BB0 gFunc = (Func5B2BB0)getActualOffset(0x5B2BB0);
+                                gFunc((void*)&manipInfo->unkPtr->unk3, &resolvedObject);
+                            }
+                            else
+                            {
+                                *currentStackTop = resolvedObject;
+                                manipInfo->unkPtr->weakPtrPtr++;
+                            }
+                            typedef int(*GetSizeFunc)(UnkStruct*, void*);
+                            GetSizeFunc getSize = (GetSizeFunc)getActualOffset(0x14FEE04);
+                            int vecSize = getSize(manipInfo->unkPtr, resolvedObject);
+
+                            LOGI("Vector Size from file: %lld", vecSize);
+
+                            if (vecSize > 0)
+                            {
+                                vector->resize(vecSize);
+
+                                for (int i = 0; i < vecSize; i++)
+                                {
+                                    T* element = &vector->at(i);
+                                    SexyString str;
+                                    reflectionType->Function11(element, manipInfo, str);
+                                    SexyString* val = (SexyString*)element;
+                                    SexyString* val1 = &str;
+                                    LOGI("Element [%lld]: '%s'", i, val->c_str());
+                                    LOGI("Element [%lld]: '%s'", i, val1->c_str());
+                                }
+                            }
+                            manipInfo->unkPtr->weakPtrPtr--;
+                            return true;
+                        }
+                        return false;
+                }
+				else
 				{
-					typedef bool (*FuncVerify)(UnkStruct*, uintptr_t);
-					FuncVerify pFuncVerify = (FuncVerify)getActualOffset(0x14FEDCC);
+					int64_t** v19 = *(int64_t***)(manipInfo + 8);
+					typedef void (*sub254104)(int64_t**, Sexy::RtWeakPtr<void>*, int, char);
+					((sub254104)getActualOffset(OFFSET_REFLECTION_RCUSTOMTYPE_TSTDVECTORMANIPULATOR_FUNC2))(v19, unkWeakPtr, vector->size(), 0xFD);
 
-					if (pFuncVerify(unkPtr, checkResult))
-					{
-						if (unkPtr->m_stackPtr >= unkPtr->m_stackEnd)
-						{
-							typedef void (*FuncPush)(void*, uintptr_t*);
-							((FuncPush)getActualOffset(0x5B2BB0))(&unkPtr->m_weakPtrPtr, &checkResult);
+					if (!vector->empty()) {
+						for (size_t i = 0; i < vector->size(); ++i) {
+							T* element = &vector->at(i);
+							SexyString str;
+							reflectionType->Function11(element, manipInfo, str);
 						}
-						else
-						{
-							*unkPtr->m_stackPtr = (uintptr_t*)checkResult;
-							unkPtr->m_stackPtr++;
-						}
-
-						typedef uintptr_t(*FuncGetSize)(UnkStruct*, uintptr_t);
-						uintptr_t vecSize = ((FuncGetSize)getActualOffset(0x14FEE04))(unkPtr, checkResult);
-
-						if (vecSize > 0)
-						{
-							vector->resize(vecSize);
-
-							for (int i = 0; i < vecSize; i++)
-							{
-								auto* element = &vector->at(i);
-								SexyString str;
-								reflectionType->Function11(element, manipInfo, str);
-							}
-						}
-
-						unkPtr->m_stackPtr--;
-						return true;
 					}
-					return false;
+
+					int64_t* v17 = *v19;
+					v19[2] = (int64_t*)((char*)v19[2] - 1);
+
+					uint8_t v21 = 254;
+					typedef int (*sub10E5340)(int64_t*, uint8_t*, int);
+					((sub10E5340)getActualOffset(OFFSET_REFLECTION_RCUSTOMTYPE_TSTDVECTORMANIPULATOR_FUNC3))(v17, &v21, 1);
+
+					return true;
+
+					LOGI("[ Reflection::RCustomType::TStdVectorManipulator::Edit ] [ Panic! Need to edit vector but manipInfo->unkBool is false ]");
 				}
-				return false;
 			}
-			else
+
+			virtual int GetSize(GenericVector* vector)
 			{
-				typedef void (*sub5B2440)(void*, Sexy::RtWeakPtr<void>*, int, int);
-				((sub5B2440)getActualOffset(0x5B2440))(manipInfo->m_unkPtr2, unkWeakPtr, vector->size(), 253);
-
-				if (!vector->empty()) {
-					for (int i = 0; i < vector->size(); ++i) {
-						auto* element = &vector->at(i);
-						SexyString str;
-						reflectionType->Function11(element, manipInfo, str);
-					}
-				}
-				uintptr_t* refCount = (uintptr_t*)((char*)manipInfo->m_unkPtr2 + 16);
-				(*refCount)--;
-
-				void* objPtr = *(void**)manipInfo->m_unkPtr2;
-				uint8_t v21 = 254;
-
-				typedef uintptr_t(*sub14F8794)(void*, uint8_t*, int);
-				((sub14F8794)getActualOffset(0x14F8794))(objPtr, &v21, 1);
-
-				return true;
+				return vector->size();
 			}
-		}
-		uintptr_t GetSize(GenericVector* vector)
-		{
-			return vector->size();
-		}
-	};
+		};
+	}
 }

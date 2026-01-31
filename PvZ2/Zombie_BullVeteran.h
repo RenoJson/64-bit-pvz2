@@ -27,10 +27,11 @@ public:
 	{
 		oZombieBullVeteranPropsBuildSymbols(builder, rclass);
 		RT_CLASS_REGISTER_STRING_PROPERTY(ZombieBullVeteranProps, VetRiderType);
+		RT_CLASS_REGISTER_STRING_VECTOR_PROPERTY(ZombieBullVeteranProps, RiderLayersToHide);
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullVeteranProps, LaunchDistance);
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullVeteranProps, LaunchHeight);
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullVeteranProps, LaunchAirTime);
-		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullVeteranProps, LayerListType);
+		RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieBullVeteranProps, SexyVector3, RiderSpawnOffset);
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullVeteranProps, isCavalry);
 	};
 }; 
