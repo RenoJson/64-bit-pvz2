@@ -92,12 +92,12 @@ inline Reflection::ReflectionFieldType GetPropertyType()
 
 // Registers a SexyString class property. ONLY use with SexyString, not any other type of string.
 #define RT_CLASS_REGISTER_STRING_PROPERTY(className, name) \
-    void* prop_##name = (builder)->GetPropertyOfType(Reflection::Type_Char, sizeof(SexyChar)); \
+    void* prop_##name = (builder)->GetPropertyOfType(Reflection::Type_Char, sizeof(char)); \
     void* regProp_##name = (builder)->RegisterPointerProperty(0, prop_##name, NULL); \
     (builder)->RegisterProperty(rclass, #name, offsetof(className, name), regProp_##name); \
 
 #define RT_CLASS_REGISTER_STRING_VECTOR_PROPERTY(className, name) \
-    void* prop_##name = (builder)->GetPropertyOfType(Reflection::Type_Char, sizeof(SexyChar)); \
+    void* prop_##name = (builder)->GetPropertyOfType(Reflection::Type_Char, sizeof(char)); \
     Reflection::RCustomType::TStdVectorManipulator<SexyString>* manip_##name = new Reflection::RCustomType::TStdVectorManipulator<SexyString>(); \
     void* strProp_##name = (builder)->RegisterPointerProperty(0, prop_##name, NULL); \
     void* regProp_##name = (builder)->RegisterPointerProperty(2, strProp_##name, manip_##name); \

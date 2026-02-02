@@ -1,35 +1,21 @@
 ﻿#include "Zombie_BullProps.h"
 #include "Zombie_BullVeteran.h"
-#include "ZombieDarkCavalry.h"
-#include "ZombieCavalryProps.h"
 #include "PvZ2/Zombie.h"
 #include "ZombieConditions.h"
 #include <atomic>
 #include <mutex>
 #include <assert.h>
 #include <pch.h>
-#include "GridItem.h"
 #include "AddZombieType.h"
 #include "ZombieImp.h"
-
-
-
 using namespace Sexy;
 
 #pragma region Hide Custom Rider Layer 
 typedef void(*zombieBullHideLayer)(Zombie*, uintptr_t);
 zombieBullHideLayer oZombieBullHideLayer = nullptr;
 void HideCustomRiderLayer(Zombie* self, uintptr_t animRig) {
-    // [LOG] Bắt đầu hàm
-    LOGI("[HideCustomRiderLayer] Function called for Zombie: %p, AnimRig: 0x%X", self, animRig);
 
     auto* props = reinterpret_cast<ZombieBullProps*>(self->m_propertySheet.Get());
-
-    // [LOG] Kiểm tra Property Sheet
-    if (!props) {
-        LOGI("[HideCustomRiderLayer] Error: PropertySheet is NULL!");
-        return;
-    }
 
     std::vector<SexyString> HardcodedLayer = {
          "zombie_cowboy_hat_back",
@@ -59,48 +45,24 @@ void HideCustomRiderLayer(Zombie* self, uintptr_t animRig) {
          "_zombie_imp_head_top"
     };
 
-    typedef int (*setLayerVisibleFunc)(uintptr_t, SexyString*, bool);
+    typedef int64_t (*setLayerVisibleFunc)(uintptr_t, SexyString*, bool);
     setLayerVisibleFunc setLayerVisible = (setLayerVisibleFunc)getActualOffset(0x9DB8D0);
 
-    // [LOG] Kiểm tra hàm setLayerVisible
-    if (!setLayerVisible) {
-        LOGI("[HideCustomRiderLayer] Error: Failed to get setLayerVisible function address!");
-        return;
-    }
-
     size_t customLayersCount = props->RiderLayersToHide.size();
-    LOGI("[HideCustomRiderLayer] Found %zu layers in props->RiderLayersToHide", customLayersCount);
-
     if (!props->RiderLayersToHide.empty()) {
-        // --- NHÁNH 1: DÙNG LIST TỪ FILE JSON/PROPS ---
-        LOGI("[HideCustomRiderLayer] Using CUSTOM list from Props.");
-
         for (size_t i = 0; i < customLayersCount; i++) {
             const auto& layerStr = props->RiderLayersToHide[i];
             SexyString layerName(layerStr);
-
-            // [LOG] In tên layer đang ẩn
-            LOGI("[HideCustomRiderLayer] [Custom] Hiding layer [%zu]: %s", i, layerName.c_str());
-
             setLayerVisible(animRig, &layerName, false);
         }
     }
     else {
-        // --- NHÁNH 2: DÙNG LIST HARDCODED (FALLBACK) ---
-        LOGW("[HideCustomRiderLayer] Custom list empty. Using HARDCODED list.");
-
         for (size_t i = 0; i < HardcodedLayer.size(); i++) {
             const auto& layerStr = HardcodedLayer[i];
             SexyString layerName(layerStr);
-
-            // [LOG] In tên layer đang ẩn
-            LOGI("[HideCustomRiderLayer] [Hardcoded] Hiding layer [%zu]: %s", i, layerName.c_str());
-
             setLayerVisible(animRig, &layerName, false);
         }
     }
-
-    LOGI("[HideCustomRiderLayer] Finished.");
 }
 #pragma endregion
 
