@@ -10,6 +10,7 @@
 #include "ZcorpRacerZombie.h"
 #include "AddZombieType.h"
 #include "ZombiePirateBoomBarrel.h"
+#include "ZombieDarkCavalryRider.h"
 
 Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc ZombieZcorpRacerProps::oZombieZcorpRacerPropsBuildSymbols = nullptr;
 
@@ -43,13 +44,8 @@ void hkZombieChairThrowRacer(Zombie * self, int a2)
 
     if (!hasThrown) {
 
-
-        typedef uintptr_t(*getChairRacerZombieAnimRig)(Zombie*);
-        uintptr_t animRig = ((getChairRacerZombieAnimRig)getActualOffset(0xBEFD4C))(self);
-
         float tileDistance = props->LaunchZombieDistance;
 
-        
         ZombieImp* spawnedRider = (ZombieImp*)AddZombie(racerType, -1, 6, -1);
 
         spawnedRider->m_getsUpFromLanding = true;
@@ -81,18 +77,14 @@ void hkZombieChairThrowRacer(Zombie * self, int a2)
             typedef void (*func10B013C)(Zombie*, int);
             auto* setTeamFlag = ((func10B013C)getActualOffset(0x10B013C));
             setTeamFlag(spawnedRider, valAtOffset36);
-            LOGI("Clear 1");
             typedef void* (*GetHypnoDataFunc)(Zombie*);
             GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
 
             void* hypnoData = funGetHypnoData(self);
-            LOGI("Clear 2");
             typedef void (*ApplyHypnoDataFunc)(Zombie*, void*);
             ApplyHypnoDataFunc funApplyHypnoData = (ApplyHypnoDataFunc)getActualOffset(0xC41290);
 
             funApplyHypnoData(spawnedRider, hypnoData);
-            LOGI("Clear 3");
-
             targetX = launchDistance + currentX;
             if (targetX > 776.0f) {
                 targetX = 776.0f;
@@ -168,14 +160,16 @@ bool hkAddZombieToAudioGroup(Zombie* imp)
     uintptr_t* vtable = *reinterpret_cast<uintptr_t**>(imp);
     bool isZombieRacer = (vtable == reinterpret_cast<uintptr_t*>(getActualOffset(0x2415298)));
     bool isPirateBomber = (vtable == ZombiePirateBoomBarrel::vftable);
+    bool isCavalryRider = (vtable == ZombieDarkCavalryRider::vftable);
     return !IsInState(imp, 16)
         && !IsInState(imp, 19)
         && !isDead(imp)
         && !IsInState(imp, -1)
         && !hasCondition(imp, 31) // these three are the imp stuck in GI
-        && !hasCondition(imp, 34)
+        && !hasCondition(imp, 34) // or they are calling function 199 of zombie imp class
         && !hasCondition(imp, 60)
-        && !isZombieRacer
+        && !imp->IsType(ZombieZcorpRacerZombie::StaticGetType())
+        && !isCavalryRider
         && !isPirateBomber;
 }
 #pragma endregion

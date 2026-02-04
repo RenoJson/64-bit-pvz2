@@ -92,6 +92,8 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_JourneyToTheWestGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombiePirateBoomBarrel.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_PirateBoomBarrel.cpp" />
+    <ClCompile Include="PvZ2\ZombieDarkCavalryRider.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_DarkRider.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -126,5 +128,9 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_Basic.h" />
     <ClInclude Include="PvZ2\ZombiePirateBoomBarrel.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Imp.h" />
+    <ClInclude Include="PvZ2\ZombieDarkCavalryRider.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_DarkRider.h" />
+    <ClInclude Include="PvZ2\DangerRoomLevelDesigner.h" />
+    <ClInclude Include="PvZ2\WaveActionProperties.h" />
   </ItemGroup>
 </Project>

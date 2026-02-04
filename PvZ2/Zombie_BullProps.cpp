@@ -101,9 +101,8 @@ void hkZombieBullThrowRider(Zombie* self, int a2)
     float distance;
     float launchApex;
     float launchTime;
-
-        name = props->RiderType;
-        distance = props->LaunchDistance;
+    name = props->RiderType;
+    distance = props->LaunchDistance;
         
     // we won't need to use RiderType anymore if the zombie spawn from the bull is wild west imp
     if (name.empty()) {
@@ -145,18 +144,14 @@ void hkZombieBullThrowRider(Zombie* self, int a2)
             typedef void (*func10B013C)(Zombie*, int);
             auto* setTeamFlag = ((func10B013C)getActualOffset(0x10B013C));
             setTeamFlag(spawnedRider, valAtOffset36);
-            LOGI("Clear 1");
             typedef void* (*GetHypnoDataFunc)(Zombie*);
             GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
 
             void* hypnoData = funGetHypnoData(self);
-            LOGI("Clear 2");
             typedef void (*ApplyHypnoDataFunc)(Zombie*, void*);
             ApplyHypnoDataFunc funApplyHypnoData = (ApplyHypnoDataFunc)getActualOffset(0xC41290);
 
             funApplyHypnoData(spawnedRider, hypnoData);
-            LOGI("Clear 3");
-
             targetX = newX + distance;
             targetY = self->m_position.y;
             targetZ = self->m_position.z;
@@ -223,15 +218,16 @@ void hkZombieBullVetThrowRider(Zombie* self, int a2)
         }
         float newY = self->m_position.y + props->RiderSpawnOffset.y;
         float newZ = self->m_position.z + props->RiderSpawnOffset.z;
+
         SexyVector3 newCoords = SexyVector3(newX, newY, newZ);
         ZfunBoardEntitySetPosition(spawnedRider, &newCoords);
+
         typedef void (*ZombieThrowVirtual)(Zombie*, int, float, float, float, float, float);
         uintptr_t* vtable = *(uintptr_t**)spawnedRider;
+
         ZombieThrowVirtual virtualThrow = (ZombieThrowVirtual)(vtable[206]);
 
         float targetX, targetY, targetZ;
-
-        
 
         if (isHypnotized) {
 
@@ -241,17 +237,14 @@ void hkZombieBullVetThrowRider(Zombie* self, int a2)
             typedef void (*func10B013C)(Zombie*, int);
             auto* setTeamFlag = ((func10B013C)getActualOffset(0x10B013C));
             setTeamFlag(spawnedRider, valAtOffset36);
-            LOGI("Clear 1");
             typedef void* (*GetHypnoDataFunc)(Zombie*);
             GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
 
             void* hypnoData = funGetHypnoData(self);
-            LOGI("Clear 2");
             typedef void (*ApplyHypnoDataFunc)(Zombie*, void*);
             ApplyHypnoDataFunc funApplyHypnoData = (ApplyHypnoDataFunc)getActualOffset(0xC41290);
 
             funApplyHypnoData(spawnedRider, hypnoData);
-            LOGI("Clear 3");
 
             targetX = newX + distance;
             targetY = self->m_position.y;
@@ -271,13 +264,9 @@ void hkZombieBullVetThrowRider(Zombie* self, int a2)
                 targetX = 232.0f;
             }
         }
-
-        // Tham số thứ 5 trong hàm ảo là apex/height
-        // Tham số thứ 6 trong hàm ảo là thời gian
         float launchApex = props->LaunchHeight;
         float launchTime = props->LaunchAirTime;
         virtualThrow(spawnedRider, 0, targetX, targetY, targetZ, launchTime, launchApex);
-        LOGI("Done");
         // this one is prevent veteran bull throw further imp
         *(bool*)((uintptr_t)self + 0x448) = true;
     }
@@ -339,17 +328,106 @@ void hkZombieCavalryThrowRider(Zombie* self, int a2)
             typedef void (*func10B013C)(Zombie*, int);
             auto* setTeamFlag = ((func10B013C)getActualOffset(0x10B013C));
             setTeamFlag(spawnedRider, valAtOffset36);
-            LOGI("Clear 1");
             typedef void* (*GetHypnoDataFunc)(Zombie*);
             GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
 
             void* hypnoData = funGetHypnoData(self);
-            LOGI("Clear 2");
             typedef void (*ApplyHypnoDataFunc)(Zombie*, void*);
             ApplyHypnoDataFunc funApplyHypnoData = (ApplyHypnoDataFunc)getActualOffset(0xC41290);
 
             funApplyHypnoData(spawnedRider, hypnoData);
-            LOGI("Clear 3");
+
+            targetX = newX + distance;
+            targetY = self->m_position.y;
+            targetZ = self->m_position.z;
+
+            if (targetX > 776.0f) {
+
+                targetX = 776.0f;
+            }
+        }
+        else {
+            targetX = newX - distance;
+            targetY = self->m_position.y;
+            targetZ = self->m_position.z;
+
+            if (targetX < 232.0f) {
+                targetX = 232.0f;
+            }
+        }
+        float launchApex = props->LaunchHeight;
+        float launchTime = props->LaunchAirTime;
+        virtualThrow(spawnedRider, 0, targetX, targetY, targetZ, launchTime, launchApex);
+        // this one is prevent veteran bull throw further imp
+        *(bool*)((uintptr_t)self + 0x448) = true;
+    }
+    else {
+        LOGI("Already shrinking, shrunken or being thrown");
+    }
+}
+//Vet Cavalry class
+void hkZombieVetCavalryThrowRider(Zombie* self, int a2)
+{
+    auto* props = reinterpret_cast<ZombieBullVeteranProps*>(self->m_propertySheet.Get());
+
+
+    SexyString name = props->VetRiderType;
+    float distance = props->LaunchDistance;
+
+
+
+    if (name.empty()) {
+        name = "dark_cavalry_rider";
+    }
+
+    bool isShrinking = hasZCondition(self, zombie_condition_shrinking);
+    bool isShrunken = hasZCondition(self, zombie_condition_shrunken);
+
+    if (!*(bool*)((uintptr_t)self + 0x448))
+    {
+        uintptr_t getBullRiderAnimRig = sub_736DE4(self);
+        HideCustomRiderLayer(self, getBullRiderAnimRig);
+
+        Zombie* spawnedRider = AddZombie(name, -1, 6, -1);
+
+        if (hasZCondition(self, zombie_condition_shrinking) || hasZCondition(self, zombie_condition_shrunken)) {
+
+            setZCondition(spawnedRider, zombie_condition_shrunken, 0, 3.4028e38f, 0.0f);
+        }
+
+        bool isHypnotized = hasZCondition(self, zombie_condition_hypnotized);
+        float newX = self->m_position.x - props->RiderSpawnOffset.x;
+        if (isHypnotized)
+        {
+            newX = self->m_position.x + props->RiderSpawnOffset.x;
+        }
+        float newY = self->m_position.y + props->RiderSpawnOffset.y;
+        float newZ = self->m_position.z + props->RiderSpawnOffset.z;
+        SexyVector3 newCoords = SexyVector3(newX, newY, newZ);
+        ZfunBoardEntitySetPosition(spawnedRider, &newCoords);
+        typedef void (*ZombieThrowVirtual)(Zombie*, int, float, float, float, float, float);
+        uintptr_t* vtable = *(uintptr_t**)spawnedRider;
+        ZombieThrowVirtual virtualThrow = (ZombieThrowVirtual)(vtable[206]);
+
+        float targetX, targetY, targetZ;
+
+
+        if (isHypnotized) {
+
+            setZCondition(spawnedRider, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
+
+            int valAtOffset36 = *(int*)((uintptr_t)self + 0x24);
+            typedef void (*func10B013C)(Zombie*, int);
+            auto* setTeamFlag = ((func10B013C)getActualOffset(0x10B013C));
+            setTeamFlag(spawnedRider, valAtOffset36);
+            typedef void* (*GetHypnoDataFunc)(Zombie*);
+            GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
+
+            void* hypnoData = funGetHypnoData(self);
+            typedef void (*ApplyHypnoDataFunc)(Zombie*, void*);
+            ApplyHypnoDataFunc funApplyHypnoData = (ApplyHypnoDataFunc)getActualOffset(0xC41290);
+
+            funApplyHypnoData(spawnedRider, hypnoData);
 
             targetX = newX + distance;
             targetY = self->m_position.y;
@@ -381,9 +459,6 @@ void hkZombieCavalryThrowRider(Zombie* self, int a2)
 }
 void hkBullThrowRoute(Zombie* self, int a2) {
     auto* props = reinterpret_cast<ZombieBullProps*>(self->m_propertySheet.Get());
-    if (!props) {
-        return oZombieBullThrowRider(self, a2);
-    }
 
     uintptr_t* vtable = *reinterpret_cast<uintptr_t**>(self);
     bool isBull = (vtable == reinterpret_cast<uintptr_t*>(getActualOffset(0x23DB6C8)));
@@ -397,6 +472,9 @@ void hkBullThrowRoute(Zombie* self, int a2) {
     }
     else if (isVeteran && !isCavalry) {
         return hkZombieBullVetThrowRider(self, a2);
+    }
+    else if (isVeteran && isCavalry) {
+        return hkZombieVetCavalryThrowRider(self, a2);
     }
 }
 
@@ -454,8 +532,8 @@ void hkBullFunction71(Zombie* self, int conditionID)
     if (conditionID == zombie_condition_hypnotized)
     {
         typedef void (*FuncC41290)(Zombie*, int);
-        FuncC41290 stopSound = (FuncC41290)getActualOffset(0xC41290);
-        stopSound(self, 0);
+        FuncC41290 funC41290 = (FuncC41290)getActualOffset(0xC41290);
+        funC41290(self, 0);
 
         typedef uintptr_t (*FuncC3D428)(Zombie*, int, int);
         FuncC3D428 funC3D428 = (FuncC3D428)getActualOffset(0xC3D428);

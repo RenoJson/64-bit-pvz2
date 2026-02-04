@@ -162,6 +162,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="PvZ2\ZombieAnimRig_Consultant.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_DarkRider.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_EightiesPunk.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_Gargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_JourneyToTheWestGargantuar.cpp" />
@@ -170,6 +171,7 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_PirateBoomBarrel.cpp" />
     <ClCompile Include="PvZ2\ZombieCavalryProps.cpp" />
     <ClCompile Include="PvZ2\ZombieDarkCavalry.cpp" />
+    <ClCompile Include="PvZ2\ZombieDarkCavalryRider.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleImp.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleImpProps.cpp" />
@@ -197,6 +199,7 @@
     <ClInclude Include="PvZ2\Chairracer.h" />
     <ClInclude Include="PvZ2\Collectable.h" />
     <ClInclude Include="PvZ2\DamageInfo.h" />
+    <ClInclude Include="PvZ2\DangerRoomLevelDesigner.h" />
     <ClInclude Include="PvZ2\Effect_PopAnim.h" />
     <ClInclude Include="PvZ2\EntityConditionTracker.h" />
     <ClInclude Include="PvZ2\GameFeature.h" />
@@ -231,6 +234,7 @@
     <ClInclude Include="PvZ2\ZombieAnimRig.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Basic.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Consultant.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_DarkRider.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_EightiesPunk.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Gargantuar.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Hunter.h" />
@@ -241,6 +245,7 @@
     <ClInclude Include="PvZ2\ZombieCavalryProps.h" />
     <ClInclude Include="PvZ2\ZombieConditions.h" />
     <ClInclude Include="PvZ2\ZombieDarkCavalry.h" />
+    <ClInclude Include="PvZ2\ZombieDarkCavalryRider.h" />
     <ClInclude Include="PvZ2\ZombieDinoBasic.h" />
     <ClInclude Include="PvZ2\ZombieEvent.h" />
     <ClInclude Include="PvZ2\ZombieFairyTaleGargantuar.h" />
@@ -253,6 +258,7 @@
     <ClInclude Include="PvZ2\ZombieLostCityBug.h" />
     <ClInclude Include="PvZ2\ZombiePirateBoomBarrel.h" />
     <ClInclude Include="PvZ2\ZombieParticle.h" />
+    <ClInclude Include="PvZ2\WaveActionProperties.h" />
     <ClInclude Include="PvZ2\ZombieState.h" />
     <ClInclude Include="PvZ2\ZombieWesternKongMingLantern.h" />
     <ClInclude Include="PvZ2\ZombieWesternTudigong.h" />

@@ -1,3 +1,4 @@
+#pragma once
 #include "ZombieAnimRig_Basic.h"
 #include <Reflection/ReflectionBuilder.h>
 #include "Zombie.h"

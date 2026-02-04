@@ -32,6 +32,8 @@
 #include <PvZ2/ZombieAnimRig_Basic.h>
 #include <PvZ2/ZombiePirateBoomBarrel.h>
 #include <PvZ2/ZombieAnimRig_Imp.h>
+#include <PvZ2/ZombieAnimRig_DarkRider.h>
+#include <PvZ2/ZombieDarkCavalryRider.h>
 
 
 // usually using int64_t when hooking on 64 bit architecture, but i'm prefer uintptr_t since it's more flexible and less buggy

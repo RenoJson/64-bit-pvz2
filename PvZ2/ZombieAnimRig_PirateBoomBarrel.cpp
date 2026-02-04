@@ -16,6 +16,9 @@ void* hkInitPirateBoomBarrelLowerArmList() {
 
     static std::vector<SexyString> pirateBoomBarrelLowerArmList = {
         "zombie_hand_outer",
+        "zombie_hand_outer_01",
+        "zombie_hand_outer_02",
+        "zombie_hand_outer_03",
         "zombie_arm_outer_lower"
     };
     return &pirateBoomBarrelLowerArmList;
