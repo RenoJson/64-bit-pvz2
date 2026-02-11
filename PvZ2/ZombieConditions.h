@@ -50,7 +50,7 @@ enum ZombieConditions
 	zombie_condition_shrunken = 44,
 	zombie_condition_poisoned = 45,
 	zombie_condition_contagiouspoison = 46,
-	zombie_condition_decayposion = 47,
+	zombie_condition_decaypoison = 47,
 	zombie_condition_bloomingheartdebuff = 48,
 	zombie_condition_hotdateattraction = 49,
 	zombie_condition_solarflared = 50,
@@ -67,6 +67,12 @@ enum ZombieConditions
 	zombie_condition_stickybombed = 61,
 	zombie_condition_petrified = 62,
 	zombie_condition_invisibleslow = 63,
+	zombie_condition_concealmintdamagescale = 64,
+	zombie_condition_poweredconcealmintdamagescalepowered = 65,
+	zombie_condition_corpseexplosion = 66,
+	zombie_condition_blockolistunned = 67,
+	zombie_condition_bramblebushstunned = 68,
+	zombie_condition_bramblebushgrabbed = 69,
 };
 
 enum ZombieConditionFlags
@@ -136,6 +142,12 @@ enum ZombieConditionFlags
 	zombie_condition_flag_stickybombed = 1ULL << 61,
 	zombie_condition_flag_petrified = 1ULL << 62,
 	zombie_condition_flag_invisibleslow = 1ULL << 63,
+	zombie_condition_flag_concealmintdamagescale = 1ULL << 64,
+	zombie_condition_flag_poweredconcealmintdamagescalepowered = 1ULL << 65,
+	zombie_condition_flag_corpseexplosion = 1ULL << 66,
+	zombie_condition_flag_blockolistunned = 1ULL << 67,
+	zombie_condition_flag_bramblebushstunned = 1ULL << 68,
+	zombie_condition_flag_bramblebushgrabbed = 1ULL << 69,
 };
 
 class ZombieConditionEntry

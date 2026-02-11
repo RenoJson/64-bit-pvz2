@@ -151,6 +151,6 @@ class PVZDB
 public:
     static PVZDB* GetInstance()
     {
-        return *(PVZDB**)GetActualOffset(0x256A0D8);
+        return *(PVZDB**)getActualOffset(0x256A0D8);
     }
 };

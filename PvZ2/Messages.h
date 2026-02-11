@@ -30,6 +30,6 @@ public:
 					return (uint64_t)SurvivalLevelEndedMsg;
 			}
 		}
-		return GetActualOffset((uint64_t)id);
+		return getActualOffset((uint64_t)id);
 	}
 };

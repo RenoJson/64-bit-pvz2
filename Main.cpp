@@ -34,6 +34,11 @@
 #include <PvZ2/ZombieAnimRig_Imp.h>
 #include <PvZ2/ZombieAnimRig_DarkRider.h>
 #include <PvZ2/ZombieDarkCavalryRider.h>
+#include <PvZ2/DangerRoomLevelDesigner.h>
+#include <PvZ2/ZombieModifierModule.h>
+#include <PvZ2/ZombieModernBalloon.h>
+#include <PvZ2/ZombieAnimRig_ModernBalloon.h>
+#include <PvZ2/ZombieJourneyToTheWestBalloonProps.h>
 
 
 // usually using int64_t when hooking on 64 bit architecture, but i'm prefer uintptr_t since it's more flexible and less buggy
@@ -123,4 +128,10 @@ void libChair_main()
     ZombieAnimRig_JourneyToTheWestGargantuar::modInit();
     ZombiePirateBoomBarrel::modInit();
     ZombieAnimRig_PirateBoomBarrel::modInit();
+    DangerRoomFallenKnightDesigner::modInit();
+    DangerRoomHelpdeskSupportDesigner::modInit();
+    ZombieModifierProperties::modInit();
+    ZombieAnimRig_ModernBalloon::modInit();
+    ZombieJourneyToTheWestBalloon::modInit();   
+    ZombieJourneyToTheWestBalloonProps::modInit();
 }

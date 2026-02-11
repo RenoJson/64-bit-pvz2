@@ -149,7 +149,7 @@ void* hkInitZcorpRacerUpperArmList(uintptr_t* rig) {
     }
 }
 
-bool hkAddZombieToAudioGroup(Zombie* imp)
+bool hkMuteImpSound(Zombie* imp)
 {
     typedef bool (*checkZombieHasCondition)(Zombie*, int);
     checkZombieHasCondition hasCondition = (checkZombieHasCondition)getActualOffset(0xC3E44C);
@@ -157,10 +157,6 @@ bool hkAddZombieToAudioGroup(Zombie* imp)
     isInState IsInState = (isInState)getActualOffset(0xC3E43C);
     typedef bool (*isDeadOrDying)(Zombie*);
     isDeadOrDying isDead = (isDeadOrDying)getActualOffset(0xC3E204);
-    uintptr_t* vtable = *reinterpret_cast<uintptr_t**>(imp);
-    bool isZombieRacer = (vtable == reinterpret_cast<uintptr_t*>(getActualOffset(0x2415298)));
-    bool isPirateBomber = (vtable == ZombiePirateBoomBarrel::vftable);
-    bool isCavalryRider = (vtable == ZombieDarkCavalryRider::vftable);
     return !IsInState(imp, 16)
         && !IsInState(imp, 19)
         && !isDead(imp)
@@ -169,8 +165,7 @@ bool hkAddZombieToAudioGroup(Zombie* imp)
         && !hasCondition(imp, 34) // or they are calling function 199 of zombie imp class
         && !hasCondition(imp, 60)
         && !imp->IsType(ZombieZcorpRacerZombie::StaticGetType())
-        && !isCavalryRider
-        && !isPirateBomber;
+        && !imp->IsType(ZombiePirateBoomBarrel::StaticGetType());
 }
 #pragma endregion
 
@@ -179,7 +174,7 @@ void ZombieZcorpRacerProps::modInit() {
     LOGI("init chair class");
     PVZ2HookFunction(0xBEFEE0, (void*)hkZombieChairThrowRacer, (void**)&oZombieChairThrowRacer);
     PVZ2HookFunction(0xBEEC10, (void*)ZombieZcorpRacerProps::construct, nullptr);
-    PVZ2HookFunction(0xB57128, (void*)hkAddZombieToAudioGroup, nullptr);
+    PVZ2HookFunction(0xB57128, (void*)hkMuteImpSound, nullptr);
     LOGI("init chair class complete");
     LOGI("init chair props");
     PVZ2HookFunction(0xBEED50, (void*)ZombieZcorpRacerProps::buildSymbols, (void**)&oZombieZcorpRacerPropsBuildSymbols);

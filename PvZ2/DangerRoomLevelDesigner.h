@@ -29,9 +29,17 @@ static_assert(offsetof(DangerRoomSpiderRainDesigner, MaxSpiderRainZombies) == 56
 static_assert(offsetof(DangerRoomSpiderRainDesigner, BaseSpiderRainZombiesCountPerLevel) == 60);
 static_assert(offsetof(DangerRoomSpiderRainDesigner, BaseSpiderRainStartWave) == 64);
 
+class DangerRoomParachuteRainDesigner : public DangerRoomSpiderRainDesigner
+{
+public:
+
+};
+
 class DangerRoomFallenKnightDesigner : public DangerRoomSpiderRainDesigner 
 {
 public:
+	int ColumnStart = 5;
+	int ColumnEnd = 7;
 	SexyString WaveStartMessage = "Fallen Knight!";
 	SexyString SpiderZombieName = "dark_cavalry_rider";
 
@@ -43,10 +51,38 @@ public:
 	RT_CLASS_CONSTRUCT_FUNCTION_END();
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(DangerRoomSpiderRainDesigner);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(DangerRoomFallenKnightDesigner, ColumnStart);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(DangerRoomFallenKnightDesigner, ColumnEnd);
 	RT_CLASS_REGISTER_STRING_PROPERTY(DangerRoomFallenKnightDesigner, WaveStartMessage);
 	RT_CLASS_REGISTER_STRING_PROPERTY(DangerRoomFallenKnightDesigner, SpiderZombieName);
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(DangerRoomFallenKnightDesigner);
 	RT_CLASS_GET_CLASS_FUNCTION(DangerRoomFallenKnightDesigner, 0x10B92D8);
+};
+
+class DangerRoomHelpdeskSupportDesigner : public DangerRoomParachuteRainDesigner
+{
+public:
+	int ColumnStart = 5;
+	int ColumnEnd = 7;
+	SexyString WaveStartMessage = "Helpdesk Support!";
+	SexyString SpiderZombieName = "zcorp_helpdesk";
+
+	static void* vftable;
+	static Sexy::RtClass* s_rtClass;
+	static void modInit();;
+
+	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(DangerRoomHelpdeskSupportDesigner, 0x8AE3A8);
+	RT_CLASS_CONSTRUCT_FUNCTION_END();
+
+	RT_CLASS_BUILD_SYMBOLS_BEGIN(DangerRoomParachuteRainDesigner);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(DangerRoomHelpdeskSupportDesigner, ColumnStart);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(DangerRoomHelpdeskSupportDesigner, ColumnEnd);
+	RT_CLASS_REGISTER_STRING_PROPERTY(DangerRoomHelpdeskSupportDesigner, WaveStartMessage);
+	RT_CLASS_REGISTER_STRING_PROPERTY(DangerRoomHelpdeskSupportDesigner, SpiderZombieName);
+	RT_CLASS_BUILD_SYMBOLS_END();
+
+	RT_CLASS_REGISTER_CLASS_FUNCTION(DangerRoomHelpdeskSupportDesigner);
+	RT_CLASS_GET_CLASS_FUNCTION(DangerRoomHelpdeskSupportDesigner, 0x5B2ED4);
 };

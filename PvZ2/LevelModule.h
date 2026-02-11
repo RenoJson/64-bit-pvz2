@@ -20,10 +20,9 @@ public:
 	Sexy::RtWeakPtr<void> DifficultyProps;
 	SexyString IconImage;
 	SexyString IconText;
-	char m_pad[8];
 };
 
-static_assert(sizeof(LevelModuleProperties) == 128);
+static_assert(sizeof(LevelModuleProperties) == 120);
 static_assert(offsetof(LevelModuleProperties, ResourceGroupNames) == 40);
 static_assert(offsetof(LevelModuleProperties, DifficultyProps) == 64);
 static_assert(offsetof(LevelModuleProperties, IconText) == 96);

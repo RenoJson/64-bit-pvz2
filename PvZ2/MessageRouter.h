@@ -16,7 +16,7 @@ public:
 	{
 		auto dlgt = Sexy::make_delegate(func, obj);
 		typedef void(*registerFunc)(MessageRouter*, int, void*);
-		registerFunc pFunc = (registerFunc)GetActualOffset(0x5FDA54);
+		registerFunc pFunc = (registerFunc)getActualOffset(0x5FDA54);
 		pFunc(this, msgId, &dlgt);
 	}
 
@@ -25,14 +25,14 @@ public:
 	{
 		auto dlgt = Sexy::make_delegate(func, *obj);
 		typedef void(*registerFunc)(MessageRouter*, int, void*);
-		registerFunc pFunc = (registerFunc)GetActualOffset(0x5FDA54);
+		registerFunc pFunc = (registerFunc)getActualOffset(0x5FDA54);
 		pFunc(this, msgId, &dlgt);
 	}
 
 	void DeregisterCallbacksOwnedByObject(void* obj)
 	{
 		typedef void(*deregisterFunc)(MessageRouter*, void*);
-		deregisterFunc pFunc = (deregisterFunc)GetActualOffset(0x5FDE64);
+		deregisterFunc pFunc = (deregisterFunc)getActualOffset(0x5FDE64);
 		pFunc(this, obj);
 	}
 
@@ -74,7 +74,7 @@ public:
 		if (!result)
 		{
 			typedef int(*func)(MessageRouter*);
-			func pFunc = (func)GetActualOffset(0x5FDDE0);
+			func pFunc = (func)getActualOffset(0x5FDDE0);
 			return pFunc(this);
 		}
 		return result;
@@ -82,7 +82,7 @@ public:
 
 	static MessageRouter* GetInstance()
 	{
-		return *(MessageRouter**)GetActualOffset(0x5F1AC0);
+		return *(MessageRouter**)getActualOffset(0x5F1AC0);
 	}
 private:
 	int m_unk[9];

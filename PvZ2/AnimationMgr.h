@@ -38,7 +38,7 @@ public:
 
 	void AddAnimController(AnimationController* animController, float startTime, float& endTime) {
 		typedef void (*addAnimController)(AnimationMgr*, AnimationController*, float, float*);
-		addAnimController pAddAnimController = (addAnimController)GetActualOffset(0x10328C0);
+		addAnimController pAddAnimController = (addAnimController)getActualOffset(0x10328C0);
 
 		return pAddAnimController(this, animController, startTime, &endTime);
 	}
@@ -49,17 +49,17 @@ public:
 TimeEvent* MakeTimeEvent(Sexy::RtWeakPtr<GameObject>* owner, SexyString* eventName)
 {
 	typedef TimeEvent* (*makeTimeEvent)(Sexy::RtWeakPtr<GameObject>*, SexyString*);
-	return ((makeTimeEvent)GetActualOffset(0x334F34))(owner, eventName);
+	return ((makeTimeEvent)getActualOffset(0x334F34))(owner, eventName);
 }
 
 MoveBoard* MakeMoveBoard(float duration, int startX, int endX, int startY, int endY, int curveType)
 {
 	typedef MoveBoard* (*getMoveBoard)(float, int, int, int, int, int);
-	return ((getMoveBoard)GetActualOffset(0x334ED8))(2.5, startX, endX, startY, endY, 4);
+	return ((getMoveBoard)getActualOffset(0x334ED8))(2.5, startX, endX, startY, endY, 4);
 }
 
 void GetStartXAndEndX(int type, int& startX, int& endX)
 {
 	typedef void (*getStartAndEnd)(int, int*, int*);
-	((getStartAndEnd)GetActualOffset(0x671824))(type, &startX, &endX);
+	((getStartAndEnd)getActualOffset(0x671824))(type, &startX, &endX);
 }

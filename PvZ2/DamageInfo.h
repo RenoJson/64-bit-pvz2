@@ -46,12 +46,11 @@ enum DamageTypeFlags
 	damage_no_bleed_on_death = 1ULL << 41,
 };
 
-struct __attribute__((packed)) DamageInfo
+struct DamageInfo
 {
 public:
-	DamageInfo()
+	DamageInfo() : m_attacker(0), m_damage(0.0f), m_flags((DamageTypeFlags)0)
 	{
-		memset(this, 0, sizeof(DamageInfo));
 	}
 
 	~DamageInfo()
@@ -62,8 +61,9 @@ public:
 		m_plantFamilies.clear();
 	}
 
-	int m_attacker;
+	int64_t m_attacker;
 	float m_damage;
+	char pad1[4];
 	DamageTypeFlags m_flags;
 	std::vector<ZombieConditions> m_overrideStunConditions;
 	std::vector<int> m_unkVec2;
@@ -72,6 +72,7 @@ public:
 	char m_pad[4];
 };
 
-static_assert(sizeof(DamageInfo) == 120);
-static_assert(offsetof(DamageInfo, m_flags) == 8);
-static_assert(offsetof(DamageInfo, m_plantFamilies) == 88);
+static_assert(sizeof(DamageInfo) == 128);
+static_assert(offsetof(DamageInfo, m_damage) == 8);
+static_assert(offsetof(DamageInfo, m_flags) == 16);
+static_assert(offsetof(DamageInfo, m_plantFamilies) == 96);
