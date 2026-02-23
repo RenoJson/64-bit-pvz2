@@ -54,8 +54,6 @@
     <ClInclude Include="Reflection\RType.h" />
     <ClInclude Include="Sexy\BaseResource.h" />
     <ClInclude Include="Sexy\ButtonListener.h" />
-    <ClInclude Include="Sexy\Delegate.h" />
-    <ClInclude Include="Sexy\DelegateBase.h" />
     <ClInclude Include="Sexy\DialogListener.h" />
     <ClInclude Include="Sexy\Graphics.h" />
     <ClInclude Include="Sexy\Image.h" />
@@ -100,6 +98,15 @@
     <ClCompile Include="PvZ2\ZombieModernBalloon.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernBalloon.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestBalloonProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieStateHelper.cpp" />
+    <ClCompile Include="PvZ2\ZombieJourneyToTheWestVendor.cpp" />
+    <ClCompile Include="PvZ2\ZombieJourneyToTheWestVendorProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_Vendor.cpp" />
+    <ClCompile Include="PvZ2\ZombieJourneyToTheWestPiggy.cpp" />
+    <ClCompile Include="PvZ2\ZombieJourneyToTheWestPiggyProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_Piggy.cpp" />
+    <ClCompile Include="PvZ2\ZombieJourneyToTheWestGargantuarProps.cpp" />
+    <ClCompile Include="PvZ2\ZombiePharaoh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -147,5 +154,16 @@
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestVendor.h" />
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestVendorProps.h" />
     <ClInclude Include="PvZ2\ZombieStateHelper.h" />
+    <ClInclude Include="Sexy\Delegate.h" />
+    <ClInclude Include="Sexy\DelegateBase.h" />
+    <ClInclude Include="PvZ2\StateMachineBuilder.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_Vendor.h" />
+    <ClInclude Include="PvZ2\ZombieJourneyToTheWestPiggy.h" />
+    <ClInclude Include="PvZ2\ZombieJourneyToTheWestPiggyProps.h" />
+    <ClInclude Include="PvZ2\ZombieTombRaiser.h" />
+    <ClInclude Include="PvZ2\ZombieTombRaiserProps.h" />
+    <ClInclude Include="PvZ2\ZombieDinoBullyVeteranProps.h" />
+    <ClInclude Include="PvZ2\ArmorPropertySheet.h" />
+    <ClInclude Include="PvZ2\ZombiePharaoh.h" />
   </ItemGroup>
 </Project>

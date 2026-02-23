@@ -7,9 +7,9 @@ class ZombieJourneyToTheWestVendorProps : public ZombiePropertySheet
 public:
 	pvztime_t SetPigInterval = 6.0f;
 	int NumberOfPigToSpawnWhenDie = 4;
-	SexyString PigType = "western_pig";
+	SexyString PigType = "western_piggy";
 	SexyVector3 PigSpawnOffset = { 60.0f, 0.0f, 50.0f };
-
+	ValueRange SpeedRateModifier;
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;
@@ -22,6 +22,7 @@ public:
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieJourneyToTheWestVendorProps, NumberOfPigToSpawnWhenDie);
 	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieJourneyToTheWestVendorProps, PigType);
 	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieJourneyToTheWestVendorProps, SexyVector3, PigSpawnOffset);
+	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieJourneyToTheWestVendorProps, ValueRange, SpeedRateModifier)
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieJourneyToTheWestVendorProps);

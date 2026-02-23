@@ -6,6 +6,7 @@
 #include "ZombieConditions.h"
 #include "ObjectTypeDescriptor.h"
 #include "ZombieAnimRig.h"
+#include "ArmorPropertySheet.h"
 
 
 class ZombieConditionImmunity
@@ -96,12 +97,12 @@ public:
 	Sexy::Point GridExtents;
 	Sexy::SexyVector2 HypnoshroomEffectOffset = Sexy::SexyVector2(0.0f, 63.0f);
 	std::vector<BoardEntityStat> ZombieStats;
-	std::vector<Sexy::RtWeakPtr<RtObject> > ZombieArmorProps;
+	std::vector<Sexy::RtWeakPtr<ArmorPropertySheet>> ZombieArmorProps;
 	std::vector<ZombieConditionImmunity> ConditionImmunities;
 	bool IgnoreWaterLine;
 	float MaxTideLoweredPercent;
 	SexyString SoundOnDeath;
-	SexyString SoundOnTakeDamage;
+	SexyString SoundOnTakeDamage; 
 	SexyString SoundOnWalk;
 	SexyString SoundOnEat;
 	SexyString SoundOnIdle;
@@ -159,7 +160,7 @@ class Zombie : public BoardEntity
 {
 public:
 
-	int m_createdTime;
+	pvztime_t m_creationTime;
 	int m_helm;
 	float m_helmHitpoints;
 	char pad_0084[28];
@@ -200,7 +201,7 @@ public:
 	Sexy::SexyVector2 m_stormTargetLocation;
 	int32_t m_stormType;
 	char pad_align2[4];
-	std::vector<Sexy::RtWeakPtr<void>> m_armor;
+	std::vector<Sexy::RtWeakPtr<Armor>> m_armor;
 	char pad_ConditionTracker[56]; 
 	char pad_HiddenAndAttached[400];
 	std::vector<int> m_familyResistances;
@@ -367,8 +368,11 @@ public:
 	virtual void PlaySoundOnIdle() {}
 	virtual void PlaySoundOnEat() {}
 };
-static_assert(offsetof(Zombie, m_createdTime) == 120, "Offset m_createdTime sai");
+static_assert(offsetof(Zombie, m_creationTime) == 120, "Offset m_creationTime sai");
+static_assert(offsetof(Zombie, m_walkSpeed) == 408, "Offset m_creationTime sai");
 static_assert(offsetof(Zombie, m_helm) == 124, "Offset m_helm sai");
+static_assert(offsetof(Zombie, m_helmHitpoints) == 128, "Offset m_helm sai");
+static_assert(offsetof(Zombie, m_hitpoints) == 376, "Offset m_helm sai");
 static_assert(offsetof(Zombie, m_type) == 160, "Offset m_type sai");
 static_assert(offsetof(Zombie, m_elapsedTimeInState) == 352, "Offset m_elapsedTimeInState sai");
 static_assert(offsetof(Zombie, m_flickOffTarget) == 448, "Offset m_flickOffTarget sai");

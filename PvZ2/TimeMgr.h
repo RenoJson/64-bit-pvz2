@@ -8,7 +8,7 @@ public:
 
     static TimeMgr* GetInstance()
     {
-        return *(TimeMgr**)getActualOffset(0x23774E8);
+        return *(TimeMgr**)getActualOffset(0x256A010);
     }
 };
 

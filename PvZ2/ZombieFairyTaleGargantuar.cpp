@@ -49,7 +49,6 @@ void hkFairyTaleGargantuarActionFrame(ZombieGargantuar* gargantuar, int64_t unk1
 	if (*actionName == "drop" && !isShrinking && !isShrunken)
 	{
 		SpawnImpAfterDie(gargantuar);
-		LOGI("custom frame work");
 		return;
 	}
 	gargActionFrame(gargantuar, unk1, actionName, unk2, currentAnim);

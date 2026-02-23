@@ -9,49 +9,64 @@ Sexy::RtClass* ZombieJourneyToTheWestBalloon::s_rtClass = __null;;
 
 void* BallonTakeDamage(ZombieJourneyToTheWestBalloon* thisPtr, DamageInfo* damageInfo)
 {
-	auto* props = reinterpret_cast<ZombieJourneyToTheWestBalloonProps*>(thisPtr->m_propertySheet.Get());
+    auto* props = reinterpret_cast<ZombieJourneyToTheWestBalloonProps*>(thisPtr->m_propertySheet.Get());
+    DamageInfo newDmgInfo = *damageInfo;
+    if (newDmgInfo.m_damage >= props->DamageAmountWhichAlsoKillsBasic)
+    {
+        thisPtr->m_hasTakenCatastrophicDamage = true;
+    }
+    else
+    {
+        float balloonHP = 0.0f;
+        for (size_t i = 0; i < thisPtr->m_armor.size(); i++)
+        {
+            Armor* armorInstance = thisPtr->m_armor[i].Get();
+            if (armorInstance != nullptr && !armorInstance->m_destroyed && armorInstance->m_health > 0)
+            {
+                balloonHP = armorInstance->m_health; 
+                break; 
+            }
+        }
 
-	bool shouldTriggerCatastrophic = false;
+        LOGI("[ZombieBalloon] Hit! Incoming Damage: %.2f | Current Balloon HP: %.2f", newDmgInfo.m_damage, balloonHP);
 
-	if (damageInfo->m_damage >= props->DamageAmountWhichAlsoKillsBasic)
-	{
-		shouldTriggerCatastrophic = true;
-	}
-	else
-	{
-		shouldTriggerCatastrophic = false;
-	}
+        if (balloonHP > 0)
+        {
+            if (newDmgInfo.m_damage > balloonHP) {
+                newDmgInfo.m_damage = balloonHP;
+                LOGI("[ZombieBalloon] -> Damage capped! Balloon pops, absorbing excess damage. Final applied dmg: %.2f", newDmgInfo.m_damage);
+            }
+            else {
+                LOGI("[ZombieBalloon] -> Balloon absorbs damage completely and survives.");
+            }
+        }
+        else
+        {
+            LOGI("[ZombieBalloon] No Balloon! Zombie takes full damage: %.2f", newDmgInfo.m_damage);
+        }
+    }
 
-	if (shouldTriggerCatastrophic)
-	{
-		thisPtr->m_hasTakenCatastrophicDamage = true;
-	}
-	typedef void* (*funcC43B90)(ZombieJourneyToTheWestBalloon*, DamageInfo*);
-	static auto* ZTakeDmg = ((funcC43B90)getActualOffset(0xC43B90));
-	return ZTakeDmg(thisPtr, damageInfo);
+    typedef void* (*funcC43B90)(ZombieJourneyToTheWestBalloon*, DamageInfo*);
+    static auto* ZTakeDmg = ((funcC43B90)getActualOffset(0xC43B90));
+
+    return ZTakeDmg(thisPtr, &newDmgInfo);
 }
 SexyString hkJFixAnimShock(ZombieJourneyToTheWestBalloon* zombie, DamageInfo* damage) {
 	auto* getProps = reinterpret_cast<ZombieJourneyToTheWestBalloonProps*>(zombie->m_propertySheet.Get());
-	LOGI("Calling func");
 	if (zombie->m_hasTakenCatastrophicDamage == true) {
-		LOGI("m_hasBalloon is true");
 		return getProps->OnAirShockAnimName;
 	}
 	else {
-		LOGI("m_hasBalloon is false");
 		return "POPANIM_EFFECTS_ZOMBIE_SHOCK";
 	}
 }
 
 SexyString hkJFixAnimAsh(ZombieJourneyToTheWestBalloon* zombie, DamageInfo* damage) {
 	auto* getProps = reinterpret_cast<ZombieJourneyToTheWestBalloonProps*>(zombie->m_propertySheet.Get());
-	LOGI("Calling func");
 	if (zombie->m_hasTakenCatastrophicDamage == true) {
-		LOGI("m_hasBalloon is true");
 		return getProps->OnAirAshAnimName;
 	}
 	else {
-		LOGI("m_hasBalloon is false");
 		return "POPANIM_EFFECTS_ZOMBIE_ASH";
 	}
 }

@@ -7,6 +7,7 @@ class CollectableType;
 class Collectable : public BoardEntity
 {
 public:
+	char m_pad4[8];
 	Sexy::RtWeakPtr<CollectableType> m_type;
 	int m_collectableFlags;
 	pvztime_t m_creationTime;

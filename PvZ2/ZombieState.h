@@ -24,8 +24,18 @@ public:
         ZS_Grabbed = 15,
     };
 	int m_id;
+    int m_padding;
 	Sexy::DelegateBase m_onEnter;
+    char pad[16];
 	Sexy::DelegateBase m_onLoop;
+    char pad1[16];
 	Sexy::DelegateBase m_onExit;
+    char pad2[16];
 	SexyString m_name;
 };
+static_assert(sizeof(ZombieState) == 176);
+static_assert(offsetof(ZombieState, m_id) == 0);
+static_assert(offsetof(ZombieState, m_onEnter) == 8);
+static_assert(offsetof(ZombieState, m_onLoop) == 56);
+static_assert(offsetof(ZombieState, m_onExit) == 104);
+static_assert(offsetof(ZombieState, m_name) == 152);

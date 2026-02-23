@@ -6,7 +6,8 @@ namespace Sexy
 	{
 	public:
 		uint m_callbackFunc;
-		int m_useOwnerVtable;
+		bool m_useOwnerVtable;
+		char pad[7];
 		uint m_callbackOwner;
 		int m_unk;
 		uint m_executeCallbackFunction;
