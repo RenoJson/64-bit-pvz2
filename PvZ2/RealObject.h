@@ -1,5 +1,6 @@
 #pragma once
 #include "GameObject.h"
+#include "GameObjectDictionary.h"
 
 namespace Sexy {
 	class Graphics;
@@ -43,8 +44,7 @@ static_assert(offsetof(RealObject, m_realObjectFlags) == 40);
 class ModularRealObject : public RealObject
 {
 public:
-	void* m_attachedEffects;
-	char pad[24];
+	AttachedEffectManager m_attachedEffects;
 	virtual void Function33() {};
 	virtual void Function34() {};
 };

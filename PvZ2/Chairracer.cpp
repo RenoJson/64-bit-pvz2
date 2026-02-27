@@ -167,6 +167,15 @@ bool hkMuteImpSound(Zombie* imp)
         && !imp->IsType(ZombieZcorpRacerZombie::StaticGetType())
         && !imp->IsType(ZombiePirateBoomBarrel::StaticGetType());
 }
+typedef Zombie* (*initApplyStun)();
+initApplyStun oInitApplyStun = nullptr;
+Zombie* ApplyStun(Zombie* a1, PlantFramework* a2, float a3, float a4) {
+    oInitApplyStun;
+    typedef Zombie* (*setConditionZ)(Zombie*, int, PlantFramework*, float, float);
+    static setConditionZ setZCondition = (setConditionZ)getActualOffset(0xC40CC0);
+    a4 = 0.0f;
+    return setZCondition(a1, 67, a2, a3, a4);;
+}
 #pragma endregion
 
 
@@ -175,6 +184,9 @@ void ZombieZcorpRacerProps::modInit() {
     PVZ2HookFunction(0xBEFEE0, (void*)hkZombieChairThrowRacer, (void**)&oZombieChairThrowRacer);
     PVZ2HookFunction(0xBEEC10, (void*)ZombieZcorpRacerProps::construct, nullptr);
     PVZ2HookFunction(0xB57128, (void*)hkMuteImpSound, nullptr);
+    LOGI("init stun start");
+    PVZ2HookFunction(0xC49730, (void*)ApplyStun, (void**)&oInitApplyStun);
+    LOGI("init stun complete");
     LOGI("init chair class complete");
     LOGI("init chair props");
     PVZ2HookFunction(0xBEED50, (void*)ZombieZcorpRacerProps::buildSymbols, (void**)&oZombieZcorpRacerPropsBuildSymbols);

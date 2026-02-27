@@ -166,6 +166,7 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_Consultant.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_DarkRider.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_EightiesPunk.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_EnergyDrinker.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_Gargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_JourneyToTheWestGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_JourneyToTheWestTrident.cpp" />
@@ -195,6 +196,8 @@
     <ClCompile Include="PvZ2\ZombieWesternKongMingLantern.cpp" />
     <ClCompile Include="PvZ2\ZombieWesternTudigong.cpp" />
     <ClCompile Include="PvZ2\ZombieWesternTudigongProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieZcorpEnergyDrinker.cpp" />
+    <ClCompile Include="PvZ2\ZombieZCorpEnergyDrinkerProps.cpp" />
     <ClCompile Include="PvZ2\Zombie_BullProps.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|ARM64'">false</ExcludedFromBuild>
     </ClCompile>
@@ -221,6 +224,7 @@
     <ClInclude Include="PvZ2\EntityConditionTracker.h" />
     <ClInclude Include="PvZ2\GameFeature.h" />
     <ClInclude Include="PvZ2\GameObject.h" />
+    <ClInclude Include="PvZ2\GameObjectDictionary.h" />
     <ClInclude Include="PvZ2\GridItem.h" />
     <ClInclude Include="PvZ2\GridItemAnimation.h" />
     <ClInclude Include="PvZ2\LevelDefinition.h" />
@@ -259,6 +263,7 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_Imp.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_ModernAllStar.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_ModernBalloon.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_TombRaiser.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Vendor.h" />
     <ClInclude Include="PvZ2\ZombieBasic.h" />
     <ClInclude Include="PvZ2\ZombieBugProps.h" />

@@ -27,14 +27,10 @@ void* BallonTakeDamage(ZombieJourneyToTheWestBalloon* thisPtr, DamageInfo* damag
                 break; 
             }
         }
-
-        LOGI("[ZombieBalloon] Hit! Incoming Damage: %.2f | Current Balloon HP: %.2f", newDmgInfo.m_damage, balloonHP);
-
         if (balloonHP > 0)
         {
             if (newDmgInfo.m_damage > balloonHP) {
                 newDmgInfo.m_damage = balloonHP;
-                LOGI("[ZombieBalloon] -> Damage capped! Balloon pops, absorbing excess damage. Final applied dmg: %.2f", newDmgInfo.m_damage);
             }
             else {
                 LOGI("[ZombieBalloon] -> Balloon absorbs damage completely and survives.");

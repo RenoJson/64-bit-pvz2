@@ -1,16 +1,12 @@
-#include "ZombieModifierModule.h"
-#include "Zombie.h"
-#include <map>
-#include <string>
+﻿#include "ZombieTombRaiser.h"
+#include "ZombieTombRaiserProps.h"
+#include "ZombieAnimRig_TombRaiser.h"
+using namespace Sexy;
 
+void* ZombieZCorpEnergyDrinker::vftable = __null;
+Sexy::RtClass* ZombieZCorpEnergyDrinker::s_rtClass = __null;;
 
-#pragma region hk Condition To Apply
-
-typedef void(*Condition)(ZombieModifierModule*, Zombie*);
-Condition oCondition = nullptr;
-
-
-int GetConditionIDByName(const char* name)
+int GetCondIDByName(const char* name)
 {
     if (!name) return -1;
     static const std::map<std::string, int> conditionMap = {
@@ -63,8 +59,8 @@ int GetConditionIDByName(const char* name)
         {"poisoned",          zombie_condition_poisoned},
         {"contagiouspoison",  zombie_condition_contagiouspoison},
         {"decaypoison",       zombie_condition_decaypoison},
-        {"bloomingheart",     zombie_condition_bloomingheartdebuff},
-        {"hotdate",           zombie_condition_hotdateattraction},
+        {"bloomingheartdebuff",     zombie_condition_bloomingheartdebuff},
+        {"hotdateattraction",           zombie_condition_hotdateattraction},
         {"solarflared",       zombie_condition_solarflared},
         {"suiciding",         zombie_condition_suiciding},
         {"stackableslow",     zombie_condition_stackableslow},
@@ -91,50 +87,74 @@ int GetConditionIDByName(const char* name)
     if (it != conditionMap.end()) {
         return it->second;
     }
-    return -1; 
+    return -1;
 }
 
-void* hkModifierModule(ZombieModifierModule* module, Zombie* zombie) {
-    auto* props = reinterpret_cast<ZombieModifierProperties*>(module->m_propertySheet.Get());
+void CondZombie(Zombie* self) {
+    auto* props = reinterpret_cast<ZombieZCorpEnergyDrinkerProps*>(self->m_propertySheet.Get());
     typedef void (*setConditionZ)(Zombie*, int, int, float, float);
-    setConditionZ setZCondition = (setConditionZ)getActualOffset(0xC40CC0);
+    static setConditionZ setZCondition = (setConditionZ)getActualOffset(0xC40CC0);
+
     float lifetime = props->ConditionLifeTime;
-
-    if (lifetime <= 0.0f)
-    {
-        lifetime = 3.4028e38f;
+    if (lifetime <= 0.0f) {
+        lifetime = 3.4028e38f; // Vô cực (FLT_MAX)
     }
-    if (props->ConditionToApply.size() > 0)
-    {
-        for (int i = 0; i < props->ConditionToApply.size(); ++i)
-        {
-            const SexyString& conditionName = props->ConditionToApply[i];
-            int condID = GetConditionIDByName(conditionName.c_str());
 
-            if (condID != -1 && condID == zombie_condition_shrinking)
-            {
-                setZCondition(zombie, condID, 0, 0.01f, 0.0f);
+    auto ApplyRandomCondFromVector = [&](const std::vector<SexyString>& condVector) {
+        if (condVector.empty()) return; 
+
+        int randomIndex = rand() % condVector.size();
+        const SexyString& conditionName = condVector[randomIndex];
+
+        int condID = GetCondIDByName(conditionName.c_str());
+        if (condID != -1) {
+            if (condID == zombie_condition_shrinking) { 
+                setZCondition(self, condID, 0, 0.01f, 0.0f);
             }
-            else if (condID != -1)
-            {
-               setZCondition(zombie, condID, 0, lifetime, 0.0f);
+            else if (condID == zombie_condition_stun || condID == zombie_condition_dazeystunned) {
+                setZCondition(self, condID, 0, lifetime, 0.0f);
             }
+            else {
+                setZCondition(self, condID, 0, lifetime, 0.0f);
+            }
+            LOGI("[CondZombie] Applied random condition: %s", conditionName.c_str());
         }
+     };
+    float masterRoll = (float)(rand()) / (float)(RAND_MAX) * 100.0f;
+
+    if (masterRoll <= props->ChanceToApplyGoodCondition)
+    {
+        ApplyRandomCondFromVector(props->GoodConditionToApply);
     }
-    return zombie;
+    else
+    {
+        ApplyRandomCondFromVector(props->BadConditionToApply);
+    }
 }
 
-#pragma endregion
+void hkZCorpEnergyDrinkerActionFrame(ZombieZCorpEnergyDrinker* zombie, int64_t unk1, SexyString* actionName, int64_t unk2, SexyString* currentAnim)
+{
+	if (*actionName == "shh" && !zombie->m_gotCondition)
+	{
+		CondZombie(zombie);
+		zombie->m_gotCondition = true;
+	}
+	else {
+		return;
+	}
+}
 
-Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc ZombieModifierProperties::oZombieModifierPropertiesBuildSymbols = nullptr;
+void ZombieZCorpEnergyDrinker::modInit() {
+	LOGI("ZombieZCorpEnergyDrinker init");
 
-void ZombieModifierProperties::modInit() {
-    LOGI("init mdule");
-    PVZ2HookFunction(0x1417FEC, (void*)hkModifierModule, (void**)&oCondition);
-    PVZ2HookFunction(0x1417AD0, (void*)construct, nullptr);
-    LOGI("init  mdule complete");
-    LOGI("init  mdule props");
-    PVZ2HookFunction(0x1417C0C, (void*)ZombieModifierProperties::buildSymbols, (void**)&ZombieModifierProperties::oZombieModifierPropertiesBuildSymbols);
-    LOGI("init  mdule props complete");
-    LOGI("finish init  mdule");
+	vftable = CopyVFTable(getActualOffset(0x23E9A78), 210);
+
+	PatchVFTable(vftable, (void*)ZombieZCorpEnergyDrinker::StaticGetType, 0);
+
+
+	PatchVFTable(vftable, (void*)hkZCorpEnergyDrinkerActionFrame, 170);
+
+	ZombieZCorpEnergyDrinker::StaticGetType();
+
+	LOGI("ZombieZCorpEnergyDrinker finish init");
 }

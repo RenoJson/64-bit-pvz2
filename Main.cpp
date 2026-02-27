@@ -14,6 +14,7 @@
 #include "PvZ2/Zombie_BullProps.h"
 #include "PvZ2/Zombie_BullVeteran.h"
 #include "PvZ2/Chairracer.h"
+#include "PvZ2/ZombieConditions.h"
 #include "PvZ2/ZombieCavalryProps.h"
 #include "PvZ2/ZombieDarkCavalry.h"
 #include "PvZ2/ZombieWesternTudigongProps.h"
@@ -46,6 +47,9 @@
 #include <PvZ2/ZombieJourneyToTheWestPiggyProps.h>
 #include <PvZ2/ZombieDinoBullyVeteranProps.h>
 #include <PvZ2/ZombiePharaoh.h>
+#include <PvZ2/ZombieTombRaiser.h>
+#include <PvZ2/ZombieTombRaiserProps.h>
+#include <PvZ2/ZombieAnimRig_TombRaiser.h>
 
 
 // usually using int64_t when hooking on 64 bit architecture, but i'm prefer uintptr_t since it's more flexible and less buggy
@@ -104,7 +108,66 @@ int64_t hkBossProgressMeterInit()
 
     return orig;
 }
+typedef Zombie* (*effectCondition)(Zombie*, ZombieConditions);
+effectCondition oEffCond = nullptr;
+Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
+    typedef Zombie* (*setEffectAnim)(Zombie*, const char*, const char*, const char*, SexyVector3*, uint, bool, bool, uint);
+    setEffectAnim setAnim = (setEffectAnim)getActualOffset(0x7BF03C);
 
+    switch (cond)
+    {
+        case zombie_condition_dazeystunned:
+        case zombie_condition_stickybombed:
+        case zombie_condition_stun:
+        {
+            if (zombie->m_attachedEffects.GetObjectIndex("stun") == -1) {
+                SexyVector3 transformOffset = { -25.0f, -20.0f, 0.0f };
+                setAnim(zombie, "stun", "POPANIM_EFFECTS_ZOMBIE_STUN_EFFECT", "stun_fx", &transformOffset, 1, false, false, 2);
+            }
+            break;
+        }
+        case zombie_condition_speeddown1:
+        case zombie_condition_speeddown2:
+        case zombie_condition_speeddown3:
+        case zombie_condition_speeddown4:
+        {
+            if (zombie->m_attachedEffects.GetObjectIndex("slow") == -1) {
+                SexyVector3 transformOffset = { 10.0f, 0.0f, 0.0f };
+                setAnim(zombie, "slow", "POPANIM_EFFECTS_ZOMBIE_SLOWDOWN", "anim", &transformOffset, 1, false, false, 2);
+            }
+            break;
+        }
+    }
+    return oEffCond(zombie, cond);
+}
+typedef Zombie* (*removeeffectCondition)(Zombie*, ZombieConditions);
+removeeffectCondition oRemoveEffCond = nullptr;
+Zombie* hkRemoveEffectCondition(Zombie* zombie, ZombieConditions cond) {
+    typedef int (*removeEffectAnim)(AttachedEffectManager*, SexyString*);
+    removeEffectAnim removeAnim = (removeEffectAnim)getActualOffset(0x662360);
+
+    switch (cond) {
+        case zombie_condition_dazeystunned:
+        case zombie_condition_stickybombed:
+        case zombie_condition_stun:
+        {
+            std::string stun = "stun";
+            removeAnim(&zombie->m_attachedEffects, &stun);
+            break;
+        }
+        case zombie_condition_speeddown1:
+        case zombie_condition_speeddown2:
+        case zombie_condition_speeddown3:
+        case zombie_condition_speeddown4:
+        {
+            std::string slow = "slow";
+            removeAnim(&zombie->m_attachedEffects, &slow);
+            break;
+        }
+    }
+    
+    return oRemoveEffCond(zombie, cond);
+}
 #pragma endregion
 
 __attribute__((constructor))
@@ -117,7 +180,8 @@ void libChair_main()
     //PVZ2HookFunction(0x11F72B0, (void*)hkNPCDataSheetCtor, (void**)&oNPCDataSheetCtor);
     // i should make softcode boss icon as level module xd
     //PVZ2HookFunction(0x540938, (void*)hkBossProgressMeterInit, (void**)&oBossProgressMeterInit);
-
+    PVZ2HookFunction(0xC4987C, (void*)hkEffectCondition, (void**)&oEffCond);
+    PVZ2HookFunction(0xC4BC48, (void*)hkRemoveEffectCondition, (void**)&oRemoveEffCond);
     ZombieBullProps::modInit();
     ZombieBullVeteranProps::modInit();
     ZombieZcorpRacerProps::modInit();
@@ -149,4 +213,7 @@ void libChair_main()
     ZombieJourneyToTheWestPiggyProps::modInit();
     ZombieJourneyToTheWestGargantuarProps::modInit();
     //ZombieEgyptPharaoh::ModInit();
+    ZombieZCorpEnergyDrinker::modInit();
+    ZombieZCorpEnergyDrinkerProps::modInit();
+    ZombieAnimRig_EnergyDrinker::modInit();
 }
