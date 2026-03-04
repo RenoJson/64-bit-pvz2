@@ -105,6 +105,7 @@ enum class BoardEntityTypeFlag
 	other
 };
 // real byte size of this class is 128 byte, but it's gonna broken other class so 120 byte size is the suitable one for this ig
+// TODO: fixing this and alignment of all class using this
 class BoardEntity : public ModularRealObject
 {
 public:
