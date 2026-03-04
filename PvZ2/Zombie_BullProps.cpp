@@ -8,12 +8,14 @@
 #include <pch.h>
 #include "AddZombieType.h"
 #include "ZombieImp.h"
+#include "ZombieBull.h"
+#include "ZombieAnimRig_Bull.h"
 using namespace Sexy;
 
 #pragma region Hide Custom Rider Layer 
-typedef void(*zombieBullHideLayer)(Zombie*, uintptr_t);
+typedef void(*zombieBullHideLayer)(Zombie*, ZombieAnimRig_Bull*);
 zombieBullHideLayer oZombieBullHideLayer = nullptr;
-void HideCustomRiderLayer(Zombie* self, uintptr_t animRig) {
+void HideCustomRiderLayer(Zombie* self, ZombieAnimRig_Bull* animRig) {
 
     auto* props = reinterpret_cast<ZombieBullProps*>(self->m_propertySheet.Get());
 
@@ -45,7 +47,7 @@ void HideCustomRiderLayer(Zombie* self, uintptr_t animRig) {
          "_zombie_imp_head_top"
     };
 
-    typedef int64_t (*setLayerVisibleFunc)(uintptr_t, SexyString*, bool);
+    typedef int64_t (*setLayerVisibleFunc)(ZombieAnimRig_Bull*, SexyString*, bool);
     setLayerVisibleFunc setLayerVisible = (setLayerVisibleFunc)getActualOffset(0x9DB8D0);
 
     size_t customLayersCount = props->RiderLayersToHide.size();
@@ -70,12 +72,10 @@ void HideCustomRiderLayer(Zombie* self, uintptr_t animRig) {
 #pragma region hk Rider Type To Launch
 
 
-typedef void(*zombieBullThrowRider)(Zombie*, int);
+typedef void(*zombieBullThrowRider)(ZombieBull*, int);
 zombieBullThrowRider oZombieBullThrowRider = nullptr;
 
 // these function is must have to make the bull work properly
-using sub_736DE4_t = uintptr_t(*)(Zombie*);
-sub_736DE4_t sub_736DE4 = reinterpret_cast<sub_736DE4_t>(getActualOffset(0x6DE754));
 
 typedef bool (*checkZombieHasCondition)(Zombie*, int);
 checkZombieHasCondition hasZCondition = (checkZombieHasCondition)getActualOffset(0xC3E44C);
@@ -87,14 +87,9 @@ typedef int (*boardEntitySetPosition)(Zombie*, SexyVector3*);
 boardEntitySetPosition ZfunBoardEntitySetPosition = (boardEntitySetPosition)getActualOffset(0x628058);
 
 //Bull and Vet Bull class
-void hkZombieBullThrowRider(Zombie* self, int a2)
+void hkZombieBullThrowRider(ZombieBull* self, int a2)
 {
     auto* props = reinterpret_cast<ZombieBullProps*>(self->m_propertySheet.Get());
-
-    if (!props) {
-        return oZombieBullThrowRider(self, a2);
-    }
-
 
     // using custom symbol depend on what props the bull use
     SexyString name;
@@ -113,10 +108,10 @@ void hkZombieBullThrowRider(Zombie* self, int a2)
     bool isShrinking = hasZCondition(self, zombie_condition_shrinking);
     bool isShrunken = hasZCondition(self, zombie_condition_shrunken);
 
-    if (!*(bool*)((uintptr_t)self + 0x448) && !isShrinking && !isShrunken)
+    if (!self->m_hasLaunched && !isShrinking && !isShrunken)
     {
-        uintptr_t getBullRiderAnimRig = sub_736DE4(self);
-        HideCustomRiderLayer(self, getBullRiderAnimRig);
+        auto* rig = reinterpret_cast<ZombieAnimRig_Bull*>(self->m_animRig.Get());
+        HideCustomRiderLayer(self, rig);
         ZombieImp* spawnedRider = (ZombieImp*)AddZombie(name, -1, 6, -1);
 
         spawnedRider->m_getsUpFromLanding = true;
@@ -140,10 +135,10 @@ void hkZombieBullThrowRider(Zombie* self, int a2)
 
             setZCondition(spawnedRider, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
 
-            int valAtOffset36 = *(int*)((uintptr_t)self + 0x24);
+            int teamflag = self->m_teamFlags;
             typedef void (*func10B013C)(Zombie*, int);
             auto* setTeamFlag = ((func10B013C)getActualOffset(0x10B013C));
-            setTeamFlag(spawnedRider, valAtOffset36);
+            setTeamFlag(spawnedRider, teamflag);
             typedef void* (*GetHypnoDataFunc)(Zombie*);
             GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
 
@@ -175,21 +170,16 @@ void hkZombieBullThrowRider(Zombie* self, int a2)
         virtualThrow(spawnedRider, 0, targetX, targetY, targetZ, launchTime, launchApex);
 
         // this one is prevent veteran bull throw further imp
-        *(bool*)((uintptr_t)self + 0x448) = true;
+        self->m_hasLaunched = true;
     }
     else {
         LOGI("Already shrinking, shrunken or being thrown");
     }
 }
-void hkZombieBullVetThrowRider(Zombie* self, int a2)
+void hkZombieBullVetThrowRider(ZombieBull* self, int a2)
 {
     auto* props = reinterpret_cast<ZombieBullVeteranProps*>(self->m_propertySheet.Get());
 
-    if (!props) {
-        return oZombieBullThrowRider(self, a2);
-    }
-
-  
     SexyString name = props->VetRiderType;
     float distance = props->LaunchDistance;
 
@@ -203,10 +193,10 @@ void hkZombieBullVetThrowRider(Zombie* self, int a2)
     bool isShrinking = hasZCondition(self, zombie_condition_shrinking);
     bool isShrunken = hasZCondition(self, zombie_condition_shrunken);
 
-    if (!*(bool*)((uintptr_t)self + 0x448) && !isShrinking && !isShrunken)
+    if (!self->m_hasLaunched && !isShrinking && !isShrunken)
     {
-        uintptr_t getBullRiderAnimRig = sub_736DE4(self);
-        HideCustomRiderLayer(self, getBullRiderAnimRig);
+        auto* rig = reinterpret_cast<ZombieAnimRig_Bull*>(self->m_animRig.Get());
+        HideCustomRiderLayer(self, rig);
         ZombieImp* spawnedRider = (ZombieImp*)AddZombie(name, -1, 6, -1);
 
         spawnedRider->m_getsUpFromLanding = true;
@@ -233,10 +223,10 @@ void hkZombieBullVetThrowRider(Zombie* self, int a2)
 
             setZCondition(spawnedRider, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
 
-            int valAtOffset36 = *(int*)((uintptr_t)self + 0x24);
+            int teamflag = self->m_teamFlags;
             typedef void (*func10B013C)(Zombie*, int);
             auto* setTeamFlag = ((func10B013C)getActualOffset(0x10B013C));
-            setTeamFlag(spawnedRider, valAtOffset36);
+            setTeamFlag(spawnedRider, teamflag);
             typedef void* (*GetHypnoDataFunc)(Zombie*);
             GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
 
@@ -268,18 +258,16 @@ void hkZombieBullVetThrowRider(Zombie* self, int a2)
         float launchTime = props->LaunchAirTime;
         virtualThrow(spawnedRider, 0, targetX, targetY, targetZ, launchTime, launchApex);
         // this one is prevent veteran bull throw further imp
-        *(bool*)((uintptr_t)self + 0x448) = true;
+        self->m_hasLaunched = true;
     }
     else {
         LOGI("Already shrinking, shrunken or being thrown");
     }
 }
 //Cavalry class
-void hkZombieCavalryThrowRider(Zombie* self, int a2)
+void hkZombieCavalryThrowRider(ZombieBull* self, int a2)
 {
     auto* props = reinterpret_cast<ZombieBullProps*>(self->m_propertySheet.Get());
-
-
     SexyString name = props->RiderType;
     float distance = props->LaunchDistance;
 
@@ -292,10 +280,10 @@ void hkZombieCavalryThrowRider(Zombie* self, int a2)
     bool isShrinking = hasZCondition(self, zombie_condition_shrinking);
     bool isShrunken = hasZCondition(self, zombie_condition_shrunken);
 
-    if (!*(bool*)((uintptr_t)self + 0x448))
+    if (!self->m_hasLaunched)
     {
-        uintptr_t getBullRiderAnimRig = sub_736DE4(self);
-        HideCustomRiderLayer(self, getBullRiderAnimRig);
+        auto* rig = reinterpret_cast<ZombieAnimRig_Bull*>(self->m_animRig.Get());
+        HideCustomRiderLayer(self, rig);
         Zombie* spawnedRider = AddZombie(name, -1, 6, -1);
 
         if (hasZCondition(self, zombie_condition_shrinking) || hasZCondition(self, zombie_condition_shrunken)) {
@@ -324,10 +312,10 @@ void hkZombieCavalryThrowRider(Zombie* self, int a2)
 
             setZCondition(spawnedRider, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
 
-            int valAtOffset36 = *(int*)((uintptr_t)self + 0x24);
+            int teamflag = self->m_teamFlags;
             typedef void (*func10B013C)(Zombie*, int);
             auto* setTeamFlag = ((func10B013C)getActualOffset(0x10B013C));
-            setTeamFlag(spawnedRider, valAtOffset36);
+            setTeamFlag(spawnedRider, teamflag);
             typedef void* (*GetHypnoDataFunc)(Zombie*);
             GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
 
@@ -359,14 +347,14 @@ void hkZombieCavalryThrowRider(Zombie* self, int a2)
         float launchTime = props->LaunchAirTime;
         virtualThrow(spawnedRider, 0, targetX, targetY, targetZ, launchTime, launchApex);
         // this one is prevent veteran bull throw further imp
-        *(bool*)((uintptr_t)self + 0x448) = true;
+        self->m_hasLaunched = true;
     }
     else {
         LOGI("Already shrinking, shrunken or being thrown");
     }
 }
 //Vet Cavalry class
-void hkZombieVetCavalryThrowRider(Zombie* self, int a2)
+void hkZombieVetCavalryThrowRider(ZombieBull* self, int a2)
 {
     auto* props = reinterpret_cast<ZombieBullVeteranProps*>(self->m_propertySheet.Get());
 
@@ -383,10 +371,10 @@ void hkZombieVetCavalryThrowRider(Zombie* self, int a2)
     bool isShrinking = hasZCondition(self, zombie_condition_shrinking);
     bool isShrunken = hasZCondition(self, zombie_condition_shrunken);
 
-    if (!*(bool*)((uintptr_t)self + 0x448))
+    if (!self->m_hasLaunched)
     {
-        uintptr_t getBullRiderAnimRig = sub_736DE4(self);
-        HideCustomRiderLayer(self, getBullRiderAnimRig);
+        auto* rig = reinterpret_cast<ZombieAnimRig_Bull*>(self->m_animRig.Get());
+        HideCustomRiderLayer(self, rig);
 
         Zombie* spawnedRider = AddZombie(name, -1, 6, -1);
 
@@ -416,10 +404,10 @@ void hkZombieVetCavalryThrowRider(Zombie* self, int a2)
 
             setZCondition(spawnedRider, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
 
-            int valAtOffset36 = *(int*)((uintptr_t)self + 0x24);
+            int teamflag = self->m_teamFlags;
             typedef void (*func10B013C)(Zombie*, int);
             auto* setTeamFlag = ((func10B013C)getActualOffset(0x10B013C));
-            setTeamFlag(spawnedRider, valAtOffset36);
+            setTeamFlag(spawnedRider, teamflag);
             typedef void* (*GetHypnoDataFunc)(Zombie*);
             GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
 
@@ -451,13 +439,13 @@ void hkZombieVetCavalryThrowRider(Zombie* self, int a2)
         float launchTime = props->LaunchAirTime;
         virtualThrow(spawnedRider, 0, targetX, targetY, targetZ, launchTime, launchApex);
         // this one is prevent veteran bull throw further imp
-        *(bool*)((uintptr_t)self + 0x448) = true;
+        self->m_hasLaunched = true;
     }
     else {
         LOGI("Already shrinking, shrunken or being thrown");
     }
 }
-void hkBullThrowRoute(Zombie* self, int a2) {
+void hkBullThrowRoute(ZombieBull* self, int a2) {
     auto* props = reinterpret_cast<ZombieBullProps*>(self->m_propertySheet.Get());
 
     uintptr_t* vtable = *reinterpret_cast<uintptr_t**>(self);
@@ -483,26 +471,26 @@ void hkBullThrowRoute(Zombie* self, int a2) {
 typedef void (*zombieBullPlayDeath)(Zombie*);
 zombieBullPlayDeath oZombieBullPlayDeath = nullptr;
 
-void hkZombieBullPlayDeath(Zombie* self) {
+void hkZombieBullPlayDeath(ZombieBull* self) {
     
-    typedef void(*zombieFun197)(Zombie*);
+    typedef void(*zombieFun197)(ZombieBull*);
     ((zombieFun197)getActualOffset(0xC51A40))(self); // does not play the bull's death sound effect
 }
-typedef void (*zombieBullElectrocute)(Zombie*);
+typedef void (*zombieBullElectrocute)(ZombieBull*);
 zombieBullPlayDeath oZombieBullElectrocute = nullptr;
 //this function is for bull when electrocuted
 //Rewrite this to make sure it don't use the original hiding layer function
-void hkZombieBullElectrocute(Zombie* self) {
-    uintptr_t getBullRiderAnimRig = sub_736DE4(self);
-    HideCustomRiderLayer(self, getBullRiderAnimRig);
-    typedef void (*electrocute)(Zombie*);
+void hkZombieBullElectrocute(ZombieBull* self) {
+    auto* rig = reinterpret_cast<ZombieAnimRig_Bull*>(self->m_animRig.Get());
+    HideCustomRiderLayer(self, rig);
+    typedef void (*electrocute)(ZombieBull*);
     ((electrocute)getActualOffset(0xC51FB0))(self);
 }
 typedef void (*FuncOnCondition)(Zombie*, int);
 FuncOnCondition oBullFunction71 = nullptr;
 //this function is for bull when hypnotized, shrinking or gummed
 //Rewrite this to make sure it don't use the original hiding layer function
-void hkBullFunction71(Zombie* self, int conditionID)
+void hkBullFunction71(ZombieBull* self, int conditionID)
 {
     auto* props = reinterpret_cast<ZombieBullProps*>(self->m_propertySheet.Get());
     bool isCavalry = props->isCavalry;
@@ -511,17 +499,15 @@ void hkBullFunction71(Zombie* self, int conditionID)
     {
 
         if (!isCavalry) {
-            uintptr_t getBullRiderAnimRig = sub_736DE4(self);
-            HideCustomRiderLayer(self, getBullRiderAnimRig);
+            auto* rig = reinterpret_cast<ZombieAnimRig_Bull*>(self->m_animRig.Get());
+            HideCustomRiderLayer(self, rig);
         }
         return;
     }
 
     if (conditionID == zombie_condition_gummed)
     {
-        bool hasThrown = *(bool*)((uintptr_t)self + 0x448);
-
-        if (!hasThrown) {
+        if (!self->m_hasLaunched) {
             typedef int (*FuncC3D428)(Zombie*, int, int);
             FuncC3D428 funC3D428 = (FuncC3D428)getActualOffset(0xC3D428);
             funC3D428(self, 20, 0);

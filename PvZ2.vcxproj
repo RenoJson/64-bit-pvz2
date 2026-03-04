@@ -199,9 +199,6 @@
     <ClCompile Include="PvZ2\ZombiePharaoh.cpp" />
     <ClCompile Include="PvZ2\ZombiePirateBoomBarrel.cpp" />
     <ClCompile Include="PvZ2\ZombieStateHelper.cpp" />
-    <ClCompile Include="PvZ2\ZombieWesternKongMingLantern.cpp" />
-    <ClCompile Include="PvZ2\ZombieWesternTudigong.cpp" />
-    <ClCompile Include="PvZ2\ZombieWesternTudigongProps.cpp" />
     <ClCompile Include="PvZ2\ZombieZcorpEnergyDrinker.cpp" />
     <ClCompile Include="PvZ2\ZombieZCorpEnergyDrinkerProps.cpp" />
     <ClCompile Include="PvZ2\Zombie_BullProps.cpp">
@@ -221,7 +218,6 @@
     <ClInclude Include="PvZ2\AudioMgr.h" />
     <ClInclude Include="PvZ2\Board.h" />
     <ClInclude Include="PvZ2\BoardEntity.h" />
-    <ClInclude Include="PvZ2\BS.h" />
     <ClInclude Include="PvZ2\Chairracer.h" />
     <ClInclude Include="PvZ2\Collectable.h" />
     <ClInclude Include="PvZ2\DamageInfo.h" />
@@ -261,6 +257,7 @@
     <ClInclude Include="PvZ2\Zombie.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Basic.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_Bull.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Consultant.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_DarkRider.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_EightiesPunk.h" />
@@ -304,9 +301,6 @@
     <ClInclude Include="PvZ2\ZombieStateHelper.h" />
     <ClInclude Include="PvZ2\ZombieTombRaiser.h" />
     <ClInclude Include="PvZ2\ZombieTombRaiserProps.h" />
-    <ClInclude Include="PvZ2\ZombieWesternKongMingLantern.h" />
-    <ClInclude Include="PvZ2\ZombieWesternTudigong.h" />
-    <ClInclude Include="PvZ2\ZombieWesternTudigongProps.h" />
     <ClInclude Include="PvZ2\Zombie_BullProps.h" />
     <ClInclude Include="PvZ2\Zombie_BullVeteran.h" />
     <ClInclude Include="Reflection\CRefManualSymbolBuilder.h" />

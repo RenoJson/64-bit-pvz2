@@ -38,6 +38,7 @@ public:
 
 static_assert(sizeof(RealObject) == 48);
 static_assert(offsetof(RealObject, m_position) == 24);
+static_assert(offsetof(RealObject, m_teamFlags) == 36);
 static_assert(offsetof(RealObject, m_realObjectFlags) == 40);
 
 // RealObject that supports color effects

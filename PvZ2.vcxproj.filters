@@ -78,9 +78,6 @@
     <ClCompile Include="PvZ2\ZombieFairyTaleGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleImp.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleImpProps.cpp" />
-    <ClCompile Include="PvZ2\ZombieWesternKongMingLantern.cpp" />
-    <ClCompile Include="PvZ2\ZombieWesternTudigongProps.cpp" />
-    <ClCompile Include="PvZ2\ZombieWesternTudigong.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernAllStar.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_EightiesPunk.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_Consultant.cpp" />
@@ -128,9 +125,6 @@
     <ClInclude Include="PvZ2\ZombieIceAgeHunterVeteran.h" />
     <ClInclude Include="PvZ2\ZombieImp.h" />
     <ClInclude Include="PvZ2\ZombieLostCityBug.h" />
-    <ClInclude Include="PvZ2\ZombieWesternKongMingLantern.h" />
-    <ClInclude Include="PvZ2\ZombieWesternTudigong.h" />
-    <ClInclude Include="PvZ2\ZombieWesternTudigongProps.h" />
     <ClInclude Include="Main.h" />
     <ClInclude Include="PvZ2\AddZombieType.h" />
     <ClInclude Include="PvZ2\PopAnimRig.h" />
@@ -153,7 +147,6 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_ModernBalloon.h" />
     <ClInclude Include="PvZ2\ZombieBugProps.h" />
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestBalloonProps.h" />
-    <ClInclude Include="PvZ2\BS.h" />
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestVendor.h" />
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestVendorProps.h" />
     <ClInclude Include="PvZ2\ZombieStateHelper.h" />
@@ -170,5 +163,6 @@
     <ClInclude Include="PvZ2\ZombiePharaoh.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_TombRaiser.h" />
     <ClInclude Include="PvZ2\GameObjectDictionary.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_Bull.h" />
   </ItemGroup>
 </Project>
