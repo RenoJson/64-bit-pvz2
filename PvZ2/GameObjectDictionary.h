@@ -30,7 +30,7 @@ public:
 	virtual void* Function9() {};
 	virtual void* Function10(int a2) {};
 	virtual void* Function11(int a2) {};
-	int GetObjectIndex(SexyString a2) 
+	int GetObjectIndex(SexyString a2) // function 12 of AttachedEffectManager
 	{
 		typedef int (*getIndex)(AttachedEffectManager*, SexyString*);
 		getIndex pGetIndex = (getIndex)getActualOffset(0x6629A8);

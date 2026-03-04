@@ -26,6 +26,8 @@ void* CreateChildVFTable(int64_t vFuncsCount, intptr_t parentVftable, int64_t nu
 void SetVFTable(void* obj, uintptr_t newVftablePtr);
 // Get a virtual function from vftable
 void* GetVirtualFunc(void* obj, int index);
+//Modify bytes in libPVZ2.so
+bool ReplaceBytes(uintptr_t offset, const void* data, size_t size);
 // Call a virtual function from libPVZ2.so. The vfunc index should be correct (ex: it usually should be divided by 4 in 32 bit and 8 in 64 bit)
 template<typename R, typename... Args>
 R CallVirtualFunc(void* obj, int index, Args... args)

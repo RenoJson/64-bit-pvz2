@@ -1,4 +1,4 @@
-#include <string>
+﻿#include <string>
 #include <vector>
 #include <algorithm>
 #include <map>
@@ -52,7 +52,7 @@
 #include <PvZ2/ZombieAnimRig_TombRaiser.h>
 
 
-// usually using int64_t when hooking on 64 bit architecture, but i'm prefer uintptr_t since it's more flexible and less buggy
+// TODO: Make every typedef function became a wrapper ig
 
 class NPCDataSheet
 {
@@ -122,7 +122,15 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
         {
             if (zombie->m_attachedEffects.GetObjectIndex("stun") == -1) {
                 SexyVector3 transformOffset = { -25.0f, -20.0f, 0.0f };
-                setAnim(zombie, "stun", "POPANIM_EFFECTS_ZOMBIE_STUN_EFFECT", "stun_fx", &transformOffset, 1, false, false, 2);
+                setAnim(zombie, "stun", "POPANIM_EFFECTS_ZOMBIES_STUN_EFFECT", "stun_fx", &transformOffset, 1, false, false, 2);
+            }
+            break;
+        }
+        case zombie_condition_zombossstun:
+        {
+            if (zombie->m_attachedEffects.GetObjectIndex("zombossstun") == -1) {
+                SexyVector3 transformOffset = { 60.0f, -200.0f, 0.0f };
+                setAnim(zombie, "zombossstun", "POPANIM_EFFECTS_ZOMBOSS_STUN_EFFECT", "stun", &transformOffset, 1, false, false, 2);
             }
             break;
         }
@@ -130,9 +138,13 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
         case zombie_condition_speeddown2:
         case zombie_condition_speeddown3:
         case zombie_condition_speeddown4:
+        case zombie_condition_sapped:
+        case zombie_condition_chill:
+        case zombie_condition_stackableslow:
+        case zombie_condition_stalled:
         {
             if (zombie->m_attachedEffects.GetObjectIndex("slow") == -1) {
-                SexyVector3 transformOffset = { 10.0f, 0.0f, 0.0f };
+                SexyVector3 transformOffset = { 10.0f, -30.0f, 0.0f };
                 setAnim(zombie, "slow", "POPANIM_EFFECTS_ZOMBIE_SLOWDOWN", "anim", &transformOffset, 1, false, false, 2);
             }
             break;
@@ -155,10 +167,20 @@ Zombie* hkRemoveEffectCondition(Zombie* zombie, ZombieConditions cond) {
             removeAnim(&zombie->m_attachedEffects, &stun);
             break;
         }
+        case zombie_condition_zombossstun:
+        {
+            std::string zombossstun = "zombossstun";
+            removeAnim(&zombie->m_attachedEffects, &zombossstun);
+            break;
+        }
         case zombie_condition_speeddown1:
         case zombie_condition_speeddown2:
         case zombie_condition_speeddown3:
         case zombie_condition_speeddown4:
+        case zombie_condition_sapped:
+        case zombie_condition_chill:
+        case zombie_condition_stackableslow:
+        case zombie_condition_stalled:
         {
             std::string slow = "slow";
             removeAnim(&zombie->m_attachedEffects, &slow);
@@ -169,7 +191,45 @@ Zombie* hkRemoveEffectCondition(Zombie* zombie, ZombieConditions cond) {
     return oRemoveEffCond(zombie, cond);
 }
 #pragma endregion
+#pragma region Sap Condition Shader Restoration
 
+typedef void(*zombieConditionTrackerUpdate)(ZombieConditionTracker*);
+zombieConditionTrackerUpdate oZombieConditionTrackerUpdate = nullptr;
+Sexy::Color BlendColor(const Sexy::Color& c1, const Sexy::Color& c2)
+{
+    Sexy::Color result;
+    result.mRed = (c1.mRed * c2.mRed) / 255;
+    result.mGreen = (c1.mGreen * c2.mGreen) / 255;
+    result.mBlue = (c1.mBlue * c2.mBlue) / 255;
+    result.mAlpha = (c1.mAlpha * c2.mAlpha) / 255;
+
+    return result;
+}
+void hkZombieConditionTrackerUpdate(ZombieConditionTracker* thisPtr)
+{
+    oZombieConditionTrackerUpdate(thisPtr);
+
+    bool allowColorMix = false;
+
+    if (thisPtr->m_conditionFlags[zombie_condition_sapped])
+    {
+        Sexy::Color sappedColor(255, 134, 44, 255);
+
+        Sexy::Color mixedColor = BlendColor(thisPtr->m_currentColor, sappedColor);
+        
+        thisPtr->m_currentColor = mixedColor;
+
+        allowColorMix = true;
+    }
+    thisPtr->m_states[m_colorMixMode] |= allowColorMix;
+}
+// Removes the sap shader effect from Red Stinger's PF effect
+void PatchRedStingerPF()
+{
+    uint32_t value = 0x528004A1; // changes sapped to slowdown2
+    ReplaceBytes(0xE7DB9C, &value, 4);
+}
+#pragma endregion 
 __attribute__((constructor))
 // This is automatically executed when the lib is loaded
 // Run your initialization code here
@@ -182,6 +242,7 @@ void libChair_main()
     //PVZ2HookFunction(0x540938, (void*)hkBossProgressMeterInit, (void**)&oBossProgressMeterInit);
     PVZ2HookFunction(0xC4987C, (void*)hkEffectCondition, (void**)&oEffCond);
     PVZ2HookFunction(0xC4BC48, (void*)hkRemoveEffectCondition, (void**)&oRemoveEffCond);
+    PVZ2HookFunction(0x677B40, (void*)hkZombieConditionTrackerUpdate, (void**)&oZombieConditionTrackerUpdate);
     ZombieBullProps::modInit();
     ZombieBullVeteranProps::modInit();
     ZombieZcorpRacerProps::modInit();
@@ -216,4 +277,5 @@ void libChair_main()
     ZombieZCorpEnergyDrinker::modInit();
     ZombieZCorpEnergyDrinkerProps::modInit();
     ZombieAnimRig_EnergyDrinker::modInit();
+    PatchRedStingerPF();
 }

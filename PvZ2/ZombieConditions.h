@@ -1,5 +1,6 @@
 #pragma once
-
+#include "EntityConditionTracker.h"
+class Zombie;
 enum ZombieConditions
 {
 	zombie_condition_none = -1,
@@ -160,3 +161,11 @@ public:
 static_assert(sizeof(ZombieConditionEntry) == 12);
 static_assert(offsetof(ZombieConditionEntry, Condition) == 0);
 static_assert(offsetof(ZombieConditionEntry, Duration) == 4);
+class ZombieConditionTracker : public EntityConditionTracker<Zombie>
+{
+public:
+	float m_entityScale;
+	char pad1[4];
+};
+
+static_assert(offsetof(ZombieConditionTracker, m_currentColor) == 120);

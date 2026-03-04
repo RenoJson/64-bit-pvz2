@@ -1,6 +1,9 @@
 #include "MemUtils.h"
 
 #include <And64InlineHook.hpp>
+#include <sys/mman.h>
+
+extern "C" void __clear_cache(void* beg, void* end);
 
 uintptr_t g_libAddress = NULL;
 
@@ -91,4 +94,35 @@ void* GetVirtualFunc(void* obj, int index)
 {
     void** vtable = *reinterpret_cast<void***>(obj);
     return vtable[index];
+}
+
+bool ReplaceBytes(uintptr_t offset, const void* data, size_t size)
+{
+    uintptr_t addr = getActualOffset(offset);
+    size_t pagesize = sysconf(_SC_PAGESIZE);
+
+    uintptr_t pageStart = addr & ~(pagesize - 1);
+    uintptr_t pageEnd = (addr + size + pagesize - 1) & ~(pagesize - 1);
+    size_t totalSize = pageEnd - pageStart;
+    if (mprotect((void*)pageStart, totalSize, PROT_READ | PROT_WRITE | PROT_EXEC) != 0) {
+        return false;
+    }
+
+    memcpy((void*)addr, data, size);
+    __clear_cache((char*)addr, (char*)addr + size);
+
+#if defined(__aarch64__) || defined(__arm__)
+    __asm__ __volatile__("dmb ish" ::: "memory");
+    __asm__ __volatile__("isb" ::: "memory");
+#endif
+
+    if (mprotect((void*)pageStart, totalSize, PROT_READ | PROT_EXEC) != 0) {
+        return false;
+    }
+
+#if defined(__aarch64__) || defined(__arm__)
+    __asm__ __volatile__("isb" ::: "memory");
+#endif
+
+    return true;
 }

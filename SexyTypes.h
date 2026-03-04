@@ -76,6 +76,7 @@ namespace Sexy
 	class Color
 	{
 	public:
+
 		int mRed, mGreen, mBlue, mAlpha;
 
 		Color() : mRed(0), mGreen(0), mBlue(0), mAlpha(0) {};

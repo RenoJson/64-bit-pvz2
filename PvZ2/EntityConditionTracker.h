@@ -8,28 +8,36 @@ struct EntityCondition
     float m_additionalDataValue;
 };
 
-//template <typename T, typename CT>
+enum UnkConditionEnum
+{
+    b1 = 0,
+    b2 = 1,
+    b3 = 2,
+    m_flatColorMode = 3,
+    m_colorMixMode = 4,
+    b6 = 5
+};
+
+
+template <typename T>
+
 class EntityConditionTracker
 {
 public:
-    std::vector<uint8_t> m_conditionFlags;
+    std::vector<byte> m_conditionFlags;
     std::vector<EntityCondition> m_conditions;
+    float m_speedScale;
+    float m_dpsScale;
+    float m_hpScale;
+    float m_damageScale;
+    char pad[4];
+    std::vector<uint8_t> m_states;
+    Sexy::Color m_shaderOverrideColor;
+    Sexy::Color m_currentColor;
+    Sexy::RtWeakPtr<T> m_owner;
+    char pad2[4];
 
-public:
-    virtual void Function0() {};
-    virtual void Function1() {};
-    virtual void Function2() {};
-    virtual void Function3() {};
+    virtual ~EntityConditionTracker() {};
+    virtual int GetConditionCount() {};
+    virtual void Update() {};
 };
-
-static_assert(sizeof(EntityConditionTracker) == 56);
-static_assert(offsetof(EntityConditionTracker, m_conditionFlags) == 8);
-static_assert(offsetof(EntityConditionTracker, m_conditions) == 32);
-
-class ZombieConditionTracker : public EntityConditionTracker
-{
-public:
-    //char m_pad[706];
-};
-
-//static_assert(sizeof(ZombieConditionTracker) == 764);
