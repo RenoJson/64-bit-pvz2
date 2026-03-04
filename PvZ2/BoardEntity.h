@@ -104,15 +104,15 @@ enum class BoardEntityTypeFlag
 	griditem,
 	other
 };
-
+// real byte size of this class is 128 byte, but it's gonna broken other class so 120 byte size is the suitable one for this ig
 class BoardEntity : public ModularRealObject
 {
 public:
-	int32_t m_level;
+	int m_level;
 	char pad[4];
 	Sexy::Rect m_collisionRect; 
-	int m_boardEntityFlags;    
-	char component[8];
+	int m_boardEntityFlags;
+	Sexy::RtWeakPtr<void> m_componentRunner; // ComponentRunner
 	pvztime_t m_createdTime;
 	void GetGridCoords(Sexy::SexyVector2 res)
 	{
@@ -123,13 +123,13 @@ public:
 	virtual void TakeDamage(DamageInfo* dmgInfo) {};
 	virtual void Function36() {};
 	virtual void Function37() {};
-	virtual void Function38() {};
+	virtual void Heal(int healAmount) {};
 	virtual void Function39() {};
 	virtual void Function40() {};
 	virtual void Function41() {};
-	virtual void Function42() {};
-	virtual void Function43() {};
-	virtual void Function44() {};
+	virtual bool BlocksGridItem() {};
+	virtual bool IsOpposingTeam(RealObject* target) {};
+	virtual int GetRenderOrder() {};
 	virtual void Function45() {};
 	virtual void Function46() {};
 	virtual void Function47() {};
