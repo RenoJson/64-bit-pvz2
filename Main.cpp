@@ -17,13 +17,9 @@
 #include "PvZ2/ZombieConditions.h"
 #include "PvZ2/ZombieCavalryProps.h"
 #include "PvZ2/ZombieDarkCavalry.h"
-#include "PvZ2/ZombieWesternTudigongProps.h"
-
-#include "PvZ2/ZombieWesternKongMingLantern.h"
 #include "PvZ2/ZombieFairyTaleImp.h"
 #include "PvZ2/ZombieFairyTaleImpProps.h"
 #include "PvZ2/ZombieFairyTaleGargantuar.h"
-#include <PvZ2/ZombieWesternTudigong.h>
 #include <PvZ2/ZombieAnimRig_ModernAllStar.h>
 #include <PvZ2/ZombieAnimRig_EightiesPunk.h>
 #include <PvZ2/ZombieAnimRig_Consultant.h>
@@ -50,6 +46,8 @@
 #include <PvZ2/ZombieTombRaiser.h>
 #include <PvZ2/ZombieTombRaiserProps.h>
 #include <PvZ2/ZombieAnimRig_TombRaiser.h>
+#include <PvZ2/ZombieFutureJetpack.h>
+#include <PvZ2/ZombieFutureJetpackProps.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -277,5 +275,7 @@ void libChair_main()
     ZombieZCorpEnergyDrinker::modInit();
     ZombieZCorpEnergyDrinkerProps::modInit();
     ZombieAnimRig_EnergyDrinker::modInit();
+    ZombieDarkCavalry::modInit();
+    ZombieDarkCavalryProps::modInit();
     PatchRedStingerPF();
 }

@@ -4,6 +4,7 @@
 #include <Sexy/PopAnim.h>
 #include <Sexy/DelegateBase.h>
 #include <Sexy/PopAnimListener.h>
+#include <Sexy/RtReflectionDelegateBase.h>
 
 namespace Sexy {
 	class Graphics;
@@ -13,9 +14,11 @@ class PopAnimRig : public GameObject, public Sexy::PopAnimListener
 {
 public:
 	float m_saturation;
+	char pad_001[4];
 	Sexy::PopAnim* m_popAnim;
 	Sexy::RtWeakPtr<PopAnimRig> m_selfPtr;
 	int m_activeAnim;
+	char pad_002[4];
 	SexyString m_activeAnimBaseLabel;
 	int m_activeAnimPlayStyle;
 	int m_activeAnimSeqEndCount;
@@ -24,7 +27,7 @@ public:
 	int m_activeAnimLastPlayedVariation;
 	Sexy::RtWeakPtr<RtObject> m_audioObject;
 	bool m_manageDeletion;
-	bool m_mirrorX;
+	bool m_mirrored;
 	bool m_disabled;
 	bool m_useShaderOverrideColor;
 	char m_pad2[4];
@@ -33,7 +36,6 @@ public:
 	Sexy::DelegateBase m_delegateOnStop;
 	Sexy::DelegateBase m_delegateOnLoop;
 	Sexy::DelegateBase m_delegateOnCommand;
-	char m_pad3[48];
 	ZombieEvent m_serialOnAnimStopped;
 	ZombieEvent m_serialOnLoopingAnimContinued;
 	ZombieEvent m_serialOnPopAnimCommand;
@@ -88,7 +90,7 @@ static_assert(offsetof(PopAnimRig, m_activeAnim) == 48);
 static_assert(offsetof(PopAnimRig, m_activeAnimSelectMethod) == 112);
 static_assert(offsetof(PopAnimRig, m_audioObject) == 120);
 static_assert(offsetof(PopAnimRig, m_manageDeletion) == 128);
-static_assert(offsetof(PopAnimRig, m_mirrorX) == 129);
+static_assert(offsetof(PopAnimRig, m_mirrored) == 129);
 static_assert(offsetof(PopAnimRig, m_shaderOverrideColor) == 136);
 static_assert(offsetof(PopAnimRig, m_serialOnAnimStopped) == 312);
 static_assert(offsetof(PopAnimRig, m_serialOnLoopingAnimContinued) == 400);

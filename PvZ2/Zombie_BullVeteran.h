@@ -19,20 +19,20 @@ public:
 		ctorWithThisPtr baseCtor = (ctorWithThisPtr)getActualOffset(0xC136A4);
 		baseCtor(props);
 
-		*reinterpret_cast<int*>(uintptr_t(props)) = getActualOffset(0x2433048);
+		*reinterpret_cast<uintptr_t*>(props) = getActualOffset(0x2433048);
 		return props;
 	}
 
 	static void buildSymbols(Reflection::CRefManualSymbolBuilder* builder, Reflection::RClass* rclass)
 	{
 		oZombieBullVeteranPropsBuildSymbols(builder, rclass);
-		RT_CLASS_REGISTER_STRING_PROPERTY(ZombieBullVeteranProps, VetRiderType);
 		RT_CLASS_REGISTER_STRING_VECTOR_PROPERTY(ZombieBullVeteranProps, RiderLayersToHide);
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullVeteranProps, LaunchDistance);
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullVeteranProps, LaunchHeight);
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullVeteranProps, LaunchAirTime);
 		RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieBullVeteranProps, SexyVector3, RiderSpawnOffset);
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullVeteranProps, isCavalry);
+		RT_CLASS_REGISTER_STRING_PROPERTY(ZombieBullVeteranProps, VetRiderType);
 	};
 }; 
 

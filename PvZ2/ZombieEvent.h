@@ -10,9 +10,8 @@ public:
 	SexyString m_eventName;
 	Sexy::DelegateBase m_delegate;
 	bool m_isDelegateSetup;
-	char m_pad[16];
 };
 
 static_assert(sizeof(ZombieEvent) == 88);
 static_assert(offsetof(ZombieEvent, m_ownerPtr) == 0);
-static_assert(offsetof(ZombieEvent, m_isDelegateSetup) == 64);
+static_assert(offsetof(ZombieEvent, m_isDelegateSetup) == 80);

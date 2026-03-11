@@ -17,3 +17,9 @@ static_assert(offsetof(ZombieBull, m_hasLaunched) == 1096);
 static_assert(offsetof(ZombieBull, m_hitEntity) == 1097);
 static_assert(offsetof(ZombieBull, m_walkCycled) == 1098);
 static_assert(offsetof(ZombieBull, m_damageState) == 1100);
+
+class ZombieBullVeteran : public ZombieBull 
+{
+public:
+    RT_CLASS_GET_CLASS_WRAPPER(0xAE64E8);
+};

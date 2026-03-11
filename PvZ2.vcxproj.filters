@@ -107,6 +107,7 @@
     <ClCompile Include="PvZ2\ZombieZcorpEnergyDrinker.cpp" />
     <ClCompile Include="PvZ2\ZombieZCorpEnergyDrinkerProps.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_EnergyDrinker.cpp" />
+    <ClCompile Include="PvZ2\ZombieFutureJetpackVeteran.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -164,5 +165,7 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_TombRaiser.h" />
     <ClInclude Include="PvZ2\GameObjectDictionary.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Bull.h" />
+    <ClInclude Include="PvZ2\ZombieFutureJetpack.h" />
+    <ClInclude Include="PvZ2\ZombieFutureJetpackProps.h" />
   </ItemGroup>
 </Project>
