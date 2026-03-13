@@ -108,6 +108,9 @@
     <ClCompile Include="PvZ2\ZombieZCorpEnergyDrinkerProps.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_EnergyDrinker.cpp" />
     <ClCompile Include="PvZ2\ZombieFutureJetpackVeteran.cpp" />
+    <ClCompile Include="PvZ2\FairyTaleWitchProjectile.cpp" />
+    <ClCompile Include="PvZ2\ZombieFairyTaleWitchFrog.cpp" />
+    <ClCompile Include="PvZ2\ZombieFairyTaleWitch.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -167,5 +170,9 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_Bull.h" />
     <ClInclude Include="PvZ2\ZombieFutureJetpack.h" />
     <ClInclude Include="PvZ2\ZombieFutureJetpackProps.h" />
+    <ClInclude Include="PvZ2\ZombieWithAction.h" />
+    <ClInclude Include="PvZ2\FairyTaleWitchProjectile.h" />
+    <ClInclude Include="PvZ2\ZombieFairyTaleWitchFrog.h" />
+    <ClInclude Include="PvZ2\AddPlantType.h" />
   </ItemGroup>
 </Project>

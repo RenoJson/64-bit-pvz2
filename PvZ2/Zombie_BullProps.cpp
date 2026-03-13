@@ -345,6 +345,7 @@ void hkBullFunction71(ZombieBull* self, int conditionID)
     if (conditionID == zombie_condition_gummed)
     {
         if (!self->m_hasLaunched) {
+            //Enter state function, 20 is rearing state that bull will using bull jump back anim
             typedef int (*FuncC3D428)(Zombie*, int, int);
             FuncC3D428 funC3D428 = (FuncC3D428)getActualOffset(0xC3D428);
             funC3D428(self, 20, 0);
@@ -357,7 +358,7 @@ void hkBullFunction71(ZombieBull* self, int conditionID)
         typedef void (*FuncC41290)(Zombie*, int);
         FuncC41290 funC41290 = (FuncC41290)getActualOffset(0xC41290);
         funC41290(self, 0);
-
+        //Enter state function, 20 is rearing state that bull will using bull jump back anim
         typedef uintptr_t (*FuncC3D428)(Zombie*, int, int);
         FuncC3D428 funC3D428 = (FuncC3D428)getActualOffset(0xC3D428);
         funC3D428(self, 20, 0);

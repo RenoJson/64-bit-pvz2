@@ -169,6 +169,7 @@
     </ClCompile>
     <ClCompile Include="PvZ2\DangerRoomFallenKnightDesigner.cpp" />
     <ClCompile Include="PvZ2\DangerRoomHelpdeskSupportDesigner.cpp" />
+    <ClCompile Include="PvZ2\FairyTaleWitchProjectile.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_Consultant.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_DarkRider.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_EightiesPunk.cpp" />
@@ -187,6 +188,8 @@
     <ClCompile Include="PvZ2\ZombieFairyTaleGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleImp.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleImpProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieFairyTaleWitch.cpp" />
+    <ClCompile Include="PvZ2\ZombieFairyTaleWitchFrog.cpp" />
     <ClCompile Include="PvZ2\ZombieFutureJetpackVeteran.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestBalloonProps.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestGargantuar.cpp" />
@@ -213,6 +216,7 @@
     <ClInclude Include="Main.h" />
     <ClInclude Include="MemUtils.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="PvZ2\AddPlantType.h" />
     <ClInclude Include="PvZ2\AddZombieType.h" />
     <ClInclude Include="PvZ2\AnimationMgr.h" />
     <ClInclude Include="PvZ2\ArmorPropertySheet.h" />
@@ -225,6 +229,7 @@
     <ClInclude Include="PvZ2\DangerRoomLevelDesigner.h" />
     <ClInclude Include="PvZ2\Effect_PopAnim.h" />
     <ClInclude Include="PvZ2\EntityConditionTracker.h" />
+    <ClInclude Include="PvZ2\FairyTaleWitchProjectile.h" />
     <ClInclude Include="PvZ2\GameFeature.h" />
     <ClInclude Include="PvZ2\GameObject.h" />
     <ClInclude Include="PvZ2\GameObjectDictionary.h" />
@@ -282,6 +287,7 @@
     <ClInclude Include="PvZ2\ZombieFairyTaleGargantuar.h" />
     <ClInclude Include="PvZ2\ZombieFairyTaleImp.h" />
     <ClInclude Include="PvZ2\ZombieFairyTaleImpProps.h" />
+    <ClInclude Include="PvZ2\ZombieFairyTaleWitchFrog.h" />
     <ClInclude Include="PvZ2\ZombieFutureJetpack.h" />
     <ClInclude Include="PvZ2\ZombieFutureJetpackProps.h" />
     <ClInclude Include="PvZ2\ZombieGargantuar.h" />
@@ -304,6 +310,7 @@
     <ClInclude Include="PvZ2\ZombieStateHelper.h" />
     <ClInclude Include="PvZ2\ZombieTombRaiser.h" />
     <ClInclude Include="PvZ2\ZombieTombRaiserProps.h" />
+    <ClInclude Include="PvZ2\ZombieWithAction.h" />
     <ClInclude Include="PvZ2\Zombie_BullProps.h" />
     <ClInclude Include="PvZ2\Zombie_BullVeteran.h" />
     <ClInclude Include="Reflection\CRefManualSymbolBuilder.h" />

@@ -15,7 +15,7 @@ typedef bool (*checkZombieHasCondition)(Zombie*, int);
 typedef void (*setConditionZ)(Zombie*, int, int, float, float);
 
 typedef int (*boardEntitySetPosition)(Zombie*, SexyVector3*);
-
+// override func 49, 206 and 215 so that cavalry alway launch plant when encountered no matter its walk anim are done or not
 Zombie* overrideOnSpawn(ZombieDarkCavalry* zombie) {
     auto* props = reinterpret_cast<ZombieDarkCavalryProps*>(zombie->m_propertySheet.Get());
 	zombie->m_damageState = 0;

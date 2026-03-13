@@ -195,141 +195,68 @@ static_assert(offsetof(PlantPropertySheet, AnimRigProps) == 436);
 class Plant : public BoardEntity
 {
 public:
-	// [0x78] Offset 120 (Assembly v158)
-		// Biến đầu tiên của Plant, nằm ngay sau BoardEntity
 	pvztime_t m_createdTime;
-
-	// [0x7C] Offset 124 -> 136
-	// Padding 12 bytes để đẩy m_initialLaunchInterval xuống 136
 	char pad_007C[12];
-
-	// [0x88] Offset 136 (Assembly v20)
 	Sexy::ValueRange m_initialLaunchInterval;
-
-	// [0x90] Offset 144
 	Sexy::ValueRange m_launchInterval;
-
-	// [0x98] Offset 152
 	float m_baseScale;
-
-	// [0x9C] Offset 156
-	int32_t m_state;
-
-	// [0xA0] Offset 160 (Assembly v18: "m_plant")
-	int32_t m_plantFlags;
-
-	// [0xA4] Offset 164
+	int m_state;
+	int m_plantFlags;
 	float m_PlantHealth;
-
-	// [0xA8] Offset 168
 	float m_overrideMinimumMaxHealth;
-
-	// [0xAC] Offset 172
 	float m_speedModifier;
-
-	// [0xB0] Offset 176
-	int32_t m_lastDamageType;
-
-	// [0xB4] Offset 180
-	// Padding 4 bytes để đẩy m_row/col đúng vị trí
+	int m_lastDamageType;
 	char pad_00B4[4];
-
-	// [0xB8] Offset 184
-	int32_t m_row;
-
-	// [0xBC] Offset 188 (Assembly v46)
-	int32_t m_column;
-
-	// [0xC0] Offset 192 (Assembly v50)
+	int m_row;
+	int m_column;
 	bool m_isOnBoard;
-	bool m_isShooter; // 193
-	bool m_mirror;    // 194
-	bool m_isDead;    // 195
-
-	// [0xC4] Offset 196
+	bool m_isShooter;
+	bool m_mirror;
+	bool m_isDead;
 	pvztime_t m_disappearTime;
 	pvztime_t m_doSpecialTime;
 	pvztime_t m_stateEndTime;
 	pvztime_t m_launchTime;
-	pvztime_t m_plantFoodEndTime; // 212
+	pvztime_t m_plantFoodEndTime;
 	pvztime_t m_timeTillNextDamageFlash;
 	float m_fadeInDuration;
 	pvztime_t m_fadeInEndTime;
 	float m_sproutScalingDuration;
-	pvztime_t m_sproutScalingEndTime; // 232
-
-	// [0xEC] Offset 236 -> 256 (Assembly v85: m_damageStates)
-	// 256 - 236 = 20 bytes padding
+	pvztime_t m_sproutScalingEndTime;
 	char pad_00EC[20];
-
-	// [0x100] Offset 256
-	int32_t m_damageStates;
-	int32_t m_currentDamageState; // 260
-	int32_t m_currentPlantActionIdx; // 264
-
-	// [0x10C] Offset 268 (Padding align 8 cho WeakPtr)
+	int m_damageStates;
+	int m_currentDamageState;
+	int m_currentPlantActionIdx;
 	char pad_align_ptr[4];
-
-	// [0x110] Offset 272 (Assembly v145)
 	Sexy::RtWeakPtr<Sexy::RtObject> m_type;
-
-	// [0x118] Offset 280
 	Sexy::RtWeakPtr<PlantAnimRig> m_animRig;
-
-	// [0x120] Offset 288
 	Sexy::RtWeakPtr<Sexy::RtObject> m_plantFoodShine;
-
-	// [0x128] Offset 296
 	bool m_isInPlantFoodState;
-	bool m_protectedFromShovel; // 297
-	bool m_isDuplicate;         // 298
-
-	// [0x12B] Offset 299 (Align)
+	bool m_protectedFromShovel;
+	bool m_isDuplicate; 
 	char pad_align_299[1];
-
-	// [0x12C] Offset 300
-	int32_t m_level;
-	int32_t m_masteryLevel;
-	int32_t m_powerUpFlags; // 308 -> 312
-
-	// [0x138] Offset 312 -> 320 (Khoảng trống 8 bytes)
-	// Chắc chắn là m_propertySheet như bạn dự đoán
+	int m_level;
+	int m_masteryLevel;
+	int m_powerUpFlags; 
 	Sexy::RtWeakPtr<PlantPropertySheet> m_propertySheet;
-
-	// [0x140] Offset 320 (Assembly v138)
 	MultiPlantGridLayer m_multiPlantGridLayer;
-	MultiPlantGridLayer m_multiPlantDrawLayer; // 324
-
-	// [0x148] Offset 328
+	MultiPlantGridLayer m_multiPlantDrawLayer;
 	bool m_relocating;
-	char pad_align_329[3]; // Align 4
-
-	// [0x14C] Offset 332
+	char pad_align_329[3];
 	float m_relocateFromX;
 	float m_relocateFromY;
 	float m_relocateToX;
 	float m_relocateToY;
-	float m_relocateApexHeight; // 348
-
-	// [0x160] Offset 352
+	float m_relocateApexHeight;
 	Sexy::SexyVector2 m_relocationOffsetFromDestination;
-
-	// [0x168] Offset 360
 	pvztime_t m_relocateStartTime;
 	pvztime_t m_relocateEndTime;
-	int32_t m_relocationType; // 368 -> 372
-
+	int m_relocationType;
 	char pad_0174[4];
-
 	char m_groundEffect[24];
-
-	char m_conditionTracker[56]; // Kết thúc tại 456
-
+	char m_conditionTracker[56];
 	char pad_to_attached[88];
-
-	char m_attachedBoardEntities[32]; // Giả sử size ~32
-
-	// [0x240] Offset 576 (Assembly v212)
+	char m_attachedBoardEntities[32]; 
 	char m_attachedEffects[32];
 };
 

@@ -2,11 +2,14 @@
 #include "RealObject.h"
 #include "PropertySheetBase.h"
 #include "ZombieConditions.h"
+#include "BoardEntity.h"
 #include <jni.h>
+#include "PopAnimRig.h"
 
 class BoardEntity;
 class PlantType;
 class ZombieConditionEntry;
+class DamageInfo;
 enum DamageTypeFlags : int;
 
 class Projectile : public ModularRealObject
@@ -59,19 +62,19 @@ public:
 	virtual void Function37() {};
 	virtual void Function38() {};
 	virtual void Function39() {};
-	virtual void UpdateVelocity() {};
-	virtual void Function41() {};
-	virtual void Function42() {};
+	virtual void UpdateVelocity(float velocity) {};
+	virtual bool DoImpact(BoardEntity* target) {};
+	virtual void DoSplashImpact(BoardEntity* target) {};
 	virtual void Function43() {};
-	virtual void Function44() {};
+	virtual void DebugDrawRects(Sexy::Graphics* g) {};
 	virtual void Function45() {};
-	virtual void Function46() {};
+	virtual void HealTarget(BoardEntity* target) {};
 	virtual void AffectTarget(BoardEntity* target) {};
 	virtual void Function48() {};
 	virtual void Function49() {};
-	virtual void GetDamageInfo(int* outDmgInfo) {};
+	virtual void GetDamageInfo(DamageInfo* outDmgInfo) {};
 	virtual void FindCollisionTargets(std::vector<BoardEntity*>& targets) {};
-	virtual void Function52() {};
+	virtual void InitializeAttachedAnimRig(PopAnimRig* animRig, float offsetX, float offsetY) {};
 };
 
 static_assert(sizeof(Projectile) == 376);
