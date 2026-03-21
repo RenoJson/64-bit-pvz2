@@ -46,8 +46,13 @@
 #include <PvZ2/ZombieTombRaiser.h>
 #include <PvZ2/ZombieTombRaiserProps.h>
 #include <PvZ2/ZombieAnimRig_TombRaiser.h>
-#include <PvZ2/ZombieFutureJetpack.h>
-#include <PvZ2/ZombieFutureJetpackProps.h>
+#include "pch.h"
+#include "And64InlineHook.hpp"
+#include <PvZ2/FairyTaleWitchProjectile.h>
+#include <PvZ2/ZombieAnimRig_FairyTaleWitch.h>
+#include <PvZ2/ZombieWithAction.h>
+#include <PvZ2/ZombieFairyTaleWitchFrog.h>
+#include <PvZ2/ZombieGargantuarProps.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -111,16 +116,49 @@ effectCondition oEffCond = nullptr;
 Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
     typedef Zombie* (*setEffectAnim)(Zombie*, const char*, const char*, const char*, SexyVector3*, uint, bool, bool, uint);
     setEffectAnim setAnim = (setEffectAnim)getActualOffset(0x7BF03C);
-
+    auto* props = reinterpret_cast<ZombiePropertySheet*>(zombie->m_propertySheet.Get());
     switch (cond)
     {
         case zombie_condition_dazeystunned:
-        case zombie_condition_stickybombed:
         case zombie_condition_stun:
         {
-            if (zombie->m_attachedEffects.GetObjectIndex("stun") == -1) {
-                SexyVector3 transformOffset = { -25.0f, -20.0f, 0.0f };
-                setAnim(zombie, "stun", "POPANIM_EFFECTS_ZOMBIES_STUN_EFFECT", "stun_fx", &transformOffset, 1, false, false, 2);
+           if (zombie->m_attachedEffects.GetObjectIndex("stickystun") == -1) {
+               if (zombie->m_attachedEffects.GetObjectIndex("stun") == -1) {
+                   SexyVector3 transformOffset;
+                   if (props->Size == ZombieSize::large) {
+                       transformOffset = { -25.0f, -80.0f, 0.0f };
+                   }
+                   else if (props->Size == ZombieSize::imp) {
+                       transformOffset = { -25.0f, -10.0f, 0.0f };
+                   }
+                   else if (props->Size == ZombieSize::chicken) {
+                       transformOffset = { -25.0f, 0.0f, 0.0f };
+                   }
+                   else {
+                       transformOffset = { -25.0f, -20.0f, 0.0f };
+                   }
+                   setAnim(zombie, "stun", "POPANIM_EFFECTS_ZOMBIES_STUN_EFFECT", "stun_fx", &transformOffset, 1, false, false, 2);
+               }
+           }
+           break;
+        }
+        case zombie_condition_stickybombed:
+        {
+            if (zombie->m_attachedEffects.GetObjectIndex("stickystun") == -1) {
+                SexyVector3 transformOffset;
+                if (props->Size == ZombieSize::large) {
+                    transformOffset = { -25.0f, -100.0f, 0.0f };
+                }
+                else if (props->Size == ZombieSize::imp) {
+                    transformOffset = { -25.0f, 0.0f, 0.0f };
+                }
+                else if (props->Size == ZombieSize::chicken) {
+                    transformOffset = { -25.0f, 10.0f, 0.0f };
+                }
+                else {
+                    transformOffset = { -25.0f, -20.0f, 0.0f };
+                }
+                setAnim(zombie, "stickystun", "POPANIM_EFFECTS_ZOMBIES_STUN_EFFECT", "stun_fx", &transformOffset, 1, false, false, 2);
             }
             break;
         }
@@ -136,14 +174,42 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
         case zombie_condition_speeddown2:
         case zombie_condition_speeddown3:
         case zombie_condition_speeddown4:
+        {
+            if (zombie->m_attachedEffects.GetObjectIndex("slow") == -1) {
+                SexyVector3 transformOffset = { 10.0f, -30.0f, 0.0f };
+                setAnim(zombie, "slow", "POPANIM_EFFECTS_ZOMBIE_SLOWDOWN", "anim", &transformOffset, 1, false, false, 2);
+            }
+            break;
+        }
         case zombie_condition_sapped:
         case zombie_condition_chill:
         case zombie_condition_stackableslow:
         case zombie_condition_stalled:
         {
             if (zombie->m_attachedEffects.GetObjectIndex("slow") == -1) {
-                SexyVector3 transformOffset = { 10.0f, -30.0f, 0.0f };
-                setAnim(zombie, "slow", "POPANIM_EFFECTS_ZOMBIE_SLOWDOWN", "anim", &transformOffset, 1, false, false, 2);
+                if (zombie->m_attachedEffects.GetObjectIndex("plantslow") == -1) {
+                    SexyVector3 transformOffset = { 10.0f, -30.0f, 0.0f };
+                    setAnim(zombie, "plantslow", "POPANIM_EFFECTS_ZOMBIE_SLOWDOWN", "anim", &transformOffset, 1, false, false, 2);
+                }
+            }
+            break;
+        }
+        case zombie_condition_hungered:
+        case zombie_condition_speedup1:
+        case zombie_condition_speedup2:
+        case zombie_condition_speedup3:
+        case zombie_condition_speedup4:
+        case zombie_condition_terrified:
+        case zombie_condition_potionspeed1:
+        case zombie_condition_potionspeed2:
+        case zombie_condition_potionspeed3:
+        case zombie_condition_potionsuper1:
+        case zombie_condition_potionsuper2:
+        case zombie_condition_potionsuper3:
+        {
+            if (zombie->m_attachedEffects.GetObjectIndex("zombiespeedup") == -1) {
+                SexyVector3 transformOffset = { 20.0f, -20.0f, 0.0f };
+                setAnim(zombie, "zombiespeedup", "POPANIM_EFFECTS_ZOMBIE_SPEEDUP", "zombie_speedup", &transformOffset, 1, false, false, 2);
             }
             break;
         }
@@ -158,10 +224,15 @@ Zombie* hkRemoveEffectCondition(Zombie* zombie, ZombieConditions cond) {
 
     switch (cond) {
         case zombie_condition_dazeystunned:
-        case zombie_condition_stickybombed:
         case zombie_condition_stun:
         {
             std::string stun = "stun";
+            removeAnim(&zombie->m_attachedEffects, &stun);
+            break;
+        }
+        case zombie_condition_stickybombed:
+        {
+            std::string stun = "stickystun";
             removeAnim(&zombie->m_attachedEffects, &stun);
             break;
         }
@@ -175,13 +246,35 @@ Zombie* hkRemoveEffectCondition(Zombie* zombie, ZombieConditions cond) {
         case zombie_condition_speeddown2:
         case zombie_condition_speeddown3:
         case zombie_condition_speeddown4:
+        {
+            std::string slow = "slow";
+            removeAnim(&zombie->m_attachedEffects, &slow);
+            break;
+        }
         case zombie_condition_sapped:
         case zombie_condition_chill:
         case zombie_condition_stackableslow:
         case zombie_condition_stalled:
         {
-            std::string slow = "slow";
-            removeAnim(&zombie->m_attachedEffects, &slow);
+            std::string plantslow = "plantslow";
+            removeAnim(&zombie->m_attachedEffects, &plantslow);
+            break;
+        }
+        case zombie_condition_hungered:
+        case zombie_condition_speedup1:
+        case zombie_condition_speedup2:
+        case zombie_condition_speedup3:
+        case zombie_condition_speedup4:
+        case zombie_condition_terrified:
+        case zombie_condition_potionspeed1:
+        case zombie_condition_potionspeed2:
+        case zombie_condition_potionspeed3:
+        case zombie_condition_potionsuper1:
+        case zombie_condition_potionsuper2:
+        case zombie_condition_potionsuper3:
+        {
+            std::string speedup = "zombiespeedup";
+            removeAnim(&zombie->m_attachedEffects, &speedup);
             break;
         }
     }
@@ -195,13 +288,12 @@ typedef void(*zombieConditionTrackerUpdate)(ZombieConditionTracker*);
 zombieConditionTrackerUpdate oZombieConditionTrackerUpdate = nullptr;
 Sexy::Color BlendColor(const Sexy::Color& c1, const Sexy::Color& c2)
 {
-    Sexy::Color result;
-    result.mRed = (c1.mRed * c2.mRed) / 255;
-    result.mGreen = (c1.mGreen * c2.mGreen) / 255;
-    result.mBlue = (c1.mBlue * c2.mBlue) / 255;
-    result.mAlpha = (c1.mAlpha * c2.mAlpha) / 255;
-
-    return result;
+    Sexy::Color color;
+    color.mRed = (c1.mRed * c2.mRed) / 255;
+    color.mGreen = (c1.mGreen * c2.mGreen) / 255;
+    color.mBlue = (c1.mBlue * c2.mBlue) / 255;
+    color.mAlpha = (c1.mAlpha * c2.mAlpha) / 255;
+    return color;
 }
 void hkZombieConditionTrackerUpdate(ZombieConditionTracker* thisPtr)
 {
@@ -277,5 +369,11 @@ void libChair_main()
     ZombieAnimRig_EnergyDrinker::modInit();
     ZombieDarkCavalry::modInit();
     ZombieDarkCavalryProps::modInit();
+    FrogProjectile::ModInit();
+    ZombieAnimRig_FairyTaleWitch::modInit();
+    ZombieFairyTaleWitch::modInit();
+    ZombieFairyTaleWitchFrog::ModInit();
+    ZombieAnimRig_FairyTaleImp::modInit();
+    ZombieFairyTaleGargantuarProps::modInit();
     PatchRedStingerPF();
 }

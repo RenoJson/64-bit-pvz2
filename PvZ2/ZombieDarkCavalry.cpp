@@ -1,8 +1,10 @@
-#include "ZombieDarkCavalry.h"
+﻿#include "ZombieDarkCavalry.h"
 #include "ZombieAnimRig_Bull.h"
 #include "AddZombieType.h"
 #include "Zombie_BullProps.h"
 #include "ZombieCavalryProps.h"
+#include "Plant.h"
+#include "GridItem.h"
 
 
 void* ZombieDarkCavalry::vftable = __null;
@@ -83,6 +85,42 @@ void HideCustomKnightLayer(ZombieDarkCavalry* self, ZombieAnimRig_Bull* animRig)
             setLayerVisible(animRig, &layerName, false);
         }
     }
+}
+void LanceSpawn(ZombieDarkCavalry* self)
+{
+    typedef Sexy::RtObject* (*getTarg)(ZombieDarkCavalry*);
+    getTarg getTarget = (getTarg)getActualOffset(0xC41910);
+    Sexy::RtObject* target = getTarget(self);
+
+    typedef void (*killTarg)(Plant*, ZombieDarkCavalry*);
+    killTarg KillTarget = (killTarg)getActualOffset(0x1337020);
+
+    if (target != nullptr && target->IsType(PlantGroup::StaticGetType())) {
+        KillTarget((Plant*)target, self);
+    }
+
+    Board* board = Board::GetBoard();
+    auto* props = reinterpret_cast<ZombieDarkCavalryProps*>(self->m_propertySheet.Get());
+
+    float rawPosX = self->m_position.x;
+    float rawPosY = self->m_position.y;
+
+
+    int spawnPosX = (int)(((rawPosX - 232.0f) / 64.0f) + 0.5f) - 1;
+
+    int spawnPosY = (int)(((rawPosY - 160.0f) / 76.0f));
+
+    if (spawnPosX < 0) spawnPosX = 0;
+    if (spawnPosX > 8) spawnPosX = 8;
+    if (spawnPosY < 0) spawnPosY = 0;
+    if (spawnPosY > 4) spawnPosY = 4;
+
+    typedef GridItemSurfboard* (*funcAA230C)(Board*, SexyString, int, int);
+    funcAA230C func_AA230C = (funcAA230C)getActualOffset(0xAA230C);
+    GridItemSurfboard* gridItem = func_AA230C(board, "joustsword", spawnPosX, spawnPosY);
+
+    gridItem->m_health = props->LanceHitpoints;
+    gridItem->m_healthMax = props->LanceHitpoints;
 }
 void CavalryThrowRider(ZombieDarkCavalry* self)
 {
@@ -177,6 +215,7 @@ void overrideCavalryActionFrame(ZombieDarkCavalry* zombie, int64_t unk1, SexyStr
 	if (*actionName == "launch")
 	{
         CavalryThrowRider(zombie);
+        LanceSpawn(zombie);
 	}
 }
 SexyString GetCavalryShockEffectName()
@@ -193,6 +232,7 @@ void overrideBullFunction215(ZombieDarkCavalry* zombie) {
     ((zombieFun215)getActualOffset(0xAE4818))(zombie);
     zombie->m_walkCycled = true;
 }
+
 void ZombieDarkCavalry::modInit() {
 	LOGI("ZombieDarkCavalry init");
 

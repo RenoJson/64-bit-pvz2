@@ -4,7 +4,13 @@
 #include "Plant.h"
 #include "PvZ2/Zombie.h"
 
-
+enum ZSIMP {
+    flying = 16,
+    landing = 17,
+    hithead = 18,
+    falling = 19,
+    gettingup = 20
+};
 class ZombieImp : public Zombie
 {
 public:

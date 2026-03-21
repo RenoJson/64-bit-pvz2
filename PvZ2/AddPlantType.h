@@ -6,8 +6,9 @@ inline void* GetDefaultPlantSpawnArgs() {
     return (void*)getActualOffset(0x2513080);
 };
 class BoardPlanting {
-    virtual void function1();
-    virtual void function2();
+public:
+    virtual void Function1() {};
+    virtual void Function2() {};
 };
 
 inline BoardPlanting* GetBoardPlantingInstance()

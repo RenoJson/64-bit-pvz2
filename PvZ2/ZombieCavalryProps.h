@@ -3,9 +3,9 @@
 
 class ZombieDarkCavalryProps : public ZombieBullProps
 {
-
 public: 
 	bool Stampede = false;
+	float LanceHitpoints;
 
 	static void* vftable; 
 	static Sexy::RtClass* s_rtClass; 
@@ -23,7 +23,7 @@ public:
 	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieDarkCavalryProps, SexyVector3, RiderSpawnOffset);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieDarkCavalryProps, isCavalry);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieDarkCavalryProps, Stampede);
-	
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieDarkCavalryProps, LanceHitpoints);
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieDarkCavalryProps);

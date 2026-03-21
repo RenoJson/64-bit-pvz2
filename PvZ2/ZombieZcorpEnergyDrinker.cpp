@@ -97,7 +97,7 @@ void CondZombie(Zombie* self) {
 
     float lifetime = props->ConditionLifeTime;
     if (lifetime <= 0.0f) {
-        lifetime = 3.4028e38f; // Vô cực (FLT_MAX)
+        lifetime = 3.4028e38f; 
     }
 
     auto ApplyRandomCondFromVector = [&](const std::vector<SexyString>& condVector) {

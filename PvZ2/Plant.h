@@ -229,7 +229,7 @@ public:
 	int m_currentPlantActionIdx;
 	char pad_align_ptr[4];
 	Sexy::RtWeakPtr<Sexy::RtObject> m_type;
-	Sexy::RtWeakPtr<PlantAnimRig> m_animRig;
+	Sexy::RtWeakPtr<Sexy::RtObject> m_animRig;
 	Sexy::RtWeakPtr<Sexy::RtObject> m_plantFoodShine;
 	bool m_isInPlantFoodState;
 	bool m_protectedFromShovel;
@@ -270,6 +270,7 @@ static_assert(offsetof(Plant, m_mirror) == 194);
 static_assert(offsetof(Plant, m_damageStates) == 256);
 static_assert(offsetof(Plant, m_currentPlantActionIdx) == 264);
 static_assert(offsetof(Plant, m_type) == 272);
+static_assert(offsetof(Plant, m_animRig) == 280);
 static_assert(offsetof(Plant, m_isInPlantFoodState) == 296);
 static_assert(offsetof(Plant, m_isDuplicate) == 298);
 static_assert(offsetof(Plant, m_level) == 300);
@@ -278,12 +279,12 @@ static_assert(offsetof(Plant, m_relocating) == 328);
 static_assert(offsetof(Plant, m_relocateFromX) == 332);
 static_assert(offsetof(Plant, m_relocationOffsetFromDestination) == 352);
 static_assert(offsetof(Plant, m_relocateStartTime) == 360);
-static_assert(offsetof(Plant, m_createdTime) == 120, "Offset 120 Fail");
-static_assert(offsetof(Plant, m_initialLaunchInterval) == 136, "Offset 136 Fail");
-static_assert(offsetof(Plant, m_plantFlags) == 160, "Offset 160 Fail");
-static_assert(offsetof(Plant, m_column) == 188, "Offset 188 Fail");
-static_assert(offsetof(Plant, m_propertySheet) == 312, "Offset 312 Fail");
-static_assert(offsetof(Plant, m_attachedBoardEntities) == 544, "Offset 544 Fail");
+static_assert(offsetof(Plant, m_createdTime) == 120);
+static_assert(offsetof(Plant, m_initialLaunchInterval) == 136);
+static_assert(offsetof(Plant, m_plantFlags) == 160);
+static_assert(offsetof(Plant, m_column) == 188);
+static_assert(offsetof(Plant, m_propertySheet) == 312);
+static_assert(offsetof(Plant, m_attachedBoardEntities) == 544);
 
 class PlantsSortedByLayer
 {
@@ -297,6 +298,11 @@ static_assert(offsetof(PlantsSortedByLayer, m_plants) == 0);
 class PlantGroup : public BoardEntity
 {
 public:
+	static Sexy::RtClass* StaticGetType() {
+		typedef Sexy::RtClass* (*getType)(); 
+		getType pGetType = (getType)getActualOffset(0x133566C);
+		return pGetType();
+	};
 	int m_gridX;
 	int m_gridY;
 	bool m_isOnBoard;

@@ -1,7 +1,7 @@
-#include "PvZ2/Zombie.h"
-#include "Reflection/CRefManualSymbolBuilder.h"
+#pragma once
+#include "Zombie.h"
 #include <Reflection/ReflectionBuilder.h>
-using namespace Sexy;
+
 class ZombieFairyTaleWitchFrog : public Zombie {
 public:
 	SexyString m_transformedPlant;

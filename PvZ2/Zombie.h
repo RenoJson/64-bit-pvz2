@@ -194,12 +194,12 @@ public:
 	float m_flickOffFinalRotation;
 	float m_rotation;
 	float m_scale;
-	int32_t m_zombieRenderLayerOffset;
+	int m_zombieRenderLayerOffset;
 	Sexy::RtWeakPtr<Plant> m_ownerPlant;
 	Sexy::RtWeakPtr<Sexy::RtObject> m_forcedTarget;
 	char pad_GroundEffect[24];
 	Sexy::SexyVector2 m_stormTargetLocation;
-	int32_t m_stormType;
+	int m_stormType;
 	char pad_align2[4];
 	std::vector<Sexy::RtWeakPtr<Armor>> m_armor;
 	char pad_ConditionTracker[56]; 

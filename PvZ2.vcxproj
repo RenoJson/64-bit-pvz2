@@ -140,8 +140,8 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <DebugInformationFormat>None</DebugInformationFormat>
-      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <DebugInformationFormat>FullDebug</DebugInformationFormat>
+      <WarningLevel>EnableAllWarnings</WarningLevel>
     </ClCompile>
     <Link>
       <DebuggerSymbolInformation>OmitAllSymbolInformation</DebuggerSymbolInformation>
@@ -174,6 +174,8 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_DarkRider.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_EightiesPunk.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_EnergyDrinker.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_FairyTaleImp.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_FairyTaleWitch.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_Gargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_JourneyToTheWestGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_JourneyToTheWestTrident.cpp" />
@@ -186,11 +188,11 @@
     <ClCompile Include="PvZ2\ZombieDarkCavalry.cpp" />
     <ClCompile Include="PvZ2\ZombieDarkCavalryRider.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleGargantuar.cpp" />
+    <ClCompile Include="PvZ2\ZombieFairyTaleGargantuarProps.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleImp.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleImpProps.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleWitch.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleWitchFrog.cpp" />
-    <ClCompile Include="PvZ2\ZombieFutureJetpackVeteran.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestBalloonProps.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestGargantuarProps.cpp" />
@@ -267,6 +269,7 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_Consultant.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_DarkRider.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_EightiesPunk.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_FairyTaleWitch.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Gargantuar.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Hunter.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Imp.h" />
@@ -288,11 +291,8 @@
     <ClInclude Include="PvZ2\ZombieFairyTaleImp.h" />
     <ClInclude Include="PvZ2\ZombieFairyTaleImpProps.h" />
     <ClInclude Include="PvZ2\ZombieFairyTaleWitchFrog.h" />
-    <ClInclude Include="PvZ2\ZombieFutureJetpack.h" />
-    <ClInclude Include="PvZ2\ZombieFutureJetpackProps.h" />
     <ClInclude Include="PvZ2\ZombieGargantuar.h" />
     <ClInclude Include="PvZ2\ZombieGargantuarProps.h" />
-    <ClInclude Include="PvZ2\ZombieIceAgeHunterVeteran.h" />
     <ClInclude Include="PvZ2\ZombieImp.h" />
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestPiggy.h" />
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestPiggyProps.h" />

@@ -23,6 +23,12 @@ public:
 
 };
 
+class ZombieAnimRig_BeachBasic : public ZombieAnimRig_Basic
+{
+public:
+
+};
+
 class ZombieAnimRig_DinoBully : public ZombieAnimRig_DinoBasic
 {
 public:

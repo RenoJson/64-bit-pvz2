@@ -5,7 +5,7 @@
 class ZombieFairyTaleImp : public ZombieImp
 {
 public:
-	bool m_hasSpawned = false;
+	bool m_hasSpawned;
 
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;

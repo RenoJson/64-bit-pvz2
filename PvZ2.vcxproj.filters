@@ -107,10 +107,12 @@
     <ClCompile Include="PvZ2\ZombieZcorpEnergyDrinker.cpp" />
     <ClCompile Include="PvZ2\ZombieZCorpEnergyDrinkerProps.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_EnergyDrinker.cpp" />
-    <ClCompile Include="PvZ2\ZombieFutureJetpackVeteran.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_FairyTaleWitch.cpp" />
     <ClCompile Include="PvZ2\FairyTaleWitchProjectile.cpp" />
-    <ClCompile Include="PvZ2\ZombieFairyTaleWitchFrog.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleWitch.cpp" />
+    <ClCompile Include="PvZ2\ZombieFairyTaleWitchFrog.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_FairyTaleImp.cpp" />
+    <ClCompile Include="PvZ2\ZombieFairyTaleGargantuarProps.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -126,7 +128,6 @@
     <ClInclude Include="PvZ2\ZombieFairyTaleImpProps.h" />
     <ClInclude Include="PvZ2\ZombieGargantuar.h" />
     <ClInclude Include="PvZ2\ZombieGargantuarProps.h" />
-    <ClInclude Include="PvZ2\ZombieIceAgeHunterVeteran.h" />
     <ClInclude Include="PvZ2\ZombieImp.h" />
     <ClInclude Include="PvZ2\ZombieLostCityBug.h" />
     <ClInclude Include="Main.h" />
@@ -168,11 +169,10 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_TombRaiser.h" />
     <ClInclude Include="PvZ2\GameObjectDictionary.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Bull.h" />
-    <ClInclude Include="PvZ2\ZombieFutureJetpack.h" />
-    <ClInclude Include="PvZ2\ZombieFutureJetpackProps.h" />
-    <ClInclude Include="PvZ2\ZombieWithAction.h" />
-    <ClInclude Include="PvZ2\FairyTaleWitchProjectile.h" />
-    <ClInclude Include="PvZ2\ZombieFairyTaleWitchFrog.h" />
     <ClInclude Include="PvZ2\AddPlantType.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_FairyTaleWitch.h" />
+    <ClInclude Include="PvZ2\FairyTaleWitchProjectile.h" />
+    <ClInclude Include="PvZ2\ZombieWithAction.h" />
+    <ClInclude Include="PvZ2\ZombieFairyTaleWitchFrog.h" />
   </ItemGroup>
 </Project>

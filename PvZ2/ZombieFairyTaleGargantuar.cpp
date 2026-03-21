@@ -1,6 +1,8 @@
-#include "ZombieFairyTaleGargantuar.h"
+﻿#include "ZombieFairyTaleGargantuar.h"
 #include "ZombieGargantuarProps.h"
 #include "AddZombieType.h"
+#include "DamageInfo.h"
+#include "ZombieAnimRig_Gargantuar.h"
 
 void* ZombieFairyTaleGargantuar::vftable = __null;
 Sexy::RtClass* ZombieFairyTaleGargantuar::s_rtClass = __null;;
@@ -11,8 +13,67 @@ checkZombieHasCondition hasCondition = (checkZombieHasCondition)getActualOffset(
 typedef void (*setConditionZ)(Zombie*, int, int, int, int);
 setConditionZ setCondition = (setConditionZ)getActualOffset(0xC40CC0);
 
-void SpawnImpAfterDie(ZombieGargantuar* self) {
-	auto* props = reinterpret_cast<ZombieGargantuarProps*>(self->m_propertySheet.Get());
+void* FGargTakeDamage(ZombieFairyTaleGargantuar* thisPtr, DamageInfo* damageInfo)
+{
+	auto* props = reinterpret_cast<ZombieFairyTaleGargantuarProps*>(thisPtr->m_propertySheet.Get());
+	DamageInfo newDmgInfo = *damageInfo;
+	float reductionMultiplier = 1.0f - (props->DamageReduction / 100.0f);
+	newDmgInfo.m_damage = damageInfo->m_damage * reductionMultiplier;
+	typedef void* (*funcC43B90)(ZombieFairyTaleGargantuar*, DamageInfo*);
+	static auto* ZTakeDmg = ((funcC43B90)getActualOffset(0xC43B90));
+	return ZTakeDmg(thisPtr, &newDmgInfo);
+}
+
+void HideImpLayer(ZombieFairyTaleGargantuar* self, ZombieAnimRig_FairyTaleGargantuar* animRig) {
+
+	auto* props = reinterpret_cast<ZombieFairyTaleGargantuarProps*>(self->m_propertySheet.Get());
+
+	std::vector<SexyString> HardcodedLayer = {};
+
+	typedef int64_t(*setLayerVisibleFunc)(ZombieAnimRig_FairyTaleGargantuar*, SexyString*, bool);
+	setLayerVisibleFunc setLayerVisible = (setLayerVisibleFunc)getActualOffset(0x9DB8D0);
+	bool hasCustomLayers = false;
+	if (!props->HealthThresholdToImpAmmoLayers.empty()) {
+		hasCustomLayers = true;
+
+		size_t pairCount = props->HealthThresholdToImpAmmoLayers.size();
+		for (size_t i = 0; i < pairCount; i++) {
+			const auto& layersToHide = props->HealthThresholdToImpAmmoLayers[i].ProjectileLayersToHide;
+			size_t layerCount = layersToHide.size();
+			for (size_t j = 0; j < layerCount; j++) {
+				SexyString layerName(layersToHide[j]);
+				setLayerVisible(animRig, &layerName, false);
+			}
+		}
+	}
+	if (!hasCustomLayers) {
+		for (size_t i = 0; i < HardcodedLayer.size(); i++) {
+			SexyString layerName(HardcodedLayer[i]);
+			setLayerVisible(animRig, &layerName, false);
+		}
+	}
+}
+
+void overrideFOnSpawn(ZombieFairyTaleGargantuar* zombie) {
+	auto* props = reinterpret_cast<ZombieFairyTaleGargantuarProps*>(zombie->m_propertySheet.Get());
+	typedef void (*zombieFun49)(ZombieFairyTaleGargantuar*);
+	((zombieFun49)getActualOffset(0xC3D1F0))(zombie);
+	if (props->CarryImp == false) {
+		auto* rig = reinterpret_cast<ZombieAnimRig_FairyTaleGargantuar*>(zombie->m_animRig.Get());
+		HideImpLayer(zombie, rig);
+	}
+}
+void overrideFIdleOnLoop(ZombieFairyTaleGargantuar* zombie) {
+	auto* props = reinterpret_cast<ZombieFairyTaleGargantuarProps*>(zombie->m_propertySheet.Get());
+	if (props->CarryImp == false) {
+		auto* rig = reinterpret_cast<ZombieAnimRig_FairyTaleGargantuar*>(zombie->m_animRig.Get());
+		HideImpLayer(zombie, rig);
+	}
+	typedef void (*zombieFun121)(ZombieFairyTaleGargantuar*);
+	((zombieFun121)getActualOffset(0xC502CC))(zombie);
+}
+void SpawnImpAfterDie(ZombieFairyTaleGargantuar* self) {
+	auto* props = reinterpret_cast<ZombieFairyTaleGargantuarProps*>(self->m_propertySheet.Get());
 	SexyString name = props->ImpType;
 	float impApex = props->ImpApex;
 	float flightTime = props->ImpFlightTime;
@@ -40,13 +101,14 @@ void SpawnImpAfterDie(ZombieGargantuar* self) {
 	virtualThrow(spawnedRider, 0, newX, newY, newZ, flightTime, impApex);
 }
 
-void hkFairyTaleGargantuarActionFrame(ZombieGargantuar* gargantuar, int64_t unk1, SexyString* actionName, int64_t unk2, SexyString* currentAnim)
+void hkFairyTaleGargantuarActionFrame(ZombieFairyTaleGargantuar* gargantuar, int64_t unk1, SexyString* actionName, int64_t unk2, SexyString* currentAnim)
 {
-	typedef void* (*gargAF)(ZombieGargantuar*, int64_t, SexyString*, int64_t,  SexyString*);
+	auto* props = reinterpret_cast<ZombieFairyTaleGargantuarProps*>(gargantuar->m_propertySheet.Get());
+	typedef void* (*gargAF)(ZombieFairyTaleGargantuar*, int64_t, SexyString*, int64_t,  SexyString*);
 	gargAF gargActionFrame = (gargAF)getActualOffset(0xB30CC0);
 	bool isShrinking = hasCondition(gargantuar, zombie_condition_shrinking);
 	bool isShrunken = hasCondition(gargantuar, zombie_condition_shrunken);
-	if (*actionName == "drop" && !isShrinking && !isShrunken)
+	if (*actionName == "drop" && !isShrinking && !isShrunken && props->CarryImp == true)
 	{
 		SpawnImpAfterDie(gargantuar);
 		return;
@@ -60,6 +122,12 @@ void ZombieFairyTaleGargantuar::modInit() {
 	vftable = CopyVFTable(getActualOffset(0x23E5478), 212);
 
 	PatchVFTable(vftable, (void*)ZombieFairyTaleGargantuar::StaticGetType, 0);
+
+	PatchVFTable(vftable, (void*)FGargTakeDamage, 35);
+
+	PatchVFTable(vftable, (void*)overrideFOnSpawn, 49);
+
+	PatchVFTable(vftable, (void*)overrideFIdleOnLoop, 121);
 
 	PatchVFTable(vftable, (void*)hkFairyTaleGargantuarActionFrame, 170);
 

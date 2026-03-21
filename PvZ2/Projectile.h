@@ -50,13 +50,17 @@ public:
 	int m_propertyFlags;
 	Sexy::RtWeakPtr<RtObject> m_attachedAnimRig;
 	Sexy::SexyVector2 m_attachedAnimRigOffset;
-	Sexy::RtWeakPtr<RtObject> m_target;
+	Sexy::RtWeakPtr<BoardEntity> m_target;
 	EntityComponent_GroundEffect m_groundEffect;
 	std::vector<SexyString> m_plantFamilies;
 	float m_resistancePiercingOverride;
 	int m_plantTier;
 	char pad5[4];
 
+	void SetTarget(Sexy::RtWeakPtr<BoardEntity>* targetPtr)
+	{
+		this->m_target.FromOther(targetPtr);
+	}
 	virtual bool CollideWithObject(GameObject* object) {};
 	virtual void OnCollision() {};
 	virtual void Function37() {};
@@ -81,6 +85,7 @@ static_assert(sizeof(Projectile) == 376);
 static_assert(offsetof(Projectile, m_shouldAffectTarget) == 80);
 static_assert(offsetof(Projectile, m_propertySheet) == 96);
 static_assert(offsetof(Projectile, m_instigator) == 104);
+static_assert(offsetof(Projectile, m_target) == 304);
 static_assert(offsetof(Projectile, m_previousPosition) == 132);
 static_assert(offsetof(Projectile, m_renderImage) == 200);
 static_assert(offsetof(Projectile, m_mirrored) == 232);

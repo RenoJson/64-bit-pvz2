@@ -8,6 +8,24 @@ class ZombieAnimRig_Imp : public ZombieAnimRig_Basic
 public:
 
 };
+class ZombieAnimRig_FairyTaleImp : public ZombieAnimRig_Basic
+{
+public:
+	bool m_jumpScared;
+	static void* vftable;
+	static Sexy::RtClass* s_rtClass;
+	static void modInit();;
+
+	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(ZombieAnimRig_FairyTaleImp, 0x9D9C4C);
+	RT_CLASS_CONSTRUCT_FUNCTION_END();
+
+	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombieAnimRig_Imp);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieAnimRig_FairyTaleImp, m_jumpScared);
+	RT_CLASS_BUILD_SYMBOLS_END();
+
+	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieAnimRig_FairyTaleImp);
+	RT_CLASS_GET_CLASS_FUNCTION(ZombieAnimRig_FairyTaleImp, 0xB571B8);
+};
 class ZombieAnimRig_ModernSuperfanImp : public ZombieAnimRig_Imp
 {
 public:
