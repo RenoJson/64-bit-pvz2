@@ -368,14 +368,16 @@ public:
 	virtual void PlaySoundOnIdle() {}
 	virtual void PlaySoundOnEat() {}
 };
-static_assert(offsetof(Zombie, m_creationTime) == 120, "Offset m_creationTime sai");
-static_assert(offsetof(Zombie, m_walkSpeed) == 408, "Offset m_creationTime sai");
-static_assert(offsetof(Zombie, m_helm) == 124, "Offset m_helm sai");
-static_assert(offsetof(Zombie, m_helmHitpoints) == 128, "Offset m_helm sai");
-static_assert(offsetof(Zombie, m_hitpoints) == 376, "Offset m_helm sai");
-static_assert(offsetof(Zombie, m_type) == 160, "Offset m_type sai");
-static_assert(offsetof(Zombie, m_elapsedTimeInState) == 352, "Offset m_elapsedTimeInState sai");
-static_assert(offsetof(Zombie, m_flickOffTarget) == 448, "Offset m_flickOffTarget sai");
+static_assert(offsetof(Zombie, m_creationTime) == 120);
+static_assert(offsetof(Zombie, m_walkSpeed) == 408);
+static_assert(offsetof(Zombie, m_helm) == 124);
+static_assert(offsetof(Zombie, m_helmHitpoints) == 128);
+static_assert(offsetof(Zombie, m_hitpoints) == 376);
+static_assert(offsetof(Zombie, m_type) == 160);
+static_assert(offsetof(Zombie, m_animRig) == 168);
+static_assert(offsetof(Zombie, m_elapsedTimeInState) == 352);
+static_assert(offsetof(Zombie, m_dpsScale) == 396);
+static_assert(offsetof(Zombie, m_flickOffTarget) == 448);
 static_assert(offsetof(Zombie, m_playingAnim) == 0x16C);
 static_assert(offsetof(Zombie, m_maxHelmHitpoints) == 0x1A0);
 

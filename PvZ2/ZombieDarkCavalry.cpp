@@ -88,27 +88,35 @@ void HideCustomKnightLayer(ZombieDarkCavalry* self, ZombieAnimRig_Bull* animRig)
 }
 void LanceSpawn(ZombieDarkCavalry* self)
 {
-    typedef Sexy::RtObject* (*getTarg)(ZombieDarkCavalry*);
+    typedef Plant* (*getTarg)(ZombieDarkCavalry*);
     getTarg getTarget = (getTarg)getActualOffset(0xC41910);
-    Sexy::RtObject* target = getTarget(self);
-
+    Plant* target = getTarget(self);
+    float rawPosX;
+    float rawPosY;
+    int spawnPosX;
+    int spawnPosY;
     typedef void (*killTarg)(Plant*, ZombieDarkCavalry*);
     killTarg KillTarget = (killTarg)getActualOffset(0x1337020);
 
     if (target != nullptr && target->IsType(PlantGroup::StaticGetType())) {
-        KillTarget((Plant*)target, self);
+        rawPosX = target->m_position.x;
+        rawPosY = target->m_position.y;
+
+        spawnPosX = (int)(((rawPosX - 232.0f) / 64.0f));
+        spawnPosY = (int)(((rawPosY - 160.0f) / 76.0f));
+
+        KillTarget(target, self);
+    }
+    else {
+        rawPosX = self->m_position.x;
+        rawPosY = self->m_position.y;
+
+        spawnPosX = (int)(((rawPosX - 232.0f) / 64.0f) + 0.5f) - 1;
+        spawnPosY = (int)(((rawPosY - 160.0f) / 76.0f));
     }
 
     Board* board = Board::GetBoard();
     auto* props = reinterpret_cast<ZombieDarkCavalryProps*>(self->m_propertySheet.Get());
-
-    float rawPosX = self->m_position.x;
-    float rawPosY = self->m_position.y;
-
-
-    int spawnPosX = (int)(((rawPosX - 232.0f) / 64.0f) + 0.5f) - 1;
-
-    int spawnPosY = (int)(((rawPosY - 160.0f) / 76.0f));
 
     if (spawnPosX < 0) spawnPosX = 0;
     if (spawnPosX > 8) spawnPosX = 8;
@@ -127,8 +135,6 @@ void CavalryThrowRider(ZombieDarkCavalry* self)
     auto* props = reinterpret_cast<ZombieDarkCavalryProps*>(self->m_propertySheet.Get());
     SexyString name = props->RiderType;
     float distance = props->LaunchDistance;
-
-
 
     if (name.empty()) {
         name = "dark_cavalry_rider";

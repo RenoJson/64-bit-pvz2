@@ -113,6 +113,11 @@
     <ClCompile Include="PvZ2\ZombieFairyTaleWitchFrog.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_FairyTaleImp.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleGargantuarProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRigBasicTemplateProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieBasicTemplate.cpp" />
+    <ClCompile Include="PvZ2\ZombieBasicProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_BasicTemplate.cpp" />
+    <ClCompile Include="PvZ2\ZombieCowboyBasic.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -174,5 +179,7 @@
     <ClInclude Include="PvZ2\FairyTaleWitchProjectile.h" />
     <ClInclude Include="PvZ2\ZombieWithAction.h" />
     <ClInclude Include="PvZ2\ZombieFairyTaleWitchFrog.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRigBasicTemplateProps.h" />
+    <ClInclude Include="PvZ2\ZombieBasicProps.h" />
   </ItemGroup>
 </Project>

@@ -170,6 +170,8 @@
     <ClCompile Include="PvZ2\DangerRoomFallenKnightDesigner.cpp" />
     <ClCompile Include="PvZ2\DangerRoomHelpdeskSupportDesigner.cpp" />
     <ClCompile Include="PvZ2\FairyTaleWitchProjectile.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRigBasicTemplateProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_BasicTemplate.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_Consultant.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_DarkRider.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_EightiesPunk.cpp" />
@@ -184,7 +186,10 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_Piggy.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_PirateBoomBarrel.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_Vendor.cpp" />
+    <ClCompile Include="PvZ2\ZombieBasicProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieBasicTemplate.cpp" />
     <ClCompile Include="PvZ2\ZombieCavalryProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieCowboyBasic.cpp" />
     <ClCompile Include="PvZ2\ZombieDarkCavalry.cpp" />
     <ClCompile Include="PvZ2\ZombieDarkCavalryRider.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleGargantuar.cpp" />
@@ -264,6 +269,7 @@
     <ClInclude Include="PvZ2\ZcorpRacerZombie.h" />
     <ClInclude Include="PvZ2\Zombie.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRigBasicTemplateProps.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Basic.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Bull.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Consultant.h" />
@@ -278,6 +284,7 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_TombRaiser.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Vendor.h" />
     <ClInclude Include="PvZ2\ZombieBasic.h" />
+    <ClInclude Include="PvZ2\ZombieBasicProps.h" />
     <ClInclude Include="PvZ2\ZombieBugProps.h" />
     <ClInclude Include="PvZ2\ZombieBull.h" />
     <ClInclude Include="PvZ2\ZombieCavalryProps.h" />

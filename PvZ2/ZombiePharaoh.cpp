@@ -13,7 +13,7 @@ void* PharaohTakeDamage(ZombieEgyptPharaoh* thisPtr, DamageInfo* damageInfo)
         if (armor != nullptr && !armor->m_destroyed && armor->m_health > 0)
         {
             if (damageInfo->m_damage > armor->m_health) {
-               damageInfo->m_damage = armor->m_health;
+               damageInfo->m_damage = armor->m_health - 10;
             }
         }
     }

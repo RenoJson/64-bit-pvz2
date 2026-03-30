@@ -94,7 +94,7 @@ int GetConditionIDByName(const char* name)
     return -1; 
 }
 
-void* hkModifierModule(ZombieModifierModule* module, Zombie* zombie) {
+Zombie* ConditionModifier(ZombieModifierModule* module, Zombie* zombie) {
     auto* props = reinterpret_cast<ZombieModifierProperties*>(module->m_propertySheet.Get());
     typedef void (*setConditionZ)(Zombie*, int, int, float, float);
     setConditionZ setZCondition = (setConditionZ)getActualOffset(0xC40CC0);
@@ -123,7 +123,45 @@ void* hkModifierModule(ZombieModifierModule* module, Zombie* zombie) {
     }
     return zombie;
 }
+Zombie* StatModifier(ZombieModifierModule* module, Zombie* zombie) {
+    auto props = reinterpret_cast<ZombieModifierProperties*>(module->m_propertySheet.Get());
 
+    zombie->m_dpsScale = props->DPSScale;
+
+    float finalDamageScale = props->DamageScale;
+    if (finalDamageScale > 1.0f) {
+        finalDamageScale = 1.0f;
+    }
+    zombie->m_damageScale = finalDamageScale;
+
+    float finalHpScale = props->HitpointsScale;
+    if (finalHpScale < 1.0f) {
+        finalHpScale = 1.0f;
+    }
+    zombie->m_hitpoints *= finalHpScale;
+    zombie->m_maxHitpoints *= finalHpScale;
+
+    for (size_t i = 0; i < zombie->m_armor.size(); i++) {
+        auto armor = reinterpret_cast<Armor*>(zombie->m_armor[i].Get());
+        if (armor != nullptr) {
+            armor->m_health *= finalHpScale;
+            armor->m_maxHealth *= finalHpScale;
+        }
+    }
+
+    typedef Zombie* (*setSpeedScale)(Zombie*, float);
+    return ((setSpeedScale)getActualOffset(0xC484C0))(zombie, props->SpeedScale);
+}
+Zombie* hkModifierModule(ZombieModifierModule* module, Zombie* zombie) {
+    auto* props = reinterpret_cast<ZombieModifierProperties*>(module->m_propertySheet.Get());
+
+    if (props->ModifierType == "condition") {
+        return ConditionModifier(module, zombie);
+    }
+    else if (props->ModifierType == "stat") {
+        return StatModifier(module, zombie);
+    }
+}
 #pragma endregion
 
 Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc ZombieModifierProperties::oZombieModifierPropertiesBuildSymbols = nullptr;

@@ -12,9 +12,8 @@ public:
 	float m_animRateModifier;
 	float m_needsToDieRequestedTime;
 	bool m_readyToDie;
-	char m_pad5[4];
-	ZombieType* m_zombieType;
-	char m_pad6[16];
+	int m_state;
+	SexyString m_zombieType;
 
 	virtual void LoopIdleWithCallback(ZombieEvent*) {}
 	virtual void LoopWalkWithCallback(ZombieEvent*) {}

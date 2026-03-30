@@ -53,6 +53,8 @@
 #include <PvZ2/ZombieWithAction.h>
 #include <PvZ2/ZombieFairyTaleWitchFrog.h>
 #include <PvZ2/ZombieGargantuarProps.h>
+#include <PvZ2/ZombieAnimRigBasicTemplateProps.h>
+#include <PvZ2/ZombieBasicProps.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -126,7 +128,7 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
                if (zombie->m_attachedEffects.GetObjectIndex("stun") == -1) {
                    SexyVector3 transformOffset;
                    if (props->Size == ZombieSize::large) {
-                       transformOffset = { -25.0f, -80.0f, 0.0f };
+                       transformOffset = { -25.0f, -100.0f, 0.0f };
                    }
                    else if (props->Size == ZombieSize::imp) {
                        transformOffset = { -25.0f, -10.0f, 0.0f };
@@ -150,10 +152,10 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
                     transformOffset = { -25.0f, -100.0f, 0.0f };
                 }
                 else if (props->Size == ZombieSize::imp) {
-                    transformOffset = { -25.0f, 0.0f, 0.0f };
+                    transformOffset = { -25.0f, -10.0f, 0.0f };
                 }
                 else if (props->Size == ZombieSize::chicken) {
-                    transformOffset = { -25.0f, 10.0f, 0.0f };
+                    transformOffset = { -25.0f, 0.0f, 0.0f };
                 }
                 else {
                     transformOffset = { -25.0f, -20.0f, 0.0f };
@@ -199,17 +201,80 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
         case zombie_condition_speedup2:
         case zombie_condition_speedup3:
         case zombie_condition_speedup4:
-        case zombie_condition_terrified:
         case zombie_condition_potionspeed1:
         case zombie_condition_potionspeed2:
         case zombie_condition_potionspeed3:
+        {
+            if (zombie->m_attachedEffects.GetObjectIndex("zombiespeedup") == -1) {
+                SexyVector3 transformOffset = { 0.0f, -20.0f, 0.0f };
+                setAnim(zombie, "zombiespeedup", "POPANIM_EFFECTS_ZOMBIE_SPEEDUP", "zombie_speedup", &transformOffset, 1, false, false, 2);
+            }
+            break;
+        }
+        case zombie_condition_potiontoughness1:
+        case zombie_condition_potiontoughness2:
+        case zombie_condition_potiontoughness3:
+        {
+            if (zombie->m_attachedEffects.GetObjectIndex("dmgreduction") == -1) {
+                SexyVector3 transformOffset;
+                if (props->Size == ZombieSize::large) {
+                    transformOffset = { 0.0f, -50.0f, 0.0f };
+                }
+                else if (props->Size == ZombieSize::imp) {
+                    transformOffset = { 0.0f, -20.0f, 0.0f };
+                }
+                else if (props->Size == ZombieSize::chicken) {
+                    transformOffset = { 0.0f, -10.0f, 0.0f };
+                }
+                else {
+                    transformOffset = { 0.0f, -30.0f, 0.0f };
+                }
+                setAnim(zombie, "dmgreduction", "POPANIM_EFFECTS_ZOMBIE_DMG_REDUCTION", "02", &transformOffset, 1, false, false, 2);
+            }
+            break;
+        }
+
         case zombie_condition_potionsuper1:
         case zombie_condition_potionsuper2:
         case zombie_condition_potionsuper3:
         {
-            if (zombie->m_attachedEffects.GetObjectIndex("zombiespeedup") == -1) {
-                SexyVector3 transformOffset = { 20.0f, -20.0f, 0.0f };
-                setAnim(zombie, "zombiespeedup", "POPANIM_EFFECTS_ZOMBIE_SPEEDUP", "zombie_speedup", &transformOffset, 1, false, false, 2);
+            if (zombie->m_attachedEffects.GetObjectIndex("sreduce") == -1 && zombie->m_attachedEffects.GetObjectIndex("sspeedup") == -1) {
+                SexyVector3 transformOffset = { 0.0f, -20.0f, 0.0f };
+                setAnim(zombie, "sspeedup", "POPANIM_EFFECTS_ZOMBIE_SPEEDUP", "zombie_speedup", &transformOffset, 1, false, false, 2);
+                SexyVector3 transformOffset1;
+                if (props->Size == ZombieSize::large) {
+                    transformOffset1 = { 0.0f, -50.0f, 0.0f };
+                }
+                else if (props->Size == ZombieSize::imp) {
+                    transformOffset1 = { 0.0f, -20.0f, 0.0f };
+                }
+                else if (props->Size == ZombieSize::chicken) {
+                    transformOffset1 = { 0.0f, -10.0f, 0.0f };
+                }
+                else {
+                    transformOffset1 = { 0.0f, -30.0f, 0.0f };
+                }
+                setAnim(zombie, "sreduce", "POPANIM_EFFECTS_ZOMBIE_DMG_REDUCTION", "02", &transformOffset1, 1, false, false, 2);
+            }
+            break;
+        }
+        case zombie_condition_terrified:
+        {
+            if (zombie->m_attachedEffects.GetObjectIndex("terrified") == -1) {
+                SexyVector3 transformOffset;
+                if (props->Size == ZombieSize::large) {
+                    transformOffset = { -20.0f, -300.0f, 0.0f };
+                }
+                else if (props->Size == ZombieSize::imp) {
+                    transformOffset = { -20.0f, -50.0f, 0.0f };
+                }
+                else if (props->Size == ZombieSize::chicken) {
+                    transformOffset = { 0.0f, -30.0f, 0.0f };
+                }
+                else {
+                    transformOffset = { -20.0f, -150.0f, 0.0f };
+                }
+                setAnim(zombie, "terrified", "POPANIM_EFFECTS_ZOMBIE_TERRIFIED", "animation", &transformOffset, 1, false, false, 2);
             }
             break;
         }
@@ -242,6 +307,12 @@ Zombie* hkRemoveEffectCondition(Zombie* zombie, ZombieConditions cond) {
             removeAnim(&zombie->m_attachedEffects, &zombossstun);
             break;
         }
+        case zombie_condition_terrified:
+        {
+            std::string zombossstun = "terrified";
+            removeAnim(&zombie->m_attachedEffects, &zombossstun);
+            break;
+        }
         case zombie_condition_speeddown1:
         case zombie_condition_speeddown2:
         case zombie_condition_speeddown3:
@@ -265,13 +336,6 @@ Zombie* hkRemoveEffectCondition(Zombie* zombie, ZombieConditions cond) {
         case zombie_condition_speedup2:
         case zombie_condition_speedup3:
         case zombie_condition_speedup4:
-        case zombie_condition_terrified:
-        case zombie_condition_potionspeed1:
-        case zombie_condition_potionspeed2:
-        case zombie_condition_potionspeed3:
-        case zombie_condition_potionsuper1:
-        case zombie_condition_potionsuper2:
-        case zombie_condition_potionsuper3:
         {
             std::string speedup = "zombiespeedup";
             removeAnim(&zombie->m_attachedEffects, &speedup);
@@ -313,6 +377,7 @@ void hkZombieConditionTrackerUpdate(ZombieConditionTracker* thisPtr)
     }
     thisPtr->m_states[m_colorMixMode] |= allowColorMix;
 }
+
 // Removes the sap shader effect from Red Stinger's PF effect
 void PatchRedStingerPF()
 {
@@ -338,7 +403,6 @@ void libChair_main()
     ZombieZcorpRacerProps::modInit();
     ZombieFairyTaleImp::modInit();
     ZombieFairyTaleImpProps::modInit();
-    ZombieFairyTaleGargantuar::modInit();
     ZombieAnimRig_ModernAllStar::modInit();
     ZombieAnimRig_JourneyToTheWestAllStar::modInit();
     ZombieAnimRig_EightiesPunk::modInit();
@@ -363,7 +427,8 @@ void libChair_main()
     ZombieJourneyToTheWestPiggy::ModInit();
     ZombieJourneyToTheWestPiggyProps::modInit();
     ZombieJourneyToTheWestGargantuarProps::modInit();
-    //ZombieEgyptPharaoh::ModInit();
+    ZombieEgyptPharaoh::ModInit();
+    ZombieAnimRigTemplateConfig::modInit();
     ZombieZCorpEnergyDrinker::modInit();
     ZombieZCorpEnergyDrinkerProps::modInit();
     ZombieAnimRig_EnergyDrinker::modInit();
@@ -374,6 +439,12 @@ void libChair_main()
     ZombieFairyTaleWitch::modInit();
     ZombieFairyTaleWitchFrog::ModInit();
     ZombieAnimRig_FairyTaleImp::modInit();
+    ZombieFairyTaleGargantuar::modInit();
     ZombieFairyTaleGargantuarProps::modInit();
+    ZombieBasicTemplate::modInit();
+    ZombieBasicProps::modInit();
+    ZombieAnimRig_BasicTemplate::modInit();
+    ZombieCowboyBasicVeteran::modInit();
+    ZombieCowboyVeteranProps::modInit();
     PatchRedStingerPF();
 }

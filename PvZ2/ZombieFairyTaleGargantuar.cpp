@@ -104,7 +104,7 @@ void SpawnImpAfterDie(ZombieFairyTaleGargantuar* self) {
 void hkFairyTaleGargantuarActionFrame(ZombieFairyTaleGargantuar* gargantuar, int64_t unk1, SexyString* actionName, int64_t unk2, SexyString* currentAnim)
 {
 	auto* props = reinterpret_cast<ZombieFairyTaleGargantuarProps*>(gargantuar->m_propertySheet.Get());
-	typedef void* (*gargAF)(ZombieFairyTaleGargantuar*, int64_t, SexyString*, int64_t,  SexyString*);
+	typedef void* (*gargAF)(ZombieFairyTaleGargantuar*, int64_t, SexyString*, int64_t, SexyString*);
 	gargAF gargActionFrame = (gargAF)getActualOffset(0xB30CC0);
 	bool isShrinking = hasCondition(gargantuar, zombie_condition_shrinking);
 	bool isShrunken = hasCondition(gargantuar, zombie_condition_shrunken);
