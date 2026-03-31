@@ -21,7 +21,7 @@ void hkFairyTaleImpWalkOnLoop(ZombieFairyTaleImp* zombie) {
 	if (rig->m_jumpScared == true) {
 		auto* props = reinterpret_cast<ZombieFairyTaleImpProps*>(zombie->m_propertySheet.Get());
 		typedef Zombie* (*setSpeed)(ZombieFairyTaleImp*, float);
-		((setSpeed)getActualOffset(0xC484C0))(zombie, props->RunningSpeed);
+		((setSpeed)getActualOffset(0xC484C0))(zombie, props->RunningSpeedScale);
 	}
 	typedef void (*zombieFun124)(ZombieFairyTaleImp*);
 	((zombieFun124)getActualOffset(0xAC58E0))(zombie);
@@ -31,7 +31,7 @@ void hkFairyTaleImpWalkOnExit(ZombieFairyTaleImp* zombie) {
 	if (rig->m_jumpScared == true) {
 		auto* props = reinterpret_cast<ZombieFairyTaleImpProps*>(zombie->m_propertySheet.Get());
 		typedef Zombie* (*setSpeed)(ZombieFairyTaleImp*, float);
-		((setSpeed)getActualOffset(0xC484C0))(zombie, props->RunningSpeed);
+		((setSpeed)getActualOffset(0xC484C0))(zombie, props->RunningSpeedScale);
 	}
 	typedef void (*zombieFun125)(ZombieFairyTaleImp*);
 	((zombieFun125)getActualOffset(0xAC5920))(zombie);

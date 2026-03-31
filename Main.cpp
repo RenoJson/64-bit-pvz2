@@ -398,6 +398,7 @@ void libChair_main()
     PVZ2HookFunction(0xC4987C, (void*)hkEffectCondition, (void**)&oEffCond);
     PVZ2HookFunction(0xC4BC48, (void*)hkRemoveEffectCondition, (void**)&oRemoveEffCond);
     PVZ2HookFunction(0x677B40, (void*)hkZombieConditionTrackerUpdate, (void**)&oZombieConditionTrackerUpdate);
+    ZombiePharaoh::ModInit();
     ZombieBullProps::modInit();
     ZombieBullVeteranProps::modInit();
     ZombieZcorpRacerProps::modInit();
@@ -427,7 +428,6 @@ void libChair_main()
     ZombieJourneyToTheWestPiggy::ModInit();
     ZombieJourneyToTheWestPiggyProps::modInit();
     ZombieJourneyToTheWestGargantuarProps::modInit();
-    ZombieEgyptPharaoh::ModInit();
     ZombieAnimRigTemplateConfig::modInit();
     ZombieZCorpEnergyDrinker::modInit();
     ZombieZCorpEnergyDrinkerProps::modInit();

@@ -1,36 +1,32 @@
-#include "ZombiePharaoh.h"
+﻿#include "ZombiePharaoh.h"
 #include "DamageInfo.h"
 
-void* ZombieEgyptPharaoh::vftable = __null;
-Sexy::RtClass* ZombieEgyptPharaoh::s_rtClass = __null;;
 
+typedef void* (*ZTakeDmg)(Zombie*, DamageInfo*);
+ZTakeDmg oZTakeDmg = nullptr;
 
-void* PharaohTakeDamage(ZombieEgyptPharaoh* thisPtr, DamageInfo* damageInfo)
+void* hkTakeDamage(Zombie* thisPtr, DamageInfo* damageInfo)
 {
-    for (size_t i = 0; i < thisPtr->m_armor.size(); i++)
+    if (thisPtr->IsType(ZombiePharaoh::StaticGetType()))
     {
-        Armor* armor = thisPtr->m_armor[i].Get();
-        if (armor != nullptr && !armor->m_destroyed && armor->m_health > 0)
+        for (size_t i = 0; i < thisPtr->m_armor.size(); i++)
         {
-            if (damageInfo->m_damage > armor->m_health) {
-               damageInfo->m_damage = armor->m_health - 10;
+            Armor* armor = thisPtr->m_armor[i].Get();
+            if (armor != nullptr && !armor->m_destroyed && armor->m_health > 0)
+            {
+                if (damageInfo->m_damage >= armor->m_health) {
+
+                    damageInfo->m_damage = armor->m_health;
+                }
+                break;
             }
         }
     }
-    typedef void* (*funcC43B90)(ZombieEgyptPharaoh*, DamageInfo*);
-    auto* ZTakeDmg = ((funcC43B90)getActualOffset(0xC43B90));
-    return ZTakeDmg(thisPtr, damageInfo);
+    return oZTakeDmg(thisPtr, damageInfo);
 }
 
-void ZombieEgyptPharaoh::ModInit() {
-    LOGI("ZombieEgyptPharaoh init");
-
-    vftable = CopyVFTable(getActualOffset(0x23E8A28), 207);
-
-    PatchVFTable(vftable, (void*)ZombieEgyptPharaoh::StaticGetType, 0);
-
-    PatchVFTable(vftable, (void*)PharaohTakeDamage, 35);
-
-    ZombieEgyptPharaoh::StaticGetType();
-    LOGI("ZombieEgyptPharaoh finish init");
+void ZombiePharaoh::ModInit() {
+    LOGI("ZombiePharaoh init");
+    PVZ2HookFunction(0xC43B90, (void*)hkTakeDamage, (void**)&oZTakeDmg);
+    LOGI("ZombiePharaoh finish init");
 }

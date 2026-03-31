@@ -16,7 +16,8 @@ public:
 	float SpeedScale = 1.0f;
 	float DPSScale = 1.0f;
 	float DamageScale = 1.0f;
-	float HitpointsScale = 1.0f;
+	float HitpointsScale = 1.0f; 
+	float ArtScale = 1.0f;
 	static Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc oZombieModifierPropertiesBuildSymbols;
 	static void modInit();
 
@@ -41,5 +42,6 @@ public:
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModifierProperties, DPSScale);
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModifierProperties, DamageScale);
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModifierProperties, HitpointsScale);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModifierProperties, ArtScale);
 	};
 };

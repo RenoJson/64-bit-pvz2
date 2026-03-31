@@ -6,6 +6,8 @@ class PopAnimRig;
 class ZombieParticle : public BoardEntity
 {
 public:
+	pvztime_t m_creationTime;
+	char m_pad6[4];
 	Sexy::RtWeakPtr<PopAnimRig> m_zombieRig;
 	float m_rotation;
 	float m_currentRotation;
