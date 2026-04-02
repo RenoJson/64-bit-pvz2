@@ -124,12 +124,11 @@ Zombie* ConditionModifier(ZombieModifierModule* module, Zombie* zombie) {
     }
     return zombie;
 }
-Zombie* StatModifier(ZombieModifierModule* module, Zombie* zombie, ZombieParticle* particle) {
+Zombie* StatModifier(ZombieModifierModule* module, Zombie* zombie) {
     auto props = reinterpret_cast<ZombieModifierProperties*>(module->m_propertySheet.Get());
 
     zombie->m_dpsScale = props->DPSScale;
     zombie->m_scale = props->ArtScale;
-    particle->m_scale = props->ArtScale;
     zombie->m_damageScale = props->DamageScale;
 
     float finalHpScale = props->HitpointsScale;
@@ -150,14 +149,14 @@ Zombie* StatModifier(ZombieModifierModule* module, Zombie* zombie, ZombieParticl
     typedef Zombie* (*setSpeedScale)(Zombie*, float);
     return ((setSpeedScale)getActualOffset(0xC484C0))(zombie, props->SpeedScale);
 }
-Zombie* hkModifierModule(ZombieModifierModule* module, Zombie* zombie, ZombieParticle* particle) {
+Zombie* hkModifierModule(ZombieModifierModule* module, Zombie* zombie) {
     auto* props = reinterpret_cast<ZombieModifierProperties*>(module->m_propertySheet.Get());
 
     if (props->ModifierType == "condition") {
         return ConditionModifier(module, zombie);
     }
     else if (props->ModifierType == "stat") {
-        return StatModifier(module, zombie, particle);
+        return StatModifier(module, zombie);
     }
 }
 #pragma endregion

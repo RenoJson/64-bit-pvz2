@@ -380,6 +380,7 @@ static_assert(offsetof(Zombie, m_elapsedTimeInState) == 352);
 static_assert(offsetof(Zombie, m_propertySheet) == 1088);
 static_assert(offsetof(Zombie, m_dpsScale) == 396);
 static_assert(offsetof(Zombie, m_flickOffTarget) == 448);
+static_assert(offsetof(Zombie, m_conditionTracker) == 560);
 static_assert(offsetof(Zombie, m_playingAnim) == 0x16C);
 static_assert(offsetof(Zombie, m_maxHelmHitpoints) == 0x1A0);
 

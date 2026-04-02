@@ -73,10 +73,10 @@ void hkZombieChairThrowRacer(Zombie * self, int a2)
 
             setCondition(spawnedRider, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
 
-            int valAtOffset36 = *(int*)((uintptr_t)self + 0x24);
+            int teamflag = self->m_teamFlags;
             typedef void (*func10B013C)(Zombie*, int);
             auto* setTeamFlag = ((func10B013C)getActualOffset(0x10B013C));
-            setTeamFlag(spawnedRider, valAtOffset36);
+            setTeamFlag(spawnedRider, teamflag);
             typedef void* (*GetHypnoDataFunc)(Zombie*);
             GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
 
@@ -167,15 +167,7 @@ bool hkMuteImpSound(Zombie* imp)
         && !imp->IsType(ZombieZcorpRacerZombie::StaticGetType())
         && !imp->IsType(ZombiePirateBoomBarrel::StaticGetType());
 }
-typedef Zombie* (*initApplyStun)();
-initApplyStun oInitApplyStun = nullptr;
-Zombie* ApplyStun(Zombie* a1, PlantFramework* a2, float a3, float a4) {
-    oInitApplyStun;
-    typedef Zombie* (*setConditionZ)(Zombie*, int, PlantFramework*, float, float);
-    static setConditionZ setZCondition = (setConditionZ)getActualOffset(0xC40CC0);
-    a4 = 0.0f;
-    return setZCondition(a1, 67, a2, a3, a4);;
-}
+
 #pragma endregion
 
 
@@ -185,7 +177,6 @@ void ZombieZcorpRacerProps::modInit() {
     PVZ2HookFunction(0xBEEC10, (void*)ZombieZcorpRacerProps::construct, nullptr);
     PVZ2HookFunction(0xB57128, (void*)hkMuteImpSound, nullptr);
     LOGI("init stun start");
-    PVZ2HookFunction(0xC49730, (void*)ApplyStun, (void**)&oInitApplyStun);
     LOGI("init stun complete");
     LOGI("init chair class complete");
     LOGI("init chair props");
