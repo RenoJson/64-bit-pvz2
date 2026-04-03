@@ -15,7 +15,7 @@ public:
     static void PigOnExit(ZombieJourneyToTheWestVendor* zombie);
 	pvztime_t m_nextPigTime;
 	float m_speedModifier;
-	bool m_firstSpawned;
+	bool m_firstSpawned = false;
 	DECLARE_STATIC_RT_CLASS_MEMBERS(ZombieJourneyToTheWestVendor)
 
 	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(ZombieJourneyToTheWestVendor, 0xC3AB1C);

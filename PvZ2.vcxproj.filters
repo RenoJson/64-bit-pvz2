@@ -119,6 +119,8 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_BasicTemplate.cpp" />
     <ClCompile Include="PvZ2\ZombieCowboyBasic.cpp" />
     <ClCompile Include="PvZ2\ZombieModernPoleVaulter.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernPoleVaulterProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_ModernPoleVaulter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />

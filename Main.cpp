@@ -55,6 +55,9 @@
 #include <PvZ2/ZombieGargantuarProps.h>
 #include <PvZ2/ZombieAnimRigBasicTemplateProps.h>
 #include <PvZ2/ZombieBasicProps.h>
+#include <PvZ2/ZombieModernPoleVaulter.h>
+#include <PvZ2/ZombieModernPoleVaulterProps.h>
+#include <PvZ2/ZombieAnimRig_ModernPoleVaulter.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -446,5 +449,8 @@ void libChair_main()
     ZombieAnimRig_BasicTemplate::modInit();
     ZombieCowboyBasicVeteran::modInit();
     ZombieCowboyVeteranProps::modInit();
+    ZombieModernPoleVaulter::ModInit();
+    ZombieAnimRig_ModernPoleVaulter::modInit();
+    ZombieModernPoleVaulterProps::modInit();
     PatchRedStingerPF();
 }

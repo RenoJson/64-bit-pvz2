@@ -1,6 +1,8 @@
 #pragma once
 #include <Sexy/RtObject.h>
 #include <Sexy/RtWeakPtr.h>
+#include "Reflection/CRefManualSymbolBuilder.h"
+#include <Reflection/ReflectionBuilder.h>
 
 namespace Sexy {
 	class Graphics;
@@ -134,3 +136,11 @@ public:
 
 static_assert(sizeof(PlantFramework) == 16);
 static_assert(offsetof(PlantFramework, m_plant) == 8);
+
+class PlantTallnut : public PlantFramework
+{
+public:
+	Sexy::RtWeakPtr<void*> m_shield;
+
+	RT_CLASS_GET_CLASS_WRAPPER(0x143A8DC);
+};

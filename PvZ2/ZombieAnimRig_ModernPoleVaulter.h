@@ -5,7 +5,7 @@
 class ZombieAnimRig_ModernPoleVaulter : public ZombieAnimRig
 {
 public:
-	bool m_hasPole;
+	bool m_hasPole = true;
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;

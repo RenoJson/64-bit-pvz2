@@ -303,6 +303,7 @@ public:
 		getType pGetType = (getType)getActualOffset(0x133566C);
 		return pGetType();
 	};
+	char pad[4];
 	int m_gridX;
 	int m_gridY;
 	bool m_isOnBoard;
@@ -310,10 +311,10 @@ public:
 	PlantsSortedByLayer m_plants;
 };
 
-//static_assert(sizeof(PlantGroup) == 160);
-//static_assert(offsetof(PlantGroup, m_gridX) == 124);
-//static_assert(offsetof(PlantGroup, m_gridY) == 128);
-//static_assert(offsetof(PlantGroup, m_plants) == 136);
+static_assert(sizeof(PlantGroup) == 160);
+static_assert(offsetof(PlantGroup, m_gridX) == 124);
+static_assert(offsetof(PlantGroup, m_gridY) == 128);
+static_assert(offsetof(PlantGroup, m_plants) == 136);
 
 enum PlantMasteryFocusType
 {

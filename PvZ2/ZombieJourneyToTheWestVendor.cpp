@@ -187,7 +187,7 @@ void ZombieJourneyToTheWestVendor::ModInit() {
 
 	vftable = CreateChildVFTable(204 + 6, getActualOffset(0x241D430), 204);
 	PatchVFTable(vftable, (void*)ZombieJourneyToTheWestVendor::StaticGetType, 0);
-
+	PatchVFTable(vftable, (void*)vendorOnSpawn, 49);
 	PatchVFTable(vftable, (void*)hkGetWalkSpeed, 118);
 	PatchVFTable(vftable, (void*)vendorWalkOnLoop, 124);
 	PatchVFTable(vftable, (void*)hkJourneyToTheWestVendorActionFrame, 170);
