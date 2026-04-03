@@ -23,7 +23,8 @@ class ZombieState
 {
 public:
 
-	uint64_t m_id;
+	int m_id;
+    char pad[4];
 	Sexy::DelegateBase m_onEnter;
 	Sexy::DelegateBase m_onLoop;
 	Sexy::DelegateBase m_onExit;

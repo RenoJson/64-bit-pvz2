@@ -5,6 +5,9 @@
 #include "ZombieEvent.h"
 #include "Zombie.h"
 
+class StateMachineTableBuilder;
+class ZombieState;
+
 #define DECLARE_DELEGATES_SETUP(zombie) \
     static bool zombie##_delegatesSetup = false; 
 
@@ -26,17 +29,19 @@
 
 void RegisterEventCallback(Reflection::CRefManualSymbolBuilder* builder, void* rClass, const SexyString& eventName, Sexy::DelegateBase& delegate);
 
-void RegisterStateByOffsets(void* stateMachine, int stateID, int onEnterOffset, int onLoopOffset, int onExitOffset, const SexyString & eventName);
+ZombieState* ConstructZombieState(ZombieState * state, int stateID, DelegateBase * onEnter, DelegateBase * onLoop, DelegateBase * onExit, const SexyString & stateName);
 
-void* GetStateMachine(Sexy::RtClass* rClass);
+void RegisterStateByOffsets(StateMachineTableBuilder * stateMachine, int stateID, uintptr_t onEnterOffset, uintptr_t onLoopOffset, uintptr_t onExitOffset, const SexyString & stateName);
 
-void RegisterEventAfterAnim(Zombie* zombie, SexyString* animName, const SexyString& eventName);
+StateMachineTableBuilder* CallGetStateMachine(Sexy::RtClass* rClass);
+
+void RegisterEventAfterAnim(Zombie* zombie, const SexyString & animName, const SexyString& eventName);
 
 void RegisterEventOnWalkLoop(Zombie* zombie, const SexyString& eventName);
 
-void RegisterEventOnIdleLoop(Zombie* zombie, SexyString* animName, const SexyString& eventName);
+void RegisterEventOnIdleLoop(Zombie* zombie, const SexyString & animName, const SexyString& eventName);
 
-void RegisterEventOnLoop(Zombie* zombie, SexyString* animName, const SexyString& eventName);
+void RegisterEventOnLoop(Zombie* zombie, const SexyString & animName, const SexyString& eventName);
 
 void SetupLiteralDelegate(Sexy::DelegateBase* delegate, void (*delegateFun)(Zombie*));
 

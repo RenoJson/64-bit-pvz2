@@ -5,32 +5,36 @@
 #include "ZombieState.h"
 #include "AddZombieType.h"
 #include "ZombieAnimRig_Vendor.h"
+#include "StateMachineBuilder.h"
+#include "ZombieModernPoleVaulter.h"
 void* ZombieJourneyToTheWestVendor::vftable = nullptr; Sexy::RtClass* ZombieJourneyToTheWestVendor::s_rtClass = nullptr;;
 
 typedef void (*zombieEnterState)(ZombieJourneyToTheWestVendor*, int, int);
 typedef Zombie* (*zombieAllowMovement)(Zombie*, int);
 DECLARE_DELEGATES_SETUP(ZombieJourneyToTheWestVendor)
-static void nullsub(ZombieJourneyToTheWestVendor* zombie) {}
 
 static Sexy::DelegateBase setPigCompletedDelegate;
-static Sexy::DelegateBase walkContinueDelegate;
 
+void vendorOnSpawn(ZombieJourneyToTheWestVendor* zombie) {
+	zombie->m_firstSpawned = false;
+	typedef void (*zombieFun49)(ZombieJourneyToTheWestVendor*);
+	((zombieFun49)getActualOffset(0xC3D1F0))(zombie);
+}
 
 void vendorWalkOnLoop(ZombieJourneyToTheWestVendor* zombie) {
 	typedef void (*LoopWalk)(ZombieJourneyToTheWestVendor*);
-	((LoopWalk)getActualOffset(0xC506B4))(zombie);
-}
-void vendorPigOnEnter(ZombieJourneyToTheWestVendor* zombie) {
-	LOGI("Entering setPig");
-	SexyString setPigAnim = "set_pig";
-	RegisterEventAfterAnim(zombie, &setPigAnim, "onSetPigCompleted");
-}
-void vendorCompletedCallback(Zombie* zombie) {
-	LOGI("set Pig finished");
-	ZombieJourneyToTheWestVendor* vendorZombie = static_cast<ZombieJourneyToTheWestVendor*>(zombie);
-	if (vendorZombie) {
-		TimeMgr::GetInstance()->m_curTime - zombie->m_creationTime;
-		((zombieEnterState)getActualOffset(0xC3D428))(vendorZombie, 1, 0);
+	auto* props = reinterpret_cast<ZombieJourneyToTheWestVendorProps*>(zombie->m_propertySheet.Get());
+	if (zombie->m_firstSpawned == false) {
+		if (TimeMgr::GetInstance()->m_curTime >= zombie->m_creationTime + props->SetPigInterval) {
+			((zombieEnterState)getActualOffset(0xC3D428))(zombie, 16, 0);
+			zombie->m_firstSpawned = true;
+		}
+	}
+	else if (TimeMgr::GetInstance()->m_curTime >= zombie->m_nextPigTime) {
+		((zombieEnterState)getActualOffset(0xC3D428))(zombie, 16, 0);
+	}
+	else {
+		((LoopWalk)getActualOffset(0xC506B4))(zombie);
 	}
 }
 float hkGetWalkSpeed(ZombieJourneyToTheWestVendor* zombie) {
@@ -39,6 +43,33 @@ float hkGetWalkSpeed(ZombieJourneyToTheWestVendor* zombie) {
 	float maxVal = props->SpeedRateModifier.Max;
 	zombie->m_speedModifier = minVal + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (maxVal - minVal)));
 	return zombie->m_walkSpeed * zombie->m_speedModifier;
+}
+
+void ZombieJourneyToTheWestVendor::PigOnEnter(ZombieJourneyToTheWestVendor* zombie)
+{
+	//LOGI("Entering setPig");
+	((zombieAllowMovement)getActualOffset(0xC51F94))(zombie, 1);
+	return RegisterEventAfterAnim(zombie, "set_pig", "onSetPigCompleted");
+}
+
+void ZombieJourneyToTheWestVendor::PigOnLoop(ZombieJourneyToTheWestVendor* zombie)
+{
+
+}
+
+void ZombieJourneyToTheWestVendor::PigOnExit(ZombieJourneyToTheWestVendor* zombie)
+{
+
+}
+
+void vendorCompletedCallback(Zombie* zombie) {
+	//LOGI("set Pig finished");
+	ZombieJourneyToTheWestVendor* vendorZombie = static_cast<ZombieJourneyToTheWestVendor*>(zombie);
+	if (vendorZombie) {
+		auto* props = reinterpret_cast<ZombieJourneyToTheWestVendorProps*>(vendorZombie->m_propertySheet.Get());
+		vendorZombie->m_nextPigTime = TimeMgr::GetInstance()->m_curTime + props->SetPigInterval;
+		((zombieEnterState)getActualOffset(0xC3D428))(vendorZombie, 1, 0);
+	}
 }
 
 
@@ -156,12 +187,14 @@ void ZombieJourneyToTheWestVendor::ModInit() {
 
 	vftable = CreateChildVFTable(204 + 6, getActualOffset(0x241D430), 204);
 	PatchVFTable(vftable, (void*)ZombieJourneyToTheWestVendor::StaticGetType, 0);
+
 	PatchVFTable(vftable, (void*)hkGetWalkSpeed, 118);
+	PatchVFTable(vftable, (void*)vendorWalkOnLoop, 124);
 	PatchVFTable(vftable, (void*)hkJourneyToTheWestVendorActionFrame, 170);
 
-	PatchVFTable(vftable, (void*)vendorPigOnEnter, 207);
-	PatchVFTable(vftable, (void*)nullsub, 208);
-	PatchVFTable(vftable, (void*)nullsub, 209);
+	PatchVFTable(vftable, (void*)ZombieJourneyToTheWestVendor::PigOnEnter, 207);
+	PatchVFTable(vftable, (void*)ZombieJourneyToTheWestVendor::PigOnLoop, 208);
+	PatchVFTable(vftable, (void*)ZombieJourneyToTheWestVendor::PigOnExit, 209);
 
 	ZombieJourneyToTheWestVendor::StaticGetType();
 	LOGI("ZombieVendor finish init");
@@ -180,8 +213,15 @@ void ZombieJourneyToTheWestVendor::buildEventCallbacks(Reflection::CRefManualSym
 
 void ZombieJourneyToTheWestVendor::buildStates()
 {
-	Sexy::RtClass* rtClass = ZombieJourneyToTheWestVendor::StaticGetType();
-	void* stateMachine = GetStateMachine(rtClass);
-	RegisterStateByOffsets(stateMachine, 17, (uintptr_t)vendorPigOnEnter, (uintptr_t)nullsub, (uintptr_t)nullsub, "ZS_Vendor_SetPig");
+	StateMachineTableBuilder* stateMachine = CallGetStateMachine(ZombieJourneyToTheWestVendor::StaticGetType());
+	RegisterStateByOffsets(stateMachine, 
+		16, 
+		(uintptr_t)ZombieJourneyToTheWestVendor::PigOnEnter, 
+		(uintptr_t)ZombieJourneyToTheWestVendor::PigOnLoop, 
+		(uintptr_t)ZombieJourneyToTheWestVendor::PigOnExit, 
+		"ZS_Vendor_SetPig");
 	LOGI("Reg state complete");
 }
+
+
+

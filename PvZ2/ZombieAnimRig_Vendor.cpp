@@ -32,8 +32,8 @@ void* hkInitVendorHeadList() {
     };
     return &vendorHeadList;
 }
-SexyString hkWalkAnim(ZombieAnimRig_Vendor* thisptr){
-    return "set_pig";
+SexyString hkEatAnim(ZombieAnimRig_Vendor* thisptr){
+    return "idle";
 }
 
 void ZombieAnimRig_Vendor::modInit() {
@@ -45,7 +45,7 @@ void ZombieAnimRig_Vendor::modInit() {
     PatchVFTable(vftable, (void*)hkInitVendorHeadList, 55);
     PatchVFTable(vftable, (void*)hkInitVendorLowerArmList, 56);
     PatchVFTable(vftable, (void*)hkInitVendorUpperArmList, 57);
-    PatchVFTable(vftable, (void*)hkWalkAnim, 59);
+    PatchVFTable(vftable, (void*)hkEatAnim, 61);
 
     ZombieAnimRig_Vendor::StaticGetType();
 

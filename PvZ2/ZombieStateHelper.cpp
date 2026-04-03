@@ -4,11 +4,13 @@
 #include "ZombieState.h"
 #include "Sexy/DelegateBase.h"
 #include "Zombie.h"
+#include "StateMachineBuilder.h"
 
 #define ZOMBIE_STATE_ADDSTATE_ADDR 0xAC7638
 #define ZOMBIE_EVENT_CONSTRUCT_ADDR 0x6FDDDC
 #define DELEGATE_GENERIC_ADDR 0x2377498
 #define DELEGATE_ZOMBIE_STATE_ADDR 0x241A528
+#define DELEGATE_ADDR 0x2377498
 #define EXECUTE_CALLBACK_ADDR 0xC19FE0
 
 
@@ -18,7 +20,10 @@ typedef uintptr_t(*sub161BE6C)(Reflection::CRefManualSymbolBuilder*, uintptr_t, 
 typedef void* (*SetStateName)(SexyString* straddr, const SexyString& stateName, size_t length);
 typedef void* (*RegisterState)(void* stateMachine, int stateid, ZombieState* state);
 
-typedef void* (*getStateMachine)(void*, Sexy::RtClass*);
+typedef ZombieAnimRig* (*playAnimWithCallback)(ZombieAnimRig*, const SexyString&, int, ZombieEvent& event);
+
+typedef ZombieAnimRig* (*playLoopAnimWithCallback)(ZombieAnimRig*, ZombieEvent& event);
+typedef StateMachineTableBuilder* (*getStateMachine)(StateMachineTableBuilder*, Sexy::RtClass*);
 
 typedef ZombieEvent* (*ConstructEvent)(ZombieEvent*, RtWeakPtr<Zombie>& owner, const SexyString& eventName);
 
@@ -34,17 +39,56 @@ void setVftable(Sexy::DelegateBase* a1, uint vtableAddr) {
 	*(uintptr_t*)a1 = getActualOffset(vtableAddr);
 }
 
-void setupDelegate(Sexy::DelegateBase& a1, uintptr_t owner, uintptr_t funcOffset) {
-	a1.m_callbackFunc = funcOffset;
-	a1.m_useOwnerVtable = true;
-	a1.m_callbackOwner = owner;
-	a1.m_unk = 1;
-	a1.m_executeCallbackFunction = getActualOffset(EXECUTE_CALLBACK_ADDR);
-}
+void setupDelegate(Sexy::DelegateBase& delegate, uintptr_t owner, uintptr_t funcOffset) {
 
-void RegisterStateByOffsets(void* stateMachine, int stateID, int onEnterOffset, int onLoopOffset, int onExitOffset, const SexyString& stateName) {
-	// onLoop uses a normal Sexy::DelegateBase vtable, while the other 2 uses a special DelegateBase<ZombieState> one
-	Sexy::DelegateBase onEnter, onLoop, onExit;
+	delegate.m_callbackFunc = funcOffset;
+	delegate.m_vftableDelta = false;
+	delegate.m_callee = NULL;
+	delegate.m_initialized = 1;
+	delegate.m_executeCallbackFunction = (void*)getActualOffset(EXECUTE_CALLBACK_ADDR);
+}
+ZombieState* ConstructZombieState(ZombieState* state, int stateID,
+	DelegateBase* onEnter,
+	DelegateBase* onLoop,
+	DelegateBase* onExit,
+	const SexyString& stateName)
+{
+	state->m_id = stateID;
+
+	*(void**)&state->m_onEnter = (void*)DELEGATE_ADDR;
+	state->m_onEnter.m_callbackFunc = onEnter->m_callbackFunc;
+	state->m_onEnter.m_vftableDelta = onEnter->m_vftableDelta;
+	state->m_onEnter.m_callee = onEnter->m_callee;
+	state->m_onEnter.m_initialized = onEnter->m_initialized;
+	state->m_onEnter.m_executeCallbackFunction = onEnter->m_executeCallbackFunction;
+	*(void**)&state->m_onEnter = (void*)DELEGATE_ZOMBIE_STATE_ADDR;
+
+	*(void**)&state->m_onLoop = (void*)DELEGATE_ADDR;
+	state->m_onLoop.m_callbackFunc = onLoop->m_callbackFunc;
+	state->m_onLoop.m_vftableDelta = onLoop->m_vftableDelta;
+	state->m_onLoop.m_callee = onLoop->m_callee;
+	state->m_onLoop.m_initialized = onLoop->m_initialized;
+	state->m_onLoop.m_executeCallbackFunction = onLoop->m_executeCallbackFunction;
+	*(void**)&state->m_onLoop = (void*)DELEGATE_GENERIC_ADDR;
+
+	*(void**)&state->m_onExit = (void*)DELEGATE_ADDR;
+	state->m_onExit.m_callbackFunc = onExit->m_callbackFunc;
+	state->m_onExit.m_vftableDelta = onExit->m_vftableDelta;
+	state->m_onExit.m_callee = onExit->m_callee;
+	state->m_onExit.m_initialized = onExit->m_initialized;
+	state->m_onExit.m_executeCallbackFunction = onExit->m_executeCallbackFunction;
+	*(void**)&state->m_onExit = (void*)DELEGATE_ZOMBIE_STATE_ADDR;
+
+	const char* stateNameCopy = stateName.c_str();
+	((SetStateName)getActualOffset(0x5AFA28))(&state->m_name, stateNameCopy, stateName.length());
+
+
+	return state;
+}
+void RegisterStateByOffsets(StateMachineTableBuilder* stateMachine, int stateID, uintptr_t onEnterOffset, uintptr_t onLoopOffset, uintptr_t onExitOffset, const SexyString& stateName) {
+
+	Sexy::DelegateBase onEnter, onLoop, onExit; 
+	
 	setVftable(&onEnter, DELEGATE_ZOMBIE_STATE_ADDR);
 	setupDelegate(onEnter, NULL, onEnterOffset);
 
@@ -55,17 +99,22 @@ void RegisterStateByOffsets(void* stateMachine, int stateID, int onEnterOffset, 
 	setupDelegate(onLoop, NULL, onLoopOffset);
 
 	ZombieState state;
-	const char* stateNameCopy = stateName.c_str();
-	((SetStateName)getActualOffset(0x5AFA28))(&state.m_name, stateNameCopy, stateName.length());
-	((RegisterState)getActualOffset(ZOMBIE_STATE_ADDSTATE_ADDR))(stateMachine, stateID, &state);
+	ConstructZombieState(&state, stateID, &onEnter, &onLoop, &onExit, stateName);
+	typedef void (*RegisterStateFunc)(StateMachineTableBuilder*, int, ZombieState*);
+	((RegisterStateFunc)getActualOffset(ZOMBIE_STATE_ADDSTATE_ADDR))(stateMachine, stateID, &state);
 }
 
-void* GetStateMachine(Sexy::RtClass* rClass) {
-	void* unk = *(void**)getActualOffset(0x256A0E0);
-	return ((getStateMachine)getActualOffset(0xAC745C))(unk, rClass);
+StateMachineTableBuilder* CallGetStateMachine(Sexy::RtClass* rClass) {
+
+	auto instance = StateMachineTableBuilder::GetInstance();
+
+	typedef StateMachineTableBuilder* (*funcGetStateMachine)(StateMachineTableBuilder*, Sexy::RtClass*);
+	auto* func = ((funcGetStateMachine)getActualOffset(0xAC745C));
+
+	return func(instance, rClass);
 }
 
-void RegisterEventAfterAnim(Zombie* zombie, SexyString* animName, const SexyString& eventName) {
+void RegisterEventAfterAnim(Zombie* zombie, const SexyString& animName, const SexyString& eventName) {
 	auto* animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
 	RtWeakPtr<Zombie> zombiePtr;
 	zombiePtr.FromOther((RtWeakPtr<Zombie>*) & zombie->m_thisPtr);
@@ -73,7 +122,10 @@ void RegisterEventAfterAnim(Zombie* zombie, SexyString* animName, const SexyStri
 	ZombieEvent zombieEvent;
 	((ConstructEvent)getActualOffset(ZOMBIE_EVENT_CONSTRUCT_ADDR))(&zombieEvent, zombiePtr, eventName);
 
-	animRig->PlayAnimWithCallback(animName, 0, &zombieEvent);
+
+	playAnimWithCallback func = ((playAnimWithCallback)getActualOffset(0x8DCEDC));
+	
+	func(animRig, animName, 0, zombieEvent);
 }
 
 void RegisterEventOnWalkLoop(Zombie* zombie, const SexyString& eventName) {
@@ -84,11 +136,11 @@ void RegisterEventOnWalkLoop(Zombie* zombie, const SexyString& eventName) {
 	ZombieEvent zombieEvent;
 	((ConstructEvent)getActualOffset(ZOMBIE_EVENT_CONSTRUCT_ADDR))(&zombieEvent, zombiePtr, eventName);
 
-	// this is hardcoded to only respond to animations with name "walk"
-	animRig->LoopWalkWithCallback(&zombieEvent);
+	playLoopAnimWithCallback func = ((playLoopAnimWithCallback)getActualOffset(0x8DC460));
+	func(animRig, zombieEvent);
 }
 
-void RegisterEventOnIdleLoop(Zombie* zombie, SexyString* animName, const SexyString& eventName) {
+void RegisterEventOnIdleLoop(Zombie* zombie, const SexyString& animName, const SexyString& eventName) {
 	auto* animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
 	RtWeakPtr<Zombie> zombiePtr;
 	zombiePtr.FromOther((RtWeakPtr<Zombie>*) & zombie->m_thisPtr);
@@ -96,35 +148,41 @@ void RegisterEventOnIdleLoop(Zombie* zombie, SexyString* animName, const SexyStr
 	ZombieEvent zombieEvent;
 	((ConstructEvent)getActualOffset(ZOMBIE_EVENT_CONSTRUCT_ADDR))(&zombieEvent, zombiePtr, eventName);
 
-	animRig->PlayAnimWithCallback(animName, 3, &zombieEvent);
+	playAnimWithCallback func = ((playAnimWithCallback)getActualOffset(0x8DCEDC));
+
+	func(animRig, animName, 3, zombieEvent);
 }
 
-void RegisterEventOnLoop(Zombie* zombie, SexyString* animName, const SexyString& eventName) {
+void RegisterEventOnLoop(Zombie* zombie, const SexyString& animName, const SexyString& eventName) {
 	auto* animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
 	RtWeakPtr<Zombie> zombiePtr;
 	zombiePtr.FromOther((RtWeakPtr<Zombie>*) &zombie->m_thisPtr);
 
 	ZombieEvent zombieEvent;
-	((ConstructEvent)getActualOffset(ZOMBIE_EVENT_CONSTRUCT_ADDR))(&zombieEvent, zombiePtr, eventName);
-	animRig->PlayAnimWithCallback(animName, 3, &zombieEvent);
+	((ConstructEvent)getActualOffset(ZOMBIE_EVENT_CONSTRUCT_ADDR))(&zombieEvent, zombiePtr, eventName); 
+
+	playAnimWithCallback func = ((playAnimWithCallback)getActualOffset(0x8DCEDC));
+
+	func(animRig, animName, 3, zombieEvent);
 }
 
 void SetupLiteralDelegate(Sexy::DelegateBase* delegate, void (*delegateFun)(Zombie*)) {
 	uintptr_t delegateAddr = (uintptr_t)delegateFun;
 
 	delegate->m_callbackFunc = delegateAddr;
-	delegate->m_useOwnerVtable = false;
-	delegate->m_callbackOwner = NULL;
-	delegate->m_unk = 1;
-	delegate->m_executeCallbackFunction = getActualOffset(EXECUTE_CALLBACK_ADDR);
+	delegate->m_vftableDelta = false;
+	delegate->m_callee = NULL;
+	delegate->m_initialized = 1;
+	delegate->m_executeCallbackFunction = (void*)getActualOffset(EXECUTE_CALLBACK_ADDR);
 }
 
 void SetupLiteralDelegate(Sexy::DelegateBase* delegate, uintptr_t delegateAddr) {
+
 	delegate->m_callbackFunc = delegateAddr;
-	delegate->m_useOwnerVtable = false;
-	delegate->m_callbackOwner = NULL;
-	delegate->m_unk = 1;
-	delegate->m_executeCallbackFunction = getActualOffset(EXECUTE_CALLBACK_ADDR);
+	delegate->m_vftableDelta = false;
+	delegate->m_callee = NULL;
+	delegate->m_initialized = 1;
+	delegate->m_executeCallbackFunction = (void*)getActualOffset(EXECUTE_CALLBACK_ADDR);
 }
 
 void SetDesiredSpeed(Zombie* zombie, float speed) {

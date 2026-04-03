@@ -6,11 +6,10 @@ namespace Sexy
 	{
 	public:
 		uint64_t m_callbackFunc;
-		bool m_useOwnerVtable;
-		char pad[7];
-		uint64_t m_callbackOwner;
-		int m_unk;
-		uint64_t m_executeCallbackFunction;
+		uint64_t m_vftableDelta;
+		void* m_callee;
+		bool m_initialized;
+		void* m_executeCallbackFunction;
 
 		virtual void Function0() {};
 		virtual void Function1() {};
@@ -27,35 +26,35 @@ inline Sexy::DelegateBase CreateEmptyDelegate(uint64_t vftableAddr)
 }
 
 inline Sexy::DelegateBase CreateDelegate(
-	uint64_t vftableAddr,
-	uint64_t callbackFunc,
-	bool useOwnerVtable,
-	uint64_t callbackOwner,
-	int unk,
-	uint64_t executeCallbackFunction
+	uintptr_t vftableAddr,
+	uintptr_t callbackFunc,
+	uintptr_t vftableDelta,
+	void* callee,
+	bool initialized,
+	void* executeCallbackFunction
 ) {
 	Sexy::DelegateBase res = CreateEmptyDelegate(vftableAddr);
 	res.m_callbackFunc = callbackFunc;
-	res.m_useOwnerVtable = useOwnerVtable;
-	res.m_callbackOwner = callbackOwner;
-	res.m_unk = unk;
+	res.m_vftableDelta = vftableDelta;
+	res.m_callee = callee;
+	res.m_initialized = initialized;
 	res.m_executeCallbackFunction = executeCallbackFunction;
 	return res;
 }
 
 inline Sexy::DelegateBase CreateDelegate(
-	uint64_t callbackFunc,
-	bool useOwnerVtable,
-	uint64_t callbackOwner,
-	int unk,
-	uint64_t executeCallbackFunction
+	uintptr_t callbackFunc,
+	uintptr_t vftableDelta,
+	void* callee,
+	bool initialized,
+	void* executeCallbackFunction
 ) {
 	return CreateDelegate(
 		0x2377868,
 		callbackFunc,
-		useOwnerVtable,
-		callbackOwner,
-		unk,
+		vftableDelta,
+		callee,
+		initialized,
 		executeCallbackFunction
 	);
 }

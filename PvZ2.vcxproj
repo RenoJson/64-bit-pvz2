@@ -206,6 +206,7 @@
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestVendor.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestVendorProps.cpp" />
     <ClCompile Include="PvZ2\ZombieModernBalloon.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernPoleVaulter.cpp" />
     <ClCompile Include="PvZ2\ZombieModifierProperties.cpp" />
     <ClCompile Include="PvZ2\ZombiePharaoh.cpp" />
     <ClCompile Include="PvZ2\ZombiePirateBoomBarrel.cpp" />
@@ -281,6 +282,7 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_Imp.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_ModernAllStar.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_ModernBalloon.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_ModernPoleVaulter.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_TombRaiser.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Vendor.h" />
     <ClInclude Include="PvZ2\ZombieBasic.h" />
@@ -308,6 +310,8 @@
     <ClInclude Include="PvZ2\ZombieLostCityBug.h" />
     <ClInclude Include="PvZ2\ZombieModernBalloon.h" />
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestBalloonProps.h" />
+    <ClInclude Include="PvZ2\ZombieModernPoleVaulter.h" />
+    <ClInclude Include="PvZ2\ZombieModernPoleVaulterProps.h" />
     <ClInclude Include="PvZ2\ZombieModifierModule.h" />
     <ClInclude Include="PvZ2\ZombiePharaoh.h" />
     <ClInclude Include="PvZ2\ZombiePirateBoomBarrel.h" />
