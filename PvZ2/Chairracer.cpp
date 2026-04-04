@@ -10,7 +10,6 @@
 #include "ZcorpRacerZombie.h"
 #include "AddZombieType.h"
 #include "ZombiePirateBoomBarrel.h"
-#include "ZombieDarkCavalryRider.h"
 
 Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc ZombieZcorpRacerProps::oZombieZcorpRacerPropsBuildSymbols = nullptr;
 
@@ -164,8 +163,7 @@ bool hkMuteImpSound(Zombie* imp)
         && !hasCondition(imp, 31) // these three are the imp stuck in GI
         && !hasCondition(imp, 34) // or they are calling function 199 of zombie imp class idk
         && !hasCondition(imp, 60)
-        && !imp->IsType(ZombieZcorpRacerZombie::StaticGetType())
-        && !imp->IsType(ZombiePirateBoomBarrel::StaticGetType());
+        && !imp->IsType(ZombieZcorpRacerZombie::StaticGetType());
 }
 
 #pragma endregion
@@ -176,8 +174,6 @@ void ZombieZcorpRacerProps::modInit() {
     PVZ2HookFunction(0xBEFEE0, (void*)hkZombieChairThrowRacer, (void**)&oZombieChairThrowRacer);
     PVZ2HookFunction(0xBEEC10, (void*)ZombieZcorpRacerProps::construct, nullptr);
     PVZ2HookFunction(0xB57128, (void*)hkMuteImpSound, nullptr);
-    LOGI("init stun start");
-    LOGI("init stun complete");
     LOGI("init chair class complete");
     LOGI("init chair props");
     PVZ2HookFunction(0xBEED50, (void*)ZombieZcorpRacerProps::buildSymbols, (void**)&oZombieZcorpRacerPropsBuildSymbols);

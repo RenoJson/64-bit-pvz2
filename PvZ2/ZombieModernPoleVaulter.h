@@ -30,4 +30,7 @@ public:
 	static void BonkOnEnter(ZombieModernPoleVaulter* zombie);
 	static void BonkOnLoop(ZombieModernPoleVaulter* zombie);
 	static void BonkOnExit(ZombieModernPoleVaulter* zombie);
+	static void FarJumpOnEnter(ZombieModernPoleVaulter* zombie);
+	static void FarJumpOnLoop(ZombieModernPoleVaulter* zombie);
+	static void FarJumpOnExit(ZombieModernPoleVaulter* zombie);
 };

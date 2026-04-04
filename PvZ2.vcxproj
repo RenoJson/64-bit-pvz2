@@ -173,7 +173,6 @@
     <ClCompile Include="PvZ2\ZombieAnimRigBasicTemplateProps.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_BasicTemplate.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_Consultant.cpp" />
-    <ClCompile Include="PvZ2\ZombieAnimRig_DarkRider.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_EightiesPunk.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_EnergyDrinker.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_FairyTaleImp.cpp" />
@@ -184,7 +183,6 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernAllStar.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernBalloon.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernPoleVaulter.cpp" />
-    <ClCompile Include="PvZ2\ZombieAnimRig_Piggy.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_PirateBoomBarrel.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_Vendor.cpp" />
     <ClCompile Include="PvZ2\ZombieBasicProps.cpp" />
@@ -192,7 +190,6 @@
     <ClCompile Include="PvZ2\ZombieCavalryProps.cpp" />
     <ClCompile Include="PvZ2\ZombieCowboyBasic.cpp" />
     <ClCompile Include="PvZ2\ZombieDarkCavalry.cpp" />
-    <ClCompile Include="PvZ2\ZombieDarkCavalryRider.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleGargantuarProps.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleImp.cpp" />
@@ -276,7 +273,6 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_Basic.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Bull.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Consultant.h" />
-    <ClInclude Include="PvZ2\ZombieAnimRig_DarkRider.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_EightiesPunk.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_FairyTaleWitch.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Gargantuar.h" />
@@ -294,7 +290,6 @@
     <ClInclude Include="PvZ2\ZombieCavalryProps.h" />
     <ClInclude Include="PvZ2\ZombieConditions.h" />
     <ClInclude Include="PvZ2\ZombieDarkCavalry.h" />
-    <ClInclude Include="PvZ2\ZombieDarkCavalryRider.h" />
     <ClInclude Include="PvZ2\ZombieDinoBasic.h" />
     <ClInclude Include="PvZ2\ZombieDinoBullyVeteranProps.h" />
     <ClInclude Include="PvZ2\ZombieEvent.h" />

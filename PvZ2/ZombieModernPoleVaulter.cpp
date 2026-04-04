@@ -20,6 +20,8 @@ static Sexy::DelegateBase jumpingCompletedDelegate;
 
 static Sexy::DelegateBase bonkingCompletedDelegate;
 
+static Sexy::DelegateBase farJumpingCompletedDelegate;
+
 float PoleGetWalkSpeed(ZombieModernPoleVaulter* zombie)
 {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPoleVaulter*>(zombie->m_animRig.Get());
@@ -89,7 +91,12 @@ void PoleWalkOnLoop(ZombieModernPoleVaulter* zombie)
 				((zombieEnterState)getActualOffset(0xC3D428))(zombie, 17, 0);
 			}
 			else {
-				((zombieEnterState)getActualOffset(0xC3D428))(zombie, 16, 0);
+				if (rand() % 2 == 0) {
+					((zombieEnterState)getActualOffset(0xC3D428))(zombie, 16, 0);
+				}
+				else {
+					((zombieEnterState)getActualOffset(0xC3D428))(zombie, 18, 0);
+				}
 			}
 		}
 	}
@@ -101,9 +108,7 @@ void PoleWalkOnLoop(ZombieModernPoleVaulter* zombie)
 
 void ZombieModernPoleVaulter::JumpOnEnter(ZombieModernPoleVaulter* zombie)
 {
-	LOGI("Entering jumping");
 	((zombieAllowMovement)getActualOffset(0xC51F94))(zombie, 1);
-	LOGI("Entering jumping 1");
 	return RegisterEventAfterAnim(zombie, "jump", "onJumpingCompleted");
 }
 void ZombieModernPoleVaulter::JumpOnLoop(ZombieModernPoleVaulter* zombie)
@@ -117,9 +122,7 @@ void ZombieModernPoleVaulter::JumpOnExit(ZombieModernPoleVaulter* zombie)
 
 void ZombieModernPoleVaulter::BonkOnEnter(ZombieModernPoleVaulter* zombie)
 {
-	LOGI("Entering bonking");
 	((zombieAllowMovement)getActualOffset(0xC51F94))(zombie, 1);
-	LOGI("Entering bonking 1");
 	return RegisterEventAfterAnim(zombie, "jump_tallnut", "onBonkingCompleted");
 }
 
@@ -132,8 +135,20 @@ void ZombieModernPoleVaulter::BonkOnExit(ZombieModernPoleVaulter* zombie)
 {
 
 }
+void ZombieModernPoleVaulter::FarJumpOnEnter(ZombieModernPoleVaulter* zombie)
+{
+	((zombieAllowMovement)getActualOffset(0xC51F94))(zombie, 1);
+	return RegisterEventAfterAnim(zombie, "jump_cobcannon", "onFarJumpingCompleted");
+}
+void ZombieModernPoleVaulter::FarJumpOnLoop(ZombieModernPoleVaulter* zombie)
+{
+
+}
+void ZombieModernPoleVaulter::FarJumpOnExit(ZombieModernPoleVaulter* zombie)
+{
+
+}
 void JumpingCompletedCallback(Zombie* zombie) {
-	LOGI("jumping finished");
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPoleVaulter*>(zombie->m_animRig.Get());
 	ZombieModernPoleVaulter* poleZombie = static_cast<ZombieModernPoleVaulter*>(zombie);
 	if (poleZombie) {
@@ -143,7 +158,15 @@ void JumpingCompletedCallback(Zombie* zombie) {
 	}
 }
 void BonkingCompletedCallback(Zombie* zombie) {
-	LOGI("bonking finished");
+	auto rig = reinterpret_cast<ZombieAnimRig_ModernPoleVaulter*>(zombie->m_animRig.Get());
+	ZombieModernPoleVaulter* poleZombie = static_cast<ZombieModernPoleVaulter*>(zombie);
+	if (poleZombie) {
+		rig->m_hasPole = false;
+		((zombieEnterState)getActualOffset(0xC3D428))(poleZombie, 1, 0);
+		((setSpeed)getActualOffset(0x8DDAA4))(rig, PoleGetWalkSpeed(poleZombie));
+	}
+}
+void FarJumpingCompletedCallback(Zombie* zombie) {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPoleVaulter*>(zombie->m_animRig.Get());
 	ZombieModernPoleVaulter* poleZombie = static_cast<ZombieModernPoleVaulter*>(zombie);
 	if (poleZombie) {
@@ -170,6 +193,10 @@ void ZombieModernPoleVaulter::ModInit() {
 	PatchVFTable(vftable, (void*)ZombieModernPoleVaulter::BonkOnLoop, 208);
 	PatchVFTable(vftable, (void*)ZombieModernPoleVaulter::BonkOnExit, 209);
 
+	PatchVFTable(vftable, (void*)ZombieModernPoleVaulter::FarJumpOnEnter, 210);
+	PatchVFTable(vftable, (void*)ZombieModernPoleVaulter::FarJumpOnLoop, 211);
+	PatchVFTable(vftable, (void*)ZombieModernPoleVaulter::FarJumpOnExit, 212);
+
 	ZombieModernPoleVaulter::StaticGetType();
 	LOGI("ZombiePole finish init");
 }
@@ -179,11 +206,13 @@ void ZombieModernPoleVaulter::buildEventCallbacks(Reflection::CRefManualSymbolBu
 	IF_CALLBACK_NOTSETUP(ZombieModernPoleVaulter) {
 		SetupLiteralDelegate(&jumpingCompletedDelegate, JumpingCompletedCallback);
 		SetupLiteralDelegate(&bonkingCompletedDelegate, BonkingCompletedCallback);
+		SetupLiteralDelegate(&farJumpingCompletedDelegate, FarJumpingCompletedCallback);
 		ZombieModernPoleVaulter_delegatesSetup = true;
 		LOGI("SO TRUE");
 	}
 	RegisterEventCallback(builder, rtClass, "onJumpingCompleted", jumpingCompletedDelegate);
 	RegisterEventCallback(builder, rtClass, "onBonkingCompleted", bonkingCompletedDelegate);
+	RegisterEventCallback(builder, rtClass, "onFarJumpingCompleted", farJumpingCompletedDelegate);
 	LOGI("Reg event complete");
 }
 
@@ -203,5 +232,11 @@ void ZombieModernPoleVaulter::buildStates()
 		(uintptr_t)ZombieModernPoleVaulter::BonkOnLoop,
 		(uintptr_t)ZombieModernPoleVaulter::BonkOnExit,
 		"ZS_PoleVaulter_Bonking");
+	RegisterStateByOffsets(stateMachine,
+		18,
+		(uintptr_t)ZombieModernPoleVaulter::FarJumpOnEnter,
+		(uintptr_t)ZombieModernPoleVaulter::FarJumpOnLoop,
+		(uintptr_t)ZombieModernPoleVaulter::FarJumpOnExit,
+		"ZS_PoleVaulter_FarJumping");
 	LOGI("Reg state complete");
 }

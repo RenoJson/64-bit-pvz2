@@ -87,8 +87,6 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_JourneyToTheWestGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombiePirateBoomBarrel.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_PirateBoomBarrel.cpp" />
-    <ClCompile Include="PvZ2\ZombieDarkCavalryRider.cpp" />
-    <ClCompile Include="PvZ2\ZombieAnimRig_DarkRider.cpp" />
     <ClCompile Include="PvZ2\DangerRoomFallenKnightDesigner.cpp" />
     <ClCompile Include="PvZ2\DangerRoomHelpdeskSupportDesigner.cpp" />
     <ClCompile Include="PvZ2\ZombieModifierProperties.cpp" />
@@ -101,7 +99,6 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_Vendor.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestPiggy.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestPiggyProps.cpp" />
-    <ClCompile Include="PvZ2\ZombieAnimRig_Piggy.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestGargantuarProps.cpp" />
     <ClCompile Include="PvZ2\ZombiePharaoh.cpp" />
     <ClCompile Include="PvZ2\ZombieZcorpEnergyDrinker.cpp" />
@@ -151,8 +148,6 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_Basic.h" />
     <ClInclude Include="PvZ2\ZombiePirateBoomBarrel.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Imp.h" />
-    <ClInclude Include="PvZ2\ZombieDarkCavalryRider.h" />
-    <ClInclude Include="PvZ2\ZombieAnimRig_DarkRider.h" />
     <ClInclude Include="PvZ2\DangerRoomLevelDesigner.h" />
     <ClInclude Include="PvZ2\WaveActionProperties.h" />
     <ClInclude Include="PvZ2\ZombieModifierModule.h" />

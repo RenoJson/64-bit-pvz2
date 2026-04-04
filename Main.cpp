@@ -29,8 +29,6 @@
 #include <PvZ2/ZombieAnimRig_Basic.h>
 #include <PvZ2/ZombiePirateBoomBarrel.h>
 #include <PvZ2/ZombieAnimRig_Imp.h>
-#include <PvZ2/ZombieAnimRig_DarkRider.h>
-#include <PvZ2/ZombieDarkCavalryRider.h>
 #include <PvZ2/DangerRoomLevelDesigner.h>
 #include <PvZ2/ZombieModifierModule.h>
 #include <PvZ2/ZombieModernBalloon.h>
@@ -427,7 +425,6 @@ void libChair_main()
     ZombieJourneyToTheWestVendor::ModInit();
     ZombieJourneyToTheWestVendorProps::modInit();
     ZombieAnimRig_Vendor::modInit();
-    ZombieAnimRig_Piggy::modInit();
     ZombieJourneyToTheWestPiggy::ModInit();
     ZombieJourneyToTheWestPiggyProps::modInit();
     ZombieJourneyToTheWestGargantuarProps::modInit();
