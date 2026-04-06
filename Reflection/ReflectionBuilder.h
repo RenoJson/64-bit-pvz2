@@ -166,7 +166,7 @@ inline Reflection::ReflectionFieldType GetPropertyType()
                 RT_CLASS_REGISTER_CLASS_WITH_PROPERTIES(builder, className); \
             } \
         } \
-        buildStates(); \
+        className::buildStates(); \
     }
 
 #define RT_CLASS_CONSTRUCT_FUNCTION(className, baseCtorAddr) \

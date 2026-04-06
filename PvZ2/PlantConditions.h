@@ -1,9 +1,15 @@
 #pragma once
+#include "EntityConditionTracker.h"
+#include <Sexy/RtWeakPtr.h>
+
+
+class EntityCondition;
+class Plant;
 
 enum PlantConditions
 {
 	plant_rapidfire = 0,
-	plant_squdiifed = 1,
+	plant_squidifed = 1,
 	plant_sheeped = 2,
 	plant_damageflash = 3,
 	plant_plantfoodflash = 4,
@@ -27,5 +33,23 @@ enum PlantConditions
 	plantgroup_sheeped = 22,
 	plantgroup_net = 23,
 	plantgroup_sauced = 24,
-	plant_unk6 = 25,
+	plantgroup_plantfood = 25,
+};
+
+class PlantConditionEntry
+{
+public:
+	PlantConditions Condition;
+	Sexy::ValueRange Duration;
+};
+
+static_assert(sizeof(PlantConditionEntry) == 12);
+static_assert(offsetof(PlantConditionEntry, Condition) == 0);
+static_assert(offsetof(PlantConditionEntry, Duration) == 4);
+
+class PlantConditionTracker : public EntityConditionTracker<Plant>
+{
+public:
+	virtual int GetConditionCount();
+	virtual void Update() {};
 };

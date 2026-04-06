@@ -118,6 +118,9 @@
     <ClCompile Include="PvZ2\ZombieModernPoleVaulter.cpp" />
     <ClCompile Include="PvZ2\ZombieModernPoleVaulterProps.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernPoleVaulter.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernJackInTheBoxProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernJackInTheBox.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_ModernJackInTheBox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -182,5 +185,9 @@
     <ClInclude Include="PvZ2\ZombieModernPoleVaulter.h" />
     <ClInclude Include="PvZ2\ZombieModernPoleVaulterProps.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_ModernPoleVaulter.h" />
+    <ClInclude Include="PvZ2\GridItemCondition.h" />
+    <ClInclude Include="PvZ2\ZombieModernJackInTheBoxProps.h" />
+    <ClInclude Include="PvZ2\ZombieModernJackInTheBox.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_ModernJackInTheBox.h" />
   </ItemGroup>
 </Project>

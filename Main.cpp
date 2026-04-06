@@ -56,10 +56,85 @@
 #include <PvZ2/ZombieModernPoleVaulter.h>
 #include <PvZ2/ZombieModernPoleVaulterProps.h>
 #include <PvZ2/ZombieAnimRig_ModernPoleVaulter.h>
+#include <PvZ2/ZombieModernJackInTheBoxProps.h>
+#include <PvZ2/ZombieAnimRig_ModernJackInTheBox.h>
+#include <PvZ2/ZombieModernJackInTheBox.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
+#pragma region Alias to ID
 
+class ZombieAlmanac
+{
+public:
+    void* vftable;
+    std::map<SexyString, uint> m_aliasToId;
+};
+
+class PlantNameMapper
+{
+public:
+    void* vftable;
+    std::map<SexyString, uint> m_aliasToId;
+};
+
+// used for the custom id system
+std::vector<PlantType*> g_modPlantTypenames;
+std::vector<ZombieType*> g_modZombieTypenames;
+
+#define REGISTER_PLANT_TYPENAME(typename) \
+    g_modPlantTypenames.push_back(typename); \
+
+#define REGISTER_ZOMBIE_TYPENAME(typename) \
+    g_modZombieTypenames.push_back(typename); \
+
+typedef void* (*plantTypeCtor)(PlantType*);
+plantTypeCtor oPlantTypeCtor = nullptr;
+
+void* hkPlantTypeCtor(PlantType* self)
+{
+    REGISTER_PLANT_TYPENAME(self);
+    return oPlantTypeCtor(self);
+}
+
+typedef PlantNameMapper* (*PlantNameMapperCtor)(PlantNameMapper*);
+PlantNameMapperCtor oPlantNameMapperCtor = nullptr;
+void* hkCreatePlantNameMapper(PlantNameMapper* self)
+{
+    oPlantNameMapperCtor(self);
+    for (size_t iter = 0; iter < g_modPlantTypenames.size(); iter++)
+    {
+        PlantType* type = g_modPlantTypenames[iter];
+
+        self->m_aliasToId[type->TypeName] = type->IntegerID;
+    }
+    return self;
+}
+
+typedef void* (*zombieTypeCtor)(ZombieType*);
+zombieTypeCtor oZombieTypeCtor = nullptr;
+
+void* hkZombieTypeCtor(ZombieType* self)
+{
+    REGISTER_ZOMBIE_TYPENAME(self);
+    return oZombieTypeCtor(self);
+}
+
+typedef ZombieAlmanac* (*ZombieAlmanacCtor)(ZombieAlmanac*);
+ZombieAlmanacCtor oZombieAlmanacCtor = nullptr;
+
+void* hkCreateZombieTypenameMap(ZombieAlmanac* self)
+{
+    oZombieAlmanacCtor(self);
+    for (size_t iter = 0; iter < g_modZombieTypenames.size(); iter++)
+    {
+        auto* type = g_modZombieTypenames[iter];
+        self->m_aliasToId[type->TypeName] = type->IntegerID;
+    }
+    return self;
+}
+
+#pragma endregion
 class NPCDataSheet
 {
 public:
@@ -386,6 +461,14 @@ void PatchRedStingerPF()
     ReplaceBytes(0xE7DB9C, &value, 4);
 }
 #pragma endregion 
+#pragma region Build Symbol Funcs
+
+Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc PlantType::oPlantTypeBuildSymbols = nullptr;
+Reflection::CRefManualSymbolBuilder::ConstructFunc PlantType::oPlantTypeConstruct = nullptr;
+Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc ZombieType::oZombieTypeBuildSymbols = nullptr;
+Reflection::CRefManualSymbolBuilder::ConstructFunc ZombieType::oZombieTypeConstruct = nullptr;
+
+#pragma endregion
 __attribute__((constructor))
 // This is automatically executed when the lib is loaded
 // Run your initialization code here
@@ -396,6 +479,16 @@ void libChair_main()
     //PVZ2HookFunction(0x11F72B0, (void*)hkNPCDataSheetCtor, (void**)&oNPCDataSheetCtor);
     // i should make softcode boss icon as level module xd
     //PVZ2HookFunction(0x540938, (void*)hkBossProgressMeterInit, (void**)&oBossProgressMeterInit);
+    PVZ2HookFunction(0xC6D080, (void*)hkPlantTypeCtor, (void**)&oPlantTypeCtor);
+    PVZ2HookFunction(0x11797B4, (void*)hkCreatePlantNameMapper, (void**)&oPlantNameMapperCtor);
+    PVZ2HookFunction(0x10680BC, (void*)hkZombieTypeCtor, (void**)&oZombieTypeCtor);
+    PVZ2HookFunction(0x14665C4, (void*)hkCreateZombieTypenameMap, (void**)&oZombieAlmanacCtor);
+
+    PVZ2HookFunction(0xC6D080, (void*)PlantType::construct, (void**)&PlantType::oPlantTypeConstruct);
+    PVZ2HookFunction(0xC6BF48, (void*)PlantType::buildSymbols, (void**)&PlantType::oPlantTypeBuildSymbols);
+    PVZ2HookFunction(0x10680BC, (void*)ZombieType::construct, (void**)&ZombieType::oZombieTypeConstruct);
+    PVZ2HookFunction(0x106828C, (void*)ZombieType::buildSymbols, (void**)&ZombieType::oZombieTypeBuildSymbols);
+
     PVZ2HookFunction(0xC4987C, (void*)hkEffectCondition, (void**)&oEffCond);
     PVZ2HookFunction(0xC4BC48, (void*)hkRemoveEffectCondition, (void**)&oRemoveEffCond);
     PVZ2HookFunction(0x677B40, (void*)hkZombieConditionTrackerUpdate, (void**)&oZombieConditionTrackerUpdate);
@@ -429,6 +522,7 @@ void libChair_main()
     ZombieJourneyToTheWestPiggyProps::modInit();
     ZombieJourneyToTheWestGargantuarProps::modInit();
     ZombieAnimRigTemplateConfig::modInit();
+    TimerExplosionProps::modInit();
     ZombieZCorpEnergyDrinker::modInit();
     ZombieZCorpEnergyDrinkerProps::modInit();
     ZombieAnimRig_EnergyDrinker::modInit();
@@ -449,5 +543,8 @@ void libChair_main()
     ZombieModernPoleVaulter::ModInit();
     ZombieAnimRig_ModernPoleVaulter::modInit();
     ZombieModernPoleVaulterProps::modInit();
+    ZombieModernJackInTheBoxProps::modInit();
+    ZombieAnimRig_ModernJackInTheBox::modInit();
+    ZombieModernJackInTheBox::ModInit();
     PatchRedStingerPF();
 }

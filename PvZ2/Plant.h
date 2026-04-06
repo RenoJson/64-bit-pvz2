@@ -3,6 +3,7 @@
 #include "PropertySheetBase.h"
 #include "Projectile.h"
 #include "ObjectTypeDescriptor.h"
+#include <Reflection/ReflectionBuilder.h>
 
 class PlantFramework;
 class PlantAnimRigPropertySheet;
@@ -347,9 +348,27 @@ public:
 	float SeasonsVerticalOffset;
 	std::vector<SexyString> PlantResourceGroups;
 	std::vector<SexyString> PlantPreviewResourceGroups;
+	int IntegerID;
+
+	static Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc oPlantTypeBuildSymbols;
+	static Reflection::CRefManualSymbolBuilder::ConstructFunc oPlantTypeConstruct;
+
+	static void* construct(PlantType* self)
+	{
+		oPlantTypeConstruct(self);
+
+		self->IntegerID = 0;
+		return self;
+	}
+
+	static void buildSymbols(Reflection::CRefManualSymbolBuilder* builder, Reflection::RClass* rclass)
+	{
+		oPlantTypeBuildSymbols(builder, rclass);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(PlantType, IntegerID);
+	}
 };
 
-static_assert(sizeof(PlantType) == 280);
+//static_assert(sizeof(PlantType) == 280);
 static_assert(offsetof(PlantType, PlantFramework) == 32);
 static_assert(offsetof(PlantType, AnimRigClass) == 56);
 static_assert(offsetof(PlantType, Properties) == 104);

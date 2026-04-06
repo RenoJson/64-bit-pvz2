@@ -147,9 +147,28 @@ public:
 	bool IsFemaleZombie;
 	bool HideFromAlmanac;
 	ZombieFlagType FlagType = ZombieFlagType::noflag;
+	int IntegerID = 0;
+
+	static Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc oZombieTypeBuildSymbols;
+	static Reflection::CRefManualSymbolBuilder::ConstructFunc oZombieTypeConstruct;
+
+	static void* construct(ZombieType* self)
+	{
+		oZombieTypeConstruct(self);
+
+		self->IntegerID = 0;
+
+		return self;
+	}
+
+	static void buildSymbols(Reflection::CRefManualSymbolBuilder* builder, Reflection::RClass* rclass)
+	{
+		oZombieTypeBuildSymbols(builder, rclass);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieType, IntegerID);
+	}
 };
 
-static_assert(sizeof(ZombieType) == 248);
+//static_assert(sizeof(ZombieType) == 248);
 static_assert(offsetof(ZombieType, ZombieClass) == 32);
 static_assert(offsetof(ZombieType, HomeWorld) == 56);
 static_assert(offsetof(ZombieType, PopAnim) == 128);

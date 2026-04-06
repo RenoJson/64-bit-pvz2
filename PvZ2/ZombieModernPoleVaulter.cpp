@@ -7,7 +7,8 @@
 #include "ZombieAnimRig_ModernPoleVaulter.h"
 #include "Plant.h"
 
-void* ZombieModernPoleVaulter::vftable = nullptr; Sexy::RtClass* ZombieModernPoleVaulter::s_rtClass = nullptr;;
+void* ZombieModernPoleVaulter::vftable = nullptr; 
+Sexy::RtClass* ZombieModernPoleVaulter::s_rtClass = nullptr;;
 typedef void (*zombieEnterState)(ZombieModernPoleVaulter*, int, int);
 typedef Zombie* (*zombieAllowMovement)(Zombie*, int);
 typedef void (*LoopWalk)(ZombieModernPoleVaulter*);
@@ -86,16 +87,21 @@ void PoleWalkOnLoop(ZombieModernPoleVaulter* zombie)
 					}
 				}
 			}
-
 			if (hasTallPlant) {
 				((zombieEnterState)getActualOffset(0xC3D428))(zombie, 17, 0);
 			}
 			else {
-				if (rand() % 2 == 0) {
-					((zombieEnterState)getActualOffset(0xC3D428))(zombie, 16, 0);
+				auto* props = reinterpret_cast<ZombieModernPoleVaulterProps*>(zombie->m_propertySheet.Get());
+				if (props->Feastivus == true) {
+					if (rand() % 2 == 0) {
+						((zombieEnterState)getActualOffset(0xC3D428))(zombie, 16, 0);
+					}
+					else {
+						((zombieEnterState)getActualOffset(0xC3D428))(zombie, 18, 0);
+					}
 				}
 				else {
-					((zombieEnterState)getActualOffset(0xC3D428))(zombie, 18, 0);
+					((zombieEnterState)getActualOffset(0xC3D428))(zombie, 16, 0);
 				}
 			}
 		}

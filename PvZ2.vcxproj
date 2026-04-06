@@ -182,6 +182,7 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_JourneyToTheWestTrident.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernAllStar.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernBalloon.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_ModernJackInTheBox.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernPoleVaulter.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_PirateBoomBarrel.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_Vendor.cpp" />
@@ -204,6 +205,8 @@
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestVendor.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestVendorProps.cpp" />
     <ClCompile Include="PvZ2\ZombieModernBalloon.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernJackInTheBox.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernJackInTheBoxProps.cpp" />
     <ClCompile Include="PvZ2\ZombieModernPoleVaulter.cpp" />
     <ClCompile Include="PvZ2\ZombieModernPoleVaulterProps.cpp" />
     <ClCompile Include="PvZ2\ZombieModifierProperties.cpp" />
@@ -242,6 +245,7 @@
     <ClInclude Include="PvZ2\GameObjectDictionary.h" />
     <ClInclude Include="PvZ2\GridItem.h" />
     <ClInclude Include="PvZ2\GridItemAnimation.h" />
+    <ClInclude Include="PvZ2\GridItemCondition.h" />
     <ClInclude Include="PvZ2\LevelDefinition.h" />
     <ClInclude Include="PvZ2\LevelModule.h" />
     <ClInclude Include="PvZ2\LevelModuleManager.h" />
@@ -280,6 +284,7 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_Imp.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_ModernAllStar.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_ModernBalloon.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_ModernJackInTheBox.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_ModernPoleVaulter.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_TombRaiser.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Vendor.h" />
@@ -307,6 +312,8 @@
     <ClInclude Include="PvZ2\ZombieLostCityBug.h" />
     <ClInclude Include="PvZ2\ZombieModernBalloon.h" />
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestBalloonProps.h" />
+    <ClInclude Include="PvZ2\ZombieModernJackInTheBox.h" />
+    <ClInclude Include="PvZ2\ZombieModernJackInTheBoxProps.h" />
     <ClInclude Include="PvZ2\ZombieModernPoleVaulter.h" />
     <ClInclude Include="PvZ2\ZombieModernPoleVaulterProps.h" />
     <ClInclude Include="PvZ2\ZombieModifierModule.h" />

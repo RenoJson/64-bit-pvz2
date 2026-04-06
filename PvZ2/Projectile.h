@@ -10,7 +10,7 @@ class BoardEntity;
 class PlantType;
 class ZombieConditionEntry;
 class DamageInfo;
-enum DamageTypeFlags : int;
+enum DamageTypeFlags : int64_t;
 
 class Projectile : public ModularRealObject
 {

@@ -1,7 +1,9 @@
 #pragma once
 #include "ZombieConditions.h"
+#include "PlantConditions.h"
+#include "GridItemCondition.h"
 
-enum DamageTypeFlags
+enum DamageTypeFlags : int64_t
 {
 	damage_fatal = 0,
 	damage_instantly_fatal = 1ULL << 1,
@@ -46,30 +48,48 @@ enum DamageTypeFlags
 	damage_no_bleed_on_death = 1ULL << 41,
 };
 
-struct DamageInfo
+class BoardEntity;
+
+class DamageInfo
 {
 public:
-	DamageInfo() : m_attacker(0), m_damage(0.0f), m_flags((DamageTypeFlags)0)
+
+	DamageInfo()
 	{
+		memset(this, 0, sizeof(DamageInfo));
 	}
 
 	~DamageInfo()
 	{
-		m_overrideStunConditions.clear();
-		m_unkVec2.clear();
-		m_unkVec3.clear();
+		m_zombieConditions.clear();
+		m_plantConditions.clear();
+		m_gridItemConditions.clear();
 		m_plantFamilies.clear();
 	}
 
-	int64_t m_attacker;
+	BoardEntity* m_attacker;
 	float m_damage;
-	char pad1[4];
-	DamageTypeFlags m_flags;
-	std::vector<ZombieConditions> m_overrideStunConditions;
-	std::vector<int> m_unkVec2;
-	std::vector<int> m_unkVec3;
+	char pad[4];
+	int64_t m_flags;
+	std::vector<ZombieConditions> m_zombieConditions;
+	std::vector<PlantConditions> m_plantConditions;
+	std::vector<GridItemConditions> m_gridItemConditions;
 	std::vector<SexyString> m_plantFamilies;
-	char m_pad[4];
+	float unk;
+
+	void Copy(DamageInfo * from)
+	{
+		this->m_damage = from->m_damage;
+		this->m_flags = from->m_flags;
+		this->m_attacker = from->m_attacker;
+
+		this->m_zombieConditions = from->m_zombieConditions;
+		this->m_plantConditions = from->m_plantConditions;
+		this->m_gridItemConditions = from->m_gridItemConditions;
+		this->m_plantFamilies = from->m_plantFamilies;
+
+		this->unk = from->unk;
+	}
 };
 
 static_assert(sizeof(DamageInfo) == 128);
