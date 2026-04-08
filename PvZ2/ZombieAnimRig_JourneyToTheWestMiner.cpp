@@ -31,6 +31,9 @@ void* hkInitModernMinerHeadList() {
     return &ModernMinerHeadList;
 }
 SexyString hkWalkAnim(ZombieAnimRig_ModernMiner* thisptr) {
+    if (thisptr->m_hasStick == true && thisptr->m_digging == true) {
+        return "walk2";
+    }
     if (thisptr->m_hasStick == true) {
         return "walk";
     }

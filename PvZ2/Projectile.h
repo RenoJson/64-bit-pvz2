@@ -89,6 +89,7 @@ static_assert(offsetof(Projectile, m_target) == 304);
 static_assert(offsetof(Projectile, m_previousPosition) == 132);
 static_assert(offsetof(Projectile, m_renderImage) == 200);
 static_assert(offsetof(Projectile, m_mirrored) == 232);
+static_assert(offsetof(Projectile, m_damageFlags) == 248);
 static_assert(offsetof(Projectile, m_propertyFlags) == 284);
 static_assert(offsetof(Projectile, m_attachedAnimRig) == 288);
 static_assert(offsetof(Projectile, m_plantFamilies) == 336);

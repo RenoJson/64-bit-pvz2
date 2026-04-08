@@ -163,7 +163,8 @@ bool hkMuteImpSound(Zombie* imp)
         && !hasCondition(imp, 31) // these three are the imp stuck in GI
         && !hasCondition(imp, 34) // or they are calling function 199 of zombie imp class idk
         && !hasCondition(imp, 60)
-        && !imp->IsType(ZombieZcorpRacerZombie::StaticGetType());
+        && !imp->IsType(ZombieZcorpRacerZombie::StaticGetType())
+        && !imp->IsType(ZombiePirateBoomBarrel::StaticGetType());
 }
 
 #pragma endregion

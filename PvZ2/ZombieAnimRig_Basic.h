@@ -91,6 +91,7 @@ class ZombieAnimRig_ModernMiner : public ZombieAnimRig_DinoBully
 {
 public:
 	bool m_hasStick;
+	bool m_digging;
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;
@@ -100,6 +101,7 @@ public:
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombieAnimRig_DinoBully);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieAnimRig_ModernMiner, m_hasStick);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieAnimRig_ModernMiner, m_digging);
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieAnimRig_ModernMiner);

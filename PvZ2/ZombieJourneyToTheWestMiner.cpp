@@ -16,11 +16,14 @@ typedef void (*zombieEnterState)(ZombieModernMiner*, int, int);
 typedef Zombie* (*zombieAllowMovement)(Zombie*, int);
 typedef Zombie* (*zombieFlippedAnim)(Zombie*, int);
 typedef void (*LoopWalk)(ZombieModernMiner*);
-typedef Plant* (*getTarg)(ZombieModernMiner*);
 typedef bool (*isDeadOrDying)(ZombieModernMiner*);
 typedef void (*LoopEat)(ZombieModernMiner*);
+typedef uintptr_t (*RenderShadow)(ZombieModernMiner*, Sexy::Graphics*);
+typedef BoardEntity* (*getTarg)(ZombieModernMiner*);
+typedef void* (*funcC43B90)(ZombieModernMiner*, DamageInfo*);
 typedef void (*ActionFrame)(ZombieModernMiner*, int64_t, SexyString*, int64_t, SexyString*);
-typedef void (*setSpeed)(ZombieAnimRig_ModernMiner*, float);
+typedef void (*setSpeedScale)(ZombieModernMiner*, float);
+typedef int64_t(*threatAlert)(ZombieModernMiner*);
 int LastVetBullyState = 18;
 DECLARE_DELEGATES_SETUP(ZombieModernMiner)
 
@@ -33,7 +36,35 @@ static Sexy::DelegateBase diveOutCompletedDelegate;
 static Sexy::DelegateBase lostStickCompletedDelegate;
 
 static Sexy::DelegateBase lostStickDiggingCompletedDelegate;
+uintptr_t TudigongRenderShadow(ZombieModernMiner* zombie, Sexy::Graphics* graphics)
+{
+    if (zombie->m_isDigged == true)
+    {
+        return 0;
+    }
+    return ((RenderShadow)getActualOffset(0xC4F814))(zombie, graphics);
+}
+bool TudigongShouldIgnoreCollision(ZombieModernMiner* zombie, Projectile* proj)
+{
+    int myTeam = zombie->m_teamFlags;     
+    int otherTeam = proj->m_teamFlags; 
+    if (zombie->m_isDigged == true) {
+        return true;
+    }
+    else {
+        if ((otherTeam & 2) != 0 && (myTeam & 1) != 0)
+        {
+            return false; 
+        }
+        else
+        {
+            bool isOtherNotPlant = ((otherTeam & 1) == 0);
+            bool isMeNotZombie = ((myTeam & 2) == 0);
 
+            return isOtherNotPlant || isMeNotZombie;
+        }
+    }
+}
 void TudigongOnSpawn(ZombieModernMiner* zombie)
 {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
@@ -52,10 +83,23 @@ void TudigongOnSpawn(ZombieModernMiner* zombie)
             }
         }
     }
+    rig->m_digging = false;
     zombie->m_isDigged = false;
     zombie->m_diggedDone = false;
 	typedef void (*zombieFun49)(ZombieModernMiner*);
 	((zombieFun49)getActualOffset(0xC3D1F0))(zombie);
+}
+int64_t TudigongThreatAlert(ZombieModernMiner* zombie) {
+    auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
+    if (zombie->m_isDigged == true) {
+        return 0;
+    }
+    else if (zombie->m_diggedDone == true) {
+        return 0;
+    }
+    else {
+        return ((threatAlert)getActualOffset(0xC493B4))(zombie);
+    }
 }
 void TudigongOnArmorDestroyed(ZombieModernMiner* zombie, int a2, SexyString* armorName)
 {
@@ -105,20 +149,25 @@ void TudigongWalkOnLoop(ZombieModernMiner* zombie)
             }
         }
     }
-    ((LoopWalk)getActualOffset(0xC506B4))(zombie);
-}
-void TudigongEatOnLoop(ZombieModernMiner* zombie)
-{
     auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
-    auto props = reinterpret_cast<ZombieModernMinerProps*>(zombie->m_propertySheet.Get());
-    if (props->Smashable == true && rig->m_hasStick == true) {
-        zombie->m_dpsScale = 0.0f;
+    getTarg getTarget = (getTarg)getActualOffset(0xC41910);
+    BoardEntity* target = getTarget(zombie);
+    if (target != nullptr) {
+        if (props->Smashable == true && rig->m_hasStick == true) {
+            ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 18, 0);
+        }
+        else if (props->Smashable == false) {
+            ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 2, 0);
+        }
     }
-    else {
-        zombie->m_dpsScale = 1.0f;
-    }
-    ((LoopEat)getActualOffset(0xC5082C))(zombie);
 }
+GameSubsystem* TudigongSurrender(ZombieModernMiner* zombie) {
+    Board* board = Board::GetBoard();
+    Sexy::RtClass* surrSub = ZombieSurrenderSubsystem::StaticGetType();
+    typedef GameSubsystem* (*getSubsystem)(Board*, Sexy::RtClass*);
+    return ((getSubsystem)getActualOffset(0xAAB864))(board, surrSub);
+}
+
 void TudigongActionFrame(ZombieModernMiner* zombie, int64_t unk1, SexyString* actionName, int64_t unk2, SexyString* currentAnim)
 {
     auto props = reinterpret_cast<ZombieModernMinerProps*>(zombie->m_propertySheet.Get());
@@ -147,33 +196,38 @@ void ZombieModernMiner::DiveInOnLoop(ZombieModernMiner* zombie)
 
 void ZombieModernMiner::DiveInOnExit(ZombieModernMiner* zombie)
 {
-    auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
     auto props = reinterpret_cast<ZombieModernMinerProps*>(zombie->m_propertySheet.Get());
-    ((setSpeed)getActualOffset(0x8DDAA4))(rig, props->DiggingSpeed);
+    ((setSpeedScale)getActualOffset(0xC484C0))(zombie, props->DiggingSpeed);
 }
 
 void ZombieModernMiner::DiggingOnEnter(ZombieModernMiner* zombie)
 {
+    auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
+    rig->m_digging = true;
     ((zombieAllowMovement)getActualOffset(0xC51F94))(zombie, 1);
-    return RegisterEventOnLoop(zombie, "walk2", "onDiggingContinued");
+    return RegisterEventOnWalkLoop(zombie, "onDiggingContinued");
 }
 
 void ZombieModernMiner::DiggingOnLoop(ZombieModernMiner* zombie)
 {
     if (zombie->m_position.x <= 232.0f)
     {
-       zombie->m_diggedDone == true;
+       zombie->m_diggedDone = true; 
+       ((setSpeedScale)getActualOffset(0xC484C0))(zombie, 1);
+       ((zombieFlippedAnim)getActualOffset(0xC41290))(zombie, 1);
        ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 21, 0);
     }
 }
 
 void ZombieModernMiner::DiggingOnExit(ZombieModernMiner* zombie)
 {
-    
+
 }
 
 void ZombieModernMiner::DiveOutOnEnter(ZombieModernMiner* zombie)
 {
+    auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
+    rig->m_digging = false;
     RegisterEventAfterAnim(zombie, "special_out", "onDiveOutCompleted");
 }
 
@@ -200,6 +254,9 @@ void ZombieModernMiner::LostStickOnExit(ZombieModernMiner* zombie)
 
 void ZombieModernMiner::LostStickDiggingOnEnter(ZombieModernMiner* zombie)
 {
+    auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
+    rig->m_digging = false;
+    ((setSpeedScale)getActualOffset(0xC484C0))(zombie, 1);
     RegisterEventAfterAnim(zombie, "specoal_out_2", "onLostStickDiggingCompleted");
 }
 
@@ -209,8 +266,7 @@ void ZombieModernMiner::LostStickDiggingOnLoop(ZombieModernMiner* zombie)
 
 void ZombieModernMiner::LostStickDiggingOnExit(ZombieModernMiner* zombie)
 {
-    auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
-    ((setSpeed)getActualOffset(0x8DDAA4))(rig, zombie->m_walkSpeed);
+   
 }
 
 void DiveInCompletedCallback(Zombie* zombie) {
@@ -220,29 +276,32 @@ void DiveInCompletedCallback(Zombie* zombie) {
     }
 }
 void DiggingCompletedCallback(Zombie* zombie) {
-    ZombieModernMiner* diggerZombie = static_cast<ZombieModernMiner*>(zombie);
-    if (diggerZombie) {
-        auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
-        ((zombieFlippedAnim)getActualOffset(0xC41290))(zombie, 1);
-        ((setSpeed)getActualOffset(0x8DDAA4))(rig, diggerZombie->m_walkSpeed);
-    }
+  
 }
 void DiveOutCompletedCallback(Zombie* zombie) {
     ZombieModernMiner* diggerZombie = static_cast<ZombieModernMiner*>(zombie);
     if (diggerZombie) {
+        auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
+        diggerZombie->m_isDigged = false;
+        diggerZombie->m_diggedDone = true;
         ((zombieEnterState)getActualOffset(0xC3D428))(diggerZombie, 1, 0);
     }
 }
 void LostStickCompletedCallback(Zombie* zombie) {
     ZombieModernMiner* diggerZombie = static_cast<ZombieModernMiner*>(zombie);
     if (diggerZombie) {
+        auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
+        rig->m_hasStick = false;
         ((zombieEnterState)getActualOffset(0xC3D428))(diggerZombie, 1, 0);
     }
 }
 void LostStickDiggingCompletedCallback(Zombie* zombie) {
     ZombieModernMiner* diggerZombie = static_cast<ZombieModernMiner*>(zombie);
     if (diggerZombie) {
-        diggerZombie->m_diggedDone = true;
+        auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
+        rig->m_hasStick = false;
+        diggerZombie->m_isDigged = false;
+        diggerZombie->m_diggedDone = false;
         ((zombieEnterState)getActualOffset(0xC3D428))(diggerZombie, 1, 0);
     }
 }
@@ -252,10 +311,13 @@ void ZombieModernMiner::modInit() {
     vftable = CreateChildVFTable(215 + 18, getActualOffset(0x23E4CC8), 215);
     PatchVFTable(vftable, (void*)ZombieModernMiner::StaticGetType, 0);
 
+    PatchVFTable(vftable, (void*)TudigongRenderShadow, 28);
+    PatchVFTable(vftable, (void*)TudigongShouldIgnoreCollision, 43);
     PatchVFTable(vftable, (void*)TudigongOnSpawn, 49);
+    PatchVFTable(vftable, (void*)TudigongThreatAlert, 75);
     PatchVFTable(vftable, (void*)TudigongOnArmorDestroyed, 115);
     PatchVFTable(vftable, (void*)TudigongWalkOnLoop, 124);
-    PatchVFTable(vftable, (void*)TudigongEatOnLoop, 127);
+    PatchVFTable(vftable, (void*)TudigongSurrender, 169);
     PatchVFTable(vftable, (void*)TudigongActionFrame, 170);
     PatchVFTable(vftable, (void*)GetTudigongShockEffectName, 189);
     PatchVFTable(vftable, (void*)GetTudigongAshEffectName, 190);

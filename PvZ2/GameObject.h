@@ -1,6 +1,7 @@
 #pragma once
 #include <Sexy/RtObject.h>
 #include <Sexy/RtWeakPtr.h>
+#include <Reflection/ReflectionBuilder.h>
 
 class Renderable
 {
@@ -32,4 +33,13 @@ static_assert(offsetof(GameObject, m_thisPtr) == 8);
 
 // GameSubsystem base class
 class GameSubsystem : public GameObject
-{};
+{
+public:
+
+};
+
+class ZombieSurrenderSubsystem : public GameSubsystem
+{
+public:
+	RT_CLASS_GET_CLASS_WRAPPER(0x67E894);
+};

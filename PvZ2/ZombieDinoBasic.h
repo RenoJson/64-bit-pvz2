@@ -30,7 +30,7 @@ public:
 class ZombieDinoBullyVeteran : public ZombieDinoBully
 {
 public:
-    char pad[8];
+	ZombieAnimRig* m_someArgThatCallZombieAnimRigFunction38;
 };
 
 class ZombieJourneyToTheWestGargantuar : public ZombieDinoBullyVeteran

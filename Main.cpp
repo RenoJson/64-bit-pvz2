@@ -492,43 +492,43 @@ void libChair_main()
     PVZ2HookFunction(0xC4987C, (void*)hkEffectCondition, (void**)&oEffCond);
     PVZ2HookFunction(0xC4BC48, (void*)hkRemoveEffectCondition, (void**)&oRemoveEffCond);
     PVZ2HookFunction(0x677B40, (void*)hkZombieConditionTrackerUpdate, (void**)&oZombieConditionTrackerUpdate);
-    ZombiePharaoh::ModInit();
-    ZombieModernSuperfanImpProps::modInit();
-    ZombieBullProps::modInit();
-    ZombieBullVeteranProps::modInit();
-    ZombieZcorpRacerProps::modInit();
+    ZombiePharaoh::ModInit();// free stuff
+    ZombieModernSuperfanImpProps::modInit();// free stuff
+    ZombieBullProps::modInit();// free stuff
+    ZombieBullVeteranProps::modInit();// free stuff
+    ZombieZcorpRacerProps::modInit();// free stuff
     ZombieFairyTaleImp::modInit();
     ZombieFairyTaleImpProps::modInit();
-    ZombieAnimRig_ModernAllStar::modInit();
+    ZombieAnimRig_ModernAllStar::modInit();// free stuff
     ZombieAnimRig_JourneyToTheWestAllStar::modInit();
-    ZombieAnimRig_EightiesPunk::modInit();
-    ZombieAnimRig_Consultant::modInit();
+    ZombieAnimRig_EightiesPunk::modInit();// free stuff
+    ZombieAnimRig_Consultant::modInit();// free stuff
     ZombieAnimRig_JourneyToTheWestTrident::modInit();
-    ZombieAnimRig_Gargantuar::modInit();
+    ZombieAnimRig_Gargantuar::modInit();// free stuff
     ZombieAnimRig_FairyTaleGargantuar::modInit();
     ZombieJourneyToTheWestGargantuar::modInit();
     ZombieAnimRig_JourneyToTheWestGargantuar::modInit();
-    ZombiePirateBoomBarrel::modInit();
-    ZombieAnimRig_PirateBoomBarrel::modInit();
-    DangerRoomFallenKnightDesigner::modInit();
-    DangerRoomHelpdeskSupportDesigner::modInit();
-    ZombieModifierProperties::modInit();
-    ZombieAnimRig_ModernBalloon::modInit();
-    ZombieJourneyToTheWestBalloon::modInit();   
-    ZombieJourneyToTheWestBalloonProps::modInit();
+    ZombiePirateBoomBarrel::modInit();// free stuff
+    ZombieAnimRig_PirateBoomBarrel::modInit();// free stuff
+    DangerRoomFallenKnightDesigner::modInit();// free stuff
+    DangerRoomHelpdeskSupportDesigner::modInit();// free stuff
+    ZombieModifierProperties::modInit();// free stuff
+    ZombieAnimRig_ModernBalloon::modInit();// free stuff
+    ZombieJourneyToTheWestBalloon::modInit();   // free stuff
+    ZombieJourneyToTheWestBalloonProps::modInit();// free stuff
     ZombieJourneyToTheWestVendor::ModInit();
     ZombieJourneyToTheWestVendorProps::modInit();
     ZombieAnimRig_Vendor::modInit();
     ZombieJourneyToTheWestPiggy::ModInit();
     ZombieJourneyToTheWestPiggyProps::modInit();
     ZombieJourneyToTheWestGargantuarProps::modInit();
-    ZombieAnimRigTemplateConfig::modInit();
+    ZombieAnimRigTemplateConfig::modInit();// free stuff
     TimerExplosionProps::modInit();
     ZombieZCorpEnergyDrinker::modInit();
     ZombieZCorpEnergyDrinkerProps::modInit();
     ZombieAnimRig_EnergyDrinker::modInit();
-    ZombieDarkCavalry::modInit();
-    ZombieDarkCavalryProps::modInit();
+    ZombieDarkCavalry::modInit();// free stuff
+    ZombieDarkCavalryProps::modInit();// free stuff
     FrogProjectile::ModInit();
     ZombieAnimRig_FairyTaleWitch::modInit();
     ZombieFairyTaleWitch::modInit();
@@ -536,9 +536,9 @@ void libChair_main()
     ZombieAnimRig_FairyTaleImp::modInit();
     ZombieFairyTaleGargantuar::modInit();
     ZombieFairyTaleGargantuarProps::modInit();
-    ZombieBasicTemplate::modInit();
-    ZombieBasicProps::modInit();
-    ZombieAnimRig_BasicTemplate::modInit();
+    ZombieBasicTemplate::modInit();// free stuff
+    ZombieBasicProps::modInit();// free stuff
+    ZombieAnimRig_BasicTemplate::modInit();// free stuff
     ZombieCowboyBasicVeteran::modInit();
     ZombieCowboyVeteranProps::modInit();
     ZombieModernPoleVaulter::ModInit();
