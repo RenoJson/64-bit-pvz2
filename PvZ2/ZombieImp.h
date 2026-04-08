@@ -37,3 +37,34 @@ public:
 static_assert(sizeof(ZombieModernSuperfanImp) == 1120);
 static_assert(offsetof(ZombieModernSuperfanImp, m_selectedTriggerColumn) == 1112);
 
+class ZombieModernSuperfanImpProps : public ZombiePropertySheet
+{
+public:
+    int MinTriggerColumn = 1;
+    int MaxTriggerColumn = 4;
+    float ExplosionDamage = 301;
+    float ExplosionRadius = 0.004f;
+    Rect ExplosionRect;
+
+	static Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc oZombieModernSuperfanImpPropsBuildSymbols;
+	static void modInit();
+
+	static void* construct()
+	{
+		auto* props = new ZombieModernSuperfanImpProps();
+
+		typedef void* (*ctorWithThisPtr)(void*);
+		ctorWithThisPtr baseCtor = (ctorWithThisPtr)getActualOffset(0xC136A4);
+		baseCtor(props);
+
+		*reinterpret_cast<uintptr_t*>(props) = getActualOffset(0x240B598);
+		return props;
+	}
+
+	static void buildSymbols(Reflection::CRefManualSymbolBuilder* builder, Reflection::RClass* rclass)
+	{
+		oZombieModernSuperfanImpPropsBuildSymbols(builder, rclass);
+		RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieModernSuperfanImpProps, Rect, ExplosionRect);
+	};
+};
+

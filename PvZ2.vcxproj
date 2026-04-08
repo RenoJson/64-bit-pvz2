@@ -179,6 +179,7 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_FairyTaleWitch.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_Gargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_JourneyToTheWestGargantuar.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_JourneyToTheWestMiner.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_JourneyToTheWestTrident.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernAllStar.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernBalloon.cpp" />
@@ -200,6 +201,7 @@
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestBalloonProps.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestGargantuarProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieJourneyToTheWestMiner.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestPiggy.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestPiggyProps.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestVendor.cpp" />
@@ -209,6 +211,7 @@
     <ClCompile Include="PvZ2\ZombieModernJackInTheBoxProps.cpp" />
     <ClCompile Include="PvZ2\ZombieModernPoleVaulter.cpp" />
     <ClCompile Include="PvZ2\ZombieModernPoleVaulterProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernSuperFanImp.cpp" />
     <ClCompile Include="PvZ2\ZombieModifierProperties.cpp" />
     <ClCompile Include="PvZ2\ZombiePharaoh.cpp" />
     <ClCompile Include="PvZ2\ZombiePirateBoomBarrel.cpp" />

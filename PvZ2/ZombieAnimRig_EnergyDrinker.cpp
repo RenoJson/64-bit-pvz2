@@ -32,7 +32,15 @@ void* hkInitEnergyDrinkerHeadList() {
 }
 SexyString hkWalkAnim(ZombieAnimRig_EnergyDrinker* thisptr) {
     if (thisptr->m_gotCondition == true) {
-        return thisptr->m_conditionWalkAnim;
+        return "walk_condition";
+    }
+    else {
+        return "walk";
+    }
+}
+SexyString hkEatAnim(ZombieAnimRig_EnergyDrinker* thisptr) {
+    if (thisptr->m_gotCondition == true) {
+        return "eat_condition";
     }
     else {
         return "walk";
@@ -40,7 +48,7 @@ SexyString hkWalkAnim(ZombieAnimRig_EnergyDrinker* thisptr) {
 }
 SexyString hkDieAnim(ZombieAnimRig_EnergyDrinker* thisptr) {
     if (thisptr->m_gotCondition == true) {
-        return thisptr->m_conditionDieAnim;
+        return "die_condition";
     }
     else {
         return "die";
@@ -49,13 +57,14 @@ SexyString hkDieAnim(ZombieAnimRig_EnergyDrinker* thisptr) {
 void ZombieAnimRig_EnergyDrinker::modInit() {
     LOGI("ZombieAnimRig_EnergyDrinker init");
 
-    vftable = CopyVFTable(getActualOffset(0x23EA368), 67);
+    vftable = CopyVFTable(getActualOffset(0x23ABF70), 67);
 
     PatchVFTable(vftable, (void*)ZombieAnimRig_EnergyDrinker::StaticGetType, 0);
     PatchVFTable(vftable, (void*)hkInitEnergyDrinkerHeadList, 55);
     PatchVFTable(vftable, (void*)hkInitEnergyDrinkerLowerArmList, 56);
     PatchVFTable(vftable, (void*)hkInitEnergyDrinkerUpperArmList, 57);
     PatchVFTable(vftable, (void*)hkWalkAnim, 59);
+    PatchVFTable(vftable, (void*)hkEatAnim, 61);
     PatchVFTable(vftable, (void*)hkDieAnim, 63);
 
     ZombieAnimRig_EnergyDrinker::StaticGetType();

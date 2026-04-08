@@ -121,6 +121,9 @@
     <ClCompile Include="PvZ2\ZombieModernJackInTheBoxProps.cpp" />
     <ClCompile Include="PvZ2\ZombieModernJackInTheBox.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernJackInTheBox.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernSuperFanImp.cpp" />
+    <ClCompile Include="PvZ2\ZombieJourneyToTheWestMiner.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_JourneyToTheWestMiner.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />

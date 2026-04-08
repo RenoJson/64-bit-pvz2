@@ -51,10 +51,12 @@ void BoxOnSpawn(ZombieModernJackInTheBox* zombie)
         if (rig != nullptr) {
             rig->m_hasBox = true;
         }
-        float rollChance = static_cast<float>(rand()) / RAND_MAX * 100.0f;
+        float highChance = props->BoxExplodeTimerProps.HighTimerChance;
+        float lowChance = props->BoxExplodeTimerProps.LowTimerChance;
+        float totalChance = highChance + lowChance;
+        float rollChance = static_cast<float>(rand()) / RAND_MAX * totalChance;
         float chosenDuration = 0.0f;
-
-        if (rollChance <= props->BoxExplodeTimerProps.HighTimerChance) {
+        if (rollChance <= highChance) {
             float min = props->BoxExplodeTimerProps.HighTimer.Min;
             float max = props->BoxExplodeTimerProps.HighTimer.Max;
             chosenDuration = min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max - min)));
@@ -62,6 +64,7 @@ void BoxOnSpawn(ZombieModernJackInTheBox* zombie)
         else {
             float min = props->BoxExplodeTimerProps.LowTimer.Min;
             float max = props->BoxExplodeTimerProps.LowTimer.Max;
+
             chosenDuration = min + static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / (max - min)));
         }
 

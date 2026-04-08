@@ -87,3 +87,21 @@ public:
 	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieAnimRig_JourneyToTheWestGargantuar);
 	RT_CLASS_GET_CLASS_FUNCTION(ZombieAnimRig_JourneyToTheWestGargantuar, 0xB0AE78);
 };
+class ZombieAnimRig_ModernMiner : public ZombieAnimRig_DinoBully
+{
+public:
+	bool m_hasStick;
+	static void* vftable;
+	static Sexy::RtClass* s_rtClass;
+	static void modInit();;
+
+	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(ZombieAnimRig_ModernMiner, 0x9D9C4C);
+	RT_CLASS_CONSTRUCT_FUNCTION_END();
+
+	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombieAnimRig_DinoBully);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieAnimRig_ModernMiner, m_hasStick);
+	RT_CLASS_BUILD_SYMBOLS_END();
+
+	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieAnimRig_ModernMiner);
+	RT_CLASS_GET_CLASS_FUNCTION(ZombieAnimRig_ModernMiner, 0xB0AE78);
+};

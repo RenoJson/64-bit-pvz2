@@ -493,6 +493,7 @@ void libChair_main()
     PVZ2HookFunction(0xC4BC48, (void*)hkRemoveEffectCondition, (void**)&oRemoveEffCond);
     PVZ2HookFunction(0x677B40, (void*)hkZombieConditionTrackerUpdate, (void**)&oZombieConditionTrackerUpdate);
     ZombiePharaoh::ModInit();
+    ZombieModernSuperfanImpProps::modInit();
     ZombieBullProps::modInit();
     ZombieBullVeteranProps::modInit();
     ZombieZcorpRacerProps::modInit();
@@ -546,5 +547,8 @@ void libChair_main()
     ZombieModernJackInTheBoxProps::modInit();
     ZombieAnimRig_ModernJackInTheBox::modInit();
     ZombieModernJackInTheBox::ModInit();
+    ZombieModernMinerProps::modInit();
+    ZombieAnimRig_ModernMiner::modInit();
+    ZombieModernMiner::modInit();
     PatchRedStingerPF();
 }

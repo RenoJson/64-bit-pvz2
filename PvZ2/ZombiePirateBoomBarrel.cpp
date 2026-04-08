@@ -6,11 +6,11 @@ Sexy::RtClass* ZombiePirateBoomBarrel::s_rtClass = __null;;
 
 SexyString GetBomberShockEffectName()
 {
-	return "POPANIM_EFFECTS_ZOMBIE_JOURNEY_TO_THE_WEST_MINER_SHOCK";
+	return "POPANIM_EFFECTS_ZOMBIE_FAT_SHOCK";
 }
 SexyString GetBomberAshEffectName()
 {
-	return "POPANIM_EFFECTS_ZOMBIE_JOURNEY_TO_THE_WEST_MINER_ASH";
+	return "POPANIM_EFFECTS_ZOMBIE_FAT_ASH";
 }
 bool isShrunkenToObvillion() {
 	return false;

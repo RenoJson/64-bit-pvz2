@@ -1,11 +1,48 @@
 ﻿#include "ZombieTombRaiser.h"
 #include "ZombieTombRaiserProps.h"
 #include "ZombieAnimRig_TombRaiser.h"
+#include "ZombieStateHelper.h"
+#include "ZombieState.h"
+#include "StateMachineBuilder.h"
+#include "Board.h"
+
+
+typedef void (*zombieEnterState)(ZombieZCorpEnergyDrinker*, int, int);
+
+typedef void (*LoopWalk)(ZombieZCorpEnergyDrinker*);
+typedef bool (*isDeadOrDying)(ZombieZCorpEnergyDrinker*);
+DECLARE_DELEGATES_SETUP(ZombieZCorpEnergyDrinker)
+
+static Sexy::DelegateBase drinkingCompletedDelegate;
 using namespace Sexy;
 
 void* ZombieZCorpEnergyDrinker::vftable = __null;
 Sexy::RtClass* ZombieZCorpEnergyDrinker::s_rtClass = __null;;
 
+void DrinkerOnSpawn(ZombieZCorpEnergyDrinker* zombie) {
+    auto rig = reinterpret_cast<ZombieAnimRig_EnergyDrinker*>(zombie->m_animRig.Get());
+    zombie->m_gotCondition = false;
+    rig->m_gotCondition = false;
+    typedef void (*zombieFun49)(ZombieZCorpEnergyDrinker*);
+    ((zombieFun49)getActualOffset(0xC3D1F0))(zombie);
+}
+void DrinkerWalkOnLoop(ZombieZCorpEnergyDrinker* zombie)
+{
+    isDeadOrDying isDeadFunc = (isDeadOrDying)getActualOffset(0xC3E204);
+    if (isDeadFunc(zombie)) {
+        ((LoopWalk)getActualOffset(0xC506B4))(zombie);
+        return;
+    }
+    auto* props = reinterpret_cast<ZombieZCorpEnergyDrinkerProps*>(zombie->m_propertySheet.Get());
+
+    if (zombie->m_position.x <= 744.0f) {
+        if (zombie->m_gotCondition == false && ((zombie->m_teamFlags) & 2) != 0) {
+            ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 16, 0);
+            return;
+        }
+    }
+    ((LoopWalk)getActualOffset(0xC506B4))(zombie);
+}
 int GetCondIDByName(const char* name)
 {
     if (!name) return -1;
@@ -120,7 +157,10 @@ void CondZombie(Zombie* self) {
             LOGI("[CondZombie] Applied random condition: %s", conditionName.c_str());
         }
      };
-    float masterRoll = (float)(rand()) / (float)(RAND_MAX) * 100.0f;
+    float goodChance = props->ChanceToApplyGoodCondition; 
+    float badChance = props->ChanceToApplyBadCondition; 
+    float totalChance = goodChance + badChance;
+    float masterRoll = (float)(rand()) / (float)(RAND_MAX)*totalChance;
 
     if (masterRoll <= props->ChanceToApplyGoodCondition)
     {
@@ -132,29 +172,71 @@ void CondZombie(Zombie* self) {
     }
 }
 
-void hkZCorpEnergyDrinkerActionFrame(ZombieZCorpEnergyDrinker* zombie, int64_t unk1, SexyString* actionName, int64_t unk2, SexyString* currentAnim)
+void ZombieZCorpEnergyDrinker::DrinkingOnEnter(ZombieZCorpEnergyDrinker* zombie)
 {
-	if (*actionName == "shh" && !zombie->m_gotCondition)
-	{
-		CondZombie(zombie);
-		zombie->m_gotCondition = true;
-	}
-	else {
-		return;
-	}
+    RegisterEventAfterAnim(zombie, "drink", "onDrinkingCompleted");
 }
 
+void ZombieZCorpEnergyDrinker::DrinkingOnLoop(ZombieZCorpEnergyDrinker* zombie)
+{
+
+}
+
+void ZombieZCorpEnergyDrinker::DrinkingOnExit(ZombieZCorpEnergyDrinker* zombie)
+{
+    if (!zombie->m_gotCondition)
+    {
+        auto rig = reinterpret_cast<ZombieAnimRig_EnergyDrinker*>(zombie->m_animRig.Get());
+        CondZombie(zombie);
+        zombie->m_gotCondition = true;
+        rig->m_gotCondition = true;
+    }
+}
+void DrinkingCompletedCallback(Zombie* zombie) {
+    ZombieZCorpEnergyDrinker* boxZombie = static_cast<ZombieZCorpEnergyDrinker*>(zombie);
+    if (boxZombie) {
+        ((zombieEnterState)getActualOffset(0xC3D428))(boxZombie, 1, 0);
+    }
+}
 void ZombieZCorpEnergyDrinker::modInit() {
 	LOGI("ZombieZCorpEnergyDrinker init");
 
-	vftable = CopyVFTable(getActualOffset(0x23E9A78), 210);
+    vftable = CreateChildVFTable(204 + 6, getActualOffset(0x241D430), 204);
 
 	PatchVFTable(vftable, (void*)ZombieZCorpEnergyDrinker::StaticGetType, 0);
 
+    PatchVFTable(vftable, (void*)DrinkerOnSpawn, 49);
+    PatchVFTable(vftable, (void*)DrinkerWalkOnLoop, 124);
 
-	PatchVFTable(vftable, (void*)hkZCorpEnergyDrinkerActionFrame, 170);
+    PatchVFTable(vftable, (void*)ZombieZCorpEnergyDrinker::DrinkingOnEnter, 204);
+    PatchVFTable(vftable, (void*)ZombieZCorpEnergyDrinker::DrinkingOnLoop, 205);
+    PatchVFTable(vftable, (void*)ZombieZCorpEnergyDrinker::DrinkingOnExit, 206);
 
 	ZombieZCorpEnergyDrinker::StaticGetType();
 
 	LOGI("ZombieZCorpEnergyDrinker finish init");
+}
+
+void ZombieZCorpEnergyDrinker::buildEventCallbacks(Reflection::CRefManualSymbolBuilder* builder, Reflection::RClass* rtClass)
+{
+    IF_CALLBACK_NOTSETUP(ZombieZCorpEnergyDrinker) {
+        SetupLiteralDelegate(&drinkingCompletedDelegate, DrinkingCompletedCallback);
+        ZombieZCorpEnergyDrinker_delegatesSetup = true;
+        LOGI("SO TRUE");
+    }
+    RegisterEventCallback(builder, rtClass, "onDrinkingCompleted", drinkingCompletedDelegate);
+    LOGI("Reg event complete");
+}
+
+
+void ZombieZCorpEnergyDrinker::buildStates()
+{
+    StateMachineTableBuilder* stateMachine = CallGetStateMachine(ZombieZCorpEnergyDrinker::StaticGetType());
+    RegisterStateByOffsets(stateMachine,
+        16,
+        (uintptr_t)ZombieZCorpEnergyDrinker::DrinkingOnEnter,
+        (uintptr_t)ZombieZCorpEnergyDrinker::DrinkingOnLoop,
+        (uintptr_t)ZombieZCorpEnergyDrinker::DrinkingOnExit,
+        "ZS_ZCorpDrinker_Drinking");
+    LOGI("Reg state complete");
 }

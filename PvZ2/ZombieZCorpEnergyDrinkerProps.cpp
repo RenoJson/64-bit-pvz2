@@ -7,7 +7,7 @@ Sexy::RtClass* ZombieZCorpEnergyDrinkerProps::s_rtClass = __null;
 void ZombieZCorpEnergyDrinkerProps::modInit() {
 	LOGI("ZombieZCorpEnergyDrinkerProps init");
 
-	vftable = CopyVFTable(getActualOffset(0x23E1138), 14);
+	vftable = CopyVFTable(getActualOffset(0x24328D0), 14);
 
 	PatchVFTable(vftable, (void*)ZombieZCorpEnergyDrinkerProps::StaticGetType, 0);
 
