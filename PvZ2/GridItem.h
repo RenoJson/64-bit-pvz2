@@ -6,6 +6,7 @@
 #include <Reflection/ReflectionBuilder.h>
 
 class GridItemType;
+class PopAnimRig;
 class GridItemPropertySheet;
 
 class GridItem : public BoardEntity
@@ -25,6 +26,26 @@ static_assert(sizeof(GridItem) == 304);
 static_assert(offsetof(GridItem, m_pad5) == 128);
 static_assert(offsetof(GridItem, m_type) == 272);
 static_assert(offsetof(GridItem, m_gridLocation) == 288);
+
+class GridItemVase : public GridItem
+{
+public:
+	RT_CLASS_GET_CLASS_WRAPPER(0xA2FC08);
+	Sexy::RtWeakPtr<RtObject> m_animRig;
+	Sexy::RtWeakPtr<RtObject> m_contentsType;
+	int m_flags;
+	float m_dropStartTime;
+	float m_dropEndTime;
+	bool m_allowPreGameplayInteraction;
+	char pad[32];
+};
+static_assert(sizeof(GridItemVase) == 368);
+static_assert(offsetof(GridItemVase, m_animRig) == 304);
+static_assert(offsetof(GridItemVase, m_contentsType) == 312);
+static_assert(offsetof(GridItemVase, m_flags) == 320);
+static_assert(offsetof(GridItemVase, m_dropStartTime) == 324);
+static_assert(offsetof(GridItemVase, m_dropEndTime) == 328);
+static_assert(offsetof(GridItemVase, m_allowPreGameplayInteraction) == 332);
 
 class GridItemAnimation : public GridItem
 {

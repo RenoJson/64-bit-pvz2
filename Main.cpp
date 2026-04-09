@@ -59,6 +59,7 @@
 #include <PvZ2/ZombieModernJackInTheBoxProps.h>
 #include <PvZ2/ZombieAnimRig_ModernJackInTheBox.h>
 #include <PvZ2/ZombieModernJackInTheBox.h>
+#include <PvZ2/GridItem.h>
 
 
 // TODO: Make every typedef function became a wrapper ig

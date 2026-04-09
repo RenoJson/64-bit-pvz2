@@ -8,11 +8,13 @@
 #include "DamageInfo.h"
 #include "TimeMgr.h"
 #include "Board.h"
+#include "GridItem.h"
 
 
 void* ZombieModernJackInTheBox::vftable = nullptr;
 Sexy::RtClass* ZombieModernJackInTheBox::s_rtClass = nullptr;;
 typedef void (*zombieEnterState)(ZombieModernJackInTheBox*, int, int);
+typedef void* (*playSoundEvent)(ZombieModernJackInTheBox*, SexyString*, float);
 typedef Zombie* (*zombieAllowMovement)(Zombie*, int);
 typedef void (*LoopWalk)(ZombieModernJackInTheBox*);
 typedef void (*LoopEat)(ZombieModernJackInTheBox*);
@@ -141,33 +143,41 @@ void BoxExplosion(ZombieModernJackInTheBox* zombie) {
     ExplodeRect.mWidth = props->ExplosionRect.mWidth;
     ExplodeRect.mHeight = props->ExplosionRect.mHeight;
 
+    SexyString eventName = "Play_JackInTheBox_BoxBoom";
+    ((playSoundEvent)getActualOffset(0x10B0608))(zombie, &eventName, 0.0f);
+
     std::vector<BoardEntity*> entityList;
 
     typedef void (*GetEntitiesInRectFunc)(std::vector<BoardEntity*>*, int, Rect*);
     GetEntitiesInRectFunc getEntitiesRect = (GetEntitiesInRectFunc)getActualOffset(0x86F180);
+    typedef void* (*Func_VaseBreak)(GridItemVase*);
+    Func_VaseBreak breakVase = (Func_VaseBreak)getActualOffset(0xA322B8);
 
-    getEntitiesRect(&entityList, 32, &ExplodeRect);
+    getEntitiesRect(&entityList, 63, &ExplodeRect);
 
     for (BoardEntity* ptr : entityList) {
-        if (ptr == nullptr) {
-           
-            continue;
-        }
-        if (ptr->IsType(PlantGroup::StaticGetType())) {
-            PlantGroup* pGroup = reinterpret_cast<PlantGroup*>(ptr);
+        if (ptr == nullptr) continue;
+
+        if (ptr->IsType(PlantGroup::StaticGetType()))
+        {
             DamageInfo dmg;
             dmg.m_attacker = zombie;
             dmg.m_damage = damageAmount;
-            dmg.m_flags = DamageTypeFlags::damage_fire;
+            dmg.m_flags = DamageTypeFlags::damage_no_sound;
 
-            void** vtable = *(void***)pGroup;
-            typedef void (*ApplyDamageFunc)(PlantGroup*, DamageInfo*);
-            ApplyDamageFunc applyDamage = (ApplyDamageFunc)vtable[35];
+            void** vtable = *(void***)ptr;
+            typedef void (*VirtualTakeDamageFunc)(PlantGroup*, DamageInfo*);
+            VirtualTakeDamageFunc takeDmg = (VirtualTakeDamageFunc)vtable[35]; 
 
-            applyDamage(pGroup, &dmg);
+            takeDmg((PlantGroup*)ptr, &dmg);
         }
-        else {
-            LOGI("-> Bỏ qua thực thể %p (Không phải PlantGroup).", ptr);
+        else if (props->CanBreakVase == true && ptr->IsType(GridItemVase::StaticGetType()))
+        {
+            auto vase = reinterpret_cast<GridItemVase*>(ptr);
+            if ((vase->m_flags & 4) == 0)
+            {
+                breakVase(vase);
+            }
         }
     }
 }
@@ -182,6 +192,8 @@ void BoxActionFrame(ZombieModernJackInTheBox* zombie, int64_t unk1, SexyString* 
 void ZombieModernJackInTheBox::LostBoxOnEnter(ZombieModernJackInTheBox* zombie)
 {
     RegisterEventAfterAnim(zombie, "lost_box", "onLostBoxCompleted");
+    SexyString eventName = "Stop_JackInTheBox_MusicBox";
+    ((playSoundEvent)getActualOffset(0x10B0608))(zombie, &eventName, 0.0f);
 }
 
 void ZombieModernJackInTheBox::LostBoxOnLoop(ZombieModernJackInTheBox* zombie)
@@ -197,6 +209,8 @@ void ZombieModernJackInTheBox::LostBoxOnExit(ZombieModernJackInTheBox* zombie)
 void ZombieModernJackInTheBox::SurpriseOnEnter(ZombieModernJackInTheBox* zombie)
 {
     RegisterEventAfterAnim(zombie, "box_surprised", "onSurpriseCompleted");
+    SexyString eventName = "Play_JackInTheBox_Surprised";
+    ((playSoundEvent)getActualOffset(0x10B0608))(zombie, &eventName, 0.0f);
 }
 
 void ZombieModernJackInTheBox::SurpriseOnLoop(ZombieModernJackInTheBox* zombie)
