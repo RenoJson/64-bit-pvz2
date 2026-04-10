@@ -124,6 +124,7 @@
     <ClCompile Include="PvZ2\ZombieModernSuperFanImp.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestMiner.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_JourneyToTheWestMiner.cpp" />
+    <ClCompile Include="PvZ2\ZombieVaseGargantuar.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />

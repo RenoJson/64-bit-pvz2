@@ -551,5 +551,6 @@ void libChair_main()
     ZombieModernMinerProps::modInit();
     ZombieAnimRig_ModernMiner::modInit();
     ZombieModernMiner::modInit();
+    ZombieVaseGargantuar::modInit();
     PatchRedStingerPF();
 }

@@ -216,6 +216,7 @@
     <ClCompile Include="PvZ2\ZombiePharaoh.cpp" />
     <ClCompile Include="PvZ2\ZombiePirateBoomBarrel.cpp" />
     <ClCompile Include="PvZ2\ZombieStateHelper.cpp" />
+    <ClCompile Include="PvZ2\ZombieVaseGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieZcorpEnergyDrinker.cpp" />
     <ClCompile Include="PvZ2\ZombieZCorpEnergyDrinkerProps.cpp" />
     <ClCompile Include="PvZ2\Zombie_BullProps.cpp">

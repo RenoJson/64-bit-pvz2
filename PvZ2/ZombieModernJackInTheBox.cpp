@@ -163,7 +163,7 @@ void BoxExplosion(ZombieModernJackInTheBox* zombie) {
             DamageInfo dmg;
             dmg.m_attacker = zombie;
             dmg.m_damage = damageAmount;
-            dmg.m_flags = DamageTypeFlags::damage_no_sound;
+            //dmg.m_flags = DamageTypeFlags::damage_no_sound;
 
             void** vtable = *(void***)ptr;
             typedef void (*VirtualTakeDamageFunc)(PlantGroup*, DamageInfo*);
