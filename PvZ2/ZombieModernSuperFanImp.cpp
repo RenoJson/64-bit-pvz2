@@ -18,8 +18,9 @@ void hkSuperfanImpAF(ZombieModernSuperfanImp* imp, int64_t unk1, SexyString* act
         auto* props = reinterpret_cast<ZombieModernSuperfanImpProps*>(imp->m_propertySheet.Get());
         float damageAmount = props->ExplosionDamage;
 
-        int zX = static_cast<int>((imp->m_position.x - 160.0f) / 76.0f);
-        int zY = static_cast<int>((imp->m_position.y - 200.0f) / 64.0f);
+        int zX = static_cast<int>((imp->m_position.x - 200.0f) / 64.0f);
+        int zY = static_cast<int>((imp->m_position.y - 160.0f) / 76.0f);
+
 
         Rect ExplodeRect;
         ExplodeRect.mX = zX + props->ExplosionRect.mX;

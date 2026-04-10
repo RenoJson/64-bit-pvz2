@@ -134,8 +134,8 @@ void BoxExplosion(ZombieModernJackInTheBox* zombie) {
     auto* props = reinterpret_cast<ZombieModernJackInTheBoxProps*>(zombie->m_propertySheet.Get());
     float damageAmount = props->ExplosionDamage;
 
-    int zX = static_cast<int>((zombie->m_position.x - 160.0f) / 76.0f);
-    int zY = static_cast<int>((zombie->m_position.y - 200.0f) / 64.0f);
+    int zX = static_cast<int>((zombie->m_position.x - 200.0f) / 64.0f);
+    int zY = static_cast<int>((zombie->m_position.y - 160.0f) / 76.0f);
 
     Rect ExplodeRect;
     ExplodeRect.mX = zX + props->ExplosionRect.mX;

@@ -10,13 +10,16 @@ typedef void (*LoopWalk)(ZombieVaseGargantuar*);
 
 void VaseWalkOnLoop(ZombieVaseGargantuar* zombie) {
     bool foundVaseToSmash = false;
-    int gX = static_cast<int>((zombie->m_position.x - 160.0f) / 76.0f);
-    int gY = static_cast<int>((zombie->m_position.y - 200.0f) / 64.0f);
+    int gX = static_cast<int>((zombie->m_position.x - 200.0f) / 64.0f);
+    int gY = static_cast<int>((zombie->m_position.y - 160.0f) / 76.0f);
+
+    if (gY > 4) gY = 4;
+    if (gY < 0) gY = 0;
 
     Rect scanRect;
-    scanRect.mX = gX - 1; 
+    scanRect.mX = gX; 
     scanRect.mY = gY;     
-    scanRect.mWidth = 2;  
+    scanRect.mWidth = 1;  
     scanRect.mHeight = 1; 
 
     std::vector<BoardEntity*> entityList;
@@ -57,13 +60,16 @@ void hkVaseGargantuarActionFrame(ZombieVaseGargantuar* zombie, int64_t unk1, Sex
 
 	if (*actionName == "smash_vase")
 	{
-        int gX = static_cast<int>((zombie->m_position.x - 160.0f) / 76.0f);
-        int gY = static_cast<int>((zombie->m_position.y - 200.0f) / 64.0f);
+        int gX = static_cast<int>((zombie->m_position.x - 200.0f) / 64.0f);
+        int gY = static_cast<int>((zombie->m_position.y - 160.0f) / 76.0f);
+
+        if (gY > 4) gY = 4;
+        if (gY < 0) gY = 0;
 
         Rect smashRect;
-        smashRect.mX = gX - 1;
+        smashRect.mX = gX;
         smashRect.mY = gY;
-        smashRect.mWidth = 2;
+        smashRect.mWidth = 1;
         smashRect.mHeight = 1;
 
         std::vector<BoardEntity*> entityList;
