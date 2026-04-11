@@ -5,7 +5,7 @@
 class ZombieAnimRig_ModernJackInTheBox : public ZombieAnimRig
 {
 public:
-	bool m_hasBox = true;
+	bool m_hasBox;
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;

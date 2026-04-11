@@ -21,11 +21,35 @@ typedef void (*LoopEat)(ZombieModernJackInTheBox*);
 typedef Plant* (*getTarg)(ZombieModernJackInTheBox*);
 typedef bool (*isDeadOrDying)(ZombieModernJackInTheBox*);
 typedef void (*setSpeedScale)(ZombieModernJackInTheBox*, float);
+typedef void (*Destroy)(ZombieModernJackInTheBox*);
+std::map<GridItemVase*, float> g_VaseRevealTimers;
 DECLARE_DELEGATES_SETUP(ZombieModernJackInTheBox)
 
 static Sexy::DelegateBase lostBoxCompletedDelegate;
 
 static Sexy::DelegateBase explodedCompletedDelegate;
+
+bool BoxShouldIgnoreCollision(ZombieModernJackInTheBox* zombie, Projectile* proj)
+{
+    int myTeam = zombie->m_teamFlags;
+    int otherTeam = proj->m_teamFlags;
+    if (zombie->m_isExploded == true) {
+        return true;
+    }
+    else {
+        if ((otherTeam & 2) != 0 && (myTeam & 1) != 0)
+        {
+            return false;
+        }
+        else
+        {
+            bool isOtherNotPlant = ((otherTeam & 1) == 0);
+            bool isMeNotZombie = ((myTeam & 2) == 0);
+
+            return isOtherNotPlant || isMeNotZombie;
+        }
+    }
+}
 
 void BoxOnSpawn(ZombieModernJackInTheBox* zombie)
 {
@@ -97,8 +121,29 @@ void BoxWalkOnLoop(ZombieModernJackInTheBox* zombie)
 {
     isDeadOrDying isDeadFunc = (isDeadOrDying)getActualOffset(0xC3E204);
     if (isDeadFunc(zombie)) {
+        SexyString eventName = "Stop_JackInTheBox_MusicBox";
+        ((playSoundEvent)getActualOffset(0x10B0608))(zombie, &eventName, 0.0f);
         ((LoopWalk)getActualOffset(0xC506B4))(zombie);
         return;
+    }
+    for (auto& weakArmor : zombie->m_armor)
+    {
+        Armor* armor = weakArmor.Get();
+        if (armor != nullptr && !armor->m_destroyed)
+        {
+            auto* armorProps = reinterpret_cast<ArmorPropertySheet*>(armor->m_propertySheetPtr.Get());
+
+            if (armorProps != nullptr && armorProps->ArmorType == "JackInTheBox")
+            {
+                SexyString eventName = "Play_JackInTheBox_MusicBox";
+                ((playSoundEvent)getActualOffset(0x10B0608))(zombie, &eventName, 0.0f);
+                break;
+            }
+        }
+        else {
+            SexyString eventName = "Stop_JackInTheBox_MusicBox";
+            ((playSoundEvent)getActualOffset(0x10B0608))(zombie, &eventName, 0.0f);
+        }
     }
     auto rig = reinterpret_cast<ZombieAnimRig_ModernJackInTheBox*>(zombie->m_animRig.Get());
 
@@ -122,7 +167,25 @@ void BoxEatOnLoop(ZombieModernJackInTheBox* zombie)
     auto rig = reinterpret_cast<ZombieAnimRig_ModernJackInTheBox*>(zombie->m_animRig.Get());
     auto props = reinterpret_cast<ZombieModernJackInTheBoxProps*>(zombie->m_propertySheet.Get());
     ((LoopEat)getActualOffset(0xC5082C))(zombie);
-    
+    for (auto& weakArmor : zombie->m_armor)
+    {
+        Armor* armor = weakArmor.Get();
+        if (armor != nullptr && !armor->m_destroyed)
+        {
+            auto* armorProps = reinterpret_cast<ArmorPropertySheet*>(armor->m_propertySheetPtr.Get());
+
+            if (armorProps != nullptr && armorProps->ArmorType == "JackInTheBox")
+            {
+                SexyString eventName = "Play_JackInTheBox_MusicBox";
+                ((playSoundEvent)getActualOffset(0x10B0608))(zombie, &eventName, 0.0f);
+                break;
+            }
+        }
+        else {
+            SexyString eventName = "Stop_JackInTheBox_MusicBox";
+            ((playSoundEvent)getActualOffset(0x10B0608))(zombie, &eventName, 0.0f);
+        }
+    }
     if (rig->m_hasBox == true && zombie->m_position.x <= props->MinXPosToExplode) {
         if (TimeMgr::GetInstance()->m_curTime >= zombie->m_finalExplosionTime && ((zombie->m_teamFlags) & 2) != 0) {
             ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 17, 0);
@@ -133,7 +196,7 @@ void BoxEatOnLoop(ZombieModernJackInTheBox* zombie)
 void BoxExplosion(ZombieModernJackInTheBox* zombie) {
     auto* props = reinterpret_cast<ZombieModernJackInTheBoxProps*>(zombie->m_propertySheet.Get());
     float damageAmount = props->ExplosionDamage;
-
+    
     int zX = static_cast<int>((zombie->m_position.x - 200.0f) / 64.0f);
     int zY = static_cast<int>((zombie->m_position.y - 160.0f) / 76.0f);
 
@@ -152,6 +215,8 @@ void BoxExplosion(ZombieModernJackInTheBox* zombie) {
     GetEntitiesInRectFunc getEntitiesRect = (GetEntitiesInRectFunc)getActualOffset(0x86F180);
     typedef void* (*Func_VaseBreak)(GridItemVase*);
     Func_VaseBreak breakVase = (Func_VaseBreak)getActualOffset(0xA322B8);
+    typedef GridItemVase* (*Func_VaseReveal)(GridItemVase*, bool);
+    Func_VaseReveal revealVase = (Func_VaseReveal)getActualOffset(0xA311B0);
 
     getEntitiesRect(&entityList, 63, &ExplodeRect);
 
@@ -163,7 +228,6 @@ void BoxExplosion(ZombieModernJackInTheBox* zombie) {
             DamageInfo dmg;
             dmg.m_attacker = zombie;
             dmg.m_damage = damageAmount;
-            //dmg.m_flags = DamageTypeFlags::damage_no_sound;
 
             void** vtable = *(void***)ptr;
             typedef void (*VirtualTakeDamageFunc)(PlantGroup*, DamageInfo*);
@@ -179,14 +243,27 @@ void BoxExplosion(ZombieModernJackInTheBox* zombie) {
                 breakVase(vase);
             }
         }
+        else if (props->CanRevealVase == true && ptr->IsType(GridItemVase::StaticGetType()))
+        {
+            auto vase = reinterpret_cast<GridItemVase*>(ptr);
+            if ((vase->m_flags & 4) == 0)
+            {
+                revealVase(vase, true);
+                float revealDuration = props->VaseRevealDuration;
+                float expireTime = TimeMgr::GetInstance()->m_curTime + revealDuration;
+
+                g_VaseRevealTimers[vase] = expireTime;
+            }
+        }
     }
 }
 void BoxActionFrame(ZombieModernJackInTheBox* zombie, int64_t unk1, SexyString* actionName, int64_t unk2, SexyString* currentAnim)
 {
     if (*actionName == "explode" && !zombie->m_isExploded)
     {
-        BoxExplosion(zombie);
         zombie->m_isExploded = true;
+        zombie->m_damageScale = 0.0f;
+        BoxExplosion(zombie);
     }
 }
 void ZombieModernJackInTheBox::LostBoxOnEnter(ZombieModernJackInTheBox* zombie)
@@ -234,15 +311,50 @@ void LostBoxCompletedCallback(Zombie* zombie) {
 void SurpriseCompletedCallback(Zombie* zombie) {
     ZombieModernJackInTheBox* boxZombie = static_cast<ZombieModernJackInTheBox*>(zombie);
     if (boxZombie) {
-        ((zombieEnterState)getActualOffset(0xC3D428))(boxZombie, 6, 0);
+        boxZombie->m_damageScale = 1.0f;
+        DamageInfo dmg;
+        dmg.m_attacker = boxZombie;
+        dmg.m_damage = 100000.0f;
+        dmg.m_flags = DamageTypeFlags::damage_instantly_fatal;
+
+        void** vtable = *(void***)boxZombie;
+        typedef void (*VirtualTakeDamageFunc)(ZombieModernJackInTheBox*, DamageInfo*);
+        VirtualTakeDamageFunc takeDmg = (VirtualTakeDamageFunc)vtable[36]; 
+        takeDmg(boxZombie, &dmg);
     }
 }
-void ZombieModernJackInTheBox::ModInit() {
-    LOGI("ZombiePole mod init");
 
+typedef void* (*UpdateVase)(GridItemVase*);
+UpdateVase oUpdateVase = nullptr;
+
+void* hkUpdateVase(GridItemVase* vase)
+{
+    auto it = g_VaseRevealTimers.find(vase);
+    if (it != g_VaseRevealTimers.end()) {
+
+        if ((vase->m_flags & 4) != 0) {
+            g_VaseRevealTimers.erase(it);
+            return oUpdateVase(vase);
+        }
+        if (TimeMgr::GetInstance()->m_curTime >= it->second) {
+
+            typedef GridItemVase* (*Func_VaseReveal)(GridItemVase*, bool);
+            Func_VaseReveal revealVase = (Func_VaseReveal)getActualOffset(0xA311B0);
+
+            revealVase(vase, false);
+            g_VaseRevealTimers.erase(it);
+        }
+    }
+    return oUpdateVase(vase);
+}
+
+void ZombieModernJackInTheBox::ModInit() {
+    LOGI("ZombieBox mod init");
+    PVZ2HookFunction(0xA321B8, (void*)hkUpdateVase, (void**)&oUpdateVase);
     vftable = CreateChildVFTable(204 + 9, getActualOffset(0x241D430), 204);
     PatchVFTable(vftable, (void*)ZombieModernJackInTheBox::StaticGetType, 0);
 
+    PatchVFTable(vftable, (void*)BoxShouldIgnoreCollision, 43);
     PatchVFTable(vftable, (void*)BoxOnSpawn, 49);
     PatchVFTable(vftable, (void*)BoxOnArmorDestroyed, 115);
     PatchVFTable(vftable, (void*)BoxWalkOnLoop, 124);
@@ -258,7 +370,7 @@ void ZombieModernJackInTheBox::ModInit() {
     PatchVFTable(vftable, (void*)ZombieModernJackInTheBox::SurpriseOnExit, 209);
 
     ZombieModernJackInTheBox::StaticGetType();
-    LOGI("ZombiePole finish init");
+    LOGI("ZombieBox finish init");
 }
 
 void ZombieModernJackInTheBox::buildEventCallbacks(Reflection::CRefManualSymbolBuilder* builder, Reflection::RClass* rtClass)

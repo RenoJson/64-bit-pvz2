@@ -36,6 +36,8 @@ public:
 	float ExplosionDamage = 1000.0f;
 	Rect ExplosionRect;
 	bool CanBreakVase = false;
+	bool CanRevealVase = false;
+	float VaseRevealDuration = 15.0f;
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;
@@ -50,6 +52,8 @@ public:
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModernJackInTheBoxProps, ExplosionDamage);
 	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieModernJackInTheBoxProps, Rect, ExplosionRect);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModernJackInTheBoxProps, CanBreakVase);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModernJackInTheBoxProps, CanRevealVase);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModernJackInTheBoxProps, VaseRevealDuration);
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieModernJackInTheBoxProps);
