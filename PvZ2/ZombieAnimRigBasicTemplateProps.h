@@ -6,12 +6,14 @@ class ZombieAnimRigTemplateConfig : public PropertySheetBase
 {
 public:
 	std::vector<SexyString> LowerArmLayers;
+	std::vector<SexyString> UpperArmLayers;
 	std::vector<SexyString> HeadLayers;
 	SexyString ParticleHeadSpriteName;
-	SexyString ParticleArmSpriteName; 
-	SexyString WalkAnimName = "walk";
-	SexyString EatAnimName = "eat";
-	SexyString DieAnimName = "die";
+	SexyString ParticleArmSpriteName;
+	SexyString IdleAnimName;
+	SexyString WalkAnimName;
+	SexyString EatAnimName;
+	SexyString DieAnimName;
 
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;

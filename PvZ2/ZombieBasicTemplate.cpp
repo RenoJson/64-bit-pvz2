@@ -6,6 +6,16 @@
 void* ZombieBasicTemplate::vftable = __null;
 Sexy::RtClass* ZombieBasicTemplate::s_rtClass = __null;;
 
+Zombie* BUpdate(ZombieBasicTemplate* zombie) {
+	auto props = reinterpret_cast<ZombieBasicProps*>(zombie->m_propertySheet.Get());
+	auto rigProps = reinterpret_cast<ZombieAnimRigTemplateConfig*>(props->CustomAnimRigPropertySheet.Get());
+	auto rig = reinterpret_cast<ZombieAnimRig_BasicTemplate*>(zombie->m_animRig.Get());
+	rig->m_UpperArmLayers = rigProps->UpperArmLayers;
+	rig->m_IdleAnimName = rigProps->IdleAnimName;
+	typedef Zombie* (*update)(ZombieBasicTemplate*);
+	return ((update)getActualOffset(0xC3D7A0))(zombie);
+
+}
 void overrideBOnSpawn(ZombieBasicTemplate* zombie) {
 	auto props = reinterpret_cast<ZombieBasicProps*>(zombie->m_propertySheet.Get());
 	auto rigProps = reinterpret_cast<ZombieAnimRigTemplateConfig*>(props->CustomAnimRigPropertySheet.Get());
@@ -35,6 +45,8 @@ void ZombieBasicTemplate::modInit() {
 	vftable = CopyVFTable(getActualOffset(0x23DEFB8), 206);
 
 	PatchVFTable(vftable, (void*)ZombieBasicTemplate::StaticGetType, 0);
+
+	//PatchVFTable(vftable, (void*)BUpdate, 29);
 
 	PatchVFTable(vftable, (void*)overrideBOnSpawn, 49);
 

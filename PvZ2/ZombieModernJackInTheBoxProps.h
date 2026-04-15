@@ -13,8 +13,14 @@ public:
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;
 
-	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(TimerExplosionProps, 0x8AE3A8);
-	RT_CLASS_CONSTRUCT_FUNCTION_END();
+	static void* Construct() {
+		auto* instance = new TimerExplosionProps(); 
+		typedef void* (*ctorWithThisPtr)(void*); 
+		ctorWithThisPtr baseCtor = (ctorWithThisPtr)getActualOffset(0x8AE3A8); 
+		baseCtor(instance);;
+		SetVFTable(instance, (uintptr_t)vftable); 
+		return instance;
+	};
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(PropertySheetBase);
 	RT_CLASS_REGISTER_CLASS_PROPERTY(TimerExplosionProps, ValueRange, HighTimer);

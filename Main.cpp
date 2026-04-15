@@ -60,6 +60,7 @@
 #include <PvZ2/ZombieAnimRig_ModernJackInTheBox.h>
 #include <PvZ2/ZombieModernJackInTheBox.h>
 #include <PvZ2/GridItem.h>
+#include <PvZ2/ZombieCamel.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -166,12 +167,7 @@ void hkBoardWaveFunc(Board* thisPtr, int waveIndex, int waveType, bool isFinalWa
     }
 }
 
-void hkCamelZombieFunc(Zombie* thisPtr, int64_t a2, bool a3)
-{
-    // Redirect call to some function in CamelMinigameModule
-    // This fixes the crash when camels are rising from the ground
-    CallFunc<void, Zombie*, int64_t, bool>(0xB1BE04, thisPtr, a2, a3);
-}
+
 
 #pragma endregion
 
@@ -493,6 +489,8 @@ void libChair_main()
     PVZ2HookFunction(0xC4987C, (void*)hkEffectCondition, (void**)&oEffCond);
     PVZ2HookFunction(0xC4BC48, (void*)hkRemoveEffectCondition, (void**)&oRemoveEffCond);
     PVZ2HookFunction(0x677B40, (void*)hkZombieConditionTrackerUpdate, (void**)&oZombieConditionTrackerUpdate);
+    ZombieCamelProps::modInit();
+    ZombieCamelTouchProps::modInit();
     ZombiePharaoh::ModInit();// free stuff
     ZombieModernSuperfanImpProps::modInit();// free stuff
     ZombieBullProps::modInit();// free stuff

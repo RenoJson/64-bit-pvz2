@@ -189,6 +189,7 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_Vendor.cpp" />
     <ClCompile Include="PvZ2\ZombieBasicProps.cpp" />
     <ClCompile Include="PvZ2\ZombieBasicTemplate.cpp" />
+    <ClCompile Include="PvZ2\ZombieCamel.cpp" />
     <ClCompile Include="PvZ2\ZombieCavalryProps.cpp" />
     <ClCompile Include="PvZ2\ZombieCowboyBasic.cpp" />
     <ClCompile Include="PvZ2\ZombieDarkCavalry.cpp" />
@@ -296,6 +297,7 @@
     <ClInclude Include="PvZ2\ZombieBasicProps.h" />
     <ClInclude Include="PvZ2\ZombieBugProps.h" />
     <ClInclude Include="PvZ2\ZombieBull.h" />
+    <ClInclude Include="PvZ2\ZombieCamel.h" />
     <ClInclude Include="PvZ2\ZombieCavalryProps.h" />
     <ClInclude Include="PvZ2\ZombieConditions.h" />
     <ClInclude Include="PvZ2\ZombieDarkCavalry.h" />

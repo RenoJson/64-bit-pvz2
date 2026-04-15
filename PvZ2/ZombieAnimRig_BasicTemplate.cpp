@@ -23,11 +23,19 @@ void* UpperArmList(ZombieAnimRig_BasicTemplate* thisPtr) {
     };
     return &UpperArmList;
 }
+//SexyString Idle(ZombieAnimRig_BasicTemplate* thisPtr) {
+//    return thisPtr->m_IdleAnimName;
+//}
 SexyString Walk(ZombieAnimRig_BasicTemplate* thisPtr) {
     return thisPtr->m_WalkAnimName;
 }
 SexyString Eat(ZombieAnimRig_BasicTemplate* thisPtr) {
-    return thisPtr->m_EatAnimName;
+    if (thisPtr->m_dancing == true) {
+        return "dance_start";
+    }
+    else {
+        return thisPtr->m_EatAnimName;
+    }
 }
 SexyString Die(ZombieAnimRig_BasicTemplate* thisPtr) {
     return thisPtr->m_DieAnimName;
@@ -35,7 +43,7 @@ SexyString Die(ZombieAnimRig_BasicTemplate* thisPtr) {
 void ZombieAnimRig_BasicTemplate::modInit() {
     LOGI("ZombieAnimRig_BasicTemplate init");
 
-    vftable = CopyVFTable(getActualOffset(0x24C5C80), 85);
+    vftable = CopyVFTable(getActualOffset(0x2488950), 85);
 
     PatchVFTable(vftable, (void*)ZombieAnimRig_BasicTemplate::StaticGetType, 0);
 
@@ -48,6 +56,8 @@ void ZombieAnimRig_BasicTemplate::modInit() {
     PatchVFTable(vftable, (void*)LowerArmList, 56);
 
     PatchVFTable(vftable, (void*)UpperArmList, 57);
+
+    //PatchVFTable(vftable, (void*)Idle, 58);
 
     PatchVFTable(vftable, (void*)Walk, 59);
 

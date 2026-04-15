@@ -125,6 +125,7 @@
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestMiner.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_JourneyToTheWestMiner.cpp" />
     <ClCompile Include="PvZ2\ZombieVaseGargantuar.cpp" />
+    <ClCompile Include="PvZ2\ZombieCamel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -193,5 +194,6 @@
     <ClInclude Include="PvZ2\ZombieModernJackInTheBoxProps.h" />
     <ClInclude Include="PvZ2\ZombieModernJackInTheBox.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_ModernJackInTheBox.h" />
+    <ClInclude Include="PvZ2\ZombieCamel.h" />
   </ItemGroup>
 </Project>
