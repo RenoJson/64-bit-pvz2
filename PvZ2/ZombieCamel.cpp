@@ -2,8 +2,6 @@
 
 Sexy::RtClass* ZombieCamelProps::s_rtClass = __null;
 Sexy::RtClass* ZombieCamelTouchProps::s_rtClass = __null;
-Sexy::RtClass* ZombieCamelTouchCustom::s_rtClass = __null;
-void* ZombieCamelTouchCustom::vftable = nullptr;
 
 typedef Sexy::RtClass* (*GetType)();
 GetType oGetType = nullptr;
@@ -21,7 +19,7 @@ SexyString GetSegmentName(ZombieCamel* zombie, ZombieCamelSegmentType segmentTyp
 {
     auto props = reinterpret_cast<ZombieCamelProps*>(zombie->m_propertySheet.Get());
     if (props->FollowerSegmentTypeOrder.empty()) {
-        return "camel_segment";
+        return props->ChooseYourSeedSegmentTypeName;
     }
     if (segmentType == ZombieCamelSegmentType::head)
         return props->FollowerSegmentTypeOrder[1];
@@ -36,32 +34,28 @@ SexyString GetSegmentTouchName(ZombieCamelTouch* zombie, ZombieCamelSegmentType 
 {
     auto props = reinterpret_cast<ZombieCamelTouchProps*>(zombie->m_propertySheet.Get());
 
+
     if (props->FollowerSegmentTypeOrder.empty()) {
-        return "camel_segment_touch";
+        return props->ChooseYourSeedSegmentTypeName;
     }
-
-    int targetIndex = 0;
-
-    if (segmentType == ZombieCamelSegmentType::head) {
-        targetIndex = 1;
-    }
-    else if (segmentType == ZombieCamelSegmentType::body) {
-        targetIndex = 2;
-    }
-    else if (segmentType == ZombieCamelSegmentType::tail) {
-        targetIndex = 3;
-    }
-    else {
-        targetIndex = 0;
-    }
-
-    SexyString result = props->FollowerSegmentTypeOrder[targetIndex];
-    return result;
+    if (segmentType == ZombieCamelSegmentType::head)
+        return props->FollowerSegmentTypeOrder[1];
+    else if (segmentType == ZombieCamelSegmentType::body)
+        return props->FollowerSegmentTypeOrder[2];
+    else if (segmentType == ZombieCamelSegmentType::tail)
+        return props->FollowerSegmentTypeOrder[3];
+    else
+        return props->FollowerSegmentTypeOrder[0];
 }
 
 SexyString GetZombieTypeName(ZombieCamel* zombie)
 {
     auto props = reinterpret_cast<ZombieCamelProps*>(zombie->m_propertySheet.Get());
+    return props->ZombieTypeName;
+}
+SexyString GetZombieTouchTypeName(ZombieCamelTouch* zombie)
+{
+    auto props = reinterpret_cast<ZombieCamelTouchProps*>(zombie->m_propertySheet.Get());
     return props->ZombieTypeName;
 }
 typedef void (*Func_ApplyArmor)(ZombieCamel* zombie, SexyString* armorName);
@@ -74,11 +68,11 @@ typedef ZombieCamel* (*Func_SpawnFollowers)(ZombieCamel*, int, int);
 Func_SpawnFollowers SpawnFollowers = (Func_SpawnFollowers)getActualOffset(0xB16770);
 
 typedef void (*Func_ZombieOnSpawn)(ZombieCamel*);
-Func_ZombieOnSpawn Zombie_OnSpawn_Base = (Func_ZombieOnSpawn)getActualOffset(0xC3D1F0);
+Func_ZombieOnSpawn OnSpawn = (Func_ZombieOnSpawn)getActualOffset(0xC3D1F0);
 
 ZombieCamel* ZombieCamelOnSpawn(ZombieCamel* zombie)
 {
-    Zombie_OnSpawn_Base(zombie);
+    OnSpawn(zombie);
 
     auto* props = reinterpret_cast<ZombieCamelProps*>(zombie->m_propertySheet.Get());
     int followersToSpawn = props->SegmentCount;
@@ -126,7 +120,6 @@ void BroadcastZombieSpawnEvent(ZombieCamelTouch* zombie)
             uintptr_t endItem = listenerList[1];
 
             int listenerCount = (endItem - currentItem) / 48;
-            LOGI("[BroadcastEvent] Đang phát sóng cho %d đối tượng...", listenerCount);
 
             int broadcastCount = 0;
             while (currentItem != endItem)
@@ -179,23 +172,35 @@ void ZombieCamelProps::modInit() {
     PVZ2HookFunction(0xC02CA0, (void*)GetZombieTypeName, nullptr);
     PVZ2HookFunction(0xC02CC8, (void*)GetZombieTypeName, nullptr);
     PVZ2HookFunction(0xB162A8, (void*)ZombieCamelOnSpawn, nullptr);
+    //Roman
+    PVZ2HookFunction(0xC10498, (void*)GetSegmentName, nullptr);
+    PVZ2HookFunction(0xC104F8, (void*)GetZombieTypeName, nullptr);
+    PVZ2HookFunction(0xC10520, (void*)GetZombieTypeName, nullptr);
+    PVZ2HookFunction(0xBDEDF8, (void*)ZombieCamelOnSpawn, nullptr);
+    //LNY
+    PVZ2HookFunction(0xC02D54, (void*)GetSegmentName, nullptr);
+    PVZ2HookFunction(0xC02D8C, (void*)GetZombieTypeName, nullptr);
+    PVZ2HookFunction(0xC02DB4, (void*)GetZombieTypeName, nullptr);
     LOGI("init Camel class complete");
     LOGI("init Camel props");
     PVZ2HookFunction(0xDAB6D8, (void*)StaticGetType, (void**)&oGetType);
-    PVZ2HookFunction(0xDAB8D0, (void*)ZombieCamelProps::buildSymbols, (void**)&ZombieCamelProps::oZombieCamelPropsBuildSymbols);
+    PVZ2HookFunction(0xDAB808, (void*)ZombieCamelProps::RegisterClass, nullptr);
+    PVZ2HookFunction(0xDAB8D0, (void*)ZombieCamelProps::BuildSymbols, (void**)&ZombieCamelProps::oZombieCamelPropsBuildSymbols);
     ZombieCamelProps::StaticGetType();
     LOGI("init Camel props complete");
     LOGI("finish init Camel");
 }
 void ZombieCamelTouchProps::modInit() {
     LOGI("init CamelTouch class");
-    PVZ2HookFunction(0xB18DC4, (void*)hkCamelZombieFunc, (void**)&oCmn);/*
+    PVZ2HookFunction(0xB18DC4, (void*)hkCamelZombieFunc, nullptr);
     PVZ2HookFunction(0xB1BDBC, (void*)GetSegmentTouchName, nullptr);
-    PVZ2HookFunction(0xB1BAF0, (void*)ZombieCamelTouchOnSpawn, nullptr);*/
+    //PVZ2HookFunction(0xB1BAF0, (void*)ZombieCamelTouchOnSpawn, nullptr);
     LOGI("init CamelTouch class complete");
     LOGI("init CamelTouch props");
     PVZ2HookFunction(0xDABED8, (void*)StaticGetType, (void**)&oTGetType);
-    PVZ2HookFunction(0xDAC09C, (void*)ZombieCamelTouchProps::buildSymbols, (void**)&ZombieCamelTouchProps::oZombieCamelTouchPropsBuildSymbols);
+    PVZ2HookFunction(0xDABF40, (void*)construct, nullptr);
+    PVZ2HookFunction(0xDABFCC, (void*)ZombieCamelTouchProps::RegisterClass, nullptr);
+    PVZ2HookFunction(0xDAC09C, (void*)ZombieCamelTouchProps::BuildSymbols, (void**)&ZombieCamelTouchProps::oZombieCamelTouchPropsBuildSymbols);
     ZombieCamelTouchProps::StaticGetType();
     LOGI("init CamelTouch props complete");
     LOGI("finish init CamelTouch");

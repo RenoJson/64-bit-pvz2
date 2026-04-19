@@ -70,7 +70,8 @@ public:
 	float PostMatchStunDuration = 1.0f;
 
 	int SegmentCount = 0;
-	SexyString ZombieTypeName;
+	SexyString ZombieTypeName = "mummy";
+	SexyString ChooseYourSeedSegmentTypeName = "camel_segment"; // for fixing the CYS visual
 	std::vector<SexyString> FollowerSegmentTypeOrder;
 
 	static Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc oZombieCamelPropsBuildSymbols;
@@ -90,14 +91,23 @@ public:
 		return props;
 	}
 
-	static void buildSymbols(Reflection::CRefManualSymbolBuilder* builder, Reflection::RClass* rclass)
-	{
-		
-		oZombieCamelPropsBuildSymbols(builder, rclass);
+		RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombiePropertySheet);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieCamelProps, CamelSegmentOffset);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieCamelProps, CamelSegmentTooCloseBuffer);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieCamelProps, CamelSegmentTooFarBuffer);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieCamelProps, WalkCycleOffset);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieCamelProps, SpawnManyCamelSegmentAtPosition);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieCamelProps, PropagateSignDestruction);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieCamelProps, OnlyHeadZombieEats);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieCamelProps, SurprisedTime);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieCamelProps, DropArmOnSignDrop);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieCamelProps, SwitchToHeadCamelSign); 
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieCamelProps, SegmentCount);
 		RT_CLASS_REGISTER_STRING_PROPERTY(ZombieCamelProps, ZombieTypeName);
+		RT_CLASS_REGISTER_STRING_PROPERTY(ZombieCamelProps, ChooseYourSeedSegmentTypeName);
 		RT_CLASS_REGISTER_STRING_VECTOR_PROPERTY(ZombieCamelProps, FollowerSegmentTypeOrder);
-	};
+		RT_CLASS_BUILD_SYMBOLS_END();
+		RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieCamelProps);
 
 	static Sexy::RtClass* StaticGetType() {
 		if (s_rtClass)
@@ -112,8 +122,7 @@ public:
 		typedef uintptr_t(*rtClassRegisterClass)(void*, const char*, uintptr_t, ParameterlessConstructorFunc);
 		rtClassRegisterClass regrtclass = *(rtClassRegisterClass*)(*(uintptr_t*)rtClass + 0x40);
 		uintptr_t registeredClassResult = regrtclass(rtClass, "ZombieCamelProps", (uintptr_t)parent, ZombieCamelProps::Construct);
-		typedef void (*RegisterCamelPropsFunc)(uintptr_t);
-		((RegisterCamelPropsFunc)getActualOffset(0xDAB808))(registeredClassResult);
+		ZombieCamelProps::RegisterClass();
 		return s_rtClass;
 	};
 };
@@ -151,22 +160,6 @@ static_assert(offsetof(ZombieCamelTouch, m_signHolder) == 1136);
 static_assert(offsetof(ZombieCamelTouch, m_hasBeenMatched) == 1144);
 static_assert(offsetof(ZombieCamelTouch, m_isStreetZombie) == 1145);
 
-class ZombieCamelTouchCustom : public ZombieCamelTouch
-{
-public:
-	static void* vftable;
-	static Sexy::RtClass* s_rtClass;
-	static void modInit();
-
-	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(ZombieCamelTouchCustom, 0xC3AB1C);
-	RT_CLASS_CONSTRUCT_FUNCTION_END();
-
-	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombieCamelTouch);
-	RT_CLASS_BUILD_SYMBOLS_END();
-
-	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieCamelTouchCustom);
-	RT_CLASS_GET_CLASS_FUNCTION(ZombieCamelTouchCustom, 0xB192D4);
-};
 
 class ZombieCamelTouchProps : public ZombieCamelProps
 {
@@ -178,38 +171,35 @@ public:
 	static void* construct()
 	{
 		auto* props = new ZombieCamelTouchProps();
-
 		typedef void* (*ctorWithThisPtr)(void*);
 		ctorWithThisPtr baseCtor = (ctorWithThisPtr)getActualOffset(0xC136A4);
 		baseCtor(props);
-
 		*reinterpret_cast<uintptr_t*>(props) = getActualOffset(0x2432B48);
 		return props;
 	}
 
-	static void buildSymbols(Reflection::CRefManualSymbolBuilder* builder, Reflection::RClass* rclass)
-	{
-		oZombieCamelTouchPropsBuildSymbols(builder, rclass);
+		RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombieCamelProps);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieCamelTouchProps, PostMatchStunChance);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieCamelTouchProps, PostMatchStunDuration);
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieCamelTouchProps, SegmentCount);
 		RT_CLASS_REGISTER_STRING_PROPERTY(ZombieCamelTouchProps, ZombieTypeName);
+		RT_CLASS_REGISTER_STRING_PROPERTY(ZombieCamelTouchProps, ChooseYourSeedSegmentTypeName);
 		RT_CLASS_REGISTER_STRING_VECTOR_PROPERTY(ZombieCamelTouchProps, FollowerSegmentTypeOrder);
-	};
+		RT_CLASS_BUILD_SYMBOLS_END();
+		RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieCamelTouchProps);
 
 	static Sexy::RtClass* StaticGetType() {
-		if (s_rtClass)
+		if (s_rtClass) {
 			return s_rtClass;
-
+		}
 		typedef Sexy::RtClass* (*initRtClass)();
 		Sexy::RtClass* rtClass = ((initRtClass)getActualOffset(0x163A068))();
 		s_rtClass = rtClass;
-
-		rtClassGetClassFunc parentGetType = (rtClassGetClassFunc)getActualOffset(0xDAB6D8);
-		uintptr_t* parent = (uintptr_t*)parentGetType();
-		typedef uintptr_t(*rtClassRegisterClass)(void*, const char*, uintptr_t, ParameterlessConstructorFunc);
+		Sexy::RtClass* parent = ZombieCamelProps::StaticGetType();
+		typedef uintptr_t(*rtClassRegisterClass)(void*, const char*, Sexy::RtClass*, ParameterlessConstructorFunc);
 		rtClassRegisterClass regrtclass = *(rtClassRegisterClass*)(*(uintptr_t*)rtClass + 0x40);
-		uintptr_t registeredClassResult = regrtclass(rtClass, "ZombieCamelTouchProps", (uintptr_t)parent, ZombieCamelTouchProps::Construct);
-		typedef void (*RegisterCamelPropsFunc)(uintptr_t);
-		((RegisterCamelPropsFunc)getActualOffset(0xDABFCC))(registeredClassResult);
+		uintptr_t registeredClassResult = regrtclass(rtClass, "ZombieCamelTouchProps", parent, ZombieCamelTouchProps::construct);
+		ZombieCamelTouchProps::RegisterClass();
 		return s_rtClass;
 	};
 };

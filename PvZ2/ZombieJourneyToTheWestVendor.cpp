@@ -146,9 +146,8 @@ void SpawnZombiePigAfterDie(ZombieJourneyToTheWestVendor* self) {
 		if (spawnedRider) 
 		{
 			float offsetX = (float)(rand() % 50 - 10);
-			float offsetY = (float)(rand() % 30 - 10);
 
-			SexyVector3 finalCoords = SexyVector3(baseX + offsetX, baseY + offsetY, baseZ);
+			SexyVector3 finalCoords = SexyVector3(baseX + offsetX, baseY, baseZ);
 
 			funBoardEntitySetPosition(spawnedRider, &finalCoords);
 			if (isHypnotized) {

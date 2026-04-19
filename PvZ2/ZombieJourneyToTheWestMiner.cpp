@@ -156,7 +156,7 @@ void TudigongWalkOnLoop(ZombieModernMiner* zombie)
         if (props->Smashable == true && rig->m_hasStick == true) {
             ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 18, 0);
         }
-        else if (props->Smashable == false) {
+        else {
             ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 2, 0);
         }
     }
