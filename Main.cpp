@@ -61,6 +61,8 @@
 #include <PvZ2/ZombieModernJackInTheBox.h>
 #include <PvZ2/GridItem.h>
 #include <PvZ2/ZombieCamel.h>
+#include "PvZ2/ZombieSpawnerProjectile.h"
+#include <PvZ2/ZombieFutureJetpack.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -155,19 +157,6 @@ void* hkNPCDataSheetCtor(NPCDataSheet* thisPtr)
     thisPtr->IdleWithItemAnim = "anim_%s_idle";
     return thisPtr;
 }
-
-typedef void (*boardWaveFunc)(Board*, int, int, bool);
-boardWaveFunc oBoardWaveFunc = nullptr;
-
-void hkBoardWaveFunc(Board* thisPtr, int waveIndex, int waveType, bool isFinalWave)
-{
-    oBoardWaveFunc(thisPtr, waveIndex, waveType, isFinalWave);
-    if (isFinalWave) {
-        AudioMgr::GetInstance()->PlayAudio("Play_FinalWave");
-    }
-}
-
-
 
 #pragma endregion
 
@@ -457,6 +446,48 @@ void PatchRedStingerPF()
     uint32_t value = 0x528004A1; // changes sapped to slowdown2
     ReplaceBytes(0xE7DB9C, &value, 4);
 }
+typedef bool (*initZombiePianoList)(int64_t, int64_t);
+initZombiePianoList oInitZombiePianoList = NULL;
+
+std::vector<SexyString>* g_pianoList = nullptr;
+bool g_pianoListInitialized = false;
+
+bool hkInitZombiePianoList(int64_t a1, int64_t a2)
+{
+    bool result = oInitZombiePianoList(a1, a2);
+
+    if (!g_pianoListInitialized)
+    {
+        uintptr_t ptrAddr = getActualOffset(0x2581BD0);
+        g_pianoList = reinterpret_cast<std::vector<SexyString>*>(ptrAddr);
+
+        if (g_pianoList != nullptr)
+        {
+            g_pianoList->clear();
+            g_pianoList->push_back("cowboy");
+            g_pianoList->push_back("cowboy_armor1");
+            g_pianoList->push_back("cowboy_armor2");
+            g_pianoList->push_back("cowboy_armor4");
+            g_pianoList->push_back("cowboy_veteran");
+            g_pianoList->push_back("cowboy_armor1_veteran");
+            g_pianoList->push_back("cowboy_armor2_veteran");
+            g_pianoList->push_back("cowboy_armor4_veteran");
+        }
+
+        g_pianoListInitialized = true;
+    }
+
+    return result;
+}
+typedef void (*boardWaveFunc)(Board*, int, int, bool);
+boardWaveFunc oBoardWaveFunc = nullptr;
+void hkBoardWaveFunc(Board* thisPtr, int waveIndex, int waveType, bool isFinalWave)
+{
+    oBoardWaveFunc(thisPtr, waveIndex, waveType, isFinalWave);
+    if (isFinalWave) {
+        AudioMgr::GetInstance()->PostEvent("Play_FinalWave");
+    }
+}
 #pragma endregion 
 #pragma region Build Symbol Funcs
 
@@ -489,6 +520,9 @@ void libChair_main()
     PVZ2HookFunction(0xC4987C, (void*)hkEffectCondition, (void**)&oEffCond);
     PVZ2HookFunction(0xC4BC48, (void*)hkRemoveEffectCondition, (void**)&oRemoveEffCond);
     PVZ2HookFunction(0x677B40, (void*)hkZombieConditionTrackerUpdate, (void**)&oZombieConditionTrackerUpdate);
+    PVZ2HookFunction(0xA9E25C, (void*)hkBoardWaveFunc, (void**)&oBoardWaveFunc);
+    PVZ2HookFunction(0xC1D1FC, (void*)hkInitZombiePianoList, (void**)&oInitZombiePianoList);
+
     ZombieCamelProps::modInit();
     ZombieCamelTouchProps::modInit();
     ZombiePharaoh::ModInit();// free stuff
@@ -550,5 +584,9 @@ void libChair_main()
     ZombieAnimRig_ModernMiner::modInit();
     ZombieModernMiner::modInit();
     ZombieVaseGargantuar::modInit();
+    ZombieSpawnerProjectile::ModInit();
+    ZombieSpawnerProjectileProps::ModInit();
+    ZombieFutureJetpackVeteran::modInit();
+    ZombieFutureJetpackVeteranProps::modInit();
     PatchRedStingerPF();
 }

@@ -1,6 +1,7 @@
 #pragma once
+#include <Sexy/LazySingleton.h>
 
-class AudioMgr
+class AudioMgr 
 {
 public:
     static AudioMgr* GetInstance()
@@ -8,8 +9,8 @@ public:
         return *(AudioMgr**)getActualOffset(0x256A180);
     }
 
-	static void PlayAudio(const SexyString& eventName)
-	{
-        CallFunc<void>(getActualOffset(0xA38D18), AudioMgr::GetInstance(), eventName, 0);
-	}
+    static int64_t PostEvent(const SexyString& eventName)
+    {
+        return CallFunc<int64_t, AudioMgr*, const char*, int>(0xA38D18, AudioMgr::GetInstance(), eventName.c_str(), 0);
+    }
 };

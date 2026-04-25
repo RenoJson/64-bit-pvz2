@@ -6,20 +6,12 @@
 void* ZombieBasicTemplate::vftable = __null;
 Sexy::RtClass* ZombieBasicTemplate::s_rtClass = __null;;
 
-Zombie* BUpdate(ZombieBasicTemplate* zombie) {
+Zombie* BInitialize(ZombieBasicTemplate* zombie) {
 	auto props = reinterpret_cast<ZombieBasicProps*>(zombie->m_propertySheet.Get());
 	auto rigProps = reinterpret_cast<ZombieAnimRigTemplateConfig*>(props->CustomAnimRigPropertySheet.Get());
 	auto rig = reinterpret_cast<ZombieAnimRig_BasicTemplate*>(zombie->m_animRig.Get());
 	rig->m_UpperArmLayers = rigProps->UpperArmLayers;
 	rig->m_IdleAnimName = rigProps->IdleAnimName;
-	typedef Zombie* (*update)(ZombieBasicTemplate*);
-	return ((update)getActualOffset(0xC3D7A0))(zombie);
-
-}
-void overrideBOnSpawn(ZombieBasicTemplate* zombie) {
-	auto props = reinterpret_cast<ZombieBasicProps*>(zombie->m_propertySheet.Get());
-	auto rigProps = reinterpret_cast<ZombieAnimRigTemplateConfig*>(props->CustomAnimRigPropertySheet.Get());
-	auto rig = reinterpret_cast<ZombieAnimRig_BasicTemplate*>(zombie->m_animRig.Get());
 	rig->m_LowerArmLayers = rigProps->LowerArmLayers;
 	rig->m_HeadLayers = rigProps->HeadLayers;
 	rig->m_ParticleArmSpriteName = rigProps->ParticleArmSpriteName;
@@ -27,8 +19,9 @@ void overrideBOnSpawn(ZombieBasicTemplate* zombie) {
 	rig->m_WalkAnimName = rigProps->WalkAnimName;
 	rig->m_EatAnimName = rigProps->EatAnimName;
 	rig->m_DieAnimName = rigProps->DieAnimName;
-	typedef void (*zombieFun49)(ZombieBasicTemplate*);
-	((zombieFun49)getActualOffset(0xC3D1F0))(zombie);
+	typedef Zombie* (*update)(ZombieBasicTemplate*);
+	return ((update)getActualOffset(0xB53770))(zombie);
+
 }
 SexyString hkAnimShock(ZombieBasicTemplate* zombie) {
 	auto* getProps = reinterpret_cast<ZombieBasicProps*>(zombie->m_propertySheet.Get());
@@ -46,9 +39,7 @@ void ZombieBasicTemplate::modInit() {
 
 	PatchVFTable(vftable, (void*)ZombieBasicTemplate::StaticGetType, 0);
 
-	//PatchVFTable(vftable, (void*)BUpdate, 29);
-
-	PatchVFTable(vftable, (void*)overrideBOnSpawn, 49);
+	PatchVFTable(vftable, (void*)BInitialize, 169);
 
 	PatchVFTable(vftable, (void*)hkAnimShock, 189);
 

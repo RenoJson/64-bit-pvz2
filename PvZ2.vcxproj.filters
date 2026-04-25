@@ -126,6 +126,8 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_JourneyToTheWestMiner.cpp" />
     <ClCompile Include="PvZ2\ZombieVaseGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieCamel.cpp" />
+    <ClCompile Include="PvZ2\ZombieSpawnerProjectile.cpp" />
+    <ClCompile Include="PvZ2\ZombieFutureJetpackVeteran.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -195,5 +197,9 @@
     <ClInclude Include="PvZ2\ZombieModernJackInTheBox.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_ModernJackInTheBox.h" />
     <ClInclude Include="PvZ2\ZombieCamel.h" />
+    <ClInclude Include="Sexy\LazySingleton.h" />
+    <ClInclude Include="PvZ2\ZombieSpawnerProjectile.h" />
+    <ClInclude Include="PvZ2\ZombieFutureJetpack.h" />
+    <ClInclude Include="PvZ2\CavalryLegacy.h" />
   </ItemGroup>
 </Project>

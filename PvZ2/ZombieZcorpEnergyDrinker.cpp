@@ -134,18 +134,18 @@ void CondZombie(Zombie* self) {
 
     float lifetime = props->ConditionLifeTime;
     if (lifetime <= 0.0f) {
-        lifetime = 3.4028e38f; 
+        lifetime = 3.4028e38f;
     }
 
     auto ApplyRandomCondFromVector = [&](const std::vector<SexyString>& condVector) {
-        if (condVector.empty()) return; 
+        if (condVector.empty()) return;
 
         int randomIndex = rand() % condVector.size();
         const SexyString& conditionName = condVector[randomIndex];
 
         int condID = GetCondIDByName(conditionName.c_str());
         if (condID != -1) {
-            if (condID == zombie_condition_shrinking) { 
+            if (condID == zombie_condition_shrinking) {
                 setZCondition(self, condID, 0, 0.01f, 0.0f);
             }
             else if (condID == zombie_condition_stun || condID == zombie_condition_dazeystunned) {
@@ -156,9 +156,9 @@ void CondZombie(Zombie* self) {
             }
             LOGI("[CondZombie] Applied random condition: %s", conditionName.c_str());
         }
-     };
-    float goodChance = props->ChanceToApplyGoodCondition; 
-    float badChance = props->ChanceToApplyBadCondition; 
+        };
+    float goodChance = props->ChanceToApplyGoodCondition;
+    float badChance = props->ChanceToApplyBadCondition;
     float totalChance = goodChance + badChance;
     float masterRoll = (float)(rand()) / (float)(RAND_MAX)*totalChance;
 
@@ -199,11 +199,11 @@ void DrinkingCompletedCallback(Zombie* zombie) {
     }
 }
 void ZombieZCorpEnergyDrinker::modInit() {
-	LOGI("ZombieZCorpEnergyDrinker init");
+    LOGI("ZombieZCorpEnergyDrinker init");
 
     vftable = CreateChildVFTable(204 + 6, getActualOffset(0x241D430), 204);
 
-	PatchVFTable(vftable, (void*)ZombieZCorpEnergyDrinker::StaticGetType, 0);
+    PatchVFTable(vftable, (void*)ZombieZCorpEnergyDrinker::StaticGetType, 0);
 
     PatchVFTable(vftable, (void*)DrinkerOnSpawn, 49);
     PatchVFTable(vftable, (void*)DrinkerWalkOnLoop, 124);
@@ -212,9 +212,9 @@ void ZombieZCorpEnergyDrinker::modInit() {
     PatchVFTable(vftable, (void*)ZombieZCorpEnergyDrinker::DrinkingOnLoop, 205);
     PatchVFTable(vftable, (void*)ZombieZCorpEnergyDrinker::DrinkingOnExit, 206);
 
-	ZombieZCorpEnergyDrinker::StaticGetType();
+    ZombieZCorpEnergyDrinker::StaticGetType();
 
-	LOGI("ZombieZCorpEnergyDrinker finish init");
+    LOGI("ZombieZCorpEnergyDrinker finish init");
 }
 
 void ZombieZCorpEnergyDrinker::buildEventCallbacks(Reflection::CRefManualSymbolBuilder* builder, Reflection::RClass* rtClass)

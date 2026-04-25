@@ -199,6 +199,7 @@
     <ClCompile Include="PvZ2\ZombieFairyTaleImpProps.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleWitch.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleWitchFrog.cpp" />
+    <ClCompile Include="PvZ2\ZombieFutureJetpackVeteran.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestBalloonProps.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestGargantuarProps.cpp" />
@@ -216,6 +217,7 @@
     <ClCompile Include="PvZ2\ZombieModifierProperties.cpp" />
     <ClCompile Include="PvZ2\ZombiePharaoh.cpp" />
     <ClCompile Include="PvZ2\ZombiePirateBoomBarrel.cpp" />
+    <ClCompile Include="PvZ2\ZombieSpawnerProjectile.cpp" />
     <ClCompile Include="PvZ2\ZombieStateHelper.cpp" />
     <ClCompile Include="PvZ2\ZombieVaseGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieZcorpEnergyDrinker.cpp" />
@@ -238,6 +240,7 @@
     <ClInclude Include="PvZ2\AudioMgr.h" />
     <ClInclude Include="PvZ2\Board.h" />
     <ClInclude Include="PvZ2\BoardEntity.h" />
+    <ClInclude Include="PvZ2\CavalryLegacy.h" />
     <ClInclude Include="PvZ2\Chairracer.h" />
     <ClInclude Include="PvZ2\Collectable.h" />
     <ClInclude Include="PvZ2\DamageInfo.h" />
@@ -308,6 +311,7 @@
     <ClInclude Include="PvZ2\ZombieFairyTaleImp.h" />
     <ClInclude Include="PvZ2\ZombieFairyTaleImpProps.h" />
     <ClInclude Include="PvZ2\ZombieFairyTaleWitchFrog.h" />
+    <ClInclude Include="PvZ2\ZombieFutureJetpack.h" />
     <ClInclude Include="PvZ2\ZombieGargantuar.h" />
     <ClInclude Include="PvZ2\ZombieGargantuarProps.h" />
     <ClInclude Include="PvZ2\ZombieImp.h" />
@@ -327,6 +331,7 @@
     <ClInclude Include="PvZ2\ZombiePirateBoomBarrel.h" />
     <ClInclude Include="PvZ2\ZombieParticle.h" />
     <ClInclude Include="PvZ2\WaveActionProperties.h" />
+    <ClInclude Include="PvZ2\ZombieSpawnerProjectile.h" />
     <ClInclude Include="PvZ2\ZombieState.h" />
     <ClInclude Include="PvZ2\ZombieStateHelper.h" />
     <ClInclude Include="PvZ2\ZombieTombRaiser.h" />
@@ -350,6 +355,7 @@
     <ClInclude Include="Sexy\DialogListener.h" />
     <ClInclude Include="Sexy\Graphics.h" />
     <ClInclude Include="Sexy\Image.h" />
+    <ClInclude Include="Sexy\LazySingleton.h" />
     <ClInclude Include="Sexy\MTRand.h" />
     <ClInclude Include="Sexy\PopAnim.h" />
     <ClInclude Include="Sexy\PopAnimListener.h" />

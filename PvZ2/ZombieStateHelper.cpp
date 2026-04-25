@@ -21,6 +21,7 @@ typedef void* (*SetStateName)(SexyString* straddr, const SexyString& stateName, 
 typedef void* (*RegisterState)(void* stateMachine, int stateid, ZombieState* state);
 
 typedef ZombieAnimRig* (*playAnimWithCallback)(ZombieAnimRig*, const SexyString&, int, ZombieEvent& event);
+typedef int (*playAnimWithoutCallback)(ZombieAnimRig*, const SexyString&, int, ZombieEvent& event);
 
 typedef ZombieAnimRig* (*playLoopAnimWithCallback)(ZombieAnimRig*, ZombieEvent& event);
 typedef StateMachineTableBuilder* (*getStateMachine)(StateMachineTableBuilder*, Sexy::RtClass*);
@@ -127,7 +128,6 @@ void RegisterEventAfterAnim(Zombie* zombie, const SexyString& animName, const Se
 	
 	func(animRig, animName, 0, zombieEvent);
 }
-
 void RegisterEventOnWalkLoop(Zombie* zombie, const SexyString& eventName) {
 	auto* animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
 	RtWeakPtr<Zombie> zombiePtr;

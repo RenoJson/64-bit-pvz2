@@ -48,38 +48,52 @@ void PoleWalkOnLoop(ZombieModernPoleVaulter* zombie)
 {
 	isDeadOrDying isDeadFunc = (isDeadOrDying)getActualOffset(0xC3E204);
 	if (isDeadFunc(zombie)) {
-	
 		((LoopWalk)getActualOffset(0xC506B4))(zombie);
 		return;
 	}
 
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPoleVaulter*>(zombie->m_animRig.Get());
-	if (rig->m_hasPole == true) {
-		((setSpeed)getActualOffset(0x8DDAA4))(rig, PoleGetWalkSpeed(zombie));
-	}
-	if (rig == nullptr || !rig->m_hasPole) {
-		((LoopWalk)getActualOffset(0xC506B4))(zombie);
-		return;
-	}
 
-	getTarg getTarget = (getTarg)getActualOffset(0xC41910);
-	Plant* target = getTarget(zombie);
-
-	if (target != nullptr)
+	if (rig != nullptr && rig->m_hasPole == true)
 	{
-		if (target->IsType(PlantGroup::StaticGetType()))
-		{
-			auto* plantGroup = reinterpret_cast<PlantGroup*>(target);
-			bool hasTallPlant = false;
+		((setSpeed)getActualOffset(0x8DDAA4))(rig, PoleGetWalkSpeed(zombie));
 
-			for (auto& weakPlant : plantGroup->m_plants.m_plants)
+		auto* props = reinterpret_cast<ZombieModernPoleVaulterProps*>(zombie->m_propertySheet.Get());
+		float zX = zombie->m_position.x;
+		float zY = zombie->m_position.y;
+		float zZ = zombie->m_position.z;
+
+		Rect jumpRect;
+		jumpRect.mWidth = props->JumpingRect.mWidth;
+		jumpRect.mHeight = props->JumpingRect.mHeight;
+		jumpRect.mX = static_cast<int>(zX - (jumpRect.mWidth / 2.0f) + props->JumpingRect.mX);
+		jumpRect.mY = static_cast<int>((zY - zZ) - jumpRect.mHeight + props->JumpingRect.mY);
+		int zRow = static_cast<int>((zY - 160.0f) / 76.0f);
+
+		std::vector<BoardEntity*> entityList;
+		typedef void (*GetEntitiesInRectPixelFunc)(std::vector<BoardEntity*>*, int, Rect*, int, int);
+		GetEntitiesInRectPixelFunc getEntitiesRectPixel = (GetEntitiesInRectPixelFunc)getActualOffset(0x86F340);
+
+		getEntitiesRectPixel(&entityList, 38, &jumpRect, zRow, zRow);
+		PlantGroup* targetPlantGroup = nullptr;
+		for (BoardEntity* ptr : entityList) {
+			if (ptr != nullptr && ptr->IsType(PlantGroup::StaticGetType())) {
+				targetPlantGroup = reinterpret_cast<PlantGroup*>(ptr);
+				break; 
+			}
+		}
+		if (targetPlantGroup != nullptr)
+		{
+			typedef void (*zombieEnterState)(ZombieModernPoleVaulter*, int, int);
+			zombieEnterState enterStateFunc = (zombieEnterState)getActualOffset(0xC3D428);
+
+			bool hasTallPlant = false;
+			for (auto& weakPlant : targetPlantGroup->m_plants.m_plants)
 			{
 				Plant* p = weakPlant.Get();
-
 				if (p != nullptr)
 				{
 					auto* pProps = reinterpret_cast<PlantPropertySheet*>(p->m_propertySheet.Get());
-
 					if (pProps != nullptr && pProps->Height == BoardEntityHeight::tall)
 					{
 						hasTallPlant = true;
@@ -87,11 +101,11 @@ void PoleWalkOnLoop(ZombieModernPoleVaulter* zombie)
 					}
 				}
 			}
+
 			if (hasTallPlant) {
 				((zombieEnterState)getActualOffset(0xC3D428))(zombie, 17, 0);
 			}
 			else {
-				auto* props = reinterpret_cast<ZombieModernPoleVaulterProps*>(zombie->m_propertySheet.Get());
 				if (props->Feastivus == true) {
 					if (rand() % 2 == 0) {
 						((zombieEnterState)getActualOffset(0xC3D428))(zombie, 16, 0);
@@ -104,12 +118,11 @@ void PoleWalkOnLoop(ZombieModernPoleVaulter* zombie)
 					((zombieEnterState)getActualOffset(0xC3D428))(zombie, 16, 0);
 				}
 			}
+
+			return;
 		}
 	}
-	else
-	{
-		((LoopWalk)getActualOffset(0xC506B4))(zombie);
-	}
+	((LoopWalk)getActualOffset(0xC506B4))(zombie);
 }
 
 void ZombieModernPoleVaulter::JumpOnEnter(ZombieModernPoleVaulter* zombie)

@@ -178,7 +178,7 @@ static_assert(offsetof(ZombieType, Placeable) == 232);
 class Zombie : public BoardEntity
 {
 public:
-
+	RT_CLASS_GET_CLASS_WRAPPER(0xC36FE4);
 	pvztime_t m_creationTime;
 	int m_helm;
 	float m_helmHitpoints;
@@ -402,4 +402,5 @@ static_assert(offsetof(Zombie, m_flickOffTarget) == 448);
 static_assert(offsetof(Zombie, m_conditionTracker) == 560);
 static_assert(offsetof(Zombie, m_playingAnim) == 0x16C);
 static_assert(offsetof(Zombie, m_maxHelmHitpoints) == 0x1A0);
+static_assert(offsetof(Zombie, m_translationMultiplier) == 412);
 

@@ -30,9 +30,7 @@ bool overrideCollideWithObject(FrogProjectile* proj, Plant* ent) {
 	killTarg KillTarget = (killTarg)getActualOffset(0x1337020);
 	if (ent) {
 		if (ent->IsType(PlantGroup::StaticGetType()) && Func1338AE8(ent)) {
-			LOGI("check cd 3");
 			KillTarget(ent, proj);
-			LOGI("check cd 4");
 			overrideDoImpact(proj, ent);
 		}
 	}

@@ -118,6 +118,7 @@ void TudigongWalkOnLoop(ZombieModernMiner* zombie)
 {
     isDeadOrDying isDeadFunc = (isDeadOrDying)getActualOffset(0xC3E204);
     if (isDeadFunc(zombie)) {
+        ((setSpeedScale)getActualOffset(0xC484C0))(zombie, 1);
         ((LoopWalk)getActualOffset(0xC506B4))(zombie);
         return;
     }
