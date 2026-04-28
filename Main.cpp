@@ -56,6 +56,9 @@
 #include <PvZ2/ZombieModernPoleVaulter.h>
 #include <PvZ2/ZombieModernPoleVaulterProps.h>
 #include <PvZ2/ZombieAnimRig_ModernPoleVaulter.h>
+#include <PvZ2/ZombieModernPogo.h>
+#include <PvZ2/ZombieModernPogoProps.h>
+#include <PvZ2/ZombieAnimRig_ModernPogo.h>
 #include <PvZ2/ZombieModernJackInTheBoxProps.h>
 #include <PvZ2/ZombieAnimRig_ModernJackInTheBox.h>
 #include <PvZ2/ZombieModernJackInTheBox.h>
@@ -588,5 +591,8 @@ void libChair_main()
     ZombieSpawnerProjectileProps::ModInit();
     ZombieFutureJetpackVeteran::modInit();
     ZombieFutureJetpackVeteranProps::modInit();
+    ZombieModernPogo::ModInit();
+    ZombieAnimRig_ModernPogo::modInit();
+    ZombieModernPogoProps::modInit();
     PatchRedStingerPF();
 }

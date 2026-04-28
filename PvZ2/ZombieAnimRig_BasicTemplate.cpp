@@ -23,9 +23,9 @@ void* UpperArmList(ZombieAnimRig_BasicTemplate* thisPtr) {
     };
     return &UpperArmList;
 }
-//SexyString Idle(ZombieAnimRig_BasicTemplate* thisPtr) {
-//    return thisPtr->m_IdleAnimName;
-//}
+SexyString Idle(ZombieAnimRig_BasicTemplate* thisPtr) {
+    return thisPtr->m_IdleAnimName;
+}
 SexyString Walk(ZombieAnimRig_BasicTemplate* thisPtr) {
     return thisPtr->m_WalkAnimName;
 }

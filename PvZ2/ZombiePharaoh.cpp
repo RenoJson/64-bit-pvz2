@@ -7,21 +7,38 @@ ZTakeDmg oZTakeDmg = nullptr;
 
 void* hkTakeDamage(Zombie* thisPtr, DamageInfo* damageInfo)
 {
-    if (thisPtr->IsType(ZombiePharaoh::StaticGetType()))
+    for (size_t i = 0; i < thisPtr->m_armor.size(); i++)
     {
-        for (size_t i = 0; i < thisPtr->m_armor.size(); i++)
-        {
-            Armor* armor = thisPtr->m_armor[i].Get();
-            if (armor != nullptr && !armor->m_destroyed && armor->m_health > 0)
-            {
-                if (damageInfo->m_damage >= armor->m_health) {
+        Armor* armor = thisPtr->m_armor[i].Get();
 
-                    damageInfo->m_damage = armor->m_health;
+        if (armor != nullptr && !armor->m_destroyed && armor->m_health > 0)
+        {
+            auto* armorProps = reinterpret_cast<ArmorPropertySheet*>(armor->m_propertySheetPtr.Get());
+
+            if (armorProps != nullptr)
+            {
+                bool hasAbsorbOverflow = false;
+
+                for (size_t j = 0; j < armorProps->ArmorFlags.size(); j++)
+                {
+                    if (armorProps->ArmorFlags[j] == ArmorTypeFlags::absorboverflow)
+                    {
+                        hasAbsorbOverflow = true;
+                        break;
+                    }
                 }
-                break;
+                if (hasAbsorbOverflow)
+                {
+                    if (damageInfo->m_damage >= armor->m_health)
+                    {
+                        damageInfo->m_damage = armor->m_health;
+                    }
+                }
             }
+            break; 
         }
     }
+
     return oZTakeDmg(thisPtr, damageInfo);
 }
 

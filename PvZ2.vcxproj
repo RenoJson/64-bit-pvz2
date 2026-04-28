@@ -184,6 +184,7 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernAllStar.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernBalloon.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernJackInTheBox.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_ModernPogo.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernPoleVaulter.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_PirateBoomBarrel.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_Vendor.cpp" />
@@ -211,6 +212,8 @@
     <ClCompile Include="PvZ2\ZombieModernBalloon.cpp" />
     <ClCompile Include="PvZ2\ZombieModernJackInTheBox.cpp" />
     <ClCompile Include="PvZ2\ZombieModernJackInTheBoxProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernPogo.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernPogoProps.cpp" />
     <ClCompile Include="PvZ2\ZombieModernPoleVaulter.cpp" />
     <ClCompile Include="PvZ2\ZombieModernPoleVaulterProps.cpp" />
     <ClCompile Include="PvZ2\ZombieModernSuperFanImp.cpp" />
@@ -293,6 +296,7 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_ModernAllStar.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_ModernBalloon.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_ModernJackInTheBox.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_ModernPogo.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_ModernPoleVaulter.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_TombRaiser.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Vendor.h" />
@@ -324,6 +328,8 @@
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestBalloonProps.h" />
     <ClInclude Include="PvZ2\ZombieModernJackInTheBox.h" />
     <ClInclude Include="PvZ2\ZombieModernJackInTheBoxProps.h" />
+    <ClInclude Include="PvZ2\ZombieModernPogo.h" />
+    <ClInclude Include="PvZ2\ZombieModernPogoProps.h" />
     <ClInclude Include="PvZ2\ZombieModernPoleVaulter.h" />
     <ClInclude Include="PvZ2\ZombieModernPoleVaulterProps.h" />
     <ClInclude Include="PvZ2\ZombieModifierModule.h" />

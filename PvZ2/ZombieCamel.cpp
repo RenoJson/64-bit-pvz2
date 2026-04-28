@@ -10,6 +10,7 @@ typedef Sexy::RtClass* (*TGetType)();
 TGetType oTGetType = nullptr;
 typedef void* (*oCamel)(Zombie* thisPtr, int64_t a2, bool a3);
 oCamel oCmn = nullptr;
+
 void hkCamelZombieFunc(Zombie* thisPtr, int64_t a2, bool a3)
 {
     CallFunc<void, Zombie*, int64_t, bool>(0xB1BE04, thisPtr, a2, a3);

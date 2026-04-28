@@ -128,6 +128,9 @@
     <ClCompile Include="PvZ2\ZombieCamel.cpp" />
     <ClCompile Include="PvZ2\ZombieSpawnerProjectile.cpp" />
     <ClCompile Include="PvZ2\ZombieFutureJetpackVeteran.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernPogo.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernPogoProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_ModernPogo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -201,5 +204,8 @@
     <ClInclude Include="PvZ2\ZombieSpawnerProjectile.h" />
     <ClInclude Include="PvZ2\ZombieFutureJetpack.h" />
     <ClInclude Include="PvZ2\CavalryLegacy.h" />
+    <ClInclude Include="PvZ2\ZombieModernPogo.h" />
+    <ClInclude Include="PvZ2\ZombieModernPogoProps.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_ModernPogo.h" />
   </ItemGroup>
 </Project>

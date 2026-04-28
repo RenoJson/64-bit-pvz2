@@ -325,7 +325,7 @@ void overrideBullFunction215(ZombieDarkCavalry* zombie) {
 
 void ZombieDarkCavalry::AttackOnEnter(ZombieDarkCavalry* zombie)
 {
-    auto* animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
+    auto animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
     RtWeakPtr<Zombie> zombiePtr;
     zombiePtr.FromOther((RtWeakPtr<Zombie>*) & zombie->m_thisPtr);
 
@@ -339,7 +339,7 @@ void ZombieDarkCavalry::AttackOnEnter(ZombieDarkCavalry* zombie)
 
 void ZombieDarkCavalry::AttackOnLoop(ZombieDarkCavalry* zombie)
 {
-    auto* animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
+    auto animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
     bool animDone = ((isAnimDone)getActualOffset(0x9DCBE8))(animRig, zombie->m_watchAnimHandle);
 
     if (animDone)
@@ -373,7 +373,16 @@ void ZombieDarkCavalry::AttackOnLoop(ZombieDarkCavalry* zombie)
             ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 17, 0);
         }
         else {
-            ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 22, 0);
+            auto animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
+            RtWeakPtr<Zombie> zombiePtr;
+            zombiePtr.FromOther((RtWeakPtr<Zombie>*) & zombie->m_thisPtr);
+
+            ZombieEvent zombieEvent;
+            ((ConstructEvent)getActualOffset(0x6FDDDC))(&zombieEvent, zombiePtr, "onAttackEnd");
+
+            playAnimWithCallback func = ((playAnimWithCallback)getActualOffset(0x8DCEDC));
+
+            zombie->m_watchAnimHandle = func(animRig, "attack", 3, zombieEvent);
         }
     }
 }
