@@ -24,7 +24,4 @@ public:
 	static void AttackOnEnter(ZombieDarkCavalry* zombie);
 	static void AttackOnLoop(ZombieDarkCavalry* zombie);
 	static void AttackOnExit(ZombieDarkCavalry* zombie);
-	static void Attack1OnEnter(ZombieDarkCavalry* zombie);
-	static void Attack1OnLoop(ZombieDarkCavalry* zombie);
-	static void Attack1OnExit(ZombieDarkCavalry* zombie);
 };

@@ -72,7 +72,7 @@ public:
 	bool CanBePlantTossedStrong = true;
 	bool CanBePlantTossedWeak = true;
 	bool SkipHeadDropState;
-	float ArmDropFraction;
+	float ArmDropFraction = 0.5f;
 	HelmType Helm;
 	float HelmHitpoints;
 	int HelmDamageLayerIndices = 3;
@@ -113,7 +113,7 @@ public:
 	bool FlickIsLaneRestricted;
 	bool IsSpawnedFlying;
 	float ShrunkenScale;
-	float unk;
+	float HeadDropFraction;
 };
 
 static_assert(sizeof(ZombiePropertySheet) == 568);

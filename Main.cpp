@@ -66,6 +66,9 @@
 #include <PvZ2/ZombieCamel.h>
 #include "PvZ2/ZombieSpawnerProjectile.h"
 #include <PvZ2/ZombieFutureJetpack.h>
+#include <PvZ2/ZombieModernScreenDoor.h>
+#include <PvZ2/ZombieAnimRig_ModernScreenDoor.h>
+#include <PvZ2/ZombieModernScreenDoorProps.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -499,6 +502,7 @@ Reflection::CRefManualSymbolBuilder::ConstructFunc PlantType::oPlantTypeConstruc
 Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc ZombieType::oZombieTypeBuildSymbols = nullptr;
 Reflection::CRefManualSymbolBuilder::ConstructFunc ZombieType::oZombieTypeConstruct = nullptr;
 
+
 #pragma endregion
 __attribute__((constructor))
 // This is automatically executed when the lib is loaded
@@ -518,7 +522,7 @@ void libChair_main()
     PVZ2HookFunction(0xC6D080, (void*)PlantType::construct, (void**)&PlantType::oPlantTypeConstruct);
     PVZ2HookFunction(0xC6BF48, (void*)PlantType::buildSymbols, (void**)&PlantType::oPlantTypeBuildSymbols);
     PVZ2HookFunction(0x10680BC, (void*)ZombieType::construct, (void**)&ZombieType::oZombieTypeConstruct);
-    PVZ2HookFunction(0x106828C, (void*)ZombieType::buildSymbols, (void**)&ZombieType::oZombieTypeBuildSymbols);
+    PVZ2HookFunction(0x106828C, (void*)ZombieType::buildSymbols, (void**)&ZombieType::oZombieTypeBuildSymbols); 
 
     PVZ2HookFunction(0xC4987C, (void*)hkEffectCondition, (void**)&oEffCond);
     PVZ2HookFunction(0xC4BC48, (void*)hkRemoveEffectCondition, (void**)&oRemoveEffCond);
@@ -594,5 +598,9 @@ void libChair_main()
     ZombieModernPogo::ModInit();
     ZombieAnimRig_ModernPogo::modInit();
     ZombieModernPogoProps::modInit();
+    ZombieModernScreenDoor::ModInit();
+    ZombieAnimRig_ModernScreenDoor::modInit();
+    ZombieAnimRig_ModernScreenDoorAlmanac::modInit();
+    ZombieModernScreenDoorProps::modInit();
     PatchRedStingerPF();
 }

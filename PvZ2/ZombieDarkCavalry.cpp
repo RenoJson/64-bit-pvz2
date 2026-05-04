@@ -16,7 +16,6 @@ Sexy::RtClass* ZombieDarkCavalry::s_rtClass = __null;;
 
 DECLARE_DELEGATES_SETUP(ZombieDarkCavalry)
 static Sexy::DelegateBase attackCompletedDelegate;
-static Sexy::DelegateBase attack1CompletedDelegate;
 
 typedef void* (*playSoundEvent)(ZombieDarkCavalry*, SexyString*, float);
 typedef Zombie* (*zombieAllowMovement)(Zombie*, int);
@@ -392,65 +391,7 @@ void ZombieDarkCavalry::AttackOnExit(ZombieDarkCavalry* zombie)
 
 }
 
-void ZombieDarkCavalry::Attack1OnEnter(ZombieDarkCavalry* zombie)
-{
-    auto* animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
-    RtWeakPtr<Zombie> zombiePtr;
-    zombiePtr.FromOther((RtWeakPtr<Zombie>*) & zombie->m_thisPtr);
-
-    ZombieEvent zombieEvent;
-    ((ConstructEvent)getActualOffset(0x6FDDDC))(&zombieEvent, zombiePtr, "onAttackContinued");
-
-    playAnimWithCallback func = ((playAnimWithCallback)getActualOffset(0x8DCEDC));
-
-    zombie->m_watchAnimHandle = func(animRig, "attack", 3, zombieEvent);
-}
-void ZombieDarkCavalry::Attack1OnLoop(ZombieDarkCavalry* zombie)
-{
-    auto* animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
-    bool animDone = ((isAnimDone)getActualOffset(0x9DCBE8))(animRig, zombie->m_watchAnimHandle);
-
-    if (animDone)
-    {
-        auto* props = reinterpret_cast<ZombieDarkCavalryProps*>(zombie->m_propertySheet.Get());
-        float zombieX = zombie->m_position.x;
-        float zombieY = zombie->m_position.y;
-        float zombieZ = zombie->m_position.z;
-
-        Rect lanceRect;
-        lanceRect.mWidth = props->LanceRect.mWidth;
-        lanceRect.mHeight = props->LanceRect.mHeight;
-        lanceRect.mX = static_cast<int>(zombieX - (lanceRect.mWidth / 2.0f) + props->LanceRect.mX);
-        lanceRect.mY = static_cast<int>((zombieY - zombieZ) - lanceRect.mHeight + props->LanceRect.mY);
-        int zombieRow = static_cast<int>((zombieY - 160.0f) / 76.0f);
-
-        std::vector<BoardEntity*> entityList;
-        typedef void (*GetEntitiesInRectPixelFunc)(std::vector<BoardEntity*>*, int, Rect*, int, int);
-        GetEntitiesInRectPixelFunc getEntitiesRectPixel = (GetEntitiesInRectPixelFunc)getActualOffset(0x86F340);
-        getEntitiesRectPixel(&entityList, 38, &lanceRect, zombieRow, zombieRow);
-        bool hasTarget = false;
-
-        for (BoardEntity* ptr : entityList) {
-            if (ptr != nullptr && ptr->IsType(PlantGroup::StaticGetType())) {
-                hasTarget = true;
-                break;
-            }
-        }
-
-        if (!hasTarget) {
-            ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 17, 0);
-        }
-        else {
-            ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 21, 0);
-        }
-    }
-}
-void ZombieDarkCavalry::Attack1OnExit(ZombieDarkCavalry* zombie)
-{
-
-}
 void AttackCompletedCallback(Zombie* zombie) {}
-void Attack1CompletedCallback(Zombie* zombie) {}
 
 void ZombieDarkCavalry::modInit() {
 	LOGI("ZombieDarkCavalry init");
@@ -473,9 +414,6 @@ void ZombieDarkCavalry::modInit() {
     PatchVFTable(vftable, (void*)ZombieDarkCavalry::AttackOnLoop, 221);
     PatchVFTable(vftable, (void*)ZombieDarkCavalry::AttackOnExit, 222);
 
-    PatchVFTable(vftable, (void*)ZombieDarkCavalry::Attack1OnEnter, 223);
-    PatchVFTable(vftable, (void*)ZombieDarkCavalry::Attack1OnLoop, 224);
-    PatchVFTable(vftable, (void*)ZombieDarkCavalry::Attack1OnExit, 225);
 
 	ZombieDarkCavalry::StaticGetType();
 
@@ -484,12 +422,10 @@ void ZombieDarkCavalry::modInit() {
 {
     IF_CALLBACK_NOTSETUP(ZombieDarkCavalry) {
         SetupLiteralDelegate(&attackCompletedDelegate, AttackCompletedCallback);
-        SetupLiteralDelegate(&attack1CompletedDelegate, Attack1CompletedCallback);
         ZombieDarkCavalry_delegatesSetup = true;
         LOGI("SO TRUE");
     }
     RegisterEventCallback(builder, rtClass, "onAttackEnd", attackCompletedDelegate);
-    RegisterEventCallback(builder, rtClass, "onAttackContinued", attack1CompletedDelegate);
     LOGI("Reg event complete");
 }
 void ZombieDarkCavalry::buildStates()
@@ -501,11 +437,5 @@ void ZombieDarkCavalry::buildStates()
         (uintptr_t)ZombieDarkCavalry::AttackOnLoop,
         (uintptr_t)ZombieDarkCavalry::AttackOnExit,
         "ZS_DarkCavalry_Attack");
-    RegisterStateByOffsets(stateMachine,
-        22,
-        (uintptr_t)ZombieDarkCavalry::Attack1OnEnter,
-        (uintptr_t)ZombieDarkCavalry::Attack1OnLoop,
-        (uintptr_t)ZombieDarkCavalry::Attack1OnExit,
-        "ZS_DarkCavalry_Attack1");
     LOGI("Reg state complete");
 }

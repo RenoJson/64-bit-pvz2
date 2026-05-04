@@ -312,6 +312,14 @@ void SurpriseCompletedCallback(Zombie* zombie) {
     ZombieModernJackInTheBox* boxZombie = static_cast<ZombieModernJackInTheBox*>(zombie);
     if (boxZombie) {
         boxZombie->m_damageScale = 1.0f;
+        for (auto& weakArmor : zombie->m_armor)
+        {
+            Armor* armor = weakArmor.Get();
+            if (armor != nullptr && !armor->m_destroyed)
+            {
+                armor->m_destroyed = true;
+            }
+        }
         DamageInfo dmg;
         dmg.m_attacker = boxZombie;
         dmg.m_damage = 100000.0f;

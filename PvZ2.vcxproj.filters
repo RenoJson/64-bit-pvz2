@@ -131,6 +131,9 @@
     <ClCompile Include="PvZ2\ZombieModernPogo.cpp" />
     <ClCompile Include="PvZ2\ZombieModernPogoProps.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernPogo.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernScreenDoor.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_ModernScreenDoor.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernScreenDoorProps.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -207,5 +210,8 @@
     <ClInclude Include="PvZ2\ZombieModernPogo.h" />
     <ClInclude Include="PvZ2\ZombieModernPogoProps.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_ModernPogo.h" />
+    <ClInclude Include="PvZ2\ZombieModernScreenDoor.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_ModernScreenDoor.h" />
+    <ClInclude Include="PvZ2\ZombieModernScreenDoorProps.h" />
   </ItemGroup>
 </Project>
