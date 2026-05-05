@@ -12,12 +12,90 @@ class ZombieConditionEntry;
 class DamageInfo;
 enum DamageTypeFlags : int64_t;
 
+enum class CollisionTypeFlags
+{
+	none,
+	ground_zombies,
+	off_ground_zombies,
+	dying_zombies = 4,
+	all_zombies = 7,
+	griditems = 8,
+	low_plants = 32,
+	normal_plants = 64,
+	tall_plants = 128,
+	ground = 256,
+	instigator = 512,
+	plants = 240,
+	everything = 1023
+};
+
+class ProjectilePropertySheet : public PropertySheetBase
+{
+public:
+	SexyString ClassName;
+	float BaseDamage;
+	float HealAmount;
+	char pad1[16];
+	float SplashDamage;
+	float StunDuration;
+	float SplashRadius;
+	float SplashRadiusBaseDamageCutoff;
+	bool ShakeBoardOnSplash;
+	bool DiesOnImpact;
+	bool HasShadow;
+	bool ImpactShowsAtZombieFeet;
+	bool RotateToMatchVelocity;
+	bool ImpactSoundForce;
+	bool FollowsGround;
+	ZombieConditions OverrideStunCondition;
+	std::vector<Sexy::ValueRange> InitialVelocity;
+	std::vector<Sexy::ValueRange> InitialAcceleration;
+	std::vector<Sexy::ValueRange> InitialVelocityScale;
+	Sexy::ValueRange InitialHeight;
+	Sexy::ValueRange InitialRotation;
+	Sexy::ValueRange InitialAngularVelocity;
+	Sexy::ValueRange InitialScale;
+	SexyString AttachedPAM;
+	SexyString AttachedPAMAnimRigClass;
+	Sexy::SexyVector2 AttachedPAMOffset;
+	std::vector<SexyString> AttachedPAMAnimationToPlay;
+	SexyString ShadowImage;
+	SexyString RenderImage;
+	Sexy::Color RenderColor;
+	Sexy::FRect CollisionRect;
+	SexyString ImpactSoundEvent;
+	float ImpactSoundThrottleTimer;
+	SexyString ImpactPAM;
+	std::vector<SexyString> ImpactPAMAnimationToPlay;
+	std::vector<Sexy::ValueRange> ImpactOffset;
+	SexyString SpawnPAM;
+	std::vector<SexyString> SpawnPAMAnimationToPlay;
+	std::vector<Sexy::ValueRange> SpawnPAMOffset;
+	std::vector<ZombieConditionEntry> Conditions;
+	Sexy::SexyVector2 AttachedPAMEffectOffset;
+	std::vector<CollisionTypeFlags> CollisionFlags;
+	std::vector<DamageTypeFlags> DamageFlags;
+};
+
+static_assert(sizeof(ProjectilePropertySheet) == 640);
+static_assert(offsetof(ProjectilePropertySheet, ClassName) == 40);
+static_assert(offsetof(ProjectilePropertySheet, BaseDamage) == 64);
+static_assert(offsetof(ProjectilePropertySheet, SplashDamage) == 88);
+static_assert(offsetof(ProjectilePropertySheet, OverrideStunCondition) == 112);
+static_assert(offsetof(ProjectilePropertySheet, InitialHeight) == 192);
+static_assert(offsetof(ProjectilePropertySheet, AttachedPAM) == 224);
+static_assert(offsetof(ProjectilePropertySheet, SpawnPAM) == 488);
+static_assert(offsetof(ProjectilePropertySheet, AttachedPAMEffectOffset) == 584);
+static_assert(offsetof(ProjectilePropertySheet, CollisionFlags) == 592);
+static_assert(offsetof(ProjectilePropertySheet, DamageFlags) == 616);
+
+
 class Projectile : public ModularRealObject
 {
 public:
 	bool m_shouldAffectTarget;
 	char pad2[12];
-	Sexy::RtWeakPtr<RtObject> m_propertySheet;
+	Sexy::RtWeakPtr<ProjectilePropertySheet> m_propertySheet;
 	Sexy::RtWeakPtr<RtObject> m_instigator;
 	int m_instigatorLevel;
 	int m_instigatorPowerUpFlags;
@@ -95,79 +173,3 @@ static_assert(offsetof(Projectile, m_attachedAnimRig) == 288);
 static_assert(offsetof(Projectile, m_plantFamilies) == 336);
 static_assert(offsetof(Projectile, m_plantTier) == 364);
 
-enum class CollisionTypeFlags
-{
-	none,
-	ground_zombies,
-	off_ground_zombies,
-	dying_zombies = 4,
-	all_zombies = 7,
-	griditems = 8,
-	low_plants = 32,
-	normal_plants = 64,
-	tall_plants = 128,
-	ground = 256,
-	instigator = 512,
-	plants = 240,
-	everything = 1023
-};
-
-class ProjectilePropertySheet : public PropertySheetBase
-{
-public:
-	SexyString ClassName;
-	float BaseDamage;
-	float HealAmount;
-	char pad1[16];
-	float SplashDamage;
-	float StunDuration;
-	float SplashRadius;
-	float SplashRadiusBaseDamageCutoff;
-	bool ShakeBoardOnSplash;
-	bool DiesOnImpact;
-	bool HasShadow;
-	bool ImpactShowsAtZombieFeet;
-	bool RotateToMatchVelocity;
-	bool ImpactSoundForce;
-	bool FollowsGround;
-	ZombieConditions OverrideStunCondition;
-	std::vector<Sexy::ValueRange> InitialVelocity;
-	std::vector<Sexy::ValueRange> InitialAcceleration;
-	std::vector<Sexy::ValueRange> InitialVelocityScale;
-	Sexy::ValueRange InitialHeight;
-	Sexy::ValueRange InitialRotation;
-	Sexy::ValueRange InitialAngularVelocity;
-	Sexy::ValueRange InitialScale;
-	SexyString AttachedPAM;
-	SexyString AttachedPAMAnimRigClass;
-	Sexy::SexyVector2 AttachedPAMOffset;
-	std::vector<SexyString> AttachedPAMAnimationToPlay;
-	SexyString ShadowImage;
-	SexyString RenderImage;
-	Sexy::Color RenderColor;
-	Sexy::FRect CollisionRect;
-	SexyString ImpactSoundEvent;
-	float ImpactSoundThrottleTimer;
-	SexyString ImpactPAM;
-	std::vector<SexyString> ImpactPAMAnimationToPlay;
-	std::vector<Sexy::ValueRange> ImpactOffset;
-	SexyString SpawnPAM;
-	std::vector<SexyString> SpawnPAMAnimationToPlay;
-	std::vector<Sexy::ValueRange> SpawnPAMOffset;
-	std::vector<ZombieConditionEntry> Conditions;
-	Sexy::SexyVector2 AttachedPAMEffectOffset;
-	std::vector<CollisionTypeFlags> CollisionFlags;
-	std::vector<DamageTypeFlags> DamageFlags;
-};
-
-static_assert(sizeof(ProjectilePropertySheet) == 640);
-static_assert(offsetof(ProjectilePropertySheet, ClassName) == 40);
-static_assert(offsetof(ProjectilePropertySheet, BaseDamage) == 64);
-static_assert(offsetof(ProjectilePropertySheet, SplashDamage) == 88);
-static_assert(offsetof(ProjectilePropertySheet, OverrideStunCondition) == 112);
-static_assert(offsetof(ProjectilePropertySheet, InitialHeight) == 192);
-static_assert(offsetof(ProjectilePropertySheet, AttachedPAM) == 224);
-static_assert(offsetof(ProjectilePropertySheet, SpawnPAM) == 488);
-static_assert(offsetof(ProjectilePropertySheet, AttachedPAMEffectOffset) == 584);
-static_assert(offsetof(ProjectilePropertySheet, CollisionFlags) == 592);
-static_assert(offsetof(ProjectilePropertySheet, DamageFlags) == 616);

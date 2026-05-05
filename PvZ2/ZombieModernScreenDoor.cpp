@@ -1,9 +1,11 @@
 #include "ZombieModernScreenDoor.h"
+#include "ZombieModernScreenDoorProps.h"
 #include "DamageInfo.h"
 #include "ZombieAnimRig_ModernScreenDoor.h"
 #include "ZombieStateHelper.h"
 #include "ZombieState.h"
 #include "StateMachineBuilder.h"
+#include "Projectile.h"
 DECLARE_DELEGATES_SETUP(ZombieModernScreenDoor)
 
 static Sexy::DelegateBase lostDoorCompletedDelegate; 
@@ -15,7 +17,10 @@ typedef void (*zombieEnterState)(ZombieModernScreenDoor*, int, int);
 typedef Zombie* (*update)(ZombieModernScreenDoor*);
 typedef bool (*checkZombieHasCondition)(Zombie*, int);
 typedef Zombie* (*removeCondition)(Zombie*, int);
-typedef bool (*isDeadOrDying)(ZombieModernScreenDoor*);
+typedef bool (*isDeadOrDying)(ZombieModernScreenDoor*); 
+typedef uint64_t(*VirtualGetDamageFlagsFunc)(Projectile*);
+typedef bool (*VirtualIsValidTargetFunc)(Zombie*, uint64_t);
+typedef bool (*VirtualDoImpactFunc)(Projectile*, Zombie*);
 void* ScreenDoorTakeDamage(ZombieModernScreenDoor* thisPtr, DamageInfo* damageInfo)
 {
     DamageInfo newDmgInfo = *damageInfo;
@@ -26,6 +31,80 @@ void* ScreenDoorTakeDamage(ZombieModernScreenDoor* thisPtr, DamageInfo* damageIn
     typedef void* (*funcC43B90)(ZombieModernScreenDoor*, DamageInfo*);
     static auto* ZTakeDmg = ((funcC43B90)getActualOffset(0xC43B90));
     return ZTakeDmg(thisPtr, &newDmgInfo);
+}
+float DoorIsFacingOrNot(Zombie* zombie) {
+    if (!zombie->m_facing) {
+        return 1.0f;
+    }
+    return -1.0f;
+}
+bool ScreenDoorBlockProjectile(ZombieModernScreenDoor* thisPtr, Projectile* proj)
+{
+    void** projVTable = *(void***)proj;
+    VirtualGetDamageFlagsFunc getDamageFlags = (VirtualGetDamageFlagsFunc)projVTable[22];
+    uint64_t projDamageFlags = getDamageFlags(proj);
+
+    void** zombieVTable = *(void***)thisPtr;
+    VirtualIsValidTargetFunc isValidTarget = (VirtualIsValidTargetFunc)zombieVTable[21];
+
+    if (!isValidTarget(thisPtr, projDamageFlags))
+    {
+        return true;
+    }
+    if (!(((proj->m_teamFlags & 2) != 0 && (thisPtr->m_teamFlags & 1) != 0) || ((proj->m_teamFlags & 1) != 0 && (thisPtr->m_teamFlags & 2) != 0)))
+    {
+        return true;
+    }
+
+    typedef bool (*HasArmorFunc)(Zombie*, const SexyString&);
+    HasArmorFunc hasArmor = (HasArmorFunc)getActualOffset(0xC3F2E4);
+    if (hasArmor(thisPtr, "ScreenDoor") == true)
+    {
+        bool isInVector = false;
+
+        auto* props = reinterpret_cast<ZombieModernScreenDoorProps*>(thisPtr->m_propertySheet.Get());
+
+        Sexy::RtWeakPtr<ProjectilePropertySheet> projPropsPtr = proj->m_propertySheet;
+
+        auto it = props->PierceableProjectiles.begin();
+        auto end = props->PierceableProjectiles.end();
+
+        for (; it != end; ++it)
+        {
+            if (it->operator==(projPropsPtr))
+            {
+                isInVector = true;
+                break;
+            }
+        }
+
+        if (isInVector)
+        {
+            int* projFlags = &proj->m_damageFlags;
+            int originalFlags = *projFlags;
+            *projFlags = originalFlags | DamageTypeFlags::damage_bypass_shield;
+            VirtualDoImpactFunc doImpact = (VirtualDoImpactFunc)projVTable[35];
+            doImpact(proj, thisPtr);
+            *projFlags = originalFlags;
+            return true;
+        }
+
+        bool NotCoward = (proj->m_velocity.x * proj->m_velocityScale.x > 0.0f != DoorIsFacingOrNot(thisPtr) < 0.0f);
+        if (!NotCoward)
+        {
+            int* projFlags = &proj->m_damageFlags;
+            int originalFlags = *projFlags;
+            *projFlags = originalFlags | DamageTypeFlags::damage_bypass_shield;
+            VirtualDoImpactFunc doImpact = (VirtualDoImpactFunc)projVTable[35];
+            doImpact(proj, thisPtr);
+            *projFlags = originalFlags;
+            return true;
+        }
+        return false;
+    }
+    else {
+        return false;
+    }
 }
 void DoorOnArmorDestroyed(ZombieModernScreenDoor* zombie, int a2, SexyString* armorName)
 {
@@ -96,6 +175,7 @@ void ZombieModernScreenDoor::ModInit() {
     PatchVFTable(vftable, (void*)ZombieModernScreenDoor::StaticGetType, 0);
 
     PatchVFTable(vftable, (void*)ScreenDoorTakeDamage, 35);
+    PatchVFTable(vftable, (void*)ScreenDoorBlockProjectile, 43);
     PatchVFTable(vftable, (void*)DoorOnArmorDestroyed, 115);
     PatchVFTable(vftable, (void*)ScreenDoorOnCreate, 169);
     PatchVFTable(vftable, (void*)ScreenDoorGetArmDropFraction, 194);
