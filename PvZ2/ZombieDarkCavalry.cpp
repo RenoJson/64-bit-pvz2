@@ -9,6 +9,7 @@
 #include "ZombieState.h"
 #include "StateMachineBuilder.h"
 #include "DamageInfo.h"
+#include "ZcorpRacerZombie.h"
 
 
 void* ZombieDarkCavalry::vftable = __null;
@@ -24,6 +25,7 @@ typedef bool (*isAnimDone)(ZombieAnimRig*, int);
 typedef int (*playAnimWithoutCallback)(ZombieAnimRig*, const SexyString&, int, DelegateBase&);
 typedef int (*playAnimWithCallback)(ZombieAnimRig*, const SexyString&, int, ZombieEvent& event);
 typedef ZombieEvent* (*ConstructEvent)(ZombieEvent*, RtWeakPtr<Zombie>& owner, const SexyString& eventName);
+typedef Zombie* (*zombieFlippedAnim)(Zombie*, int);
 
 typedef void (*zombieEnterState)(ZombieDarkCavalry*, int, int);
 typedef Zombie* (*updatePos)(ZombieDarkCavalry*, SexyVector3*);
@@ -103,9 +105,9 @@ void HideCustomKnightLayer(ZombieDarkCavalry* self, ZombieAnimRig_Bull* animRig)
 }
 void LanceSpawn(ZombieDarkCavalry* self)
 {
-    typedef Plant* (*getTarg)(ZombieDarkCavalry*);
+    typedef PlantGroup* (*getTarg)(ZombieDarkCavalry*);
     getTarg getTarget = (getTarg)getActualOffset(0xC41910);
-    Plant* target = getTarget(self);
+    PlantGroup* target = getTarget(self);
     float rawPosX;
     float rawPosY;
     int spawnPosX;
@@ -120,7 +122,14 @@ void LanceSpawn(ZombieDarkCavalry* self)
         spawnPosX = (int)(((rawPosX - 232.0f) / 64.0f));
         spawnPosY = (int)(((rawPosY - 160.0f) / 76.0f));
 
-        KillTarget(target, self);
+
+        DamageInfo dmg;
+        dmg.m_attacker = self;
+
+        void** vtable = *(void***)target;
+        typedef void (*VirtualTakeDamageFunc)(PlantGroup*, DamageInfo*);
+        VirtualTakeDamageFunc takeDmg = (VirtualTakeDamageFunc)vtable[36];
+        takeDmg(target, &dmg);
     }
     else {
         rawPosX = self->m_position.x;
@@ -262,6 +271,18 @@ void CavalryAttack(ZombieDarkCavalry* zombie) {
 
                 takeDmg((PlantGroup*)ptr, &dmg);
             }
+            else if (ptr->IsType(ZombieGum::StaticGetType()))
+            {
+                DamageInfo dmg;
+                dmg.m_attacker = zombie;
+                dmg.m_damage = damageAmount;
+
+                void** vtable = *(void***)ptr;
+                typedef void (*VirtualTakeDamageFunc)(ZombieGum*, DamageInfo*);
+                VirtualTakeDamageFunc takeDmg = (VirtualTakeDamageFunc)vtable[35];
+
+                takeDmg((ZombieGum*)ptr, &dmg);
+            }
         }
     
 }
@@ -279,6 +300,12 @@ void overrideCavalryActionFrame(ZombieDarkCavalry* zombie, int64_t unk1, SexyStr
 SexyString GetCavalryShockEffectName()
 {
 	return "POPANIM_EFFECTS_ZOMBIE_CAVALRY_SHOCK";
+}
+SexyVector3 GetGumOffset(ZombieDarkCavalry* zombie) {
+    if (!zombie->m_hasLaunched) {
+        return { zombie->m_position.x - 70.0f, zombie->m_position.y, 0.0f };
+    }
+    return { zombie->m_position.x - 50.0f, zombie->m_position.y, 0.0f };
 }
 void overrideBullFunction206(ZombieDarkCavalry* zombie) {
     auto* props = reinterpret_cast<ZombieDarkCavalryProps*>(zombie->m_propertySheet.Get());
@@ -362,7 +389,7 @@ void ZombieDarkCavalry::AttackOnLoop(ZombieDarkCavalry* zombie)
         bool hasTarget = false;
 
         for (BoardEntity* ptr : entityList) {
-            if (ptr != nullptr && ptr->IsType(PlantGroup::StaticGetType())) {
+            if (ptr != nullptr && ptr->IsType(PlantGroup::StaticGetType()) || ptr->IsType(ZombieGum::StaticGetType())) {
                 hasTarget = true;
                 break;
             }
@@ -385,7 +412,23 @@ void ZombieDarkCavalry::AttackOnLoop(ZombieDarkCavalry* zombie)
         }
     }
 }
+void CavalryOnGetCondition(ZombieDarkCavalry* zombie, int conditionID)
+{
+    if (conditionID == zombie_condition_gummed)
+    {
+        if (!zombie->m_hasLaunched) {
+            ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 21, 0);
+        }
+        return;
+    }
 
+    if (conditionID == zombie_condition_hypnotized)
+    {
+        ((zombieFlippedAnim)getActualOffset(0xC41290))(zombie, 1);
+        ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 20, 0);
+        return;
+    }
+}
 void ZombieDarkCavalry::AttackOnExit(ZombieDarkCavalry* zombie)
 {
 
@@ -402,9 +445,13 @@ void ZombieDarkCavalry::modInit() {
 
 	PatchVFTable(vftable, (void*)overrideOnSpawn, 49);
 
+    PatchVFTable(vftable, (void*)CavalryOnGetCondition, 71);
+
 	PatchVFTable(vftable, (void*)overrideCavalryActionFrame, 170);
 
 	PatchVFTable(vftable, (void*)GetCavalryShockEffectName, 189);
+
+    PatchVFTable(vftable, (void*)GetGumOffset, 198);
 
     PatchVFTable(vftable, (void*)overrideBullFunction206, 206);
 

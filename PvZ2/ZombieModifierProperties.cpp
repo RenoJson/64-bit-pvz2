@@ -149,6 +149,12 @@ Zombie* StatModifier(ZombieModifierModule* module, Zombie* zombie) {
     typedef Zombie* (*setSpeedScale)(Zombie*, float);
     return ((setSpeedScale)getActualOffset(0xC484C0))(zombie, props->SpeedScale);
 }
+Zombie* FlyModifier(ZombieModifierModule* module, Zombie* zombie) {
+    typedef void (*SetFlyingFunc)(Zombie*, bool);
+    SetFlyingFunc setFlying = (SetFlyingFunc)getActualOffset(0xC4C770);
+    setFlying(zombie, true);
+    return zombie;
+}
 Zombie* hkModifierModule(ZombieModifierModule* module, Zombie* zombie) {
     auto* props = reinterpret_cast<ZombieModifierProperties*>(module->m_propertySheet.Get());
 
@@ -157,6 +163,9 @@ Zombie* hkModifierModule(ZombieModifierModule* module, Zombie* zombie) {
     }
     else if (props->ModifierType == "stat") {
         return StatModifier(module, zombie);
+    }
+    else if (props->ModifierType == "aprilfool") {
+        return FlyModifier(module, zombie);
     }
 }
 #pragma endregion

@@ -210,7 +210,9 @@
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestPiggyProps.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestVendor.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestVendorProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernAllStar.cpp" />
     <ClCompile Include="PvZ2\ZombieModernBalloon.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernBerserkerProps.cpp" />
     <ClCompile Include="PvZ2\ZombieModernJackInTheBox.cpp" />
     <ClCompile Include="PvZ2\ZombieModernJackInTheBoxProps.cpp" />
     <ClCompile Include="PvZ2\ZombieModernPogo.cpp" />
@@ -328,6 +330,7 @@
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestVendor.h" />
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestVendorProps.h" />
     <ClInclude Include="PvZ2\ZombieLostCityBug.h" />
+    <ClInclude Include="PvZ2\ZombieModernAllStar.h" />
     <ClInclude Include="PvZ2\ZombieModernBalloon.h" />
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestBalloonProps.h" />
     <ClInclude Include="PvZ2\ZombieModernJackInTheBox.h" />

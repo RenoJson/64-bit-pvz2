@@ -134,6 +134,8 @@
     <ClCompile Include="PvZ2\ZombieModernScreenDoor.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernScreenDoor.cpp" />
     <ClCompile Include="PvZ2\ZombieModernScreenDoorProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernAllStar.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernBerserkerProps.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -213,5 +215,6 @@
     <ClInclude Include="PvZ2\ZombieModernScreenDoor.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_ModernScreenDoor.h" />
     <ClInclude Include="PvZ2\ZombieModernScreenDoorProps.h" />
+    <ClInclude Include="PvZ2\ZombieModernAllStar.h" />
   </ItemGroup>
 </Project>

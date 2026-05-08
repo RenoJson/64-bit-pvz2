@@ -47,7 +47,7 @@ void HideCustomRiderLayer(ZombieBull* self, ZombieAnimRig_Bull* animRig) {
          "_zombie_imp_head_top"
     };
 
-    typedef int64_t (*setLayerVisibleFunc)(ZombieAnimRig_Bull*, SexyString*, bool);
+    typedef int64_t(*setLayerVisibleFunc)(ZombieAnimRig_Bull*, SexyString*, bool);
     setLayerVisibleFunc setLayerVisible = (setLayerVisibleFunc)getActualOffset(0x9DB8D0);
 
     size_t customLayersCount = props->RiderLayersToHide.size();
@@ -97,7 +97,7 @@ void hkZombieBullThrowRider(ZombieBull* self, int a2)
     float launchTime;
     SexyVector3 riderOffset;
 
-    if (isVeteran){
+    if (isVeteran) {
         auto* props = reinterpret_cast<ZombieBullVeteranProps*>(self->m_propertySheet.Get());
         name = props->VetRiderType;
         distance = props->LaunchDistance;
@@ -309,7 +309,7 @@ typedef void (*zombieBullPlayDeath)(Zombie*);
 zombieBullPlayDeath oZombieBullPlayDeath = nullptr;
 
 void hkZombieBullPlayDeath(ZombieBull* self) {
-    
+
     typedef void(*zombieFun197)(ZombieBull*);
     ((zombieFun197)getActualOffset(0xC51A40))(self); // does not play the bull's death sound effect
 }
@@ -359,7 +359,7 @@ void hkBullFunction71(ZombieBull* self, int conditionID)
         FuncC41290 funC41290 = (FuncC41290)getActualOffset(0xC41290);
         funC41290(self, 0);
         //Enter state function, 20 is rearing state that bull will using bull jump back anim
-        typedef uintptr_t (*FuncC3D428)(Zombie*, int, int);
+        typedef uintptr_t(*FuncC3D428)(Zombie*, int, int);
         FuncC3D428 funC3D428 = (FuncC3D428)getActualOffset(0xC3D428);
         funC3D428(self, 20, 0);
 
@@ -371,17 +371,17 @@ void hkBullFunction71(ZombieBull* self, int conditionID)
 
 Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc ZombieBullProps::oZombieBullPropsBuildSymbols = nullptr;
 
-void ZombieBullProps::modInit(){
-	LOGI("init bull class");
-	PVZ2HookFunction(0xAE4FF8, (void*)hkBullThrowRoute, (void**)&oZombieBullThrowRider);
+void ZombieBullProps::modInit() {
+    LOGI("init bull class");
+    PVZ2HookFunction(0xAE4FF8, (void*)hkBullThrowRoute, (void**)&oZombieBullThrowRider);
     PVZ2HookFunction(0xAE541C, (void*)HideCustomRiderLayer, (void**)&oZombieBullHideLayer);
     PVZ2HookFunction(0xAE3A64, (void*)hkZombieBullPlayDeath, (void**)&oZombieBullPlayDeath);
     PVZ2HookFunction(0xAE53A0, (void*)hkBullFunction71, (void**)&oBullFunction71);
     PVZ2HookFunction(0xAE5CD4, (void*)hkZombieBullElectrocute, (void**)&oZombieBullElectrocute);
     PVZ2HookFunction(0xDAE1B0, (void*)construct, nullptr);
-	LOGI("init bull class complete");
-	LOGI("init bull props");
-	PVZ2HookFunction(0xDAE2F4, (void*)ZombieBullProps::buildSymbols, (void**)&ZombieBullProps::oZombieBullPropsBuildSymbols);
-	LOGI("init bull props complete");
-	LOGI("finish init bull");
+    LOGI("init bull class complete");
+    LOGI("init bull props");
+    PVZ2HookFunction(0xDAE2F4, (void*)ZombieBullProps::buildSymbols, (void**)&ZombieBullProps::oZombieBullPropsBuildSymbols);
+    LOGI("init bull props complete");
+    LOGI("finish init bull");
 }

@@ -8,7 +8,6 @@
 #include "DamageInfo.h"
 #include "TimeMgr.h"
 #include "Board.h"
-#include "ZombieAnimRig_Basic.h"
 
 void* ZombieModernMiner::vftable = nullptr;
 Sexy::RtClass* ZombieModernMiner::s_rtClass = nullptr;;

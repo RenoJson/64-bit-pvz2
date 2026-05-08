@@ -69,6 +69,7 @@
 #include <PvZ2/ZombieModernScreenDoor.h>
 #include <PvZ2/ZombieAnimRig_ModernScreenDoor.h>
 #include <PvZ2/ZombieModernScreenDoorProps.h>
+#include <PvZ2/ZombieModernAllStar.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -602,5 +603,7 @@ void libChair_main()
     ZombieAnimRig_ModernScreenDoor::modInit();
     ZombieAnimRig_ModernScreenDoorAlmanac::modInit();
     ZombieModernScreenDoorProps::modInit();
+    ZombieModernBerserkerProps::modInit();
+    ZombieModernBerserker::ModInit();
     PatchRedStingerPF();
 }
