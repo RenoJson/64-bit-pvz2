@@ -89,30 +89,19 @@ boardEntitySetPosition ZfunBoardEntitySetPosition = (boardEntitySetPosition)getA
 //Bull and Vet Bull class
 void hkZombieBullThrowRider(ZombieBull* self, int a2)
 {
-    uintptr_t* vtable = *reinterpret_cast<uintptr_t**>(self);
-    bool isVeteran = (vtable == reinterpret_cast<uintptr_t*>(getActualOffset(0x23DBE28)));
     SexyString name;
     float distance;
     float launchApex;
     float launchTime;
     SexyVector3 riderOffset;
 
-    if (isVeteran) {
-        auto* props = reinterpret_cast<ZombieBullVeteranProps*>(self->m_propertySheet.Get());
-        name = props->VetRiderType;
-        distance = props->LaunchDistance;
-        launchApex = props->LaunchHeight;
-        launchTime = props->LaunchAirTime;
-        riderOffset = props->RiderSpawnOffset;
-    }
-    else {
         auto* props = reinterpret_cast<ZombieBullProps*>(self->m_propertySheet.Get());
         name = props->RiderType;
         distance = props->LaunchDistance;
         launchApex = props->LaunchHeight;
         launchTime = props->LaunchAirTime;
         riderOffset = props->RiderSpawnOffset;
-    }
+
     // we won't need to use RiderType anymore if the zombie spawn from the bull is wild west imp
     if (name.empty()) {
         name = "west_bullrider";
@@ -191,30 +180,19 @@ void hkZombieBullThrowRider(ZombieBull* self, int a2)
 //Cavalry class
 void hkZombieCavalryThrowRider(ZombieBull* self, int a2)
 {
-    uintptr_t* vtable = *reinterpret_cast<uintptr_t**>(self);
-    bool isVeteran = (vtable == reinterpret_cast<uintptr_t*>(getActualOffset(0x23DBE28)));
     SexyString name;
     float distance;
     float launchApex;
     float launchTime;
     SexyVector3 riderOffset;
 
-    if (isVeteran) {
-        auto* props = reinterpret_cast<ZombieBullVeteranProps*>(self->m_propertySheet.Get());
-        name = props->VetRiderType;
-        distance = props->LaunchDistance;
-        launchApex = props->LaunchHeight;
-        launchTime = props->LaunchAirTime;
-        riderOffset = props->RiderSpawnOffset;
-    }
-    else {
-        auto* props = reinterpret_cast<ZombieBullProps*>(self->m_propertySheet.Get());
-        name = props->RiderType;
-        distance = props->LaunchDistance;
-        launchApex = props->LaunchHeight;
-        launchTime = props->LaunchAirTime;
-        riderOffset = props->RiderSpawnOffset;
-    }
+    auto* props = reinterpret_cast<ZombieBullProps*>(self->m_propertySheet.Get());
+    name = props->RiderType;
+    distance = props->LaunchDistance;
+    launchApex = props->LaunchHeight;
+    launchTime = props->LaunchAirTime;
+    riderOffset = props->RiderSpawnOffset;
+
     if (name.empty()) {
         name = "dark_cavalry_rider";
     }

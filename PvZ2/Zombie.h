@@ -7,6 +7,7 @@
 #include "ObjectTypeDescriptor.h"
 #include "ZombieAnimRig.h"
 #include "ArmorPropertySheet.h"
+#include "ZombieState.h"
 
 
 class ZombieConditionImmunity
@@ -185,7 +186,7 @@ public:
 	char pad_0084[28];
 	Sexy::RtWeakPtr<RtObject> m_type;
 	Sexy::RtWeakPtr<RtObject> m_animRig;
-	char pad_00B0[176];
+	ZombieState m_entityState;
 	double m_elapsedTimeInState;
 	float m_stateMachineTimeScale;
 	int m_playingAnim;

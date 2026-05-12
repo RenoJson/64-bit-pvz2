@@ -11,34 +11,33 @@ void* BallonTakeDamage(ZombieJourneyToTheWestBalloon* thisPtr, DamageInfo* damag
 {
     auto* props = reinterpret_cast<ZombieJourneyToTheWestBalloonProps*>(thisPtr->m_propertySheet.Get());
     DamageInfo newDmgInfo = *damageInfo;
+
+    float balloonHP = 0.0f;
+    for (size_t i = 0; i < thisPtr->m_armor.size(); i++)
+    {
+        Armor* armorInstance = thisPtr->m_armor[i].Get();
+        if (armorInstance != nullptr && !armorInstance->m_destroyed && armorInstance->m_health > 0)
+        {
+            balloonHP = armorInstance->m_health;
+            break;
+        }
+    }
     if (newDmgInfo.m_damage >= props->DamageAmountWhichAlsoKillsBasic)
     {
-        thisPtr->m_hasTakenCatastrophicDamage = true;
+        newDmgInfo.m_flags |= DamageTypeFlags::damage_bypass_shield;
+
+        if (balloonHP > 0)
+        {
+            thisPtr->m_hasTakenCatastrophicDamage = true;
+        }
     }
     else
     {
-        float balloonHP = 0.0f;
-        for (size_t i = 0; i < thisPtr->m_armor.size(); i++)
-        {
-            Armor* armorInstance = thisPtr->m_armor[i].Get();
-            if (armorInstance != nullptr && !armorInstance->m_destroyed && armorInstance->m_health > 0)
-            {
-                balloonHP = armorInstance->m_health; 
-                break; 
-            }
-        }
         if (balloonHP > 0)
         {
             if (newDmgInfo.m_damage > balloonHP) {
                 newDmgInfo.m_damage = balloonHP;
             }
-            else {
-                LOGI("[ZombieBalloon] -> Balloon absorbs damage completely and survives.");
-            }
-        }
-        else
-        {
-            LOGI("[ZombieBalloon] No Balloon! Zombie takes full damage: %.2f", newDmgInfo.m_damage);
         }
     }
 

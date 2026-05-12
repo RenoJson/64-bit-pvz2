@@ -14,6 +14,8 @@ public:
 	float BullRunSpeed = 1.0f;
 	float BullPawLocation = 810.0f;
 	float BullEnterSpeed = 0.30f;
+	float BullRunAgainDelay = 3.0f;
+	float BullRammingDamage = 1500.0f;
 	SexyString RiderType = "west_bullrider";
 	std::vector<SexyString> RiderLayersToHide;
 	float LaunchDistance = 256.0f;

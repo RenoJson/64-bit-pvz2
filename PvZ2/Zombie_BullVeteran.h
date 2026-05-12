@@ -4,10 +4,6 @@
 class ZombieBullVeteranProps : public ZombieBullProps
 {
 public:
-	float BullRunAgainDelay = 3.0f;
-	float BullRammingDamage = 1500.0f;
-	SexyString VetRiderType = "west_bullrider";
-	bool AprilFool = false;
 
 	static Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc oZombieBullVeteranPropsBuildSymbols;
 	static void modInit();
@@ -26,15 +22,15 @@ public:
 
 	static void buildSymbols(Reflection::CRefManualSymbolBuilder* builder, Reflection::RClass* rclass)
 	{
-		oZombieBullVeteranPropsBuildSymbols(builder, rclass);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullVeteranProps, BullRunAgainDelay);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullVeteranProps, BullRammingDamage);
+		RT_CLASS_REGISTER_STRING_PROPERTY(ZombieBullVeteranProps, RiderType);
 		RT_CLASS_REGISTER_STRING_VECTOR_PROPERTY(ZombieBullVeteranProps, RiderLayersToHide);
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullVeteranProps, LaunchDistance);
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullVeteranProps, LaunchHeight);
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullVeteranProps, LaunchAirTime);
 		RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieBullVeteranProps, SexyVector3, RiderSpawnOffset);
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullVeteranProps, isCavalry);
-		RT_CLASS_REGISTER_STRING_PROPERTY(ZombieBullVeteranProps, VetRiderType);
-		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullVeteranProps, AprilFool);
 	};
 }; 
 
