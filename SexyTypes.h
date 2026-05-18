@@ -39,6 +39,7 @@ namespace Sexy
 
 		Rect() : mX(0), mY(0), mWidth(0), mHeight(0) {};
 		Rect(int theX, int theY, int theWidth, int theHeight) : mX(theX), mY(theY), mWidth(theWidth), mHeight(theHeight) {};
+		~Rect() {}
 	};
 
 	struct FRect
@@ -47,6 +48,7 @@ namespace Sexy
 
 		FRect() : mX(0), mY(0), mWidth(0), mHeight(0) {};
 		FRect(float theX, float theY, float theWidth, float theHeight) : mX(theX), mY(theY), mWidth(theWidth), mHeight(theHeight) {};
+		~FRect() {}
 	};
 
 	struct Point

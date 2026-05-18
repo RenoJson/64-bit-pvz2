@@ -5,9 +5,6 @@
 class ZombieJourneyToTheWestVendor : public Zombie
 {
 public:
-	enum ZVendor {
-		ZV_SetPig = 16,
-	};
 	static void buildEventCallbacks(Reflection::CRefManualSymbolBuilder* builder, Reflection::RClass* rtClass);
 	static void buildStates();
 	static void PigOnEnter(ZombieJourneyToTheWestVendor* zombie);

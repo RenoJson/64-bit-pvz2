@@ -87,6 +87,26 @@ static_assert(offsetof(GridItemGravestone, m_stateDuration) == 356);
 static_assert(offsetof(GridItemGravestone, m_eatenProgress) == 360);
 static_assert(offsetof(GridItemGravestone, m_damageStates) == 364);
 
+class GridItemBreakableTarget : public GridItemAnimation
+{
+public:
+	char pad[16];
+	float m_lastTookDamage;
+	bool m_playingTakeDamageAnim;
+	bool m_playingDeathAnim;
+	bool m_hasPlayFinalBreakEffect;
+	bool m_isControlled;
+	int m_damagePhase;
+};
+class GridItemSpeaker : public GridItemBreakableTarget
+{
+public:
+	RT_CLASS_GET_CLASS_WRAPPER(0xD9944C);
+	int m_speakerState;
+	int64_t m_audioTriggeredNextSpeakerState;
+	EntityComponent_GroundEffect m_groundEffect;
+	float m_risingTime;
+};
 class GridItemSurfboard : public GridItemGravestone
 {
 public:

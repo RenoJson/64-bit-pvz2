@@ -136,6 +136,8 @@
     <ClCompile Include="PvZ2\ZombieModernScreenDoorProps.cpp" />
     <ClCompile Include="PvZ2\ZombieModernAllStar.cpp" />
     <ClCompile Include="PvZ2\ZombieModernBerserkerProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieEightiesBassProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieEightiesBass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -216,5 +218,11 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_ModernScreenDoor.h" />
     <ClInclude Include="PvZ2\ZombieModernScreenDoorProps.h" />
     <ClInclude Include="PvZ2\ZombieModernAllStar.h" />
+    <ClInclude Include="Sexy\IResStreamDriver.h" />
+    <ClInclude Include="Sexy\PTXInfo.h" />
+    <ClInclude Include="PvZ2\AddProjectileType.h" />
+    <ClInclude Include="PvZ2\ZombieEightiesBass.h" />
+    <ClInclude Include="PvZ2\ZombieEightiesBassProps.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_EightiesBass.h" />
   </ItemGroup>
 </Project>

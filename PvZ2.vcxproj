@@ -195,6 +195,8 @@
     <ClCompile Include="PvZ2\ZombieCavalryProps.cpp" />
     <ClCompile Include="PvZ2\ZombieCowboyBasic.cpp" />
     <ClCompile Include="PvZ2\ZombieDarkCavalry.cpp" />
+    <ClCompile Include="PvZ2\ZombieEightiesBass.cpp" />
+    <ClCompile Include="PvZ2\ZombieEightiesBassProps.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleGargantuarProps.cpp" />
     <ClCompile Include="PvZ2\ZombieFairyTaleImp.cpp" />
@@ -242,6 +244,7 @@
     <ClInclude Include="MemUtils.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="PvZ2\AddPlantType.h" />
+    <ClInclude Include="PvZ2\AddProjectileType.h" />
     <ClInclude Include="PvZ2\AddZombieType.h" />
     <ClInclude Include="PvZ2\AnimationMgr.h" />
     <ClInclude Include="PvZ2\ArmorPropertySheet.h" />
@@ -293,6 +296,7 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_Basic.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Bull.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Consultant.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_EightiesBass.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_EightiesPunk.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_FairyTaleWitch.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_Gargantuar.h" />
@@ -316,6 +320,8 @@
     <ClInclude Include="PvZ2\ZombieDarkCavalry.h" />
     <ClInclude Include="PvZ2\ZombieDinoBasic.h" />
     <ClInclude Include="PvZ2\ZombieDinoBullyVeteranProps.h" />
+    <ClInclude Include="PvZ2\ZombieEightiesBass.h" />
+    <ClInclude Include="PvZ2\ZombieEightiesBassProps.h" />
     <ClInclude Include="PvZ2\ZombieEvent.h" />
     <ClInclude Include="PvZ2\ZombieFairyTaleGargantuar.h" />
     <ClInclude Include="PvZ2\ZombieFairyTaleImp.h" />
@@ -370,10 +376,12 @@
     <ClInclude Include="Sexy\DialogListener.h" />
     <ClInclude Include="Sexy\Graphics.h" />
     <ClInclude Include="Sexy\Image.h" />
+    <ClInclude Include="Sexy\IResStreamDriver.h" />
     <ClInclude Include="Sexy\LazySingleton.h" />
     <ClInclude Include="Sexy\MTRand.h" />
     <ClInclude Include="Sexy\PopAnim.h" />
     <ClInclude Include="Sexy\PopAnimListener.h" />
+    <ClInclude Include="Sexy\PTXInfo.h" />
     <ClInclude Include="Sexy\RtClass.h" />
     <ClInclude Include="Sexy\RtObject.h" />
     <ClInclude Include="Sexy\RtReflectionDelegateBase.h" />

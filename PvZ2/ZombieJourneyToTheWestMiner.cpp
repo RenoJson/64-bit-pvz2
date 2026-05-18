@@ -210,6 +210,11 @@ void ZombieModernMiner::DiggingOnEnter(ZombieModernMiner* zombie)
 
 void ZombieModernMiner::DiggingOnLoop(ZombieModernMiner* zombie)
 {
+    isDeadOrDying isDeadFunc = (isDeadOrDying)getActualOffset(0xC3E204);
+    if (isDeadFunc(zombie)) {
+        ((setSpeedScale)getActualOffset(0xC484C0))(zombie, 1);
+        return;
+    }
     if (zombie->m_position.x <= 232.0f)
     {
        zombie->m_diggedDone = true; 
@@ -281,7 +286,6 @@ void DiggingCompletedCallback(Zombie* zombie) {
 void DiveOutCompletedCallback(Zombie* zombie) {
     ZombieModernMiner* diggerZombie = static_cast<ZombieModernMiner*>(zombie);
     if (diggerZombie) {
-        auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
         diggerZombie->m_isDigged = false;
         diggerZombie->m_diggedDone = true;
         ((zombieEnterState)getActualOffset(0xC3D428))(diggerZombie, 1, 0);

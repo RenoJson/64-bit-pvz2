@@ -7,6 +7,8 @@ class ZombieModernScreenDoorProps : public ZombiePropertySheet
 {
 public:
 	std::vector<Sexy::RtWeakPtr<ProjectilePropertySheet>> PierceableProjectiles;
+	Rect AttackRectWhenHaveDoor;
+	Rect HitRectWhenHaveDoor;
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;
@@ -16,6 +18,8 @@ public:
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombiePropertySheet);
 	RT_CLASS_REGISTER_RTWEAKPTR_VECTOR_PROPERTY(ZombieModernScreenDoorProps, PierceableProjectiles, ProjectilePropertySheet);
+	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieModernScreenDoorProps, Rect, AttackRectWhenHaveDoor);
+	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieModernScreenDoorProps, Rect, HitRectWhenHaveDoor);
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieModernScreenDoorProps);

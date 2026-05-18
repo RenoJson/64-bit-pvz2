@@ -70,6 +70,8 @@
 #include <PvZ2/ZombieAnimRig_ModernScreenDoor.h>
 #include <PvZ2/ZombieModernScreenDoorProps.h>
 #include <PvZ2/ZombieModernAllStar.h>
+#include <Sexy/PTXInfo.h>
+#include <PvZ2/ZombieEightiesBassProps.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -505,6 +507,66 @@ Reflection::CRefManualSymbolBuilder::ConstructFunc ZombieType::oZombieTypeConstr
 
 
 #pragma endregion
+#pragma region Format 150
+// thanks jay_krow for format 150 code (yummy)
+typedef uint(*getGLTextureTotalSize)(IResStreamDriver*, PTXInfo*);
+getGLTextureTotalSize oGetGLTextureTotalSize = nullptr;
+
+uint hkGetGLTextureTotalSize(IResStreamDriver* resStreamDriver, PTXInfo* ptxInfo) {
+    if (ptxInfo->format == 150) {
+        LOGI("Decode format 150, texture size = %d %d", ptxInfo->width, ptxInfo->height);
+        return ptxInfo->width * ptxInfo->height;
+    }
+    return oGetGLTextureTotalSize(resStreamDriver, ptxInfo);
+}
+
+typedef uint(*loadAndDecode)(AndroidDecodeTask*);
+loadAndDecode oLoadAndDecode = nullptr;
+
+uint hkLoadAndDecode(AndroidDecodeTask* decodeTask) {
+    decodeTask->unkInt40 = 1;
+
+    uintptr_t gSexyAppBase = *(uintptr_t*)getActualOffset(0x2599998);
+    uintptr_t pResStreamManager = *(uintptr_t*)(gSexyAppBase + 2136);
+    auto resStreamDriver = decodeTask->resStreamDriver;
+
+    if (*(bool*)(pResStreamManager + 18)) {
+        typedef void (*func)(IResStreamDriver*);
+        func pFunc = (func)getActualOffset(0x176EB64);
+        pFunc(resStreamDriver);
+        return 1LL;
+    }
+
+    PTXInfo* ptxInfo = decodeTask->ptxInfo;
+    int ptxFormat = ptxInfo->format;
+    if (ptxFormat == 150) {
+        typedef void (*LoadGLTex)(IResStreamDriver*, PTXInfo*, uint, uint, uint, unsigned char*, uint, uint, uint);
+        LoadGLTex pFunc = (LoadGLTex)getActualOffset(0x176EB70);
+        auto ptxSize = resStreamDriver->GetGLTextureTotalSize(ptxInfo);
+
+        auto alphaSize = resStreamDriver->GetGLTextureAlphaSize(ptxInfo);
+        auto rgbSize = resStreamDriver->GetGLTextureRGBSize(ptxInfo);
+
+        pFunc(
+            resStreamDriver,
+            ptxInfo,
+            0x9278, // 0x9278 is GL_COMPRESSED_RGBA8_ETC2_EAC
+            decodeTask->rgbTextureID,
+            decodeTask->alphaTextureID,
+            decodeTask->pixels,
+            decodeTask->unkInt84 * alphaSize,
+            rgbSize,
+            ptxSize);
+
+        return 1;
+    }
+    else {
+        int a = oLoadAndDecode(decodeTask);
+        return a;
+        return oLoadAndDecode(decodeTask);
+    }
+}
+#pragma endregion
 __attribute__((constructor))
 // This is automatically executed when the lib is loaded
 // Run your initialization code here
@@ -530,6 +592,8 @@ void libChair_main()
     PVZ2HookFunction(0x677B40, (void*)hkZombieConditionTrackerUpdate, (void**)&oZombieConditionTrackerUpdate);
     PVZ2HookFunction(0xA9E25C, (void*)hkBoardWaveFunc, (void**)&oBoardWaveFunc);
     PVZ2HookFunction(0xC1D1FC, (void*)hkInitZombiePianoList, (void**)&oInitZombiePianoList);
+    //PVZ2HookFunction(0x168D580, (void*)hkLoadAndDecode, (void**)&oLoadAndDecode);
+    //PVZ2HookFunction(0x176D6CC, (void*)hkGetGLTextureTotalSize, (void**)&oGetGLTextureTotalSize);
 
     ZombieCamelProps::modInit();
     ZombieCamelTouchProps::modInit();
@@ -605,5 +669,6 @@ void libChair_main()
     ZombieModernScreenDoorProps::modInit();
     ZombieModernBerserkerProps::modInit();
     ZombieModernBerserker::ModInit();
+    ZombieEightiesBassProps::modInit();
     PatchRedStingerPF();
 }
