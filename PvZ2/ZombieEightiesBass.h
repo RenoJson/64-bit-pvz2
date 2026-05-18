@@ -27,7 +27,7 @@ public:
 	static void GuitarAttackOnExit(ZombieEightiesBass* zombie);
 	static void GuitarIdleOnEnter(ZombieEightiesBass* zombie);
 	static void GuitarIdleOnLoop(ZombieEightiesBass* zombie);
-	static void GutarIdleOnExit(ZombieEightiesBass* zombie);
+	static void GuitarIdleOnExit(ZombieEightiesBass* zombie);
 	static void GuitarBreakOnEnter(ZombieEightiesBass* zombie);
 	static void GuitarBreakOnLoop(ZombieEightiesBass* zombie);
 	static void GuitarBreakOnExit(ZombieEightiesBass* zombie);

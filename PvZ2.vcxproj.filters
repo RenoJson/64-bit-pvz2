@@ -138,6 +138,7 @@
     <ClCompile Include="PvZ2\ZombieModernBerserkerProps.cpp" />
     <ClCompile Include="PvZ2\ZombieEightiesBassProps.cpp" />
     <ClCompile Include="PvZ2\ZombieEightiesBass.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_EightiesBass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />

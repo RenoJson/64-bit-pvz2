@@ -46,18 +46,42 @@ bool BassShouldIgnoreCollision(ZombieEightiesBass* zombie, Projectile* proj)
         }
     }
 }
-Zombie* ActivateJam(ZombieEightiesBass* zombie) {
+Zombie* BassActivateJam(ZombieEightiesBass* zombie) {
     zombie->m_isJamming = true;
     return zombie;
 }
-Zombie* DeactivateJam(ZombieEightiesBass* zombie) {
+Zombie* BassDeactivateJam(ZombieEightiesBass* zombie) {
     zombie->m_isJamming = false;
     return zombie;
 }
-SexyString GetJamStyle(ZombieEightiesBass* zombie) {
+SexyString BassGetJamStyle(ZombieEightiesBass* zombie) {
     auto* props = reinterpret_cast<ZombieEightiesBassProps*>(zombie->m_propertySheet.Get());
     return props->JamStyle;
 }
+
+void BassActionFrame(ZombieEightiesBass* zombie, int64_t unk1, SexyString* actionName, int64_t unk2, SexyString* currentAnim)
+{
+    if (*actionName == "kill_plant")
+    {
+        typedef PlantGroup* (*getTarg)(ZombieEightiesBass*);
+        getTarg getTarget = (getTarg)getActualOffset(0xC41910);
+        PlantGroup* target = getTarget(zombie);
+        if (target != nullptr && target->IsType(PlantGroup::StaticGetType())) {
+
+            DamageInfo dmg;
+            dmg.m_attacker = zombie;
+
+            void** vtable = *(void***)target;
+            typedef void (*VirtualTakeDamageFunc)(PlantGroup*, DamageInfo*);
+            VirtualTakeDamageFunc takeDmg = (VirtualTakeDamageFunc)vtable[36];
+            takeDmg(target, &dmg);
+        }
+        else {
+            return;
+        }
+    }
+}
+
 void ZombieEightiesBass::GuitarAttackOnEnter(ZombieEightiesBass* zombie)
 {
     RegisterEventAfterAnim(zombie, "attack", "onWaitingToRiftEnd");
@@ -97,6 +121,7 @@ void ZombieEightiesBass::GuitarAttackOnLoop(ZombieEightiesBass* zombie)
             targetSpeaker->m_position.x - props->ShockWaveSpawnOffset.x,
             targetSpeaker->m_position.y - props->ShockWaveSpawnOffset.y,
             0);
+		shockwave->m_teamFlags = zombie->m_teamFlags;
     }
     else {
         ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 18, 0);
@@ -179,7 +204,7 @@ void ZombieEightiesBass::GuitarIdleOnLoop(ZombieEightiesBass* zombie)
     }
 }
 
-void ZombieEightiesBass::GutarIdleOnExit(ZombieEightiesBass* zombie)
+void ZombieEightiesBass::GuitarIdleOnExit(ZombieEightiesBass* zombie)
 {
 
 }
@@ -201,8 +226,10 @@ void ZombieEightiesBass::GuitarBreakOnExit(ZombieEightiesBass* zombie)
 
 void ZombieEightiesBass::GrandDebutOnEnter(ZombieEightiesBass* zombie)
 {
+    auto animRig = reinterpret_cast<ZombieAnimRig_EightiesBass*>(zombie->m_animRig.Get());
 	zombie->m_isInGrandDebut = true;
-	RegisterEventAfterAnim(zombie, "attack_on", "onDebutingCompleted");
+	animRig->m_hasGuitar = true;
+	RegisterEventAfterAnim(zombie, "attack_on", "onDebutCompleted");
 }
 
 void ZombieEightiesBass::GrandDebutOnLoop(ZombieEightiesBass* zombie)
@@ -213,7 +240,9 @@ void ZombieEightiesBass::GrandDebutOnExit(ZombieEightiesBass* zombie)
 {
 
 }
-void RiftingCompletedCallback(Zombie* zombie) {}
+void RiftingCompletedCallback(Zombie* zombie) {
+
+}
 
 void DebutCompletedCallback(Zombie* zombie) {
 	ZombieEightiesBass* bassZombie = static_cast<ZombieEightiesBass*>(zombie);
@@ -268,6 +297,85 @@ void DebutCompletedCallback(Zombie* zombie) {
 void BreakingCompletedCallback(Zombie* zombie) {
 	ZombieEightiesBass* bassZombie = static_cast<ZombieEightiesBass*>(zombie);
 	if (bassZombie) {
+        auto animRig = reinterpret_cast<ZombieAnimRig_EightiesBass*>(bassZombie->m_animRig.Get());
+        animRig->m_hasGuitar = false;
 		((zombieEnterState)getActualOffset(0xC3D428))(bassZombie, 1, 0);
 	}
+}
+void ZombieEightiesBass::ModInit() {
+    LOGI("ZombieMiner mod init");
+
+    vftable = CreateChildVFTable(204 + 15, getActualOffset(0x241D430), 204);
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::StaticGetType, 0);
+
+    PatchVFTable(vftable, (void*)BassShouldIgnoreCollision, 43);
+    PatchVFTable(vftable, (void*)BassActivateJam, 64);
+    PatchVFTable(vftable, (void*)BassDeactivateJam, 65);
+    PatchVFTable(vftable, (void*)BassGetJamStyle, 66);
+    PatchVFTable(vftable, (void*)BassActionFrame, 170);
+
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarAttackOnEnter, 204);
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarAttackOnLoop, 205);
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarAttackOnExit, 206);
+
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarIdleOnEnter, 207);
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarIdleOnLoop, 208);
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarIdleOnExit, 209);
+
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarBreakOnEnter, 210);
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarBreakOnLoop, 211);
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarBreakOnExit, 212);
+
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GrandDebutOnEnter, 213);
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GrandDebutOnLoop, 214);
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GrandDebutOnExit, 215);
+
+    ZombieEightiesBass::StaticGetType();
+    LOGI("ZombieMiner finish init");
+}
+
+void ZombieEightiesBass::buildEventCallbacks(Reflection::CRefManualSymbolBuilder* builder, Reflection::RClass* rtClass)
+{
+    IF_CALLBACK_NOTSETUP(ZombieEightiesBass) {
+        SetupLiteralDelegate(&riftingCompletedDelegate, RiftingCompletedCallback);
+        SetupLiteralDelegate(&breakingGuitarCompletedDelegate, BreakingCompletedCallback);
+        SetupLiteralDelegate(&debutingCompletedDelegate, DebutCompletedCallback);
+        ZombieEightiesBass_delegatesSetup = true;
+        LOGI("SO TRUE");
+    }
+    RegisterEventCallback(builder, rtClass, "onWaitingToRiftEnd", riftingCompletedDelegate);
+    RegisterEventCallback(builder, rtClass, "onBreakingCompleted", breakingGuitarCompletedDelegate);
+    RegisterEventCallback(builder, rtClass, "onDebutCompleted", debutingCompletedDelegate);
+    LOGI("Reg event complete");
+}
+
+
+void ZombieEightiesBass::buildStates()
+{
+    StateMachineTableBuilder* stateMachine = CallGetStateMachine(ZombieEightiesBass::StaticGetType());
+    RegisterStateByOffsets(stateMachine,
+        16,
+        (uintptr_t)ZombieEightiesBass::GuitarAttackOnEnter,
+        (uintptr_t)ZombieEightiesBass::GuitarAttackOnLoop,
+        (uintptr_t)ZombieEightiesBass::GuitarAttackOnExit,
+        "ZS_Bassist_Rifting");
+    RegisterStateByOffsets(stateMachine,
+        17,
+        (uintptr_t)ZombieEightiesBass::GuitarIdleOnEnter,
+        (uintptr_t)ZombieEightiesBass::GuitarIdleOnLoop,
+        (uintptr_t)ZombieEightiesBass::GuitarIdleOnExit,
+        "ZS_Bassist_IdleRifting");
+    RegisterStateByOffsets(stateMachine,
+        18,
+        (uintptr_t)ZombieEightiesBass::GuitarBreakOnEnter,
+        (uintptr_t)ZombieEightiesBass::GuitarBreakOnLoop,
+        (uintptr_t)ZombieEightiesBass::GuitarBreakOnExit,
+        "ZS_Bassist_BreakAGuitar");
+    RegisterStateByOffsets(stateMachine,
+        19,
+        (uintptr_t)ZombieEightiesBass::GrandDebutOnEnter,
+        (uintptr_t)ZombieEightiesBass::GrandDebutOnLoop,
+        (uintptr_t)ZombieEightiesBass::GrandDebutOnExit,
+        "ZS_Bassist_GrandDebut");
+    LOGI("Reg state complete");
 }

@@ -72,6 +72,8 @@
 #include <PvZ2/ZombieModernAllStar.h>
 #include <Sexy/PTXInfo.h>
 #include <PvZ2/ZombieEightiesBassProps.h>
+#include <PvZ2/ZombieEightiesBass.h>
+#include <PvZ2/ZombieAnimRig_EightiesBass.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -670,5 +672,7 @@ void libChair_main()
     ZombieModernBerserkerProps::modInit();
     ZombieModernBerserker::ModInit();
     ZombieEightiesBassProps::modInit();
+    ZombieEightiesBass::ModInit();
+    ZombieAnimRig_EightiesBass::modInit();
     PatchRedStingerPF();
 }

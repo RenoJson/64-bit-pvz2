@@ -173,6 +173,7 @@
     <ClCompile Include="PvZ2\ZombieAnimRigBasicTemplateProps.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_BasicTemplate.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_Consultant.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_EightiesBass.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_EightiesPunk.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_EnergyDrinker.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_FairyTaleImp.cpp" />
