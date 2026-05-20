@@ -62,6 +62,14 @@ SexyString BassGetJamStyle(ZombieEightiesBass* zombie) {
     auto* props = reinterpret_cast<ZombieEightiesBassProps*>(zombie->m_propertySheet.Get());
     return props->JamStyle;
 }
+void BassOnGetCondition(ZombieEightiesBass* zombie, int conditionID)
+{
+    if (conditionID == zombie_condition_hypnotized)
+    {
+        ((zombieFlippedAnim)getActualOffset(0xC41290))(zombie, 1);
+        ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 18, 0);
+    }
+}
 
 void BassActionFrame(ZombieEightiesBass* zombie, int64_t unk1, SexyString* actionName, int64_t unk2, SexyString* currentAnim)
 {
@@ -317,10 +325,10 @@ void DebutCompletedCallback(Zombie* zombie) {
         if (spawnPosX > 8) spawnPosX = 8;
         if (spawnPosY < 0) spawnPosY = 0;
         if (spawnPosY > 4) spawnPosY = 4;
-
+        auto* props = reinterpret_cast<ZombieEightiesBassProps*>(bassZombie->m_propertySheet.Get());
         typedef GridItemSpeaker* (*funcAA230C)(Board*, SexyString, int, int);
         funcAA230C func_AA230C = (funcAA230C)getActualOffset(0xAA230C);
-        GridItemSpeaker* gridItem = func_AA230C(board, "speaker", spawnPosX, spawnPosY);
+        GridItemSpeaker* gridItem = func_AA230C(board, props->SpeakerType, spawnPosX, spawnPosY);
         gridItem->m_speakerState = 2;
         bassZombie->m_isInGrandDebut = false;
         ((zombieEnterState)getActualOffset(0xC3D428))(bassZombie, 17, 0);
@@ -331,16 +339,19 @@ void BreakingCompletedCallback(Zombie* zombie) {
 	if (bassZombie) {
         auto animRig = reinterpret_cast<ZombieAnimRig_EightiesBass*>(bassZombie->m_animRig.Get());
         animRig->m_hasGuitar = false;
-        bassZombie->m_dpsScale = 2.0f;
-        ((setSpeedScale)getActualOffset(0xC484C0))(bassZombie, 2.0f);
+        auto* props = reinterpret_cast<ZombieEightiesBassProps*>(bassZombie->m_propertySheet.Get());
+        bassZombie->m_dpsScale = props->EnragedDamageScale;
+        ((setSpeedScale)getActualOffset(0xC484C0))(bassZombie, props->EnragedSpeedScale);
 		((zombieEnterState)getActualOffset(0xC3D428))(bassZombie, 1, 0);
 	}
 }
 Zombie* updateParachutePos(float mX, float mY, float mZ, void* a4, Zombie* zombie) {
 	SexyVector3 offset = { zombie->m_position.x, zombie->m_position.y, 0 };
     if(zombie->IsType(ZombieEightiesBass::StaticGetType())) {
-        offset.x += 10.0f;
-        offset.y += 10.0f;
+        ZombieEightiesBass* bassZombie = static_cast<ZombieEightiesBass*>(zombie);
+        auto* props = reinterpret_cast<ZombieEightiesBassProps*>(bassZombie->m_propertySheet.Get());
+        offset.x += props->DebutOffset.x;
+        offset.y += props->DebutOffset.y;
 	}
     ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 19, 0);
     return ((updatePos)getActualOffset(0x628278))(zombie, &offset);
@@ -355,6 +366,7 @@ void ZombieEightiesBass::ModInit() {
     PatchVFTable(vftable, (void*)BassActivateJam, 64);
     PatchVFTable(vftable, (void*)BassDeactivateJam, 65);
     PatchVFTable(vftable, (void*)BassGetJamStyle, 66);
+    PatchVFTable(vftable, (void*)BassOnGetCondition, 71);
     PatchVFTable(vftable, (void*)BassActionFrame, 170);
 
     PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarAttackOnEnter, 204);

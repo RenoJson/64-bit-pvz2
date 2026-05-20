@@ -6,7 +6,7 @@ class ZombieEightiesBass : public Zombie
 {
 public:
 	bool m_isJamming = false;
-	bool m_isInGrandDebut = false;
+	bool m_isInGrandDebut;
 	int m_animHandle;
 	DECLARE_STATIC_RT_CLASS_MEMBERS(ZombieEightiesBass)
 

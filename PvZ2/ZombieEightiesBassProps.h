@@ -6,7 +6,11 @@
 class ZombieEightiesBassProps : public ZombiePropertySheet
 {
 public:
+	SexyVector2 DebutOffset;
+	float EnragedSpeedScale = 2.0f;
+	float EnragedDamageScale = 2.0f;
 	SexyString JamStyle = "jam_metal";
+	SexyString SpeakerType = "speaker";
 	Sexy::RtWeakPtr<ProjectilePropertySheet> ShockWaveProjectile;
 	SexyVector2 ShockWaveSpawnOffset;
 	float ShockWaveSpawnInterval = 15.0f;
@@ -19,7 +23,11 @@ public:
 	RT_CLASS_CONSTRUCT_FUNCTION_END();
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombiePropertySheet);
+	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieEightiesBassProps, SexyVector2, DebutOffset);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieEightiesBassProps, EnragedSpeedScale);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieEightiesBassProps, EnragedDamageScale);
 	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieEightiesBassProps, JamStyle);
+	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieEightiesBassProps, SpeakerType);
 	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(ZombieEightiesBassProps, ShockWaveProjectile, ProjectilePropertySheet)
 	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieEightiesBassProps, SexyVector2, ShockWaveSpawnOffset);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieEightiesBassProps, ShockWaveSpawnInterval);
