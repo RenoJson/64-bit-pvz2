@@ -33,7 +33,7 @@ void* hkInitEightiesBassHeadList() {
     return &EightiesBassHeadList;
 }
 SexyString hkIdleAnim(ZombieAnimRig_EightiesBass* thisptr) {
-	return "attack";
+	return "idle";
 }
 SexyString hkDieAnim(ZombieAnimRig_EightiesBass* thisptr) {
     if (thisptr->m_hasGuitar == true) {

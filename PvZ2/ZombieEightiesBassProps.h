@@ -6,6 +6,7 @@
 class ZombieEightiesBassProps : public ZombiePropertySheet
 {
 public:
+	std::vector<ZombieConditionImmunity> ImmuneWhileDebut;
 	SexyVector2 DebutOffset;
 	float EnragedSpeedScale = 2.0f;
 	float EnragedDamageScale = 2.0f;
@@ -23,6 +24,7 @@ public:
 	RT_CLASS_CONSTRUCT_FUNCTION_END();
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombiePropertySheet);
+	RT_CLASS_REGISTER_CLASS_VECTOR_PROPERTY(ZombieEightiesBassProps, ImmuneWhileDebut, ZombieConditionImmunity)
 	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieEightiesBassProps, SexyVector2, DebutOffset);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieEightiesBassProps, EnragedSpeedScale);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieEightiesBassProps, EnragedDamageScale);

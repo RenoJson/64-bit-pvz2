@@ -16,11 +16,14 @@ typedef int (*playAnimWithCallback)(ZombieAnimRig*, const SexyString&, int, Zomb
 typedef ZombieEvent* (*ConstructEvent)(ZombieEvent*, RtWeakPtr<Zombie>& owner, const SexyString& eventName);
 typedef Zombie* (*zombieFlippedAnim)(Zombie*, int);
 typedef bool (*isAnimDone)(ZombieAnimRig*, int);
-
+typedef Zombie* (*removeeffectCondition)(Zombie*, ZombieConditions);
 typedef void (*setSpeedScale)(ZombieEightiesBass*, float);
 typedef void (*GetEntitiesInRectFunc)(std::vector<BoardEntity*>*, int, Rect*);
 
+typedef void (*LoopWalk)(ZombieEightiesBass*);
+typedef bool (*checkZombieHasCondition)(Zombie*, ZombieConditions);
 typedef Zombie* (*updatePos)(Zombie*, SexyVector3*);
+typedef Zombie* (*update)(Zombie*);
 DECLARE_DELEGATES_SETUP(ZombieEightiesBass)
 
 static Sexy::DelegateBase riftingCompletedDelegate;
@@ -29,6 +32,19 @@ static Sexy::DelegateBase breakingGuitarCompletedDelegate;
 
 static Sexy::DelegateBase debutingCompletedDelegate;
 
+void* BassTakeDamage(ZombieEightiesBass* zombie, DamageInfo* damageInfo)
+{
+    auto* props = reinterpret_cast<ZombieEightiesBassProps*>(zombie->m_propertySheet.Get());
+    DamageInfo newDmgInfo = *damageInfo;
+    if(zombie->m_isInGrandDebut == true)
+    {
+        newDmgInfo.m_damage = 0.0f;
+	}
+    typedef void* (*funcC43B90)(ZombieEightiesBass*, DamageInfo*);
+    static auto* ZTakeDmg = ((funcC43B90)getActualOffset(0xC43B90));
+
+    return ZTakeDmg(zombie, &newDmgInfo);
+}
 bool BassShouldIgnoreCollision(ZombieEightiesBass* zombie, Projectile* proj)
 {
     int myTeam = zombie->m_teamFlags;
@@ -62,15 +78,16 @@ SexyString BassGetJamStyle(ZombieEightiesBass* zombie) {
     auto* props = reinterpret_cast<ZombieEightiesBassProps*>(zombie->m_propertySheet.Get());
     return props->JamStyle;
 }
-void BassOnGetCondition(ZombieEightiesBass* zombie, int conditionID)
+void BassWalkOnLoop(ZombieEightiesBass* zombie)
 {
-    if (conditionID == zombie_condition_hypnotized)
-    {
-        ((zombieFlippedAnim)getActualOffset(0xC41290))(zombie, 1);
-        ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 18, 0);
+    if (zombie->m_teamFlags != 2) {
+		zombie->m_teamFlags = 2;
     }
+    else if(zombie->m_isInGrandDebut == true) {
+		zombie->m_isInGrandDebut = false;
+	}
+    ((LoopWalk)getActualOffset(0xC506B4))(zombie);
 }
-
 void BassActionFrame(ZombieEightiesBass* zombie, int64_t unk1, SexyString* actionName, int64_t unk2, SexyString* currentAnim)
 {
     if (*actionName == "kill_plant")
@@ -97,6 +114,8 @@ void BassActionFrame(ZombieEightiesBass* zombie, int64_t unk1, SexyString* actio
 
             if (ptr->IsType(PlantGroup::StaticGetType()))
             {
+                int oldFlags = zombie->m_teamFlags;
+                zombie->m_teamFlags = 2;
                 DamageInfo dmg;
                 dmg.m_attacker = zombie;
 
@@ -105,6 +124,7 @@ void BassActionFrame(ZombieEightiesBass* zombie, int64_t unk1, SexyString* actio
                 VirtualTakeDamageFunc takeDmg = (VirtualTakeDamageFunc)vtable[36];
 
                 takeDmg((PlantGroup*)ptr, &dmg);
+                zombie->m_teamFlags = oldFlags;
             }
         }
     }
@@ -254,6 +274,7 @@ void ZombieEightiesBass::GuitarBreakOnExit(ZombieEightiesBass* zombie)
 
 void ZombieEightiesBass::GrandDebutOnEnter(ZombieEightiesBass* zombie)
 {
+    zombie->m_teamFlags = 0;
     auto animRig = reinterpret_cast<ZombieAnimRig_EightiesBass*>(zombie->m_animRig.Get());
 	zombie->m_isInGrandDebut = true;
 	animRig->m_hasGuitar = true;
@@ -331,6 +352,7 @@ void DebutCompletedCallback(Zombie* zombie) {
         GridItemSpeaker* gridItem = func_AA230C(board, props->SpeakerType, spawnPosX, spawnPosY);
         gridItem->m_speakerState = 2;
         bassZombie->m_isInGrandDebut = false;
+		bassZombie->m_teamFlags = 2;
         ((zombieEnterState)getActualOffset(0xC3D428))(bassZombie, 17, 0);
     }
 }
@@ -362,11 +384,12 @@ void ZombieEightiesBass::ModInit() {
     vftable = CreateChildVFTable(204 + 15, getActualOffset(0x241D430), 204);
     PatchVFTable(vftable, (void*)ZombieEightiesBass::StaticGetType, 0);
 
+    PatchVFTable(vftable, (void*)BassTakeDamage, 35);
     PatchVFTable(vftable, (void*)BassShouldIgnoreCollision, 43);
     PatchVFTable(vftable, (void*)BassActivateJam, 64);
     PatchVFTable(vftable, (void*)BassDeactivateJam, 65);
     PatchVFTable(vftable, (void*)BassGetJamStyle, 66);
-    PatchVFTable(vftable, (void*)BassOnGetCondition, 71);
+    PatchVFTable(vftable, (void*)BassWalkOnLoop, 124);
     PatchVFTable(vftable, (void*)BassActionFrame, 170);
 
     PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarAttackOnEnter, 204);

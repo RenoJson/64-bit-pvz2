@@ -5,7 +5,13 @@
 namespace Sexy {
 	class Graphics;
 }
-
+enum class TeamFlags
+{
+	none = 0,
+	plants = 1,
+	zombies = 2,
+	everything = 3
+};
 // An object class for rendering visuals
 class RealObject : public GameObject, public Renderable
 {
