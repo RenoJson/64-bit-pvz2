@@ -113,8 +113,9 @@ public:
 	char pad[4];
 	Sexy::Rect m_collisionRect; 
 	int m_boardEntityFlags;
-	Sexy::RtWeakPtr<void> m_componentRunner; // ComponentRunner
-	pvztime_t m_createdTime;
+	char pad1[4];
+	Sexy::RtWeakPtr<void> m_componentRunner;
+
 	void GetGridCoords(Sexy::SexyVector2 res)
 	{
 		res.x = (this->m_position.x - 200.0) / 64.0;
@@ -141,7 +142,7 @@ public:
 static_assert(sizeof(BoardEntity) == 120);
 static_assert(offsetof(BoardEntity, m_level) == 80);
 static_assert(offsetof(BoardEntity, m_collisionRect) == 88);
-//static_assert(offsetof(BoardEntity, m_componentRunner) == 112);
+static_assert(offsetof(BoardEntity, m_componentRunner) == 112);
 //static_assert(offsetof(BoardEntity, m_createdTime) == 120);
 
 enum GroundEffectType

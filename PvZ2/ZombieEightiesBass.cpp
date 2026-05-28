@@ -22,6 +22,7 @@ typedef void (*GetEntitiesInRectFunc)(std::vector<BoardEntity*>*, int, Rect*);
 
 typedef void (*LoopWalk)(ZombieEightiesBass*);
 typedef bool (*checkZombieHasCondition)(Zombie*, ZombieConditions);
+typedef bool (*isTossedByPlant)(Zombie*, int);
 typedef Zombie* (*updatePos)(Zombie*, SexyVector3*);
 typedef Zombie* (*update)(Zombie*);
 DECLARE_DELEGATES_SETUP(ZombieEightiesBass)
@@ -76,7 +77,24 @@ Zombie* BassDeactivateJam(ZombieEightiesBass* zombie) {
 }
 SexyString BassGetJamStyle(ZombieEightiesBass* zombie) {
     auto* props = reinterpret_cast<ZombieEightiesBassProps*>(zombie->m_propertySheet.Get());
-    return props->JamStyle;
+
+    int styleCount = props->JamStyle.size();
+
+    if (styleCount == 0) {
+        return "";
+    }
+
+    int randomIndex = std::rand() % styleCount;
+    SexyString chosenStyle = props->JamStyle[randomIndex];
+    return props->JamStyle[randomIndex];
+}
+bool BassIsBeingTossedByPlant(ZombieEightiesBass* zombie, int a2) {
+    if(zombie->m_entityState.m_id == 16 || zombie->m_entityState.m_id == 17) {
+        return false;
+	}
+    else {
+        return ((isTossedByPlant)getActualOffset(0xC4D2EC))(zombie, a2);
+    }
 }
 void BassWalkOnLoop(ZombieEightiesBass* zombie)
 {
@@ -105,26 +123,59 @@ void BassActionFrame(ZombieEightiesBass* zombie, int64_t unk1, SexyString* actio
         scanRect.mHeight = 1;
 
         std::vector<BoardEntity*> entityList;
-
         GetEntitiesInRectFunc getEntitiesRect = (GetEntitiesInRectFunc)getActualOffset(0x86F180);
         getEntitiesRect(&entityList, 63, &scanRect);
+
+        auto* props = reinterpret_cast<ZombieEightiesBassProps*>(zombie->m_propertySheet.Get());
 
         for (BoardEntity* ptr : entityList) {
             if (ptr == nullptr) continue;
 
             if (ptr->IsType(PlantGroup::StaticGetType()))
             {
-                int oldFlags = zombie->m_teamFlags;
-                zombie->m_teamFlags = 2;
-                DamageInfo dmg;
-                dmg.m_attacker = zombie;
+                PlantGroup* group = static_cast<PlantGroup*>(ptr);
 
-                void** vtable = *(void***)ptr;
-                typedef void (*VirtualTakeDamageFunc)(PlantGroup*, DamageInfo*);
-                VirtualTakeDamageFunc takeDmg = (VirtualTakeDamageFunc)vtable[36];
+                for (auto& weakPlantPtr : group->m_plants.m_plants)
+                {
+                    Plant* plant = weakPlantPtr.Get();
+                    if (plant == nullptr) continue;
 
-                takeDmg((PlantGroup*)ptr, &dmg);
-                zombie->m_teamFlags = oldFlags;
+                    if (plant->m_isInPlantFoodState) {
+                        continue; 
+                    }
+
+                    bool isUnkillable = false;
+
+                    auto* plantType = reinterpret_cast<PlantType*>(plant->m_type.Get());
+
+                    if (plantType != nullptr) {
+                        SexyString plantTypeName = plantType->TypeName; 
+
+                        for (const SexyString& safePlant : props->UnkillablePlant) {
+                            if (plantTypeName == safePlant) {
+                                isUnkillable = true;
+                                break; 
+                            }
+                        }
+                    }
+
+                    if (isUnkillable) {
+                        continue; 
+                    }
+
+                    int oldFlags = zombie->m_teamFlags;
+                    zombie->m_teamFlags = 2; 
+
+                    DamageInfo dmg;
+                    dmg.m_attacker = zombie;
+                    void** plantVtable = *(void***)plant;
+                    typedef DamageInfo* (*PlantTakeDamageFunc)(Plant*, DamageInfo*);
+                    PlantTakeDamageFunc takeDmg = (PlantTakeDamageFunc)plantVtable[36];
+
+                    takeDmg(plant, &dmg);
+
+                    zombie->m_teamFlags = oldFlags; 
+                }
             }
         }
     }
@@ -296,38 +347,6 @@ void RiftingCompletedCallback(Zombie* zombie) {
 void DebutCompletedCallback(Zombie* zombie) {
     ZombieEightiesBass* bassZombie = static_cast<ZombieEightiesBass*>(zombie);
     if (bassZombie) {
-        int gX = static_cast<int>((bassZombie->m_position.x - 200.0f) / 64.0f);
-        int gY = static_cast<int>((bassZombie->m_position.y - 160.0f) / 76.0f);
-
-        if (gY > 4) gY = 4;
-        if (gY < 0) gY = 0;
-
-        Rect scanRect;
-        scanRect.mX = gX - 1;
-        scanRect.mY = gY;
-        scanRect.mWidth = 1;
-        scanRect.mHeight = 1;
-
-        std::vector<BoardEntity*> entityList;
-
-        GetEntitiesInRectFunc getEntitiesRect = (GetEntitiesInRectFunc)getActualOffset(0x86F180);
-        getEntitiesRect(&entityList, 63, &scanRect);
-
-        for (BoardEntity* ptr : entityList) {
-            if (ptr == nullptr) continue;
-
-            if (ptr->IsType(PlantGroup::StaticGetType()))
-            {
-                DamageInfo dmg;
-                dmg.m_attacker = bassZombie;
-
-                void** vtable = *(void***)ptr;
-                typedef void (*VirtualTakeDamageFunc)(PlantGroup*, DamageInfo*);
-                VirtualTakeDamageFunc takeDmg = (VirtualTakeDamageFunc)vtable[36];
-
-                takeDmg((PlantGroup*)ptr, &dmg);
-            }
-        }
         float rawPosX;
         float rawPosY;
         int spawnPosX;
@@ -389,6 +408,7 @@ void ZombieEightiesBass::ModInit() {
     PatchVFTable(vftable, (void*)BassActivateJam, 64);
     PatchVFTable(vftable, (void*)BassDeactivateJam, 65);
     PatchVFTable(vftable, (void*)BassGetJamStyle, 66);
+    PatchVFTable(vftable, (void*)BassIsBeingTossedByPlant, 97);
     PatchVFTable(vftable, (void*)BassWalkOnLoop, 124);
     PatchVFTable(vftable, (void*)BassActionFrame, 170);
 

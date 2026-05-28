@@ -6,6 +6,7 @@
 #include "ZombieState.h"
 #include "StateMachineBuilder.h"
 #include "Projectile.h"
+#include "Plant.h"
 DECLARE_DELEGATES_SETUP(ZombieModernScreenDoor)
 
 static Sexy::DelegateBase lostDoorCompletedDelegate; 
@@ -77,10 +78,47 @@ Sexy::Rect ScreenDoorGetHitRect(ZombieModernScreenDoor* zombie) {
 void* ScreenDoorTakeDamage(ZombieModernScreenDoor* thisPtr, DamageInfo* damageInfo)
 {
     DamageInfo newDmgInfo = *damageInfo;
+
+    bool isBlacklisted = false;
+    bool isPlantAttacker = false;
+
+    auto* props = reinterpret_cast<ZombieModernScreenDoorProps*>(thisPtr->m_propertySheet.Get());
+
+    if (newDmgInfo.m_attacker != nullptr
+        && newDmgInfo.m_attacker != reinterpret_cast<BoardEntity*>(thisPtr))
+    {
+        if (newDmgInfo.m_attacker->IsType(Plant::StaticGetType()))
+        {
+            isPlantAttacker = true; 
+
+            Plant* plant = static_cast<Plant*>(newDmgInfo.m_attacker);
+            if (plant->m_type.Get() != nullptr)
+            {
+                auto* plantType = reinterpret_cast<PlantType*>(plant->m_type.Get());
+                for (const SexyString& blacklistedPlant : props->PlantBlacklist)
+                {
+                    if (plantType->TypeName == blacklistedPlant)
+                    {
+                        isBlacklisted = true;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
     if ((newDmgInfo.m_flags & DamageTypeFlags::damage_shooter) == 0)
     {
-        newDmgInfo.m_flags |= DamageTypeFlags::damage_bypass_shield;
+        if (isPlantAttacker && !isBlacklisted)
+        {
+            newDmgInfo.m_flags |= DamageTypeFlags::damage_bypass_shield;
+        }
+        else
+        {
+            newDmgInfo.m_flags &= ~DamageTypeFlags::damage_bypass_shield;
+        }
     }
+
     typedef void* (*funcC43B90)(ZombieModernScreenDoor*, DamageInfo*);
     static auto* ZTakeDmg = ((funcC43B90)getActualOffset(0xC43B90));
     return ZTakeDmg(thisPtr, &newDmgInfo);

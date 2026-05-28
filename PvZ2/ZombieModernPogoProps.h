@@ -5,6 +5,7 @@
 class ZombieModernPogoProps : public ZombiePropertySheet
 {
 public:
+	float DamageAmountWhichAlsoKillsBasic = 1000.0f;
 	float JumpingSpeed = 0.37f;
 	Rect JumpingRect;
 	static void* vftable;
@@ -15,6 +16,7 @@ public:
 	RT_CLASS_CONSTRUCT_FUNCTION_END();
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombiePropertySheet);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModernPogoProps, DamageAmountWhichAlsoKillsBasic);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModernPogoProps, JumpingSpeed);
 	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieModernPogoProps, Rect, JumpingRect);
 	RT_CLASS_BUILD_SYMBOLS_END();

@@ -6,6 +6,7 @@
 #include "StateMachineBuilder.h"
 #include "ZombieAnimRig_ModernPogo.h"
 #include "Plant.h"
+#include "DamageInfo.h"
 
 void* ZombieModernPogo::vftable = nullptr;
 Sexy::RtClass* ZombieModernPogo::s_rtClass = nullptr;;
@@ -36,8 +37,48 @@ float PogoGetWalkSpeed(ZombieModernPogo* zombie)
 		return zombie->m_walkSpeed;
 	}
 }
+void* PogoTakeDamage(ZombieModernPogo* thisPtr, DamageInfo* damageInfo)
+{
+	auto* props = reinterpret_cast<ZombieModernPogoProps*>(thisPtr->m_propertySheet.Get());
+	DamageInfo newDmgInfo = *damageInfo;
+
+	float balloonHP = 0.0f;
+	for (size_t i = 0; i < thisPtr->m_armor.size(); i++)
+	{
+		Armor* armorInstance = thisPtr->m_armor[i].Get();
+		if (armorInstance != nullptr && !armorInstance->m_destroyed && armorInstance->m_health > 0)
+		{
+			balloonHP = armorInstance->m_health;
+			break;
+		}
+	}
+	if (newDmgInfo.m_damage >= props->DamageAmountWhichAlsoKillsBasic)
+	{
+		newDmgInfo.m_flags |= DamageTypeFlags::damage_bypass_shield;
+
+		if (balloonHP > 0)
+		{
+			thisPtr->m_hasTakenCatastrophicDamage = true;
+		}
+	}
+	else
+	{
+		if (balloonHP > 0)
+		{
+			if (newDmgInfo.m_damage > balloonHP) {
+				newDmgInfo.m_damage = balloonHP;
+			}
+		}
+	}
+
+	typedef void* (*funcC43B90)(ZombieModernPogo*, DamageInfo*);
+	static auto* ZTakeDmg = ((funcC43B90)getActualOffset(0xC43B90));
+
+	return ZTakeDmg(thisPtr, &newDmgInfo);
+}
 void PogoOnSpawn(ZombieModernPogo* zombie)
 {
+	zombie->m_hasTakenCatastrophicDamage = false;
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPogo*>(zombie->m_animRig.Get());
 	for (auto& weakArmor : zombie->m_armor)
     {
@@ -58,12 +99,40 @@ void PogoOnSpawn(ZombieModernPogo* zombie)
 	((setSpeed)getActualOffset(0x8DDAA4))(rig, PogoGetWalkSpeed(zombie));
 	((zombieEnterState)getActualOffset(0xC3D428))(zombie, 19, 0);
 }
-
+void PogoEnterWalk(ZombieModernPogo* zombie)
+{
+	auto rig = reinterpret_cast<ZombieAnimRig_ModernPogo*>(zombie->m_animRig.Get());
+	if (rig->m_hasPogo == true) {
+		((zombieEnterState)getActualOffset(0xC3D428))(zombie, 19, 0);
+	}
+	else {
+		((zombieEnterState)getActualOffset(0xC3D428))(zombie, 1, 0);
+	}
+}
 void PogoOnArmorDestroyed(ZombieModernPogo* zombie, int a2, SexyString* armorName)
 {
 	isDeadOrDying isDeadFunc = (isDeadOrDying)getActualOffset(0xC3E204);
 	if (*armorName == "Pogo" && !isDeadFunc(zombie)) {
+		auto rig = reinterpret_cast<ZombieAnimRig_ModernPogo*>(zombie->m_animRig.Get());
+		rig->m_hasPogo = false;
 		((zombieEnterState)getActualOffset(0xC3D428))(zombie, 18, 0);
+	}
+}
+SexyString GetPogoAnimShock(ZombieModernPogo* zombie, DamageInfo* damage) {
+	if (zombie->m_hasTakenCatastrophicDamage == true) {
+		return "POPANIM_EFFECTS_ZOMBIE_POGO_SHOCK";
+	}
+	else {
+		return "POPANIM_EFFECTS_ZOMBIE_SHOCK";
+	}
+}
+
+SexyString GetPogoAnimAsh(ZombieModernPogo* zombie, DamageInfo* damage) {
+	if (zombie->m_hasTakenCatastrophicDamage == true) {
+		return "POPANIM_EFFECTS_ZOMBIE_POGO_ASH";
+	}
+	else {
+		return "POPANIM_EFFECTS_ZOMBIE_ASH";
 	}
 }
 
@@ -84,6 +153,8 @@ void ZombieModernPogo::JumpOnExit(ZombieModernPogo* zombie)
 
 void ZombieModernPogo::BonkOnEnter(ZombieModernPogo* zombie)
 {
+	auto rig = reinterpret_cast<ZombieAnimRig_ModernPogo*>(zombie->m_animRig.Get());
+	rig->m_hasPogo = false;
 	((zombieAllowMovement)getActualOffset(0xC51F94))(zombie, 1);
 	return RegisterEventAfterAnim(zombie, "jump_tallnut", "onBonkingCompleted");
 }
@@ -228,9 +299,13 @@ void ZombieModernPogo::ModInit() {
 	vftable = CreateChildVFTable(204 + 15, getActualOffset(0x241D430), 204);
 	PatchVFTable(vftable, (void*)ZombieModernPogo::StaticGetType, 0);
 
+	PatchVFTable(vftable, (void*)PogoTakeDamage, 35);
 	PatchVFTable(vftable, (void*)PogoOnSpawn, 49);
+	PatchVFTable(vftable, (void*)PogoEnterWalk, 62);
 	PatchVFTable(vftable, (void*)PogoOnArmorDestroyed, 115);
 	PatchVFTable(vftable, (void*)PogoGetWalkSpeed, 118);
+	PatchVFTable(vftable, (void*)GetPogoAnimShock, 189);
+	PatchVFTable(vftable, (void*)GetPogoAnimAsh, 190);
 
 	PatchVFTable(vftable, (void*)ZombieModernPogo::JumpOnEnter, 204);
 	PatchVFTable(vftable, (void*)ZombieModernPogo::JumpOnLoop, 205);

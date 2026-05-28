@@ -196,6 +196,11 @@ static_assert(offsetof(PlantPropertySheet, AnimRigProps) == 436);
 class Plant : public BoardEntity
 {
 public:
+	static Sexy::RtClass* StaticGetType() {
+		typedef Sexy::RtClass* (*getType)();
+		getType pGetType = (getType)getActualOffset(0x126B964);
+		return pGetType();
+	};
 	pvztime_t m_createdTime;
 	char pad_007C[12];
 	Sexy::ValueRange m_initialLaunchInterval;
@@ -229,9 +234,9 @@ public:
 	int m_currentDamageState;
 	int m_currentPlantActionIdx;
 	char pad_align_ptr[4];
-	Sexy::RtWeakPtr<Sexy::RtObject> m_type;
-	Sexy::RtWeakPtr<Sexy::RtObject> m_animRig;
-	Sexy::RtWeakPtr<Sexy::RtObject> m_plantFoodShine;
+	Sexy::RtWeakPtr<PlantType> m_type;
+	Sexy::RtWeakPtr<PlantAnimRig> m_animRig;
+	Sexy::RtWeakPtr<PlantAnimRig> m_plantFoodShine;
 	bool m_isInPlantFoodState;
 	bool m_protectedFromShovel;
 	bool m_isDuplicate; 
@@ -254,11 +259,11 @@ public:
 	pvztime_t m_relocateEndTime;
 	int m_relocationType;
 	char pad_0174[4];
-	char m_groundEffect[24];
+	EntityComponent_GroundEffect m_groundEffect;
 	char m_conditionTracker[56];
 	char pad_to_attached[88];
-	char m_attachedBoardEntities[32]; 
-	char m_attachedEffects[32];
+	AttachedBoardEntityManager m_attachedBoardEntities;
+	AttachedEffectManager m_attachedEffects;
 };
 
 static_assert(sizeof(Plant) == 608);

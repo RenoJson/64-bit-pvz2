@@ -43,6 +43,14 @@ SexyString hkWalkAnim(ZombieAnimRig_ModernPoleVaulter* thisptr) {
         return "walk";
     }
 }
+SexyString hkEatAnim(ZombieAnimRig_ModernPoleVaulter* thisptr) {
+    if (thisptr->m_hasPole == true) {
+        return "eat_pole";
+    }
+    else {
+        return "eat";
+    }
+}
 SexyString hkDieAnim(ZombieAnimRig_ModernPoleVaulter* thisptr) {
     if (thisptr->m_hasPole == true) {
         return "die_pole";
@@ -63,6 +71,7 @@ void ZombieAnimRig_ModernPoleVaulter::modInit() {
     PatchVFTable(vftable, (void*)hkInitModernPoleVaulterUpperArmList, 57);
     PatchVFTable(vftable, (void*)hkIdleAnim, 58);
     PatchVFTable(vftable, (void*)hkWalkAnim, 59);
+    PatchVFTable(vftable, (void*)hkEatAnim, 61);
     PatchVFTable(vftable, (void*)hkDieAnim, 63);
 
     ZombieAnimRig_ModernPoleVaulter::StaticGetType();

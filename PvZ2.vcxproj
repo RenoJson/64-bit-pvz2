@@ -244,6 +244,7 @@
     <ClInclude Include="Main.h" />
     <ClInclude Include="MemUtils.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="PvZ2\AddGridItemType.h" />
     <ClInclude Include="PvZ2\AddPlantType.h" />
     <ClInclude Include="PvZ2\AddProjectileType.h" />
     <ClInclude Include="PvZ2\AddZombieType.h" />

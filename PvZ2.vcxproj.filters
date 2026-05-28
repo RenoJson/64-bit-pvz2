@@ -225,5 +225,6 @@
     <ClInclude Include="PvZ2\ZombieEightiesBass.h" />
     <ClInclude Include="PvZ2\ZombieEightiesBassProps.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_EightiesBass.h" />
+    <ClInclude Include="PvZ2\AddGridItemType.h" />
   </ItemGroup>
 </Project>

@@ -10,6 +10,11 @@ class AttachedGameObjectNode : public Sexy::RtObject {
 public:
 	SexyString m_name;
 	Sexy::RtWeakPtr<Sexy::RtObject> m_object;
+}; 
+class AttachedBoardEntityManager : public GameObjectDictionary
+{
+public:
+	std::vector<int> m_nodes; // std::vector<AttachedBoardEntityNode>
 };
 class AttachedEffect : public AttachedGameObjectNode {
 public:
