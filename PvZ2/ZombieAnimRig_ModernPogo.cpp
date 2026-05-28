@@ -8,6 +8,8 @@ void* hkInitModernPogoLowerArmList() {
 
     static std::vector<SexyString> ModernPogoLowerArmList = {
        "zombie_arm_outer_lower",
+       "zombie_arm_outer_lower_pogo",
+       "zombie_hand_pogo_outer",
        "zombie_hand_outer_01",
        "zombie_hand_outer_02",
        "zombie_hand_outer_03",
@@ -49,6 +51,14 @@ SexyString hkWalkAnim(ZombieAnimRig_ModernPogo* thisptr) {
         return "walk";
     }
 }
+SexyString hkEatAnim(ZombieAnimRig_ModernPogo* thisptr) {
+    if (thisptr->m_hasPogo == true) {
+        return "eat_pogo";
+    }
+    else {
+        return "eat";
+    }
+}
 SexyString hkDieAnim(ZombieAnimRig_ModernPogo* thisptr) {
     if (thisptr->m_hasPogo == true) {
         return "die_pogo";
@@ -69,6 +79,7 @@ void ZombieAnimRig_ModernPogo::modInit() {
     PatchVFTable(vftable, (void*)hkInitModernPogoUpperArmList, 57);
     PatchVFTable(vftable, (void*)hkIdleAnim, 58);
     PatchVFTable(vftable, (void*)hkWalkAnim, 59);
+    PatchVFTable(vftable, (void*)hkEatAnim, 61);
     PatchVFTable(vftable, (void*)hkDieAnim, 63);
 
     ZombieAnimRig_ModernPogo::StaticGetType();
