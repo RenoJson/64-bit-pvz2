@@ -170,6 +170,7 @@
     <ClCompile Include="PvZ2\DangerRoomFallenKnightDesigner.cpp" />
     <ClCompile Include="PvZ2\DangerRoomHelpdeskSupportDesigner.cpp" />
     <ClCompile Include="PvZ2\FairyTaleWitchProjectile.cpp" />
+    <ClCompile Include="PvZ2\PlantDinoGrass.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRigBasicTemplateProps.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_BasicTemplate.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_Consultant.cpp" />
@@ -256,6 +257,7 @@
     <ClInclude Include="PvZ2\CavalryLegacy.h" />
     <ClInclude Include="PvZ2\Chairracer.h" />
     <ClInclude Include="PvZ2\Collectable.h" />
+    <ClInclude Include="PvZ2\Creature.h" />
     <ClInclude Include="PvZ2\DamageInfo.h" />
     <ClInclude Include="PvZ2\DangerRoomLevelDesigner.h" />
     <ClInclude Include="PvZ2\Effect_PopAnim.h" />
@@ -278,7 +280,9 @@
     <ClInclude Include="PvZ2\PacketCursor.h" />
     <ClInclude Include="PvZ2\Plant.h" />
     <ClInclude Include="PvZ2\PlantAnimRig.h" />
+    <ClInclude Include="PvZ2\PlantChomper.h" />
     <ClInclude Include="PvZ2\PlantConditions.h" />
+    <ClInclude Include="PvZ2\PlantDinoGrass.h" />
     <ClInclude Include="PvZ2\PlantFramework.h" />
     <ClInclude Include="PvZ2\PopAnimRig.h" />
     <ClInclude Include="PvZ2\Projectile.h" />

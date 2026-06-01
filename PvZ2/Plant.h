@@ -4,6 +4,7 @@
 #include "Projectile.h"
 #include "ObjectTypeDescriptor.h"
 #include <Reflection/ReflectionBuilder.h>
+#include "PlantConditions.h"
 
 class PlantFramework;
 class PlantAnimRigPropertySheet;
@@ -202,7 +203,7 @@ public:
 		return pGetType();
 	};
 	pvztime_t m_createdTime;
-	char pad_007C[12];
+	PlantFramework* m_plantFramework;
 	Sexy::ValueRange m_initialLaunchInterval;
 	Sexy::ValueRange m_launchInterval;
 	float m_baseScale;
@@ -212,7 +213,7 @@ public:
 	float m_overrideMinimumMaxHealth;
 	float m_speedModifier;
 	int m_lastDamageType;
-	char pad_00B4[4];
+	char pad4[4];
 	int m_row;
 	int m_column;
 	bool m_isOnBoard;
@@ -229,26 +230,24 @@ public:
 	pvztime_t m_fadeInEndTime;
 	float m_sproutScalingDuration;
 	pvztime_t m_sproutScalingEndTime;
-	char pad_00EC[20];
+	char pad5[20];
 	int m_damageStates;
 	int m_currentDamageState;
 	int m_currentPlantActionIdx;
-	char pad_align_ptr[4];
+	char pad[4];
 	Sexy::RtWeakPtr<PlantType> m_type;
 	Sexy::RtWeakPtr<PlantAnimRig> m_animRig;
 	Sexy::RtWeakPtr<PlantAnimRig> m_plantFoodShine;
 	bool m_isInPlantFoodState;
 	bool m_protectedFromShovel;
-	bool m_isDuplicate; 
-	char pad_align_299[1];
+	bool m_isDuplicate;
 	int m_level;
 	int m_masteryLevel;
-	int m_powerUpFlags; 
+	int m_powerUpFlags;
 	Sexy::RtWeakPtr<PlantPropertySheet> m_propertySheet;
 	MultiPlantGridLayer m_multiPlantGridLayer;
 	MultiPlantGridLayer m_multiPlantDrawLayer;
 	bool m_relocating;
-	char pad_align_329[3];
 	float m_relocateFromX;
 	float m_relocateFromY;
 	float m_relocateToX;
@@ -258,10 +257,9 @@ public:
 	pvztime_t m_relocateStartTime;
 	pvztime_t m_relocateEndTime;
 	int m_relocationType;
-	char pad_0174[4];
+	char pad6[4];
 	EntityComponent_GroundEffect m_groundEffect;
-	char m_conditionTracker[56];
-	char pad_to_attached[88];
+	char m_conditionTracker[144];
 	AttachedBoardEntityManager m_attachedBoardEntities;
 	AttachedEffectManager m_attachedEffects;
 };

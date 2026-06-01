@@ -98,7 +98,7 @@ bool BassIsBeingTossedByPlant(ZombieEightiesBass* zombie, int a2) {
 }
 void BassWalkOnLoop(ZombieEightiesBass* zombie)
 {
-    if (zombie->m_teamFlags != 2) {
+    if (zombie->m_teamFlags == 0) {
 		zombie->m_teamFlags = 2;
     }
     else if(zombie->m_isInGrandDebut == true) {
@@ -302,7 +302,13 @@ void ZombieEightiesBass::GuitarIdleOnLoop(ZombieEightiesBass* zombie)
         ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 18, 0);
     }
 }
-
+void BassOnGetCondition(ZombieEightiesBass* zombie, int conditionID)
+{
+    if (conditionID == zombie_condition_hypnotized)
+    {
+        ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 18, 0);
+    }
+}
 void ZombieEightiesBass::GuitarIdleOnExit(ZombieEightiesBass* zombie)
 {
 
@@ -408,6 +414,7 @@ void ZombieEightiesBass::ModInit() {
     PatchVFTable(vftable, (void*)BassActivateJam, 64);
     PatchVFTable(vftable, (void*)BassDeactivateJam, 65);
     PatchVFTable(vftable, (void*)BassGetJamStyle, 66);
+    PatchVFTable(vftable, (void*)BassOnGetCondition, 71);
     PatchVFTable(vftable, (void*)BassIsBeingTossedByPlant, 97);
     PatchVFTable(vftable, (void*)BassWalkOnLoop, 124);
     PatchVFTable(vftable, (void*)BassActionFrame, 170);

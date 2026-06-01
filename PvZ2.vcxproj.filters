@@ -139,6 +139,7 @@
     <ClCompile Include="PvZ2\ZombieEightiesBassProps.cpp" />
     <ClCompile Include="PvZ2\ZombieEightiesBass.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_EightiesBass.cpp" />
+    <ClCompile Include="PvZ2\PlantDinoGrass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -226,5 +227,8 @@
     <ClInclude Include="PvZ2\ZombieEightiesBassProps.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_EightiesBass.h" />
     <ClInclude Include="PvZ2\AddGridItemType.h" />
+    <ClInclude Include="PvZ2\PlantDinoGrass.h" />
+    <ClInclude Include="PvZ2\PlantChomper.h" />
+    <ClInclude Include="PvZ2\Creature.h" />
   </ItemGroup>
 </Project>

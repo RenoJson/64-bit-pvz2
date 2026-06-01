@@ -74,6 +74,7 @@
 #include <PvZ2/ZombieEightiesBassProps.h>
 #include <PvZ2/ZombieEightiesBass.h>
 #include <PvZ2/ZombieAnimRig_EightiesBass.h>
+#include <PvZ2/PlantChomper.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -674,5 +675,6 @@ void libChair_main()
     ZombieEightiesBassProps::modInit();
     ZombieEightiesBass::ModInit();
     ZombieAnimRig_EightiesBass::modInit();
+    PlantDinoGrass::modInit();
     PatchRedStingerPF();
 }
