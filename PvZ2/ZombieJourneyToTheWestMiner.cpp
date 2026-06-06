@@ -100,6 +100,17 @@ int64_t TudigongThreatAlert(ZombieModernMiner* zombie) {
         return ((threatAlert)getActualOffset(0xC493B4))(zombie);
     }
 }
+bool MinerIsBeingTossedByPlant(ZombieModernMiner* zombie, int a2) {
+    if (zombie->m_entityState.m_id == 19 
+        || zombie->m_entityState.m_id == 20 
+        || zombie->m_entityState.m_id == 21 
+        || zombie->m_entityState.m_id == 23) {
+        return false;
+    }
+    else {
+        return CallFunc<bool, ZombieModernMiner*, int>(0xC4D2EC, zombie, a2);
+    }
+}
 void TudigongOnArmorDestroyed(ZombieModernMiner* zombie, int a2, SexyString* armorName)
 {
     auto props = reinterpret_cast<ZombieModernMinerProps*>(zombie->m_propertySheet.Get());
@@ -319,6 +330,7 @@ void ZombieModernMiner::modInit() {
     PatchVFTable(vftable, (void*)TudigongShouldIgnoreCollision, 43);
     PatchVFTable(vftable, (void*)TudigongOnSpawn, 49);
     PatchVFTable(vftable, (void*)TudigongThreatAlert, 75);
+    PatchVFTable(vftable, (void*)MinerIsBeingTossedByPlant, 97);
     PatchVFTable(vftable, (void*)TudigongOnArmorDestroyed, 115);
     PatchVFTable(vftable, (void*)TudigongWalkOnLoop, 124);
     PatchVFTable(vftable, (void*)TudigongSurrender, 169);

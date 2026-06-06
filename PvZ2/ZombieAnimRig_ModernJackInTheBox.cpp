@@ -11,7 +11,10 @@ void* hkInitModernJackInTheBoxLowerArmList() {
 }
 void* hkInitModernJackInTheBoxUpperArmList() {
 
-    static std::vector<SexyString> ModernJackInTheBoxUpperArmList = {};
+    static std::vector<SexyString> ModernJackInTheBoxUpperArmList = {
+        "zombie_arm_outer_lower",
+        "zombie_arm_outer_lower_bone"
+    };
     return &ModernJackInTheBoxUpperArmList;
 
 }

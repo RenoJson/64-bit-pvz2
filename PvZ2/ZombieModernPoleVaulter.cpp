@@ -43,6 +43,14 @@ void PoleOnSpawn(ZombieModernPoleVaulter* zombie)
 	((setSpeed)getActualOffset(0x8DDAA4))(rig, PoleGetWalkSpeed(zombie));
 }
 
+bool PoleIsBeingTossedByPlant(ZombieModernPoleVaulter* zombie, int a2) {
+	if (zombie->m_entityState.m_id == 16 || zombie->m_entityState.m_id == 17) {
+		return false;
+	}
+	else {
+		return CallFunc<bool, ZombieModernPoleVaulter*, int>(0xC4D2EC, zombie, a2);
+	}
+}
 
 void PoleWalkOnLoop(ZombieModernPoleVaulter* zombie)
 {
@@ -201,6 +209,7 @@ void ZombieModernPoleVaulter::ModInit() {
 	PatchVFTable(vftable, (void*)ZombieModernPoleVaulter::StaticGetType, 0);
 
 	PatchVFTable(vftable, (void*)PoleOnSpawn, 49);
+	PatchVFTable(vftable, (void*)PoleIsBeingTossedByPlant, 97);
 	PatchVFTable(vftable, (void*)PoleGetWalkSpeed, 118);
 	PatchVFTable(vftable, (void*)PoleWalkOnLoop, 124);
 

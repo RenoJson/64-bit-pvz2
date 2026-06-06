@@ -75,6 +75,10 @@
 #include <PvZ2/ZombieEightiesBass.h>
 #include <PvZ2/ZombieAnimRig_EightiesBass.h>
 #include <PvZ2/PlantChomper.h>
+#include <PvZ2/ChomperProps.h>
+#include <PvZ2/ZombieAnimRig_ModernDolphinRider.h>
+#include <PvZ2/ZombieModernDolphinRider.h>
+#include <PvZ2/ZombieModernDolphinRiderProps.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -275,9 +279,6 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
         case zombie_condition_speedup2:
         case zombie_condition_speedup3:
         case zombie_condition_speedup4:
-        case zombie_condition_potionspeed1:
-        case zombie_condition_potionspeed2:
-        case zombie_condition_potionspeed3:
         {
             if (zombie->m_attachedEffects.GetObjectIndex("zombiespeedup") == -1) {
                 SexyVector3 transformOffset = { 0.0f, -20.0f, 0.0f };
@@ -285,53 +286,23 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
             }
             break;
         }
+        case zombie_condition_potionspeed1:
+        case zombie_condition_potionspeed2:
+        case zombie_condition_potionspeed3:
         case zombie_condition_potiontoughness1:
         case zombie_condition_potiontoughness2:
         case zombie_condition_potiontoughness3:
-        {
-            if (zombie->m_attachedEffects.GetObjectIndex("dmgreduction") == -1) {
-                SexyVector3 transformOffset;
-                if (props->Size == ZombieSize::large) {
-                    transformOffset = { 0.0f, -50.0f, 0.0f };
-                }
-                else if (props->Size == ZombieSize::imp) {
-                    transformOffset = { 0.0f, -20.0f, 0.0f };
-                }
-                else if (props->Size == ZombieSize::chicken) {
-                    transformOffset = { 0.0f, -10.0f, 0.0f };
-                }
-                else {
-                    transformOffset = { 0.0f, -30.0f, 0.0f };
-                }
-                setAnim(zombie, "dmgreduction", "POPANIM_EFFECTS_ZOMBIE_DMG_REDUCTION", "02", &transformOffset, 1, false, false, 2);
-            }
-            break;
-        }
-
         case zombie_condition_potionsuper1:
         case zombie_condition_potionsuper2:
         case zombie_condition_potionsuper3:
         {
-            if (zombie->m_attachedEffects.GetObjectIndex("sreduce") == -1 && zombie->m_attachedEffects.GetObjectIndex("sspeedup") == -1) {
-                SexyVector3 transformOffset = { 0.0f, -20.0f, 0.0f };
-                setAnim(zombie, "sspeedup", "POPANIM_EFFECTS_ZOMBIE_SPEEDUP", "zombie_speedup", &transformOffset, 1, false, false, 2);
-                SexyVector3 transformOffset1;
-                if (props->Size == ZombieSize::large) {
-                    transformOffset1 = { 0.0f, -50.0f, 0.0f };
-                }
-                else if (props->Size == ZombieSize::imp) {
-                    transformOffset1 = { 0.0f, -20.0f, 0.0f };
-                }
-                else if (props->Size == ZombieSize::chicken) {
-                    transformOffset1 = { 0.0f, -10.0f, 0.0f };
-                }
-                else {
-                    transformOffset1 = { 0.0f, -30.0f, 0.0f };
-                }
-                setAnim(zombie, "sreduce", "POPANIM_EFFECTS_ZOMBIE_DMG_REDUCTION", "02", &transformOffset1, 1, false, false, 2);
+            if (zombie->m_attachedEffects.GetObjectIndex("potion") == -1) {
+                SexyVector3 transformOffset = { 20.0f, -30.0f, 0.0f };
+                setAnim(zombie, "potion", "POPANIM_EFFECTS_ZOMBIE_POTION_EFFECT", "idle", &transformOffset, -1, false, false, 2);
             }
             break;
         }
+
         case zombie_condition_terrified:
         {
             if (zombie->m_attachedEffects.GetObjectIndex("terrified") == -1) {
@@ -360,7 +331,8 @@ removeeffectCondition oRemoveEffCond = nullptr;
 Zombie* hkRemoveEffectCondition(Zombie* zombie, ZombieConditions cond) {
     typedef int (*removeEffectAnim)(AttachedEffectManager*, SexyString*);
     removeEffectAnim removeAnim = (removeEffectAnim)getActualOffset(0x662360);
-
+    typedef Zombie* (*setEffectAnim)(Zombie*, const char*, const char*, const char*, SexyVector3*, uint, bool, bool, uint);
+    setEffectAnim setAnim = (setEffectAnim)getActualOffset(0x7BF03C);
     switch (cond) {
         case zombie_condition_dazeystunned:
         case zombie_condition_stun:
@@ -413,6 +385,24 @@ Zombie* hkRemoveEffectCondition(Zombie* zombie, ZombieConditions cond) {
         {
             std::string speedup = "zombiespeedup";
             removeAnim(&zombie->m_attachedEffects, &speedup);
+            break;
+        }
+        case zombie_condition_potionspeed1:
+        case zombie_condition_potionspeed2:
+        case zombie_condition_potionspeed3:
+        case zombie_condition_potiontoughness1:
+        case zombie_condition_potiontoughness2:
+        case zombie_condition_potiontoughness3:
+        case zombie_condition_potionsuper1:
+        case zombie_condition_potionsuper2:
+        case zombie_condition_potionsuper3:
+        {
+            std::string zombossstun = "potion";
+            removeAnim(&zombie->m_attachedEffects, &zombossstun); 
+            if (zombie->m_attachedEffects.GetObjectIndex("potion_end") == -1) {
+                SexyVector3 transformOffset = { 20.0f, -30.0f, 0.0f };
+                setAnim(zombie, "potion_end", "POPANIM_EFFECTS_ZOMBIE_POTION_EFFECT", "over", &transformOffset, -1, true, false, 2);
+            }
             break;
         }
     }
@@ -676,5 +666,9 @@ void libChair_main()
     ZombieEightiesBass::ModInit();
     ZombieAnimRig_EightiesBass::modInit();
     PlantDinoGrass::modInit();
+	DinoGrassProps::modInit();
+    ZombieModernDolphinRider::ModInit();
+    ZombieModernDolphinRiderProps::modInit();
+	ZombieAnimRig_ModernDolphinRider::modInit();
     PatchRedStingerPF();
 }

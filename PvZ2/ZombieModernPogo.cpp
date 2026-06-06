@@ -65,8 +65,24 @@ void* PogoTakeDamage(ZombieModernPogo* thisPtr, DamageInfo* damageInfo)
 	{
 		if (balloonHP > 0)
 		{
-			if (newDmgInfo.m_damage > balloonHP) {
-				newDmgInfo.m_damage = balloonHP;
+			if (newDmgInfo.m_damage >= balloonHP)
+			{
+				newDmgInfo.m_flags &= ~DamageTypeFlags::damage_bypass_shield;
+				newDmgInfo.m_flags &= ~DamageTypeFlags::damage_ash_death;
+				newDmgInfo.m_flags &= ~DamageTypeFlags::damage_fire;
+				float calculatedDamage = balloonHP;
+
+				float effDamageScale = thisPtr->m_damageScale;
+				calculatedDamage /= effDamageScale;
+
+				bool isShrunken = CallFunc<bool, Zombie*, int>(0xC3E44C, thisPtr, zombie_condition_shrinking)
+					|| CallFunc<bool, Zombie*, int>(0xC3E44C, thisPtr, zombie_condition_shrunken);
+
+				if (isShrunken && thisPtr->m_shrunkenDamageScale > 0.001f)
+				{
+					calculatedDamage /= thisPtr->m_shrunkenDamageScale;
+				}
+				newDmgInfo.m_damage = calculatedDamage;
 			}
 		}
 	}
@@ -107,6 +123,14 @@ void PogoEnterWalk(ZombieModernPogo* zombie)
 	}
 	else {
 		((zombieEnterState)getActualOffset(0xC3D428))(zombie, 1, 0);
+	}
+}
+bool PogoIsBeingTossedByPlant(ZombieModernPogo* zombie, int a2) {
+	if (zombie->m_entityState.m_id == 16 || zombie->m_entityState.m_id == 17) {
+		return false;
+	}
+	else {
+		return CallFunc<bool, ZombieModernPogo*, int>(0xC4D2EC, zombie, a2);
 	}
 }
 void PogoOnArmorDestroyed(ZombieModernPogo* zombie, int a2, SexyString* armorName)
@@ -302,6 +326,7 @@ void ZombieModernPogo::ModInit() {
 	PatchVFTable(vftable, (void*)PogoTakeDamage, 35);
 	PatchVFTable(vftable, (void*)PogoOnSpawn, 49);
 	PatchVFTable(vftable, (void*)PogoEnterWalk, 62);
+	PatchVFTable(vftable, (void*)PogoIsBeingTossedByPlant, 97);
 	PatchVFTable(vftable, (void*)PogoOnArmorDestroyed, 115);
 	PatchVFTable(vftable, (void*)PogoGetWalkSpeed, 118);
 	PatchVFTable(vftable, (void*)GetPogoAnimShock, 189);

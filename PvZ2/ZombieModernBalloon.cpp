@@ -10,6 +10,7 @@ Sexy::RtClass* ZombieJourneyToTheWestBalloon::s_rtClass = __null;;
 void* BallonTakeDamage(ZombieJourneyToTheWestBalloon* thisPtr, DamageInfo* damageInfo)
 {
     auto* props = reinterpret_cast<ZombieJourneyToTheWestBalloonProps*>(thisPtr->m_propertySheet.Get());
+
     DamageInfo newDmgInfo = *damageInfo;
 
     float balloonHP = 0.0f;
@@ -22,6 +23,7 @@ void* BallonTakeDamage(ZombieJourneyToTheWestBalloon* thisPtr, DamageInfo* damag
             break;
         }
     }
+
     if (newDmgInfo.m_damage >= props->DamageAmountWhichAlsoKillsBasic)
     {
         newDmgInfo.m_flags |= DamageTypeFlags::damage_bypass_shield;
@@ -35,8 +37,24 @@ void* BallonTakeDamage(ZombieJourneyToTheWestBalloon* thisPtr, DamageInfo* damag
     {
         if (balloonHP > 0)
         {
-            if (newDmgInfo.m_damage > balloonHP) {
-                newDmgInfo.m_damage = balloonHP;
+            if (newDmgInfo.m_damage >= balloonHP)
+            {
+                newDmgInfo.m_flags &= ~DamageTypeFlags::damage_bypass_shield;
+                newDmgInfo.m_flags &= ~DamageTypeFlags::damage_ash_death;
+                newDmgInfo.m_flags &= ~DamageTypeFlags::damage_fire;
+                float calculatedDamage = balloonHP;
+
+                float effDamageScale = thisPtr->m_damageScale;
+                calculatedDamage /= effDamageScale;
+
+                bool isShrunken = CallFunc<bool, Zombie*, int>(0xC3E44C, thisPtr, zombie_condition_shrinking)
+                    || CallFunc<bool, Zombie*, int>(0xC3E44C, thisPtr, zombie_condition_shrunken);
+
+                if (isShrunken && thisPtr->m_shrunkenDamageScale > 0.001f)
+                {
+                    calculatedDamage /= thisPtr->m_shrunkenDamageScale;
+                }
+                newDmgInfo.m_damage = calculatedDamage;
             }
         }
     }

@@ -31,7 +31,24 @@ void* hkTakeDamage(Zombie* thisPtr, DamageInfo* damageInfo)
                 {
                     if (damageInfo->m_damage >= armor->m_health)
                     {
-                        damageInfo->m_damage = armor->m_health;
+                        damageInfo->m_flags &= ~DamageTypeFlags::damage_bypass_shield;
+                        damageInfo->m_flags &= ~DamageTypeFlags::damage_ash_death;
+                        damageInfo->m_flags &= ~DamageTypeFlags::damage_fire;
+                        float calculatedDamage = armor->m_health;
+
+                        if (thisPtr->m_damageScale > 0.001f)
+                        {
+                            calculatedDamage /= thisPtr->m_damageScale;
+                        }
+
+                        bool isShrunken = CallFunc<bool, Zombie*, int>(0xC3E44C, thisPtr, zombie_condition_shrinking) 
+                            || CallFunc<bool, Zombie*, int>(0xC3E44C, thisPtr, zombie_condition_shrunken);
+
+                        if (isShrunken && thisPtr->m_shrunkenDamageScale > 0.001f)
+                        {
+                            calculatedDamage /= thisPtr->m_shrunkenDamageScale;
+                        }
+                        damageInfo->m_damage = calculatedDamage;
                     }
                 }
             }

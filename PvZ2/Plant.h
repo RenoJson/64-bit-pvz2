@@ -172,9 +172,9 @@ public:
 	bool CanLiveOnWaves;
 	bool CanPlantAgainToUpgrade;
 	std::map<SexyString, int> IdleAnimationWeights;
-	char pad1[4];
 	Sexy::RtWeakPtr<PlantAnimRigPropertySheet> AnimRigProps;
 	bool HidePlantingEffects;
+	char pad[3];
 	float MasteryBoostChance;
 	float MasteryResistancePiercing;
 };
@@ -191,7 +191,7 @@ static_assert(offsetof(PlantPropertySheet, RestrictPlantingToGridArea) == 312);
 static_assert(offsetof(PlantPropertySheet, PlantStats) == 328);
 static_assert(offsetof(PlantPropertySheet, ValidStages) == 352);
 static_assert(offsetof(PlantPropertySheet, CanPlantAgainToUpgrade) == 404);
-static_assert(offsetof(PlantPropertySheet, AnimRigProps) == 436);
+static_assert(offsetof(PlantPropertySheet, AnimRigProps) == 432);
 
 
 class Plant : public BoardEntity

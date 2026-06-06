@@ -140,6 +140,9 @@
     <ClCompile Include="PvZ2\ZombieEightiesBass.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_EightiesBass.cpp" />
     <ClCompile Include="PvZ2\PlantDinoGrass.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernDolphinRider.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernDolphinRiderProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_ModernDolphinRider.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -230,5 +233,9 @@
     <ClInclude Include="PvZ2\PlantDinoGrass.h" />
     <ClInclude Include="PvZ2\PlantChomper.h" />
     <ClInclude Include="PvZ2\Creature.h" />
+    <ClInclude Include="PvZ2\ChomperProps.h" />
+    <ClInclude Include="PvZ2\ZombieModernDolphinRider.h" />
+    <ClInclude Include="PvZ2\ZombieModernDolphinRiderProps.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_ModernDolphinRider.h" />
   </ItemGroup>
 </Project>

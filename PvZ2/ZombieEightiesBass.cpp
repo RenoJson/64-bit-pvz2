@@ -11,7 +11,8 @@
 
 void* ZombieEightiesBass::vftable = nullptr;
 Sexy::RtClass* ZombieEightiesBass::s_rtClass = nullptr;;
-typedef void (*zombieEnterState)(Zombie*, int, int);
+typedef void (*zombieEnterState)(Zombie*, int, int); 
+typedef Zombie* (*setEffectAnim)(Zombie*, const char*, const char*, const char*, SexyVector3*, uint, bool, bool, uint);
 typedef int (*playAnimWithCallback)(ZombieAnimRig*, const SexyString&, int, ZombieEvent& event);
 typedef ZombieEvent* (*ConstructEvent)(ZombieEvent*, RtWeakPtr<Zombie>& owner, const SexyString& eventName);
 typedef Zombie* (*zombieFlippedAnim)(Zombie*, int);
@@ -69,10 +70,27 @@ bool BassShouldIgnoreCollision(ZombieEightiesBass* zombie, Projectile* proj)
 }
 Zombie* BassActivateJam(ZombieEightiesBass* zombie) {
     zombie->m_isJamming = true;
+    if(zombie->m_isRifting == true){
+        setEffectAnim setAnim = (setEffectAnim)getActualOffset(0x7BF03C);
+		SexyVector3 transformOffset = { 20.0f, -30.0f, 0.0f };
+        if (zombie->m_attachedEffects.GetObjectIndex("rifting_idle") == -1) {
+            setAnim(zombie, "rifting_idle", "POPANIM_EFFECTS_ZOMBIE_POTION_EFFECT", "idle", &transformOffset, -1, false, false, 2);
+        }
+	}
     return zombie;
 }
 Zombie* BassDeactivateJam(ZombieEightiesBass* zombie) {
     zombie->m_isJamming = false;
+    if (zombie->m_isRifting == true) {
+        typedef int (*removeEffectAnim)(AttachedEffectManager*, const SexyString&);
+        removeEffectAnim removeAnim = (removeEffectAnim)getActualOffset(0x662360);
+        removeAnim(&zombie->m_attachedEffects, "rifting_idle");
+        setEffectAnim setAnim = (setEffectAnim)getActualOffset(0x7BF03C);
+        SexyVector3 transformOffset = { 20.0f, -30.0f, 0.0f };
+        if (zombie->m_attachedEffects.GetObjectIndex("rifting_end") == -1) {
+            setAnim(zombie, "rifting_end", "POPANIM_EFFECTS_ZOMBIE_POTION_EFFECT", "over", &transformOffset, -1, true, false, 2);
+        }
+    }
     return zombie;
 }
 SexyString BassGetJamStyle(ZombieEightiesBass* zombie) {
@@ -316,6 +334,17 @@ void ZombieEightiesBass::GuitarIdleOnExit(ZombieEightiesBass* zombie)
 
 void ZombieEightiesBass::GuitarBreakOnEnter(ZombieEightiesBass* zombie)
 {
+    if (zombie->m_isRifting == true) {
+        typedef int (*removeEffectAnim)(AttachedEffectManager*, const SexyString&);
+        removeEffectAnim removeAnim = (removeEffectAnim)getActualOffset(0x662360);
+        removeAnim(&zombie->m_attachedEffects, "rifting_idle");
+        setEffectAnim setAnim = (setEffectAnim)getActualOffset(0x7BF03C);
+        SexyVector3 transformOffset = { 20.0f, -30.0f, 0.0f };
+        if (zombie->m_attachedEffects.GetObjectIndex("rifting_end") == -1) {
+            setAnim(zombie, "rifting_end", "POPANIM_EFFECTS_ZOMBIE_POTION_EFFECT", "over", &transformOffset, -1, true, false, 2);
+        }
+		zombie->m_isRifting = false;
+    }
 	RegisterEventAfterAnim(zombie, "attack_off", "onBreakingCompleted");
 }
 
