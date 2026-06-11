@@ -42,6 +42,8 @@ public:
 	static void buildSymbols(Reflection::CRefManualSymbolBuilder* builder, Reflection::RClass* rclass)
 	{
 		oZombieBullPropsBuildSymbols(builder, rclass);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullProps, BullRunAgainDelay);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullProps, BullRammingDamage);
 		RT_CLASS_REGISTER_STRING_PROPERTY(ZombieBullProps, RiderType);
 		RT_CLASS_REGISTER_STRING_VECTOR_PROPERTY(ZombieBullProps, RiderLayersToHide);
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullProps, LaunchDistance);

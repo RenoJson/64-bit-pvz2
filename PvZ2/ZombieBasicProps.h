@@ -6,7 +6,7 @@
 class ZombieBasicProps : public ZombiePropertySheet
 {
 public:
-	Sexy::RtWeakPtr<ZombieAnimRigTemplateConfig> CustomAnimRigPropertySheet;
+	Sexy::RtWeakPtr<ZombieAnimRigTemplateConfig> AnimRigProps;
 	SexyString ShockAnimName = "POPANIM_EFFECTS_ZOMBIE_SHOCK";
 	SexyString AshAnimName = "POPANIM_EFFECTS_ZOMBIE_ASH";
 	static void* vftable;
@@ -17,7 +17,7 @@ public:
 	RT_CLASS_CONSTRUCT_FUNCTION_END();
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombiePropertySheet);
-	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(ZombieBasicProps, CustomAnimRigPropertySheet, ZombieAnimRigTemplateConfig)
+	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(ZombieBasicProps, AnimRigProps, ZombieAnimRigTemplateConfig)
 	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieBasicProps, ShockAnimName);
 	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieBasicProps, AshAnimName);
 	RT_CLASS_BUILD_SYMBOLS_END();

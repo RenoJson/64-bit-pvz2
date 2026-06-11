@@ -230,7 +230,7 @@ void BoxExplosion(ZombieModernJackInTheBox* zombie) {
         }
     }
 }
-void BoxActionFrame(ZombieModernJackInTheBox* zombie, int64_t unk1, SexyString* actionName, int64_t unk2, SexyString* currentAnim)
+void BoxActionFrame(ZombieModernJackInTheBox* zombie, SexyString* currentAnim, SexyString* actionName, SexyString* param, float nextFrameTime)
 {
     if (*actionName == "explode" && !zombie->m_isExploded)
     {

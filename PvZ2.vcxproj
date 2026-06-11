@@ -215,6 +215,7 @@
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestPiggyProps.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestVendor.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestVendorProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieLostCityTorchGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieModernAllStar.cpp" />
     <ClCompile Include="PvZ2\ZombieModernBalloon.cpp" />
     <ClCompile Include="PvZ2\ZombieModernBerserkerProps.cpp" />
@@ -257,7 +258,6 @@
     <ClInclude Include="PvZ2\AudioMgr.h" />
     <ClInclude Include="PvZ2\Board.h" />
     <ClInclude Include="PvZ2\BoardEntity.h" />
-    <ClInclude Include="PvZ2\CavalryLegacy.h" />
     <ClInclude Include="PvZ2\Chairracer.h" />
     <ClInclude Include="PvZ2\ChomperProps.h" />
     <ClInclude Include="PvZ2\Collectable.h" />
@@ -341,6 +341,7 @@
     <ClInclude Include="PvZ2\ZombieFutureJetpack.h" />
     <ClInclude Include="PvZ2\ZombieGargantuar.h" />
     <ClInclude Include="PvZ2\ZombieGargantuarProps.h" />
+    <ClInclude Include="PvZ2\ZombieHelper.h" />
     <ClInclude Include="PvZ2\ZombieImp.h" />
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestPiggy.h" />
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestPiggyProps.h" />
@@ -390,6 +391,7 @@
     <ClInclude Include="Sexy\Graphics.h" />
     <ClInclude Include="Sexy\Image.h" />
     <ClInclude Include="Sexy\IResStreamDriver.h" />
+    <ClInclude Include="Sexy\LawnApp.h" />
     <ClInclude Include="Sexy\LazySingleton.h" />
     <ClInclude Include="Sexy\MTRand.h" />
     <ClInclude Include="Sexy\PopAnim.h" />
@@ -400,6 +402,7 @@
     <ClInclude Include="Sexy\RtReflectionDelegateBase.h" />
     <ClInclude Include="Sexy\RtWeakPtr.h" />
     <ClInclude Include="Sexy\ScrollListener.h" />
+    <ClInclude Include="Sexy\SexyApp.h" />
     <ClInclude Include="Sexy\SliderListener.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

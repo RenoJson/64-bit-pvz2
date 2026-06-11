@@ -8,7 +8,7 @@ Sexy::RtClass* ZombieBasicTemplate::s_rtClass = __null;;
 
 Zombie* BInitialize(ZombieBasicTemplate* zombie) {
 	auto props = reinterpret_cast<ZombieBasicProps*>(zombie->m_propertySheet.Get());
-	auto rigProps = reinterpret_cast<ZombieAnimRigTemplateConfig*>(props->CustomAnimRigPropertySheet.Get());
+	auto rigProps = reinterpret_cast<ZombieAnimRigTemplateConfig*>(props->AnimRigProps.Get());
 	auto rig = reinterpret_cast<ZombieAnimRig_BasicTemplate*>(zombie->m_animRig.Get());
 	rig->m_UpperArmLayers = rigProps->UpperArmLayers;
 	rig->m_IdleAnimName = rigProps->IdleAnimName;

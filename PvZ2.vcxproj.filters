@@ -143,6 +143,7 @@
     <ClCompile Include="PvZ2\ZombieModernDolphinRider.cpp" />
     <ClCompile Include="PvZ2\ZombieModernDolphinRiderProps.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernDolphinRider.cpp" />
+    <ClCompile Include="PvZ2\ZombieLostCityTorchGargantuar.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -215,7 +216,6 @@
     <ClInclude Include="Sexy\LazySingleton.h" />
     <ClInclude Include="PvZ2\ZombieSpawnerProjectile.h" />
     <ClInclude Include="PvZ2\ZombieFutureJetpack.h" />
-    <ClInclude Include="PvZ2\CavalryLegacy.h" />
     <ClInclude Include="PvZ2\ZombieModernPogo.h" />
     <ClInclude Include="PvZ2\ZombieModernPogoProps.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_ModernPogo.h" />
@@ -237,5 +237,8 @@
     <ClInclude Include="PvZ2\ZombieModernDolphinRider.h" />
     <ClInclude Include="PvZ2\ZombieModernDolphinRiderProps.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_ModernDolphinRider.h" />
+    <ClInclude Include="Sexy\LawnApp.h" />
+    <ClInclude Include="Sexy\SexyApp.h" />
+    <ClInclude Include="PvZ2\ZombieHelper.h" />
   </ItemGroup>
 </Project>

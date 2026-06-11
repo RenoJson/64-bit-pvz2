@@ -9,35 +9,22 @@ public:
 	virtual void Function0() {};
 	virtual void Function1() {};
 	virtual void Function2() {};
-	virtual DelegatesVec& GetListenersForMessage(int msgId) {};
+	virtual DelegatesVec& GetListenersForMessage(void* msgId) {};
 
 	template <typename T, typename F>
-	void RegisterCallback(int msgId, T& obj, F func)
+	void RegisterCallback(void* msgId, T& obj, F func)
 	{
 		auto dlgt = Sexy::make_delegate(func, obj);
-		typedef void(*registerFunc)(MessageRouter*, int, void*);
-		registerFunc pFunc = (registerFunc)getActualOffset(0x5FDA54);
-		pFunc(this, msgId, &dlgt);
-	}
-
-	template <typename T, typename F>
-	void RegisterCallback(int msgId, T* obj, F func)
-	{
-		auto dlgt = Sexy::make_delegate(func, *obj);
-		typedef void(*registerFunc)(MessageRouter*, int, void*);
-		registerFunc pFunc = (registerFunc)getActualOffset(0x5FDA54);
-		pFunc(this, msgId, &dlgt);
+		CallFunc<void, MessageRouter*, void*, void*>(0x96C4D8, this, msgId, &dlgt);
 	}
 
 	void DeregisterCallbacksOwnedByObject(void* obj)
 	{
-		typedef void(*deregisterFunc)(MessageRouter*, void*);
-		deregisterFunc pFunc = (deregisterFunc)getActualOffset(0x5FDE64);
-		pFunc(this, obj);
+		CallFunc<void, MessageRouter*, void*>(0x96CAD4, this, obj);
 	}
 
 	template <typename... Params>
-	int ExecuteMessage(int msgId, Params... args)
+	void ExecuteMessage(void* msgId, Params... args)
 	{
 		DelegatesVec& listeners = GetListenersForMessage(msgId);
 
@@ -53,37 +40,21 @@ public:
 
 			// Unholy
 			dlgt.executeCallbackFunc_(&dlgt, args...);
-
-			// TODO: Revise this to actually use the proper delegate system
-			/*
-			Sexy::DelegateBase* a = (Sexy::DelegateBase*)&dlgt;
-
-			using foo = void(*)(uint, Params...);
-			uint callbackAddr = a->callbackFunc;
-			if (a->useOwnerVtable) {
-				callbackAddr = *(uint*)a->callbackOwner + a->callbackFunc;
-			}
-			foo callback = reinterpret_cast<foo>(callbackAddr);
-
-			callback(a->callbackOwner, args...);
-			*/
 		}
 
 		int result = unk - 1;
 		m_unkInt = result;
 		if (!result)
 		{
-			typedef int(*func)(MessageRouter*);
-			func pFunc = (func)getActualOffset(0x5FDDE0);
-			return pFunc(this);
+			return CallFunc<void, MessageRouter*>(0x96C98C, this);
 		}
-		return result;
 	}
 
 	static MessageRouter* GetInstance()
 	{
-		return *(MessageRouter**)getActualOffset(0x5F1AC0);
+		return *(MessageRouter**)getActualOffset(0x2513070);
 	}
+
 private:
 	int m_unk[9];
 	int m_unkInt;

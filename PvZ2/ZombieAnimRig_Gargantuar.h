@@ -8,6 +8,12 @@ public:
 	static void modInit();
 };
 
+class ZombieAnimRig_LostCityGargantuar : public ZombieAnimRig_Gargantuar
+{
+public:
+	bool m_hasTorch = true;
+};
+
 class ZombieAnimRig_FairyTaleGargantuar : public ZombieAnimRig_Gargantuar
 {
 public:

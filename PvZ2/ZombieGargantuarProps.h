@@ -52,3 +52,22 @@ public:
     RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieFairyTaleGargantuarProps);
     RT_CLASS_GET_CLASS_FUNCTION(ZombieFairyTaleGargantuarProps, 0xDAA338);
 };
+
+class ZombieLostCityGargantuarProps : public ZombieGargantuarProps
+{
+public:
+    float MaxTorchReach = 37.0f;
+    static void* vftable;
+    static Sexy::RtClass* s_rtClass;
+    static void modInit();
+
+    RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(ZombieLostCityGargantuarProps, 0xC136A4);
+    RT_CLASS_CONSTRUCT_FUNCTION_END();
+
+    RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombieGargantuarProps);
+    RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieLostCityGargantuarProps, MaxTorchReach);
+    RT_CLASS_BUILD_SYMBOLS_END();
+
+    RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieLostCityGargantuarProps);
+    RT_CLASS_GET_CLASS_FUNCTION(ZombieLostCityGargantuarProps, 0xDAA338);
+};

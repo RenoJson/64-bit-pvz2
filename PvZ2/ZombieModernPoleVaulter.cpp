@@ -1,6 +1,7 @@
 ﻿
 #include "ZombieModernPoleVaulter.h"
 #include "ZombieStateHelper.h"
+#include "ZombieHelper.h"
 #include "ZombieModernPoleVaulterProps.h"
 #include "ZombieState.h"
 #include "StateMachineBuilder.h"
@@ -8,13 +9,8 @@
 #include "Plant.h"
 
 void* ZombieModernPoleVaulter::vftable = nullptr; 
-Sexy::RtClass* ZombieModernPoleVaulter::s_rtClass = nullptr;;
-typedef void (*zombieEnterState)(ZombieModernPoleVaulter*, int, int);
-typedef Zombie* (*zombieAllowMovement)(Zombie*, int);
-typedef void (*LoopWalk)(ZombieModernPoleVaulter*);
-typedef Plant* (*getTarg)(ZombieModernPoleVaulter*);
-typedef bool (*isDeadOrDying)(ZombieModernPoleVaulter*);
-typedef void (*setSpeed)(ZombieAnimRig_ModernPoleVaulter*, float);
+Sexy::RtClass* ZombieModernPoleVaulter::s_rtClass = nullptr;
+
 DECLARE_DELEGATES_SETUP(ZombieModernPoleVaulter)
 
 static Sexy::DelegateBase jumpingCompletedDelegate;
@@ -38,9 +34,8 @@ void PoleOnSpawn(ZombieModernPoleVaulter* zombie)
 {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPoleVaulter*>(zombie->m_animRig.Get());
 	rig->m_hasPole = true;
-	typedef void (*zombieFun49)(ZombieModernPoleVaulter*);
-	((zombieFun49)getActualOffset(0xC3D1F0))(zombie); 
-	((setSpeed)getActualOffset(0x8DDAA4))(rig, PoleGetWalkSpeed(zombie));
+	ZombieOnSpawn(zombie);
+	SetWalkSpeed(rig, PoleGetWalkSpeed(zombie));
 }
 
 bool PoleIsBeingTossedByPlant(ZombieModernPoleVaulter* zombie, int a2) {
@@ -54,9 +49,8 @@ bool PoleIsBeingTossedByPlant(ZombieModernPoleVaulter* zombie, int a2) {
 
 void PoleWalkOnLoop(ZombieModernPoleVaulter* zombie)
 {
-	isDeadOrDying isDeadFunc = (isDeadOrDying)getActualOffset(0xC3E204);
-	if (isDeadFunc(zombie)) {
-		((LoopWalk)getActualOffset(0xC506B4))(zombie);
+	if (ZombieIsDeadOrDying(zombie)) {
+		CallFunc<void, ZombieModernPoleVaulter*>(0xC506B4, zombie);
 		return;
 	}
 
@@ -64,7 +58,7 @@ void PoleWalkOnLoop(ZombieModernPoleVaulter* zombie)
 
 	if (rig != nullptr && rig->m_hasPole == true)
 	{
-		((setSpeed)getActualOffset(0x8DDAA4))(rig, PoleGetWalkSpeed(zombie));
+		SetWalkSpeed(rig, PoleGetWalkSpeed(zombie));
 
 		auto* props = reinterpret_cast<ZombieModernPoleVaulterProps*>(zombie->m_propertySheet.Get());
 		float zX = zombie->m_position.x;
@@ -83,59 +77,69 @@ void PoleWalkOnLoop(ZombieModernPoleVaulter* zombie)
 		GetEntitiesInRectPixelFunc getEntitiesRectPixel = (GetEntitiesInRectPixelFunc)getActualOffset(0x86F340);
 
 		getEntitiesRectPixel(&entityList, 38, &jumpRect, zRow, zRow);
-		PlantGroup* targetPlantGroup = nullptr;
-		for (BoardEntity* ptr : entityList) {
-			if (ptr != nullptr && ptr->IsType(PlantGroup::StaticGetType())) {
-				targetPlantGroup = reinterpret_cast<PlantGroup*>(ptr);
-				break; 
-			}
-		}
-		if (targetPlantGroup != nullptr)
-		{
-			typedef void (*zombieEnterState)(ZombieModernPoleVaulter*, int, int);
-			zombieEnterState enterStateFunc = (zombieEnterState)getActualOffset(0xC3D428);
+		bool foundObstacle = false;
+		BoardEntityHeight finalHeight = BoardEntityHeight::low; 
 
-			bool hasTallPlant = false;
-			for (auto& weakPlant : targetPlantGroup->m_plants.m_plants)
-			{
-				Plant* p = weakPlant.Get();
-				if (p != nullptr)
-				{
-					auto* pProps = reinterpret_cast<PlantPropertySheet*>(p->m_propertySheet.Get());
-					if (pProps != nullptr && pProps->Height == BoardEntityHeight::tall)
-					{
-						hasTallPlant = true;
-						break;
+		for (BoardEntity* entity : entityList) {
+			if (entity == nullptr) continue;
+
+			BoardEntityHeight currentHeight = BoardEntityHeight::low;
+
+			if (entity->IsType(PlantGroup::StaticGetType())) {
+				PlantGroup* plantGroup = reinterpret_cast<PlantGroup*>(entity);
+
+				for (auto& weakPlant : plantGroup->m_plants.m_plants) {
+					Plant* p = weakPlant.Get();
+					if (p != nullptr) {
+						auto* pProps = reinterpret_cast<PlantPropertySheet*>(p->m_propertySheet.Get());
+						if (pProps != nullptr) {
+							foundObstacle = true;
+							if (pProps->Height == BoardEntityHeight::tall) {
+								currentHeight = BoardEntityHeight::tall;
+								break; 
+							}
+							else if (pProps->Height == BoardEntityHeight::normal) {
+								currentHeight = BoardEntityHeight::normal;
+							}
+						}
 					}
 				}
-			}
-
-			if (hasTallPlant) {
-				((zombieEnterState)getActualOffset(0xC3D428))(zombie, 17, 0);
 			}
 			else {
-				if (props->Feastivus == true) {
-					if (rand() % 2 == 0) {
-						((zombieEnterState)getActualOffset(0xC3D428))(zombie, 16, 0);
-					}
-					else {
-						((zombieEnterState)getActualOffset(0xC3D428))(zombie, 18, 0);
-					}
-				}
-				else {
-					((zombieEnterState)getActualOffset(0xC3D428))(zombie, 16, 0);
-				}
+				typedef BoardEntityHeight(*GetEntityHeight)(BoardEntity*);
+				currentHeight = ((GetEntityHeight)(*(void***)entity)[45])(entity);
+				foundObstacle = true;
 			}
 
-			return;
+			if (currentHeight == BoardEntityHeight::tall) {
+				finalHeight = BoardEntityHeight::tall;
+				break; 
+			}
+			else if (currentHeight == BoardEntityHeight::normal && finalHeight == BoardEntityHeight::low) {
+				finalHeight = BoardEntityHeight::normal;
+			}
+		}
+
+		if (foundObstacle) {
+			if (finalHeight == BoardEntityHeight::tall) {
+				ZombieEnterState(zombie, 17, 0);
+			}
+			else if (finalHeight == BoardEntityHeight::normal || finalHeight == BoardEntityHeight::low) {
+				if (props->Feastivus == true) {
+					ZombieEnterState(zombie, (rand() % 2 == 0) ? 16 : 18, 0); 
+				}
+				else {
+					ZombieEnterState(zombie, 16, 0); 
+				}
+			}
 		}
 	}
-	((LoopWalk)getActualOffset(0xC506B4))(zombie);
+	CallFunc<void, ZombieModernPoleVaulter*>(0xC506B4, zombie);
 }
 
 void ZombieModernPoleVaulter::JumpOnEnter(ZombieModernPoleVaulter* zombie)
 {
-	((zombieAllowMovement)getActualOffset(0xC51F94))(zombie, 1);
+	ZombieAllowMovement(zombie, true);
 	return RegisterEventAfterAnim(zombie, "jump", "onJumpingCompleted");
 }
 void ZombieModernPoleVaulter::JumpOnLoop(ZombieModernPoleVaulter* zombie)
@@ -149,7 +153,7 @@ void ZombieModernPoleVaulter::JumpOnExit(ZombieModernPoleVaulter* zombie)
 
 void ZombieModernPoleVaulter::BonkOnEnter(ZombieModernPoleVaulter* zombie)
 {
-	((zombieAllowMovement)getActualOffset(0xC51F94))(zombie, 1);
+	ZombieAllowMovement(zombie, true);
 	return RegisterEventAfterAnim(zombie, "jump_tallnut", "onBonkingCompleted");
 }
 
@@ -164,7 +168,7 @@ void ZombieModernPoleVaulter::BonkOnExit(ZombieModernPoleVaulter* zombie)
 }
 void ZombieModernPoleVaulter::FarJumpOnEnter(ZombieModernPoleVaulter* zombie)
 {
-	((zombieAllowMovement)getActualOffset(0xC51F94))(zombie, 1);
+	ZombieAllowMovement(zombie, true);
 	return RegisterEventAfterAnim(zombie, "jump_cobcannon", "onFarJumpingCompleted");
 }
 void ZombieModernPoleVaulter::FarJumpOnLoop(ZombieModernPoleVaulter* zombie)
@@ -180,8 +184,8 @@ void JumpingCompletedCallback(Zombie* zombie) {
 	ZombieModernPoleVaulter* poleZombie = static_cast<ZombieModernPoleVaulter*>(zombie);
 	if (poleZombie) {
 		rig->m_hasPole = false;
-		((zombieEnterState)getActualOffset(0xC3D428))(poleZombie, 1, 0);
-		((setSpeed)getActualOffset(0x8DDAA4))(rig, PoleGetWalkSpeed(poleZombie));
+		ZombieEnterState(poleZombie, 1, 0);
+		SetWalkSpeed(rig, PoleGetWalkSpeed(poleZombie));
 	}
 }
 void BonkingCompletedCallback(Zombie* zombie) {
@@ -189,8 +193,8 @@ void BonkingCompletedCallback(Zombie* zombie) {
 	ZombieModernPoleVaulter* poleZombie = static_cast<ZombieModernPoleVaulter*>(zombie);
 	if (poleZombie) {
 		rig->m_hasPole = false;
-		((zombieEnterState)getActualOffset(0xC3D428))(poleZombie, 1, 0);
-		((setSpeed)getActualOffset(0x8DDAA4))(rig, PoleGetWalkSpeed(poleZombie));
+		ZombieEnterState(poleZombie, 1, 0);
+		SetWalkSpeed(rig, PoleGetWalkSpeed(poleZombie));
 	}
 }
 void FarJumpingCompletedCallback(Zombie* zombie) {
@@ -198,8 +202,8 @@ void FarJumpingCompletedCallback(Zombie* zombie) {
 	ZombieModernPoleVaulter* poleZombie = static_cast<ZombieModernPoleVaulter*>(zombie);
 	if (poleZombie) {
 		rig->m_hasPole = false;
-		((zombieEnterState)getActualOffset(0xC3D428))(poleZombie, 1, 0);
-		((setSpeed)getActualOffset(0x8DDAA4))(rig, PoleGetWalkSpeed(poleZombie));
+		ZombieEnterState(poleZombie, 1, 0);
+		SetWalkSpeed(rig, PoleGetWalkSpeed(poleZombie));
 	}
 }
 void ZombieModernPoleVaulter::ModInit() {

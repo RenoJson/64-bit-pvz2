@@ -122,6 +122,17 @@ void LanceSpawn(ZombieDarkCavalry* self)
         spawnPosX = (int)(((rawPosX - 232.0f) / 64.0f));
         spawnPosY = (int)(((rawPosY - 160.0f) / 76.0f));
 
+        PlantGroup* group = static_cast<PlantGroup*>(target);
+
+        for (auto& weakPlantPtr : group->m_plants.m_plants)
+        {
+            Plant* plant = weakPlantPtr.Get();
+            if (plant == nullptr) continue;
+            bool isInvincible = CallFunc<bool, PlantFramework*>(0x7C8E58, plant->m_plantFramework);
+            if (plant->m_isInPlantFoodState || isInvincible) {
+                continue;
+            }
+        }
 
         DamageInfo dmg;
         dmg.m_attacker = self;

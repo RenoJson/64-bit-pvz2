@@ -23,6 +23,7 @@ namespace Sexy
 
 		SexyVector2() : x(0), y(0) {};
 		SexyVector2(float theX, float theY) : x(theX), y(theY) {};
+		~SexyVector2() {}
 	};
 
 	struct SexyVector3
@@ -31,6 +32,7 @@ namespace Sexy
 
 		SexyVector3() : x(0), y(0), z(0) {};
 		SexyVector3(float theX, float theY, float theZ) : x(theX), y(theY), z(theZ) {};
+		~SexyVector3() {}
 	};
 
 	struct Rect

@@ -9,6 +9,7 @@ enum MessageId
 	DisableProgressMeter = -1,
 	SurvivalLevelEnded = -2,
 	NextWaveProgressMsg = 0x5672FC,
+	ExplorerMsg = 0xB1D100,
 	LevelStartMsg = 0x2ACC78
 };
 

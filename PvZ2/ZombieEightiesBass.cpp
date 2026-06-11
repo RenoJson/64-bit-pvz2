@@ -157,27 +157,8 @@ void BassActionFrame(ZombieEightiesBass* zombie, int64_t unk1, SexyString* actio
                 {
                     Plant* plant = weakPlantPtr.Get();
                     if (plant == nullptr) continue;
-
-                    if (plant->m_isInPlantFoodState) {
-                        continue; 
-                    }
-
-                    bool isUnkillable = false;
-
-                    auto* plantType = reinterpret_cast<PlantType*>(plant->m_type.Get());
-
-                    if (plantType != nullptr) {
-                        SexyString plantTypeName = plantType->TypeName; 
-
-                        for (const SexyString& safePlant : props->UnkillablePlant) {
-                            if (plantTypeName == safePlant) {
-                                isUnkillable = true;
-                                break; 
-                            }
-                        }
-                    }
-
-                    if (isUnkillable) {
+                    bool isInvincible = CallFunc<bool, PlantFramework*>(0x7C8E58, plant->m_plantFramework);
+                    if (plant->m_isInPlantFoodState || isInvincible) {
                         continue; 
                     }
 

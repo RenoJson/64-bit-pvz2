@@ -7,6 +7,7 @@
 #include "Main.h"
 
 #include "PvZ2/Board.h"
+#include "Sexy/LawnApp.h"
 #include "PvZ2/AudioMgr.h"
 #include "PvZ2/WorldMap.h"
 #include "PvZ2/NamedFlagWithId.h"
@@ -507,7 +508,7 @@ getGLTextureTotalSize oGetGLTextureTotalSize = nullptr;
 
 uint hkGetGLTextureTotalSize(IResStreamDriver* resStreamDriver, PTXInfo* ptxInfo) {
     if (ptxInfo->format == 150) {
-        LOGI("Decode format 150, texture size = %d %d", ptxInfo->width, ptxInfo->height);
+        //LOGI("Decode format 150, texture size = %d %d", ptxInfo->width, ptxInfo->height);
         return ptxInfo->width * ptxInfo->height;
     }
     return oGetGLTextureTotalSize(resStreamDriver, ptxInfo);
@@ -560,6 +561,44 @@ uint hkLoadAndDecode(AndroidDecodeTask* decodeTask) {
     }
 }
 #pragma endregion
+#pragma region Seed Chooser Camera Fix
+enum AspectRatio
+{
+    Letterbox,
+    Widescreen,
+    Ultrawide,
+};
+
+AspectRatio GetAspectRatio()
+{
+    float ratio = (float)LawnApp::GetInstance()->mWidth / LawnApp::GetInstance()->mHeight;
+    if (ratio <= 1.4f)
+    {
+        return Letterbox;
+    }
+    else if (ratio >= 1.41f && ratio <= 1.85f)
+    {
+        return Widescreen;
+    }
+    else if (ratio >= 1.86f)
+    {
+        return Ultrawide;
+    }
+}
+typedef void (*BoardRender)(Board*);
+BoardRender oBoardRender = nullptr;
+void hkBoardRender(Board* thisPtr)
+{
+	oBoardRender(thisPtr);
+    if (GetAspectRatio() == Ultrawide)
+    {
+        float adjustedResolution = thisPtr->m_backdropResolutionX - (thisPtr->m_backdropResolutionX * -0.41f);
+        thisPtr->m_backdropCameraRenderScale = 1.22f;
+        thisPtr->m_backdropResolutionX = adjustedResolution;
+        return;
+    }
+}
+#pragma endregion
 __attribute__((constructor))
 // This is automatically executed when the lib is loaded
 // Run your initialization code here
@@ -585,27 +624,19 @@ void libChair_main()
     PVZ2HookFunction(0x677B40, (void*)hkZombieConditionTrackerUpdate, (void**)&oZombieConditionTrackerUpdate);
     PVZ2HookFunction(0xA9E25C, (void*)hkBoardWaveFunc, (void**)&oBoardWaveFunc);
     PVZ2HookFunction(0xC1D1FC, (void*)hkInitZombiePianoList, (void**)&oInitZombiePianoList);
+    PVZ2HookFunction(0xAA0C40, (void*)hkBoardRender, (void**)&oBoardRender);
     PVZ2HookFunction(0x168D580, (void*)hkLoadAndDecode, (void**)&oLoadAndDecode);
     PVZ2HookFunction(0x176D6CC, (void*)hkGetGLTextureTotalSize, (void**)&oGetGLTextureTotalSize);
 
-    ZombieCamelProps::modInit();
-    ZombieCamelTouchProps::modInit();
     ZombiePharaoh::ModInit();// free stuff
     ZombieModernSuperfanImpProps::modInit();// free stuff
     ZombieBullProps::modInit();// free stuff
     ZombieBullVeteranProps::modInit();// free stuff
     ZombieZcorpRacerProps::modInit();// free stuff
-    ZombieFairyTaleImp::modInit();
-    ZombieFairyTaleImpProps::modInit();
     ZombieAnimRig_ModernAllStar::modInit();// free stuff
-    ZombieAnimRig_JourneyToTheWestAllStar::modInit();
     ZombieAnimRig_EightiesPunk::modInit();// free stuff
     ZombieAnimRig_Consultant::modInit();// free stuff
-    ZombieAnimRig_JourneyToTheWestTrident::modInit();
     ZombieAnimRig_Gargantuar::modInit();// free stuff
-    ZombieAnimRig_FairyTaleGargantuar::modInit();
-    ZombieJourneyToTheWestGargantuar::modInit();
-    ZombieAnimRig_JourneyToTheWestGargantuar::modInit();
     ZombiePirateBoomBarrel::modInit();// free stuff
     ZombieAnimRig_PirateBoomBarrel::modInit();// free stuff
     DangerRoomFallenKnightDesigner::modInit();// free stuff
@@ -614,19 +645,39 @@ void libChair_main()
     ZombieAnimRig_ModernBalloon::modInit();// free stuff
     ZombieJourneyToTheWestBalloon::modInit();   // free stuff
     ZombieJourneyToTheWestBalloonProps::modInit();// free stuff
+    ZombieAnimRigTemplateConfig::modInit();// free stuff
+    ZombieDarkCavalry::modInit();// free stuff
+    ZombieDarkCavalryProps::modInit();// free stuff
+    ZombieBasicTemplate::modInit();// free stuff
+    ZombieBasicProps::modInit();// free stuff
+    ZombieAnimRig_BasicTemplate::modInit();// free stuff
+    ZombieModernPoleVaulter::ModInit();// free stuff
+    ZombieAnimRig_ModernPoleVaulter::modInit();// free stuff
+    ZombieModernPoleVaulterProps::modInit();// free stuff
+    ZombieModernBerserkerProps::modInit(); //free stuff
+    ZombieModernBerserker::ModInit(); //free stuff
+    ZombieLostCityTorchGargantuar::modInit();// free stuff
+    ZombieLostCityGargantuarProps::modInit();// free stuff
+
+    ZombieCamelProps::modInit();
+    ZombieCamelTouchProps::modInit();
+    ZombieFairyTaleImp::modInit();
+    ZombieFairyTaleImpProps::modInit();
+    ZombieAnimRig_JourneyToTheWestAllStar::modInit();
+    ZombieAnimRig_JourneyToTheWestTrident::modInit();
+    ZombieAnimRig_FairyTaleGargantuar::modInit();
+    ZombieJourneyToTheWestGargantuar::modInit();
+    ZombieAnimRig_JourneyToTheWestGargantuar::modInit();
     ZombieJourneyToTheWestVendor::ModInit();
     ZombieJourneyToTheWestVendorProps::modInit();
     ZombieAnimRig_Vendor::modInit();
     ZombieJourneyToTheWestPiggy::ModInit();
     ZombieJourneyToTheWestPiggyProps::modInit();
     ZombieJourneyToTheWestGargantuarProps::modInit();
-    ZombieAnimRigTemplateConfig::modInit();// free stuff
     TimerExplosionProps::modInit();
     ZombieZCorpEnergyDrinker::modInit();
     ZombieZCorpEnergyDrinkerProps::modInit();
     ZombieAnimRig_EnergyDrinker::modInit();
-    ZombieDarkCavalry::modInit();// free stuff
-    ZombieDarkCavalryProps::modInit();// free stuff
     FrogProjectile::ModInit();
     ZombieAnimRig_FairyTaleWitch::modInit();
     ZombieFairyTaleWitch::modInit();
@@ -634,14 +685,8 @@ void libChair_main()
     ZombieAnimRig_FairyTaleImp::modInit();
     ZombieFairyTaleGargantuar::modInit();
     ZombieFairyTaleGargantuarProps::modInit();
-    ZombieBasicTemplate::modInit();// free stuff
-    ZombieBasicProps::modInit();// free stuff
-    ZombieAnimRig_BasicTemplate::modInit();// free stuff
     ZombieCowboyBasicVeteran::modInit();
     ZombieCowboyVeteranProps::modInit();
-    ZombieModernPoleVaulter::ModInit();
-    ZombieAnimRig_ModernPoleVaulter::modInit();
-    ZombieModernPoleVaulterProps::modInit();
     ZombieModernJackInTheBoxProps::modInit();
     ZombieAnimRig_ModernJackInTheBox::modInit();
     ZombieModernJackInTheBox::ModInit();
@@ -660,8 +705,6 @@ void libChair_main()
     ZombieAnimRig_ModernScreenDoor::modInit();
     ZombieAnimRig_ModernScreenDoorAlmanac::modInit();
     ZombieModernScreenDoorProps::modInit();
-    ZombieModernBerserkerProps::modInit();
-    ZombieModernBerserker::ModInit();
     ZombieEightiesBassProps::modInit();
     ZombieEightiesBass::ModInit();
     ZombieAnimRig_EightiesBass::modInit();

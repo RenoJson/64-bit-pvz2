@@ -32,8 +32,8 @@ void* hkTakeDamage(Zombie* thisPtr, DamageInfo* damageInfo)
                     if (damageInfo->m_damage >= armor->m_health)
                     {
                         damageInfo->m_flags &= ~DamageTypeFlags::damage_bypass_shield;
-                        damageInfo->m_flags &= ~DamageTypeFlags::damage_ash_death;
-                        damageInfo->m_flags &= ~DamageTypeFlags::damage_fire;
+                        damageInfo->m_flags &= ~DamageTypeFlags::damage_hits_shield_and_body;
+                        damageInfo->m_flags != DamageTypeFlags::damage_hits_only_shield;
                         float calculatedDamage = armor->m_health;
 
                         if (thisPtr->m_damageScale > 0.001f)
