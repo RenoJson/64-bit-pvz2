@@ -9,6 +9,7 @@ public:
 	Rect LanceRect;
 	Rect RiderAttackRect;
 	float RiderAttackDamage = 1000.0f;
+	SexyString LanceType = "joustsword";
 
 	static void* vftable; 
 	static Sexy::RtClass* s_rtClass; 
@@ -30,6 +31,7 @@ public:
 	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieDarkCavalryProps, Rect, LanceRect);
 	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieDarkCavalryProps, Rect, RiderAttackRect);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieDarkCavalryProps, RiderAttackDamage);
+	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieDarkCavalryProps, LanceType);
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieDarkCavalryProps);

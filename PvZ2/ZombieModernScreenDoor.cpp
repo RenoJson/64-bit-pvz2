@@ -7,6 +7,7 @@
 #include "StateMachineBuilder.h"
 #include "Projectile.h"
 #include "Plant.h"
+#include "ZombieHelper.h"
 DECLARE_DELEGATES_SETUP(ZombieModernScreenDoor)
 
 static Sexy::DelegateBase lostDoorCompletedDelegate; 
@@ -35,7 +36,7 @@ Sexy::Rect ScreenDoorGetHitRect(ZombieModernScreenDoor* zombie) {
     Rect hitRect;
     float offsetX, offsetY;
 
-    if (((HasArmorFunc)getActualOffset(0xC3F2E4))(zombie, "ScreenDoor"))
+    if (ZombieHasArmor(zombie, "ScreenDoor"))
     {
         hitRect.mWidth = props->HitRectWhenHaveDoor.mWidth;
         hitRect.mHeight = props->HitRectWhenHaveDoor.mHeight;
@@ -52,7 +53,7 @@ Sexy::Rect ScreenDoorGetHitRect(ZombieModernScreenDoor* zombie) {
     float zX = zombie->m_position.x;
     float zY = zombie->m_position.y;
     float zZ = zombie->m_position.z;
-    float facing = DoorIsFacingOrNot(zombie);
+    float facing = ZombieFacing(zombie);
 
     hitRect.mX = static_cast<int>(zX - (hitRect.mWidth / 2.0f) + (facing * offsetX));
     int baseY = static_cast<int>((zY - zZ) - hitRect.mHeight + offsetY);
@@ -141,8 +142,7 @@ bool ScreenDoorBlockProjectile(ZombieModernScreenDoor* thisPtr, Projectile* proj
         return true;
     }
 
-    HasArmorFunc hasArmor = (HasArmorFunc)getActualOffset(0xC3F2E4);
-    if (hasArmor(thisPtr, "ScreenDoor") == true)
+    if (ZombieHasArmor(thisPtr, "ScreenDoor") == true)
     {
         bool isInVector = false;
 
@@ -173,7 +173,7 @@ bool ScreenDoorBlockProjectile(ZombieModernScreenDoor* thisPtr, Projectile* proj
             return true;
         }
 
-        bool NotCoward = (proj->m_velocity.x * proj->m_velocityScale.x > 0.0f != DoorIsFacingOrNot(thisPtr) < 0.0f);
+        bool NotCoward = (proj->m_velocity.x * proj->m_velocityScale.x > 0.0f != ZombieFacing(thisPtr) < 0.0f);
         if (!NotCoward)
         {
             int* projFlags = &proj->m_damageFlags;
@@ -194,7 +194,7 @@ Sexy::Rect ScreenDoorGetAttackRect(ZombieModernScreenDoor* zombie) {
     auto props = reinterpret_cast<ZombieModernScreenDoorProps*>(zombie->m_propertySheet.Get());
     Rect attackRect;
     float offsetX, offsetY;
-    if (((HasArmorFunc)getActualOffset(0xC3F2E4))(zombie, "ScreenDoor"))
+    if (ZombieHasArmor(zombie, "ScreenDoor"))
     {
         attackRect.mWidth = props->AttackRectWhenHaveDoor.mWidth;
         attackRect.mHeight = props->AttackRectWhenHaveDoor.mHeight;
@@ -210,7 +210,7 @@ Sexy::Rect ScreenDoorGetAttackRect(ZombieModernScreenDoor* zombie) {
     float zX = zombie->m_position.x;
     float zY = zombie->m_position.y;
     float zZ = zombie->m_position.z;
-    float facing = DoorIsFacingOrNot(zombie);
+    float facing = ZombieFacing(zombie);
 
     attackRect.mX = static_cast<int>(zX - (attackRect.mWidth / 2.0f) + (facing * offsetX));
     attackRect.mY = static_cast<int>((zY - zZ) - attackRect.mHeight + offsetY);
@@ -218,11 +218,10 @@ Sexy::Rect ScreenDoorGetAttackRect(ZombieModernScreenDoor* zombie) {
 }
 void DoorOnArmorDestroyed(ZombieModernScreenDoor* zombie, int a2, SexyString* armorName)
 {
-    isDeadOrDying isDeadFunc = (isDeadOrDying)getActualOffset(0xC3E204);
-    if (*armorName == "ScreenDoor" && !isDeadFunc(zombie)) {
+    if (*armorName == "ScreenDoor" && !ZombieIsDeadOrDying(zombie)) {
         auto rig = reinterpret_cast<ZombieAnimRig_ModernScreenDoor*>(zombie->m_animRig.Get());
         rig->m_hasDoor = false;
-        ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 16, 0);
+        ZombieEnterState(zombie, 16, 0);
     }
 }
 
@@ -231,8 +230,7 @@ GooPeaApplyPoisonFunc oGooPeaApply = nullptr;
 
 void hkGooPeaApplyPoison(void* proj, Zombie* zombie)
 {
-    HasArmorFunc hasArmor = (HasArmorFunc)getActualOffset(0xC3F2E4);
-    if (hasArmor(zombie, "ScreenDoor") == true || hasArmor(zombie, "Newspaper"))
+    if (ZombieHasArmor(zombie, "ScreenDoor") == true || ZombieHasArmor(zombie, "Newspaper"))
     {
         return;
     }
@@ -245,9 +243,7 @@ void ScreenDoorOnCreate(ZombieModernScreenDoor* zombie) {
 float ScreenDoorGetArmDropFraction(ZombieModernScreenDoor* zombie)
 {
     auto props = reinterpret_cast<ZombiePropertySheet*>(zombie->m_propertySheet.Get());
-    typedef bool (*HasArmorFunc)(Zombie*, const SexyString&);
-    bool hasDoor = ((HasArmorFunc)getActualOffset(0xC3F2E4))(zombie, "ScreenDoor");
-    if (hasDoor == false)
+    if (ZombieHasArmor(zombie, "ScreenDoor") == false)
     {
         return props->ArmDropFraction;
     }
@@ -271,9 +267,9 @@ void ZombieModernScreenDoor::LostDoorOnExit(ZombieModernScreenDoor* zombie)
 
 }
 void LostDoorCompletedCallback(Zombie* zombie) {
-    ZombieModernScreenDoor* boxZombie = static_cast<ZombieModernScreenDoor*>(zombie);
-    if (boxZombie) {
-        ((zombieEnterState)getActualOffset(0xC3D428))(boxZombie, 1, 0);
+    ZombieModernScreenDoor* doorZombie = static_cast<ZombieModernScreenDoor*>(zombie);
+    if (doorZombie) {
+        ZombieEnterState(doorZombie, 1, 0);
     }
 }
 void ZombieModernScreenDoor::ModInit() {

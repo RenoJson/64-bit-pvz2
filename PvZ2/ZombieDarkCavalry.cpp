@@ -10,6 +10,8 @@
 #include "StateMachineBuilder.h"
 #include "DamageInfo.h"
 #include "ZcorpRacerZombie.h"
+#include "AddGridItemType.h"
+#include "ZombieHelper.h"
 
 
 void* ZombieDarkCavalry::vftable = __null;
@@ -18,38 +20,26 @@ Sexy::RtClass* ZombieDarkCavalry::s_rtClass = __null;;
 DECLARE_DELEGATES_SETUP(ZombieDarkCavalry)
 static Sexy::DelegateBase attackCompletedDelegate;
 
-typedef void* (*playSoundEvent)(ZombieDarkCavalry*, SexyString*, float);
-typedef Zombie* (*zombieAllowMovement)(Zombie*, int);
-typedef Plant* (*getTarg)(ZombieDarkCavalry*);
 typedef bool (*isAnimDone)(ZombieAnimRig*, int);
 typedef int (*playAnimWithoutCallback)(ZombieAnimRig*, const SexyString&, int, DelegateBase&);
 typedef int (*playAnimWithCallback)(ZombieAnimRig*, const SexyString&, int, ZombieEvent& event);
 typedef ZombieEvent* (*ConstructEvent)(ZombieEvent*, RtWeakPtr<Zombie>& owner, const SexyString& eventName);
-typedef Zombie* (*zombieFlippedAnim)(Zombie*, int);
 
-typedef void (*zombieEnterState)(ZombieDarkCavalry*, int, int);
-typedef Zombie* (*updatePos)(ZombieDarkCavalry*, SexyVector3*);
-typedef bool (*checkZombieHasCondition)(Zombie*, int);
-
-typedef void (*setConditionZ)(Zombie*, int, int, float, float);
-
-typedef int (*boardEntitySetPosition)(Zombie*, SexyVector3*);
 // override func 49, 206 and 215 so that cavalry alway launch  when encountered a plant no matter its walk anim are done or not
 Zombie* overrideOnSpawn(ZombieDarkCavalry* zombie) {
     auto* props = reinterpret_cast<ZombieDarkCavalryProps*>(zombie->m_propertySheet.Get());
 	zombie->m_damageState = 0;
 	zombie->m_walkCycled = true;
 	zombie->m_hasLaunched = false;
-	typedef void (*zombieFun49)(ZombieDarkCavalry*);
-	((zombieFun49)getActualOffset(0xC3D1F0))(zombie);
+	ZombieOnSpawn(zombie);
     if (props->Stampede == true) {
-       ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 19, 0);
+       ZombieEnterState(zombie, 19, 0);
     }
     else {
-       ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 16, 0);
+       ZombieEnterState(zombie, 16, 0);
     }
 	Sexy::SexyVector3 newPos = {945.0f, zombie->m_position.y, 0};
-	return ((updatePos)getActualOffset(0x628278))(zombie, &newPos);
+	return ZombieUpdatePosition(zombie, &newPos);
 
 }
 void HideCustomKnightLayer(ZombieDarkCavalry* self, ZombieAnimRig_Bull* animRig) {
@@ -84,22 +74,19 @@ void HideCustomKnightLayer(ZombieDarkCavalry* self, ZombieAnimRig_Bull* animRig)
          "_zombie_imp_head_top"
     };
 
-    typedef int64_t(*setLayerVisibleFunc)(ZombieAnimRig_Bull*, SexyString*, bool);
-    setLayerVisibleFunc setLayerVisible = (setLayerVisibleFunc)getActualOffset(0x9DB8D0);
-
     size_t customLayersCount = props->RiderLayersToHide.size();
     if (!props->RiderLayersToHide.empty()) {
         for (size_t i = 0; i < customLayersCount; i++) {
             const auto& layerStr = props->RiderLayersToHide[i];
             SexyString layerName(layerStr);
-            setLayerVisible(animRig, &layerName, false);
+            SetAnimLayerVisible(animRig, layerName, false);
         }
     }
     else {
         for (size_t i = 0; i < HardcodedLayer.size(); i++) {
             const auto& layerStr = HardcodedLayer[i];
             SexyString layerName(layerStr);
-            setLayerVisible(animRig, &layerName, false);
+            SetAnimLayerVisible(animRig, layerName, false);
         }
     }
 }
@@ -112,8 +99,6 @@ void LanceSpawn(ZombieDarkCavalry* self)
     float rawPosY;
     int spawnPosX;
     int spawnPosY;
-    typedef void (*killTarg)(Plant*, ZombieDarkCavalry*);
-    killTarg KillTarget = (killTarg)getActualOffset(0x1337020);
 
     if (target != nullptr && target->IsType(PlantGroup::StaticGetType())) {
         rawPosX = target->m_position.x;
@@ -150,7 +135,6 @@ void LanceSpawn(ZombieDarkCavalry* self)
         spawnPosY = (int)(((rawPosY - 160.0f) / 76.0f));
     }
 
-    Board* board = Board::GetBoard();
     auto* props = reinterpret_cast<ZombieDarkCavalryProps*>(self->m_propertySheet.Get());
 
     if (spawnPosX < 0) spawnPosX = 0;
@@ -158,9 +142,7 @@ void LanceSpawn(ZombieDarkCavalry* self)
     if (spawnPosY < 0) spawnPosY = 0;
     if (spawnPosY > 4) spawnPosY = 4;
 
-    typedef GridItemSurfboard* (*funcAA230C)(Board*, SexyString, int, int);
-    funcAA230C func_AA230C = (funcAA230C)getActualOffset(0xAA230C);
-    GridItemSurfboard* gridItem = func_AA230C(board, "joustsword", spawnPosX, spawnPosY);
+    GridItemSurfboard* gridItem = (GridItemSurfboard*)AddGridItem(props->LanceType, spawnPosX, spawnPosY);
 
     gridItem->m_health = props->LanceHitpoints;
     gridItem->m_healthMax = props->LanceHitpoints;
@@ -175,30 +157,26 @@ void CavalryThrowRider(ZombieDarkCavalry* self)
         name = "dark_cavalry_rider";
     }
 
-    bool isShrinking = ((checkZombieHasCondition)getActualOffset(0xC3E44C))(self, zombie_condition_shrinking);
-    bool isShrunken = ((checkZombieHasCondition)getActualOffset(0xC3E44C))(self, zombie_condition_shrunken);
-
     if (!self->m_hasLaunched)
     {
         auto* rig = reinterpret_cast<ZombieAnimRig_Bull*>(self->m_animRig.Get());
         HideCustomKnightLayer(self, rig);
         Zombie* spawnedRider = AddZombie(name, -1, 6, -1);
 
-        if (((checkZombieHasCondition)getActualOffset(0xC3E44C))(self, zombie_condition_shrinking) || ((checkZombieHasCondition)getActualOffset(0xC3E44C))(self, zombie_condition_shrunken)) {
+        if (ZombieHasCondition(self, zombie_condition_shrinking) || ZombieHasCondition(self, zombie_condition_shrunken)) {
 
-            ((setConditionZ)getActualOffset(0xC40CC0))(spawnedRider, zombie_condition_shrunken, 0, 3.4028e38f, 0.0f);
+            ZombieSetCondition(spawnedRider, zombie_condition_shrunken, 0, 3.4028e38f, 0.0f);
         }
 
-        bool isHypnotized = ((checkZombieHasCondition)getActualOffset(0xC3E44C))(self, zombie_condition_hypnotized);
         float newX = self->m_position.x - props->RiderSpawnOffset.x;
-        if (isHypnotized)
+        if (ZombieHasCondition(self, zombie_condition_hypnotized))
         {
             newX = self->m_position.x + props->RiderSpawnOffset.x;
         }
         float newY = self->m_position.y + props->RiderSpawnOffset.y;
         float newZ = self->m_position.z + props->RiderSpawnOffset.z;
         SexyVector3 newCoords = SexyVector3(newX, newY, newZ);
-        ((boardEntitySetPosition)getActualOffset(0x628058))(spawnedRider, &newCoords);
+        ZombieSetPosition(spawnedRider, &newCoords);
         typedef void (*ZombieThrowVirtual)(Zombie*, int, float, float, float, float, float);
         uintptr_t* vtable = *(uintptr_t**)spawnedRider;
         ZombieThrowVirtual virtualThrow = (ZombieThrowVirtual)(vtable[206]);
@@ -206,9 +184,9 @@ void CavalryThrowRider(ZombieDarkCavalry* self)
         float targetX, targetY, targetZ;
 
 
-        if (isHypnotized) {
+        if (ZombieHasCondition(self, zombie_condition_hypnotized)) {
 
-            ((setConditionZ)getActualOffset(0xC40CC0))(spawnedRider, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
+            ZombieSetCondition(spawnedRider, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
 
             int teamflag = self->m_teamFlags;
             typedef void (*func10B013C)(Zombie*, int);
@@ -331,9 +309,7 @@ void overrideBullFunction206(ZombieDarkCavalry* zombie) {
         lanceRect.mY = static_cast<int>((zombieY - zombieZ) - lanceRect.mHeight + props->LanceRect.mY);
         int zombieRow = static_cast<int>((zombieY - 160.0f) / 76.0f);
         std::vector<BoardEntity*> entityList;
-        typedef void (*GetEntitiesInRectPixelFunc)(std::vector<BoardEntity*>*, int, Rect*, int, int);
-        GetEntitiesInRectPixelFunc getEntitiesRectPixel = (GetEntitiesInRectPixelFunc)getActualOffset(0x86F340); 
-        getEntitiesRectPixel(&entityList, 38, &lanceRect, zombieRow, zombieRow);
+        GetEntitiesInRectPixel(&entityList, 38, &lanceRect, zombieRow, zombieRow);
         bool foundPlant = false; 
         for (BoardEntity* ptr : entityList) {
             if (ptr != nullptr && ptr->IsType(PlantGroup::StaticGetType()))
@@ -342,14 +318,11 @@ void overrideBullFunction206(ZombieDarkCavalry* zombie) {
                 break;
             }
         }
-        typedef void (*zombieEnterState)(ZombieDarkCavalry*, int, int);
-        zombieEnterState enterStateFunc = (zombieEnterState)getActualOffset(0xC3D428);
-
         if (foundPlant) {
-            ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 21, 0);
+            ZombieEnterState(zombie, 21, 0);
         }
         else {
-            ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 17, 0);
+            ZombieEnterState(zombie, 17, 0);
         }
     }
     zombie->m_walkCycled = true;
@@ -394,9 +367,7 @@ void ZombieDarkCavalry::AttackOnLoop(ZombieDarkCavalry* zombie)
         int zombieRow = static_cast<int>((zombieY - 160.0f) / 76.0f);
 
         std::vector<BoardEntity*> entityList;
-        typedef void (*GetEntitiesInRectPixelFunc)(std::vector<BoardEntity*>*, int, Rect*, int, int);
-        GetEntitiesInRectPixelFunc getEntitiesRectPixel = (GetEntitiesInRectPixelFunc)getActualOffset(0x86F340);
-        getEntitiesRectPixel(&entityList, 38, &lanceRect, zombieRow, zombieRow);
+        GetEntitiesInRectPixel(&entityList, 38, &lanceRect, zombieRow, zombieRow);
         bool hasTarget = false;
 
         for (BoardEntity* ptr : entityList) {
@@ -407,7 +378,7 @@ void ZombieDarkCavalry::AttackOnLoop(ZombieDarkCavalry* zombie)
         }
 
         if (!hasTarget) {
-            ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 17, 0);
+            ZombieEnterState(zombie, 17, 0);
         }
         else {
             auto animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
@@ -428,15 +399,15 @@ void CavalryOnGetCondition(ZombieDarkCavalry* zombie, int conditionID)
     if (conditionID == zombie_condition_gummed)
     {
         if (!zombie->m_hasLaunched) {
-            ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 21, 0);
+            ZombieEnterState(zombie, 21, 0);
         }
         return;
     }
 
     if (conditionID == zombie_condition_hypnotized)
     {
-        ((zombieFlippedAnim)getActualOffset(0xC41290))(zombie, 1);
-        ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 20, 0);
+        ZombieFlippedAnim(zombie, true);
+        ZombieEnterState(zombie, 20, 0);
         return;
     }
 }

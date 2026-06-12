@@ -7,15 +7,11 @@
 #include "ZombieAnimRig_ModernPogo.h"
 #include "Plant.h"
 #include "DamageInfo.h"
+#include "ZombieHelper.h"
+#include "GridItem.h"
 
 void* ZombieModernPogo::vftable = nullptr;
 Sexy::RtClass* ZombieModernPogo::s_rtClass = nullptr;;
-typedef void (*zombieEnterState)(ZombieModernPogo*, int, int);
-typedef Zombie* (*zombieAllowMovement)(Zombie*, int);
-typedef void (*LoopWalk)(ZombieModernPogo*);
-typedef Plant* (*getTarg)(ZombieModernPogo*);
-typedef bool (*isDeadOrDying)(ZombieModernPogo*);
-typedef void (*setSpeed)(ZombieAnimRig_ModernPogo*, float);
 DECLARE_DELEGATES_SETUP(ZombieModernPogo)
 
 static Sexy::DelegateBase jumpingCompletedDelegate;
@@ -110,19 +106,18 @@ void PogoOnSpawn(ZombieModernPogo* zombie)
             }
         }
     }
-	typedef void (*zombieFun49)(ZombieModernPogo*);
-	((zombieFun49)getActualOffset(0xC3D1F0))(zombie);
-	((setSpeed)getActualOffset(0x8DDAA4))(rig, PogoGetWalkSpeed(zombie));
-	((zombieEnterState)getActualOffset(0xC3D428))(zombie, 19, 0);
+	ZombieOnSpawn(zombie);
+	SetWalkSpeed(rig, PogoGetWalkSpeed(zombie));
+	ZombieEnterState(zombie, 19, 0);
 }
 void PogoEnterWalk(ZombieModernPogo* zombie)
 {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPogo*>(zombie->m_animRig.Get());
 	if (rig->m_hasPogo == true) {
-		((zombieEnterState)getActualOffset(0xC3D428))(zombie, 19, 0);
+		ZombieEnterState(zombie, 19, 0);
 	}
 	else {
-		((zombieEnterState)getActualOffset(0xC3D428))(zombie, 1, 0);
+		ZombieEnterState(zombie, 1, 0);
 	}
 }
 bool PogoIsBeingTossedByPlant(ZombieModernPogo* zombie, int a2) {
@@ -135,11 +130,10 @@ bool PogoIsBeingTossedByPlant(ZombieModernPogo* zombie, int a2) {
 }
 void PogoOnArmorDestroyed(ZombieModernPogo* zombie, int a2, SexyString* armorName)
 {
-	isDeadOrDying isDeadFunc = (isDeadOrDying)getActualOffset(0xC3E204);
-	if (*armorName == "Pogo" && !isDeadFunc(zombie)) {
+	if (*armorName == "Pogo" && !ZombieIsDeadOrDying(zombie)) {
 		auto rig = reinterpret_cast<ZombieAnimRig_ModernPogo*>(zombie->m_animRig.Get());
 		rig->m_hasPogo = false;
-		((zombieEnterState)getActualOffset(0xC3D428))(zombie, 18, 0);
+		ZombieEnterState(zombie, 18, 0);
 	}
 }
 SexyString GetPogoAnimShock(ZombieModernPogo* zombie, DamageInfo* damage) {
@@ -163,7 +157,7 @@ SexyString GetPogoAnimAsh(ZombieModernPogo* zombie, DamageInfo* damage) {
 
 void ZombieModernPogo::JumpOnEnter(ZombieModernPogo* zombie)
 {
-	((zombieAllowMovement)getActualOffset(0xC51F94))(zombie, 1);
+	ZombieAllowMovement(zombie, true);
 	return RegisterEventAfterAnim(zombie, "jump", "onJumpingCompleted");
 }
 void ZombieModernPogo::JumpOnLoop(ZombieModernPogo* zombie)
@@ -179,7 +173,7 @@ void ZombieModernPogo::BonkOnEnter(ZombieModernPogo* zombie)
 {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPogo*>(zombie->m_animRig.Get());
 	rig->m_hasPogo = false;
-	((zombieAllowMovement)getActualOffset(0xC51F94))(zombie, 1);
+	ZombieAllowMovement(zombie, true);
 	return RegisterEventAfterAnim(zombie, "jump_tallnut", "onBonkingCompleted");
 }
 
@@ -208,14 +202,13 @@ void ZombieModernPogo::WalkPogoOnEnter(ZombieModernPogo* zombie)
 {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPogo*>(zombie->m_animRig.Get());
 	rig->m_hasPogo = true;
-	((zombieAllowMovement)getActualOffset(0xC51F94))(zombie, 1);
+	ZombieAllowMovement(zombie, true);
 	return RegisterEventOnWalkLoop(zombie, "onWalkPogoContinued");
 }
 void ZombieModernPogo::WalkPogoOnLoop(ZombieModernPogo* zombie)
 {
-	isDeadOrDying isDeadFunc = (isDeadOrDying)getActualOffset(0xC3E204);
-	if (isDeadFunc(zombie)) {
-		((LoopWalk)getActualOffset(0xC506B4))(zombie);
+	if (ZombieIsDeadOrDying(zombie)) {
+		CallFunc<void, ZombieModernPogo*>(0xC506B4, zombie);
 		return;
 	}
 
@@ -223,7 +216,7 @@ void ZombieModernPogo::WalkPogoOnLoop(ZombieModernPogo* zombie)
 
 	if (rig != nullptr && rig->m_hasPogo == true)
 	{
-		((setSpeed)getActualOffset(0x8DDAA4))(rig, PogoGetWalkSpeed(zombie));
+		SetWalkSpeed(rig, PogoGetWalkSpeed(zombie));
 
 		auto* props = reinterpret_cast<ZombieModernPogoProps*>(zombie->m_propertySheet.Get());
 		float zX = zombie->m_position.x;
@@ -242,37 +235,75 @@ void ZombieModernPogo::WalkPogoOnLoop(ZombieModernPogo* zombie)
 		GetEntitiesInRectPixelFunc getEntitiesRectPixel = (GetEntitiesInRectPixelFunc)getActualOffset(0x86F340);
 
 		getEntitiesRectPixel(&entityList, 38, &jumpRect, zRow, zRow);
-		PlantGroup* targetPlantGroup = nullptr;
-		for (BoardEntity* ptr : entityList) {
-			if (ptr != nullptr && ptr->IsType(PlantGroup::StaticGetType())) {
-				targetPlantGroup = reinterpret_cast<PlantGroup*>(ptr);
-				break;
-			}
-		}
-		if (targetPlantGroup != nullptr)
-		{
-			bool hasTallPlant = false;
-			for (auto& weakPlant : targetPlantGroup->m_plants.m_plants)
-			{
-				Plant* p = weakPlant.Get();
-				if (p != nullptr)
-				{
-					auto* pProps = reinterpret_cast<PlantPropertySheet*>(p->m_propertySheet.Get());
-					if (pProps != nullptr && pProps->Height == BoardEntityHeight::tall)
-					{
-						hasTallPlant = true;
-						break;
+		bool foundObstacle = false;
+		BoardEntityHeight finalHeight = BoardEntityHeight::ground;
+
+		for (BoardEntity* entity : entityList) {
+			if (entity == nullptr) continue;
+
+			BoardEntityHeight currentHeight = BoardEntityHeight::ground;
+			bool isValidObstacle = false;
+
+			if (entity->IsType(PlantGroup::StaticGetType())) {
+				PlantGroup* plantGroup = reinterpret_cast<PlantGroup*>(entity);
+
+				for (auto& weakPlant : plantGroup->m_plants.m_plants) {
+					Plant* p = weakPlant.Get();
+					if (p != nullptr) {
+						auto* pProps = reinterpret_cast<PlantPropertySheet*>(p->m_propertySheet.Get());
+
+						if (pProps != nullptr && pProps->Height != BoardEntityHeight::ground) {
+							isValidObstacle = true;
+
+							if (pProps->Height == BoardEntityHeight::tall) {
+								currentHeight = BoardEntityHeight::tall;
+								break;
+							}
+							else if (pProps->Height == BoardEntityHeight::normal && currentHeight != BoardEntityHeight::tall) {
+								currentHeight = BoardEntityHeight::normal;
+							}
+							else if (pProps->Height == BoardEntityHeight::low && currentHeight == BoardEntityHeight::ground) {
+								currentHeight = BoardEntityHeight::low;
+							}
+						}
 					}
 				}
 			}
+			else if (entity->IsType(GridItem::StaticGetType())) {
 
-			if (hasTallPlant) {
-				((zombieEnterState)getActualOffset(0xC3D428))(zombie, 17, 0);
+				if (entity->m_teamFlags == 1 && zombie->m_teamFlags == 2) {
+
+					GridItem* gridItem = reinterpret_cast<GridItem*>(entity);
+					auto* gridProps = reinterpret_cast<GridItemPropertySheet*>(gridItem->m_propertySheet.Get());
+					if (gridProps->Height != BoardEntityHeight::ground) {
+						isValidObstacle = true;
+						currentHeight = gridProps->Height;
+					}
+				}
 			}
-			else {
-				((zombieEnterState)getActualOffset(0xC3D428))(zombie, 16, 0);
+			if (isValidObstacle) {
+				foundObstacle = true;
+
+				if (currentHeight == BoardEntityHeight::tall) {
+					finalHeight = BoardEntityHeight::tall;
+					break;
+				}
+				else if (currentHeight == BoardEntityHeight::normal && finalHeight != BoardEntityHeight::tall) {
+					finalHeight = BoardEntityHeight::normal;
+				}
+				else if (currentHeight == BoardEntityHeight::low && finalHeight == BoardEntityHeight::ground) {
+					finalHeight = BoardEntityHeight::low;
+				}
 			}
-			return;
+		}
+
+		if (foundObstacle) {
+			if (finalHeight == BoardEntityHeight::tall) {
+				ZombieEnterState(zombie, 17, 0);
+			}
+			else if (finalHeight == BoardEntityHeight::normal || finalHeight == BoardEntityHeight::low) {
+				ZombieEnterState(zombie, 16, 0);
+			}
 		}
 	}
 }
@@ -285,8 +316,8 @@ void PogoJumpingCompletedCallback(Zombie* zombie) {
 	ZombieModernPogo* PogoZombie = static_cast<ZombieModernPogo*>(zombie);
 	if (PogoZombie) {
 		rig->m_hasPogo = true;
-		((zombieEnterState)getActualOffset(0xC3D428))(PogoZombie, 19, 0);
-		((setSpeed)getActualOffset(0x8DDAA4))(rig, PogoGetWalkSpeed(PogoZombie));
+		ZombieEnterState(PogoZombie, 19, 0);
+		SetWalkSpeed(rig, PogoGetWalkSpeed(PogoZombie));
 	}
 }
 void PogoBonkingCompletedCallback(Zombie* zombie) {
@@ -302,8 +333,8 @@ void PogoBonkingCompletedCallback(Zombie* zombie) {
 				armor->m_destroyed = true;
 			}
 		}
-		((zombieEnterState)getActualOffset(0xC3D428))(PogoZombie, 1, 0);
-		((setSpeed)getActualOffset(0x8DDAA4))(rig, PogoGetWalkSpeed(PogoZombie));
+		ZombieEnterState(PogoZombie, 1, 0);
+		SetWalkSpeed(rig, PogoGetWalkSpeed(PogoZombie));
 	}
 }
 void LostPogoCompletedCallback(Zombie* zombie) {
@@ -311,8 +342,8 @@ void LostPogoCompletedCallback(Zombie* zombie) {
 	ZombieModernPogo* PogoZombie = static_cast<ZombieModernPogo*>(zombie);
 	if (PogoZombie) {
 		rig->m_hasPogo = false;
-		((zombieEnterState)getActualOffset(0xC3D428))(PogoZombie, 1, 0);
-		((setSpeed)getActualOffset(0x8DDAA4))(rig, PogoGetWalkSpeed(PogoZombie));
+		ZombieEnterState(PogoZombie, 1, 0);
+		SetWalkSpeed(rig, PogoGetWalkSpeed(PogoZombie));
 	}
 }
 void WalkPogoCompletedCallback(Zombie* zombie) {}

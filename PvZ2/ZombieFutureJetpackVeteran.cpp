@@ -1,17 +1,14 @@
 #include "ZombieFutureJetpack.h"
 #include "ZombieStateHelper.h"
 #include "TimeMgr.h"
+#include "ZombieHelper.h"
 
 void* ZombieFutureJetpackVeteran::vftable = nullptr;
 Sexy::RtClass* ZombieFutureJetpackVeteran::s_rtClass = nullptr;;
 
-typedef Zombie* (*updatePos)(ZombieFutureJetpackVeteran*, SexyVector3*);
-
 void overrideFunction169(ZombieFutureJetpackVeteran* zombie) {
     
-    typedef void (*SetFlyingFunc)(Zombie*, bool);
-    SetFlyingFunc setFlying = (SetFlyingFunc)getActualOffset(0xC4C770);
-    setFlying(zombie, false);
+    ZombieIsFlying(zombie, false);
     zombie->m_jumpMovement = false;
     auto rig = reinterpret_cast<ZombieAnimRig_FutureJetpack*>(zombie->m_animRig.Get());
     auto props = reinterpret_cast<ZombieFutureJetpackVeteranProps*>(zombie->m_propertySheet.Get());
@@ -36,18 +33,11 @@ void overrideFunction169(ZombieFutureJetpackVeteran* zombie) {
          "jetpack_disco_glasses",
          "particle_head_disco"
     };
-    typedef int64_t (*setLayerVisibleFunc)(ZombieAnimRig_FutureJetpack*, SexyString*, bool);
-    setLayerVisibleFunc setLayerVisible = (setLayerVisibleFunc)getActualOffset(0x9DB8D0);
     for (SexyString& layerName : HardcodedLayer) {
-        setLayerVisible(rig, &layerName, props->DiscoMode);
+        SetAnimLayerVisible(rig, layerName, props->DiscoMode);
     }
 }
-float IsFacingOrNot(Zombie* zombie) {
-    if (!zombie->m_facing) {
-        return 1.0f;
-    }
-    return -1.0f;
-}
+
 void overrideFunction208(ZombieFutureJetpackVeteran* zombie) {
     if (zombie->m_jumpMovement == true)
     {
@@ -77,7 +67,7 @@ void overrideFunction208(ZombieFutureJetpackVeteran* zombie) {
 
             float speedScale = zTracker->m_speedScale;
             float floatingSpeed = flyingSpeed * speedScale * 64.0f;
-            float facing = IsFacingOrNot(zombie);
+            float facing = ZombieFacing(zombie);
             float finalSpeed = facing * floatingSpeed;
             float timeMoving = TimeMgr::GetInstance()->m_unkTime;
 
@@ -86,7 +76,7 @@ void overrideFunction208(ZombieFutureJetpackVeteran* zombie) {
             newPos.y = zombie->m_position.y;
             newPos.z = zombie->m_position.z;
 
-            ((updatePos)getActualOffset(0x628278))(zombie, &newPos);
+           ZombieUpdatePosition(zombie, &newPos);
         }
     }
 }

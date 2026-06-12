@@ -10,7 +10,6 @@ public:
 	float EnragedSpeedScale = 2.0f;
 	float EnragedDamageScale = 2.0f;
 	std::vector<SexyString> JamStyle; 
-	std::vector<SexyString> UnkillablePlant;
 	SexyString SpeakerType = "speaker";
 	Sexy::RtWeakPtr<ProjectilePropertySheet> ShockWaveProjectile;
 	SexyVector2 ShockWaveSpawnOffset;
@@ -28,7 +27,6 @@ public:
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieEightiesBassProps, EnragedSpeedScale);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieEightiesBassProps, EnragedDamageScale);
 	RT_CLASS_REGISTER_STRING_VECTOR_PROPERTY(ZombieEightiesBassProps, JamStyle);
-	RT_CLASS_REGISTER_STRING_VECTOR_PROPERTY(ZombieEightiesBassProps, UnkillablePlant);
 	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieEightiesBassProps, SpeakerType);
 	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(ZombieEightiesBassProps, ShockWaveProjectile, ProjectilePropertySheet)
 	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieEightiesBassProps, SexyVector2, ShockWaveSpawnOffset);

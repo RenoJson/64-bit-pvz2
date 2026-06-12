@@ -7,19 +7,14 @@
 #include "DamageInfo.h"
 #include "ZombieAnimRig_ModernDolphinRider.h"
 #include "Board.h"
+#include "ZombieHelper.h"
+#include "GridItem.h"
 
 void* ZombieModernDolphinRider::vftable = nullptr;
 Sexy::RtClass* ZombieModernDolphinRider::s_rtClass = nullptr;;
-typedef void (*zombieEnterState)(ZombieModernDolphinRider*, int, int);
-typedef Zombie* (*zombieAllowMovement)(Zombie*, int);
 typedef void* (*playSoundEvent)(ZombieModernDolphinRider*, const SexyString&, float);
-typedef void (*LoopWalk)(ZombieModernDolphinRider*);
-typedef Plant* (*getTarg)(ZombieModernDolphinRider*);
-typedef bool (*isDeadOrDying)(ZombieModernDolphinRider*);
 typedef bool (*isHeadDrop)(ZombieModernDolphinRider*);
 typedef bool (*isInWaterRegion)(Board*, SexyVector3*);
-typedef Zombie* (*updatePos)(ZombieModernDolphinRider*, SexyVector3*);
-typedef void (*setSpeed)(ZombieAnimRig*, float);
 
 DECLARE_DELEGATES_SETUP(ZombieModernDolphinRider)
 static Sexy::DelegateBase jumpingCompletedDelegate;
@@ -54,13 +49,12 @@ Zombie* DolphinRiderOnSpawn(ZombieModernDolphinRider* zombie)
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernDolphinRider*>(zombie->m_animRig.Get());
 	rig->m_isRidingDolphin = zombie->m_isRidingDolphin;
 	rig->m_isCarryingDolphin = zombie->m_isCarryingDolphin;
-	typedef void (*zombieFun49)(ZombieModernDolphinRider*);
-	((zombieFun49)getActualOffset(0xC3D1F0))(zombie);
+	ZombieOnSpawn(zombie);
 	zombie->m_dpsScale = 2.0f;
 	SexyVector3 zombiePos = { 920.0f, zombie->m_position.y, 0.0f };
-	((setSpeed)getActualOffset(0x8DDAA4))(rig, DolphinRiderGetWalkSpeed(zombie));
-	((zombieEnterState)getActualOffset(0xC3D428))(zombie, 18, 0);
-	return ((updatePos)getActualOffset(0x628278))(zombie, &zombiePos);
+	SetWalkSpeed(rig, DolphinRiderGetWalkSpeed(zombie));
+	ZombieEnterState(zombie, 18, 0);
+	return ZombieUpdatePosition(zombie, &zombiePos);
 	
 }
 SexyString GetDolphinRiderAnimShock(ZombieModernDolphinRider* zombie) {
@@ -102,7 +96,7 @@ bool DolphinRiderIsHeadDrop(ZombieModernDolphinRider* zombie)
 }
 void ZombieModernDolphinRider::JumpOnEnter(ZombieModernDolphinRider* zombie)
 {
-	((zombieAllowMovement)getActualOffset(0xC51F94))(zombie, 1);
+	ZombieAllowMovement(zombie, true);
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernDolphinRider*>(zombie->m_animRig.Get());
 	zombie->m_isRidingDolphin = false;
 	zombie->m_isCarryingDolphin = false;
@@ -121,7 +115,7 @@ void ZombieModernDolphinRider::JumpOnExit(ZombieModernDolphinRider* zombie)
 
 void ZombieModernDolphinRider::BonkOnEnter(ZombieModernDolphinRider* zombie)
 {
-	((zombieAllowMovement)getActualOffset(0xC51F94))(zombie, 1);
+	ZombieAllowMovement(zombie, true);
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernDolphinRider*>(zombie->m_animRig.Get());
 	zombie->m_isRidingDolphin = false;
 	zombie->m_isCarryingDolphin = false;
@@ -140,8 +134,8 @@ void ZombieModernDolphinRider::BonkOnExit(ZombieModernDolphinRider* zombie)
 
 void ZombieModernDolphinRider::PreWalkBeforeRidingOnEnter(ZombieModernDolphinRider* zombie)
 {
-	((zombieAllowMovement)getActualOffset(0xC51F94))(zombie, 1);
-	((playSoundEvent)getActualOffset(0x10B0608))(zombie, "Play_Zomb_Modern_Dolphin_Appears", 0.0f);
+	ZombieAllowMovement(zombie, true);
+	ZombiePlaySoundEvent(zombie, "Play_Zomb_Modern_Dolphin_Appears", 0.0f);
 	return RegisterEventOnWalkLoop(zombie, "onPreWalkContinued");
 }
 
@@ -152,10 +146,10 @@ void ZombieModernDolphinRider::PreWalkBeforeRidingOnLoop(ZombieModernDolphinRide
 		Board* board = Board::GetBoard();
 		SexyVector3 zombiePos = {zombie->m_position.x - 96.0f, zombie->m_position.y, zombie->m_position.z};
 		if (((isInWaterRegion)getActualOffset(0xAADE34))(board, &zombiePos) == true) {
-			((zombieEnterState)getActualOffset(0xC3D428))(zombie, 19, 0);
+			ZombieEnterState(zombie, 19, 0);
 		}
 		else {
-			((zombieEnterState)getActualOffset(0xC3D428))(zombie, 1, 0);
+			ZombieEnterState(zombie, 1, 0);
 		}
 	}
 }
@@ -182,7 +176,7 @@ void ZombieModernDolphinRider::TransitionOnExit(ZombieModernDolphinRider* zombie
 
 void ZombieModernDolphinRider::RideDolphinOnEnter(ZombieModernDolphinRider* zombie)
 {
-	((zombieAllowMovement)getActualOffset(0xC51F94))(zombie, 1);
+	ZombieAllowMovement(zombie, true);
 	return RegisterEventOnWalkLoop(zombie, "onRidingDolphinContinued");
 }
 
@@ -191,7 +185,7 @@ void ZombieModernDolphinRider::RideDolphinOnLoop(ZombieModernDolphinRider* zombi
 	Board* board = Board::GetBoard();
 	SexyVector3 zombiePos = zombie->m_position;
 	if (((isInWaterRegion)getActualOffset(0xAADE34))(board, &zombiePos) == false) {
-		((zombieEnterState)getActualOffset(0xC3D428))(zombie, 21, 0);
+		ZombieEnterState(zombie, 21, 0);
 	}
 	else {
 
@@ -212,37 +206,76 @@ void ZombieModernDolphinRider::RideDolphinOnLoop(ZombieModernDolphinRider* zombi
 		GetEntitiesInRectPixelFunc getEntitiesRectPixel = (GetEntitiesInRectPixelFunc)getActualOffset(0x86F340);
 
 		getEntitiesRectPixel(&entityList, 38, &jumpRect, zRow, zRow);
-		PlantGroup* targetPlantGroup = nullptr;
-		for (BoardEntity* ptr : entityList) {
-			if (ptr != nullptr && ptr->IsType(PlantGroup::StaticGetType())) {
-				targetPlantGroup = reinterpret_cast<PlantGroup*>(ptr);
-				break;
-			}
-		}
-		if (targetPlantGroup != nullptr)
-		{
-			bool hasTallPlant = false;
-			for (auto& weakPlant : targetPlantGroup->m_plants.m_plants)
-			{
-				Plant* p = weakPlant.Get();
-				if (p != nullptr)
-				{
-					auto* pProps = reinterpret_cast<PlantPropertySheet*>(p->m_propertySheet.Get());
-					if (pProps != nullptr && pProps->Height == BoardEntityHeight::tall)
-					{
-						hasTallPlant = true;
-						break;
+		bool foundObstacle = false;
+		BoardEntityHeight finalHeight = BoardEntityHeight::ground;
+
+		for (BoardEntity* entity : entityList) {
+			if (entity == nullptr) continue;
+
+			BoardEntityHeight currentHeight = BoardEntityHeight::ground;
+			bool isValidObstacle = false;
+
+			if (entity->IsType(PlantGroup::StaticGetType())) {
+				PlantGroup* plantGroup = reinterpret_cast<PlantGroup*>(entity);
+
+				for (auto& weakPlant : plantGroup->m_plants.m_plants) {
+					Plant* p = weakPlant.Get();
+					if (p != nullptr) {
+						auto* pProps = reinterpret_cast<PlantPropertySheet*>(p->m_propertySheet.Get());
+
+						if (pProps != nullptr && pProps->Height != BoardEntityHeight::ground) {
+							isValidObstacle = true;
+
+							if (pProps->Height == BoardEntityHeight::tall) {
+								currentHeight = BoardEntityHeight::tall;
+								break;
+							}
+							else if (pProps->Height == BoardEntityHeight::normal && currentHeight != BoardEntityHeight::tall) {
+								currentHeight = BoardEntityHeight::normal;
+							}
+							else if (pProps->Height == BoardEntityHeight::low && currentHeight == BoardEntityHeight::ground) {
+								currentHeight = BoardEntityHeight::low;
+							}
+						}
 					}
 				}
 			}
+			else if (entity->IsType(GridItem::StaticGetType())) {
 
-			if (hasTallPlant) {
-				((zombieEnterState)getActualOffset(0xC3D428))(zombie, 17, 0);
+				if (entity->m_teamFlags == 1 && zombie->m_teamFlags == 2) {
+
+					GridItem* gridItem = reinterpret_cast<GridItem*>(entity);
+					auto* gridProps = reinterpret_cast<GridItemPropertySheet*>(gridItem->m_propertySheet.Get());
+					if (gridProps->Height != BoardEntityHeight::ground) {
+						isValidObstacle = true;
+						currentHeight = gridProps->Height;
+					}
+				}
 			}
-			else {
-				((zombieEnterState)getActualOffset(0xC3D428))(zombie, 16, 0);
+			if (isValidObstacle) {
+				foundObstacle = true;
+
+				if (currentHeight == BoardEntityHeight::tall) {
+					finalHeight = BoardEntityHeight::tall;
+					break;
+				}
+				else if (currentHeight == BoardEntityHeight::normal && finalHeight != BoardEntityHeight::tall) {
+					finalHeight = BoardEntityHeight::normal;
+				}
+				else if (currentHeight == BoardEntityHeight::low && finalHeight == BoardEntityHeight::ground) {
+					finalHeight = BoardEntityHeight::low;
+				}
 			}
-			return;
+		}
+
+		if (foundObstacle) {
+			if (finalHeight == BoardEntityHeight::tall) {
+				ZombieEnterState(zombie, 17, 0);
+			}
+			else if (finalHeight == BoardEntityHeight::normal || finalHeight == BoardEntityHeight::low) {
+				
+				ZombieEnterState(zombie, 16, 0);
+			}
 		}
 	}
 }
@@ -275,8 +308,8 @@ void DolphinRiderJumpingCompletedCallback(Zombie* zombie) {
 	ZombieModernDolphinRider* dolphinRiderZombie = static_cast<ZombieModernDolphinRider*>(zombie);
 	if (dolphinRiderZombie) {
 		dolphinRiderZombie->m_dpsScale = 1.0f;
-		((zombieEnterState)getActualOffset(0xC3D428))(dolphinRiderZombie, 1, 0);
-		((setSpeed)getActualOffset(0x8DDAA4))(rig, DolphinRiderGetWalkSpeed(dolphinRiderZombie));
+		ZombieEnterState(dolphinRiderZombie, 1, 0);
+		SetWalkSpeed(rig, DolphinRiderGetWalkSpeed(dolphinRiderZombie));
 	}
 }
 void DolphinRiderBonkingCompletedCallback(Zombie* zombie) {
@@ -284,8 +317,8 @@ void DolphinRiderBonkingCompletedCallback(Zombie* zombie) {
 	ZombieModernDolphinRider* dolphinRiderZombie = static_cast<ZombieModernDolphinRider*>(zombie);
 	if (dolphinRiderZombie) {
 		dolphinRiderZombie->m_dpsScale = 1.0f;
-		((zombieEnterState)getActualOffset(0xC3D428))(dolphinRiderZombie, 1, 0);
-		((setSpeed)getActualOffset(0x8DDAA4))(rig, DolphinRiderGetWalkSpeed(dolphinRiderZombie));
+		ZombieEnterState(dolphinRiderZombie, 1, 0);
+		SetWalkSpeed(rig, DolphinRiderGetWalkSpeed(dolphinRiderZombie));
 	}
 }
 
@@ -299,8 +332,8 @@ void TransitionCompletedCallback(Zombie* zombie) {
 		dolphinRiderZombie->m_isCarryingDolphin = false;
 		rig->m_isCarryingDolphin = dolphinRiderZombie->m_isCarryingDolphin;
 		rig->m_isRidingDolphin = dolphinRiderZombie->m_isRidingDolphin;
-		((zombieEnterState)getActualOffset(0xC3D428))(dolphinRiderZombie, 20, 0);
-		((setSpeed)getActualOffset(0x8DDAA4))(rig, DolphinRiderGetWalkSpeed(dolphinRiderZombie));
+		ZombieEnterState(dolphinRiderZombie, 20, 0);
+		SetWalkSpeed(rig, DolphinRiderGetWalkSpeed(dolphinRiderZombie));
 	}
 }
 
@@ -310,8 +343,8 @@ void RidingToWalkCompletedCallback(Zombie* zombie) {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernDolphinRider*>(zombie->m_animRig.Get());
 	ZombieModernDolphinRider* dolphinRiderZombie = static_cast<ZombieModernDolphinRider*>(zombie);
 	if (dolphinRiderZombie) {
-		((zombieEnterState)getActualOffset(0xC3D428))(dolphinRiderZombie, 1, 0);
-		((setSpeed)getActualOffset(0x8DDAA4))(rig, DolphinRiderGetWalkSpeed(dolphinRiderZombie));
+		ZombieEnterState(dolphinRiderZombie, 1, 0);
+		SetWalkSpeed(rig, DolphinRiderGetWalkSpeed(dolphinRiderZombie));
 	}
 }
 

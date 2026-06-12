@@ -12,6 +12,7 @@ class GridItemPropertySheet;
 class GridItem : public BoardEntity
 {
 public:
+	RT_CLASS_GET_CLASS_WRAPPER(0x8051EC);
 	//GridItemConditionTracker m_conditionTracker;
 	char pad[8];
 	char m_pad5[144];

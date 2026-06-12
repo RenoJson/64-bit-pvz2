@@ -94,13 +94,20 @@ void LostCityGargantuarWalkOnLoop(ZombieLostCityTorchGargantuar* zombie) {
     BoardEntity* entity = CallFunc<BoardEntity*, ZombieLostCityTorchGargantuar*>(0xC41910, zombie);
     if (zombie->m_hasTorch == true) {
         if (entity != nullptr) {
-
             if (entity->IsType(PlantGroup::StaticGetType())) {
 
                 CallFunc<void, BoardEntity*, int, int, bool, ZombieLostCityTorchGargantuar*>(0x1336D2C, entity, 512, 2, false, zombie);
             }
             else {
                 ZombieEnterState(zombie, 16, 0);
+            }
+        }
+        else {
+            if (CallFunc<bool, ZombieLostCityTorchGargantuar*>(0xB5414C, zombie) == true) {
+                auto props = reinterpret_cast<ZombieLostCityGargantuarProps*>(zombie->m_propertySheet.Get());
+                if (zombie->m_position.x > props->MinPosXThrowImp) {
+                    ZombieEnterState(zombie, 17, 0);
+                }
             }
         }
     }
