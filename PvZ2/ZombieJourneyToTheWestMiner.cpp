@@ -8,6 +8,7 @@
 #include "DamageInfo.h"
 #include "TimeMgr.h"
 #include "Board.h"
+#include "ZombieHelper.h"
 
 void* ZombieModernMiner::vftable = nullptr;
 Sexy::RtClass* ZombieModernMiner::s_rtClass = nullptr;;
@@ -117,19 +118,19 @@ void TudigongOnArmorDestroyed(ZombieModernMiner* zombie, int a2, SexyString* arm
     isDeadOrDying isDeadFunc = (isDeadOrDying)getActualOffset(0xC3E204);
     if (*armorName == props->ArmorTypeToUseForDigging && !isDeadFunc(zombie)) {
         if (zombie->m_isDigged == false) {
-            ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 22, 0);
+            ZombieEnterState(zombie, 22, 0);
         }
         else if (zombie->m_isDigged == true) {
-            ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 23, 0);
+            ZombieEnterState(zombie, 23, 0);
         }
     }
 }
 void TudigongWalkOnLoop(ZombieModernMiner* zombie)
 {
     isDeadOrDying isDeadFunc = (isDeadOrDying)getActualOffset(0xC3E204);
-    if (isDeadFunc(zombie)) {
-        ((setSpeedScale)getActualOffset(0xC484C0))(zombie, 1);
-        ((LoopWalk)getActualOffset(0xC506B4))(zombie);
+    if (ZombieIsDeadOrDying(zombie)) {
+        ZombieSetSpeedScale(zombie, 1);
+        CallFunc<void, ZombieModernMiner*>(0xC506B4, zombie);
         return;
     }
     auto props = reinterpret_cast<ZombieModernMinerProps*>(zombie->m_propertySheet.Get());
@@ -155,7 +156,7 @@ void TudigongWalkOnLoop(ZombieModernMiner* zombie)
             if (!zombie->m_isDigged && !zombie->m_diggedDone && ((zombie->m_teamFlags) & 2) != 0)
             {
                 zombie->m_isDigged = true;
-                ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 19, 0);
+                ZombieEnterState(zombie, 19, 0);
                 return; 
             }
         }
@@ -165,10 +166,10 @@ void TudigongWalkOnLoop(ZombieModernMiner* zombie)
     BoardEntity* target = getTarget(zombie);
     if (target != nullptr) {
         if (props->Smashable == true && rig->m_hasStick == true) {
-            ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 18, 0);
+            ZombieEnterState(zombie, 18, 0);
         }
         else {
-            ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 2, 0);
+            ZombieEnterState(zombie, 2, 0);
         }
     }
 }
@@ -208,14 +209,14 @@ void ZombieModernMiner::DiveInOnLoop(ZombieModernMiner* zombie)
 void ZombieModernMiner::DiveInOnExit(ZombieModernMiner* zombie)
 {
     auto props = reinterpret_cast<ZombieModernMinerProps*>(zombie->m_propertySheet.Get());
-    ((setSpeedScale)getActualOffset(0xC484C0))(zombie, props->DiggingSpeed);
+    ZombieSetSpeedScale(zombie, props->DiggingSpeed);
 }
 
 void ZombieModernMiner::DiggingOnEnter(ZombieModernMiner* zombie)
 {
     auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
     rig->m_digging = true;
-    ((zombieAllowMovement)getActualOffset(0xC51F94))(zombie, 1);
+    ZombieAllowMovement(zombie, true);
     return RegisterEventOnWalkLoop(zombie, "onDiggingContinued");
 }
 
@@ -223,15 +224,15 @@ void ZombieModernMiner::DiggingOnLoop(ZombieModernMiner* zombie)
 {
     isDeadOrDying isDeadFunc = (isDeadOrDying)getActualOffset(0xC3E204);
     if (isDeadFunc(zombie)) {
-        ((setSpeedScale)getActualOffset(0xC484C0))(zombie, 1);
+        ZombieSetSpeedScale(zombie, 1);
         return;
     }
     if (zombie->m_position.x <= 232.0f)
     {
        zombie->m_diggedDone = true; 
-       ((setSpeedScale)getActualOffset(0xC484C0))(zombie, 1);
-       ((zombieFlippedAnim)getActualOffset(0xC41290))(zombie, 1);
-       ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 21, 0);
+       ZombieSetSpeedScale(zombie, 1);
+       ZombieFlippedAnim(zombie, true);
+       ZombieEnterState(zombie, 21, 0);
     }
 }
 
@@ -272,7 +273,7 @@ void ZombieModernMiner::LostStickDiggingOnEnter(ZombieModernMiner* zombie)
 {
     auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
     rig->m_digging = false;
-    ((setSpeedScale)getActualOffset(0xC484C0))(zombie, 1);
+    ZombieSetSpeedScale(zombie, 1);
     RegisterEventAfterAnim(zombie, "specoal_out_2", "onLostStickDiggingCompleted");
 }
 
@@ -287,8 +288,8 @@ void ZombieModernMiner::LostStickDiggingOnExit(ZombieModernMiner* zombie)
 
 void DiveInCompletedCallback(Zombie* zombie) {
     ZombieModernMiner* diggerZombie = static_cast<ZombieModernMiner*>(zombie);
-    if (diggerZombie) {
-        ((zombieEnterState)getActualOffset(0xC3D428))(diggerZombie, 20, 0);
+    if (diggerZombie && !ZombieIsDeadOrDying(diggerZombie)) {
+        ZombieEnterState(diggerZombie, 20, 0);
     }
 }
 void DiggingCompletedCallback(Zombie* zombie) {
@@ -296,28 +297,28 @@ void DiggingCompletedCallback(Zombie* zombie) {
 }
 void DiveOutCompletedCallback(Zombie* zombie) {
     ZombieModernMiner* diggerZombie = static_cast<ZombieModernMiner*>(zombie);
-    if (diggerZombie) {
+    if (diggerZombie && !ZombieIsDeadOrDying(diggerZombie)) {
         diggerZombie->m_isDigged = false;
         diggerZombie->m_diggedDone = true;
-        ((zombieEnterState)getActualOffset(0xC3D428))(diggerZombie, 1, 0);
+        ZombieEnterState(diggerZombie, 1, 0);
     }
 }
 void LostStickCompletedCallback(Zombie* zombie) {
     ZombieModernMiner* diggerZombie = static_cast<ZombieModernMiner*>(zombie);
-    if (diggerZombie) {
+    if (diggerZombie && !ZombieIsDeadOrDying(diggerZombie)) {
         auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
         rig->m_hasStick = false;
-        ((zombieEnterState)getActualOffset(0xC3D428))(diggerZombie, 1, 0);
+        ZombieEnterState(diggerZombie, 1, 0);
     }
 }
 void LostStickDiggingCompletedCallback(Zombie* zombie) {
     ZombieModernMiner* diggerZombie = static_cast<ZombieModernMiner*>(zombie);
-    if (diggerZombie) {
+    if (diggerZombie && !ZombieIsDeadOrDying(diggerZombie)) {
         auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
         rig->m_hasStick = false;
         diggerZombie->m_isDigged = false;
         diggerZombie->m_diggedDone = false;
-        ((zombieEnterState)getActualOffset(0xC3D428))(diggerZombie, 1, 0);
+        ZombieEnterState(diggerZombie, 1, 0);
     }
 }
 void ZombieModernMiner::modInit() {

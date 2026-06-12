@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include "ZombieParticle.h"
+#include "ZombieHelper.h"
 
 
 #pragma region hk Condition To Apply
@@ -97,8 +98,6 @@ int GetConditionIDByName(const char* name)
 
 Zombie* ConditionModifier(ZombieModifierModule* module, Zombie* zombie) {
     auto* props = reinterpret_cast<ZombieModifierProperties*>(module->m_propertySheet.Get());
-    typedef void (*setConditionZ)(Zombie*, int, int, float, float);
-    setConditionZ setZCondition = (setConditionZ)getActualOffset(0xC40CC0);
     float lifetime = props->ConditionLifeTime;
 
     if (lifetime <= 0.0f)
@@ -114,11 +113,11 @@ Zombie* ConditionModifier(ZombieModifierModule* module, Zombie* zombie) {
 
             if (condID != -1 && condID == zombie_condition_shrinking)
             {
-                setZCondition(zombie, condID, 0, 0.01f, 0.0f);
+                ZombieSetCondition(zombie, condID, 0, 0.01f, 0.0f);
             }
             else if (condID != -1)
             {
-               setZCondition(zombie, condID, 0, lifetime, 0.0f);
+                ZombieSetCondition(zombie, condID, 0, lifetime, 0.0f);
             }
         }
     }
@@ -145,14 +144,11 @@ Zombie* StatModifier(ZombieModifierModule* module, Zombie* zombie) {
             armor->m_maxHealth *= finalHpScale;
         }
     }
-
-    typedef Zombie* (*setSpeedScale)(Zombie*, float);
-    return ((setSpeedScale)getActualOffset(0xC484C0))(zombie, props->SpeedScale);
+    ZombieSetSpeedScale(zombie, props->SpeedScale);
+    return zombie;
 }
 Zombie* FlyModifier(ZombieModifierModule* module, Zombie* zombie) {
-    typedef void (*SetFlyingFunc)(Zombie*, bool);
-    SetFlyingFunc setFlying = (SetFlyingFunc)getActualOffset(0xC4C770);
-    setFlying(zombie, true);
+    ZombieIsFlying(zombie, true);
     return zombie;
 }
 Zombie* hkModifierModule(ZombieModifierModule* module, Zombie* zombie) {

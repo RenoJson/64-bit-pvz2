@@ -79,9 +79,12 @@ Sexy::Rect LostCityGargantuarGetAttackRect(ZombieLostCityTorchGargantuar* zombie
         GetAnimRigSpritePosition(rig, "torch_end_lit", &torchLitPos);
         GetAnimRigSpritePosition(rig, "Zombie_gargantuar_outerarm_hand", &outerArmPos);
 
-        float currentTorchReachX = torchLitPos.x - outerArmPos.x;
+        float currentTorchReachX = outerArmPos.x - torchLitPos.x;
         float maxReachLimit = props->MaxTorchReach;
-        float finalReach = std::max(currentTorchReachX, maxReachLimit);
+        if (ZombieHasCondition(zombie, zombie_condition_shrinking) || ZombieHasCondition(zombie, zombie_condition_shrunken)) {
+            maxReachLimit = props->MaxTorchReach / 2;
+        }
+        float finalReach = std::min(currentTorchReachX, maxReachLimit);
 
         int oldX = attackRect.mX;
         attackRect.mX = static_cast<int>((facing * finalReach) + static_cast<float>(attackRect.mX));

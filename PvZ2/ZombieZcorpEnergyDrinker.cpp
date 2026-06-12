@@ -5,6 +5,7 @@
 #include "ZombieState.h"
 #include "StateMachineBuilder.h"
 #include "Board.h"
+#include "ZombieHelper.h"
 
 
 typedef void (*zombieEnterState)(ZombieZCorpEnergyDrinker*, int, int);
@@ -23,25 +24,23 @@ void DrinkerOnSpawn(ZombieZCorpEnergyDrinker* zombie) {
     auto rig = reinterpret_cast<ZombieAnimRig_EnergyDrinker*>(zombie->m_animRig.Get());
     zombie->m_gotCondition = false;
     rig->m_gotCondition = false;
-    typedef void (*zombieFun49)(ZombieZCorpEnergyDrinker*);
-    ((zombieFun49)getActualOffset(0xC3D1F0))(zombie);
+    ZombieOnSpawn(zombie);
 }
 void DrinkerWalkOnLoop(ZombieZCorpEnergyDrinker* zombie)
 {
-    isDeadOrDying isDeadFunc = (isDeadOrDying)getActualOffset(0xC3E204);
-    if (isDeadFunc(zombie)) {
-        ((LoopWalk)getActualOffset(0xC506B4))(zombie);
+    if (ZombieIsDeadOrDying(zombie)) {
+        CallFunc<void, ZombieZCorpEnergyDrinker*>(0xC506B4, zombie);
         return;
     }
     auto* props = reinterpret_cast<ZombieZCorpEnergyDrinkerProps*>(zombie->m_propertySheet.Get());
 
     if (zombie->m_position.x <= 744.0f) {
         if (zombie->m_gotCondition == false && ((zombie->m_teamFlags) & 2) != 0) {
-            ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 16, 0);
+            ZombieEnterState(zombie, 16, 0);
             return;
         }
     }
-    ((LoopWalk)getActualOffset(0xC506B4))(zombie);
+    CallFunc<void, ZombieZCorpEnergyDrinker*>(0xC506B4, zombie);
 }
 int GetCondIDByName(const char* name)
 {
@@ -129,8 +128,6 @@ int GetCondIDByName(const char* name)
 
 void CondZombie(Zombie* self) {
     auto* props = reinterpret_cast<ZombieZCorpEnergyDrinkerProps*>(self->m_propertySheet.Get());
-    typedef void (*setConditionZ)(Zombie*, int, int, float, float);
-    static setConditionZ setZCondition = (setConditionZ)getActualOffset(0xC40CC0);
 
     float lifetime = props->ConditionLifeTime;
     if (lifetime <= 0.0f) {
@@ -146,17 +143,16 @@ void CondZombie(Zombie* self) {
         int condID = GetCondIDByName(conditionName.c_str());
         if (condID != -1) {
             if (condID == zombie_condition_shrinking) {
-                setZCondition(self, condID, 0, 0.01f, 0.0f);
+                ZombieSetCondition(self, condID, 0, 0.01f, 0.0f);
             }
             else if (condID == zombie_condition_stun || condID == zombie_condition_dazeystunned) {
-                setZCondition(self, condID, 0, lifetime, 0.0f);
+                ZombieSetCondition(self, condID, 0, lifetime, 0.0f);
             }
             else {
-                setZCondition(self, condID, 0, lifetime, 0.0f);
+                ZombieSetCondition(self, condID, 0, lifetime, 0.0f);
             }
-            LOGI("[CondZombie] Applied random condition: %s", conditionName.c_str());
         }
-        };
+    };
     float goodChance = props->ChanceToApplyGoodCondition;
     float badChance = props->ChanceToApplyBadCondition;
     float totalChance = goodChance + badChance;
@@ -195,7 +191,7 @@ void ZombieZCorpEnergyDrinker::DrinkingOnExit(ZombieZCorpEnergyDrinker* zombie)
 void DrinkingCompletedCallback(Zombie* zombie) {
     ZombieZCorpEnergyDrinker* boxZombie = static_cast<ZombieZCorpEnergyDrinker*>(zombie);
     if (boxZombie) {
-        ((zombieEnterState)getActualOffset(0xC3D428))(boxZombie, 1, 0);
+        ZombieEnterState(boxZombie, 1, 0);
     }
 }
 void ZombieZCorpEnergyDrinker::modInit() {

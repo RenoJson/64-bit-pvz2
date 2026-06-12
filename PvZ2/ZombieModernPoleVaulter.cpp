@@ -74,10 +74,7 @@ void PoleWalkOnLoop(ZombieModernPoleVaulter* zombie)
 		int zRow = static_cast<int>((zY - 160.0f) / 76.0f);
 
 		std::vector<BoardEntity*> entityList;
-		typedef void (*GetEntitiesInRectPixelFunc)(std::vector<BoardEntity*>*, int, Rect*, int, int);
-		GetEntitiesInRectPixelFunc getEntitiesRectPixel = (GetEntitiesInRectPixelFunc)getActualOffset(0x86F340);
-
-		getEntitiesRectPixel(&entityList, 38, &jumpRect, zRow, zRow);
+		GetEntitiesInRectPixel(&entityList, 38, &jumpRect, zRow, zRow);
 		bool foundObstacle = false;
 		BoardEntityHeight finalHeight = BoardEntityHeight::ground;
 
@@ -202,7 +199,7 @@ void ZombieModernPoleVaulter::FarJumpOnExit(ZombieModernPoleVaulter* zombie)
 void JumpingCompletedCallback(Zombie* zombie) {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPoleVaulter*>(zombie->m_animRig.Get());
 	ZombieModernPoleVaulter* poleZombie = static_cast<ZombieModernPoleVaulter*>(zombie);
-	if (poleZombie) {
+	if (poleZombie && !ZombieIsDeadOrDying(poleZombie)) {
 		rig->m_hasPole = false;
 		ZombieEnterState(poleZombie, 1, 0);
 		SetWalkSpeed(rig, PoleGetWalkSpeed(poleZombie));
@@ -211,7 +208,7 @@ void JumpingCompletedCallback(Zombie* zombie) {
 void BonkingCompletedCallback(Zombie* zombie) {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPoleVaulter*>(zombie->m_animRig.Get());
 	ZombieModernPoleVaulter* poleZombie = static_cast<ZombieModernPoleVaulter*>(zombie);
-	if (poleZombie) {
+	if (poleZombie && !ZombieIsDeadOrDying(poleZombie)) {
 		rig->m_hasPole = false;
 		ZombieEnterState(poleZombie, 1, 0);
 		SetWalkSpeed(rig, PoleGetWalkSpeed(poleZombie));
@@ -220,7 +217,7 @@ void BonkingCompletedCallback(Zombie* zombie) {
 void FarJumpingCompletedCallback(Zombie* zombie) {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPoleVaulter*>(zombie->m_animRig.Get());
 	ZombieModernPoleVaulter* poleZombie = static_cast<ZombieModernPoleVaulter*>(zombie);
-	if (poleZombie) {
+	if (poleZombie && !ZombieIsDeadOrDying(poleZombie)) {
 		rig->m_hasPole = false;
 		ZombieEnterState(poleZombie, 1, 0);
 		SetWalkSpeed(rig, PoleGetWalkSpeed(poleZombie));

@@ -658,6 +658,7 @@ void libChair_main()
     ZombieModernBerserker::ModInit(); //free stuff
     ZombieLostCityTorchGargantuar::modInit();// free stuff
     ZombieLostCityGargantuarProps::modInit();// free stuff
+    PatchRedStingerPF();// free stuff
 
     ZombieCamelProps::modInit();
     ZombieCamelTouchProps::modInit();
@@ -713,5 +714,4 @@ void libChair_main()
     ZombieModernDolphinRider::ModInit();
     ZombieModernDolphinRiderProps::modInit();
 	ZombieAnimRig_ModernDolphinRider::modInit();
-    PatchRedStingerPF();
 }

@@ -2,6 +2,7 @@
 #include "ZombieJourneyToTheWestBalloonProps.h"
 #include "ZombieAnimRig_ModernBalloon.h";
 #include "DamageInfo.h"
+#include "ZombieHelper.h"
 
 void* ZombieJourneyToTheWestBalloon::vftable = __null;
 Sexy::RtClass* ZombieJourneyToTheWestBalloon::s_rtClass = __null;;
@@ -47,8 +48,8 @@ void* BallonTakeDamage(ZombieJourneyToTheWestBalloon* thisPtr, DamageInfo* damag
                 float effDamageScale = thisPtr->m_damageScale;
                 calculatedDamage /= effDamageScale;
 
-                bool isShrunken = CallFunc<bool, Zombie*, int>(0xC3E44C, thisPtr, zombie_condition_shrinking)
-                    || CallFunc<bool, Zombie*, int>(0xC3E44C, thisPtr, zombie_condition_shrunken);
+                bool isShrunken = ZombieHasCondition(thisPtr, zombie_condition_shrinking)
+                    || ZombieHasCondition(thisPtr, zombie_condition_shrunken);
 
                 if (isShrunken && thisPtr->m_shrunkenDamageScale > 0.001f)
                 {

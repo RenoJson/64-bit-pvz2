@@ -5,16 +5,10 @@
 #include "Plant.h"
 #include "DamageInfo.h"
 #include "ZombieImp.h"
+#include "ZombieHelper.h"
 
 void* ZombieModernBerserker::vftable = nullptr;
 Sexy::RtClass* ZombieModernBerserker::s_rtClass = nullptr;;
-typedef void (*zombieEnterState)(ZombieModernBerserker*, int, int);
-typedef void (*LoopWalk)(ZombieModernBerserker*);
-typedef void (*LoopEat)(ZombieModernBerserker*);
-typedef void (*ActionFrame)(ZombieModernBerserker*, int64_t, SexyString*, int64_t, SexyString*);
-typedef void (*killTarg)(BoardEntity*, ZombieModernBerserker*);
-typedef BoardEntity* (*getTarg)(ZombieModernBerserker*);
-typedef void (*setSpeedScale)(ZombieModernBerserker*, float);
 typedef BoardEntity* (*getTarg)(ZombieModernBerserker*);
 
 DECLARE_DELEGATES_SETUP(ZombieModernBerserker)
@@ -25,27 +19,21 @@ void BerserkerLoopWalk(ZombieModernBerserker* zombie)
 {
 	auto props = reinterpret_cast<ZombieModernBerserkerProps*>(zombie->m_propertySheet.Get());
 	if (props->ChargeCooldown <= 0.0f || zombie->m_elapsedTimeInState <= props->ChargeCooldown) {
-		((LoopWalk)getActualOffset(0xBB9430))(zombie);
+		CallFunc<void, ZombieModernBerserker*>(0xBB9430, zombie);
 	}
 	else {
-		((zombieEnterState)getActualOffset(0xC3D428))(zombie, 19, 0);
+		ZombieEnterState(zombie, 19, 0);
 	}
 }
 void BerserkerLoopEat(ZombieModernBerserker* zombie)
 {
 	auto props = reinterpret_cast<ZombieModernBerserkerProps*>(zombie->m_propertySheet.Get());
 	if (props->ChargeCooldown <= 0.0f || zombie->m_elapsedTimeInState <= props->ChargeCooldown) {
-		((LoopEat)getActualOffset(0xC5082C))(zombie);
+		CallFunc<void, ZombieModernBerserker*>(0xC5082C, zombie);
 	}
 	else {
-		((zombieEnterState)getActualOffset(0xC3D428))(zombie, 19, 0);
+		ZombieEnterState(zombie, 19, 0);
 	}
-}
-float BerserkerIsFacingOrNot(Zombie* zombie) {
-	if (!zombie->m_facing) {
-		return 1.0f;
-	}
-	return -1.0f;
 }
 void RunOnLoop(ZombieModernBerserker* zombie)
 {
@@ -57,7 +45,7 @@ void RunOnLoop(ZombieModernBerserker* zombie)
 	float zX = zombie->m_position.x; 
 	float zY = zombie->m_position.y;
 	float zZ = zombie->m_position.z; 
-	float facing = BerserkerIsFacingOrNot(zombie);
+	float facing = ZombieFacing(zombie);
 
 	attackRect.mX = static_cast<int>(zX - (attackRect.mWidth / 2.0f) + (facing * props->AttackRect.mX));
 	attackRect.mY = static_cast<int>((zY - zZ) - attackRect.mHeight + props->AttackRect.mY);
@@ -86,7 +74,7 @@ void RunOnLoop(ZombieModernBerserker* zombie)
 		getTarg getTarget = (getTarg)getActualOffset(0xC41910);
 		if (getTarget(zombie))
 		{
-			((zombieEnterState)getActualOffset(0xC3D428))(zombie, 17, 0);
+			ZombieEnterState(zombie, 17, 0);
 		}
 	}
 }
@@ -96,7 +84,7 @@ void RunOnExit(ZombieModernBerserker* zombie)
 }
 void TackleOnEnter(ZombieModernBerserker* zombie)
 {
-	((setSpeedScale)getActualOffset(0xC484C0))(zombie, 1);
+	ZombieSetSpeedScale(zombie, 1);
 	RegisterEventAfterAnim(zombie, "tackle", "onTackleAnimationStopped");
 }
 
@@ -117,9 +105,9 @@ void ZombieModernBerserker::ChargeOnExit(ZombieModernBerserker* zombie)
 
 void ChargeCompletedCallback(Zombie* zombie)
 {
-	ZombieModernBerserker* poleZombie = static_cast<ZombieModernBerserker*>(zombie);
-	if (poleZombie) {
-		((zombieEnterState)getActualOffset(0xC3D428))(poleZombie, 16, 0);
+	ZombieModernBerserker* berserkerZombie = static_cast<ZombieModernBerserker*>(zombie);
+	if (berserkerZombie) {
+		ZombieEnterState(berserkerZombie, 16, 0);
 	}
 }
 void ZombieModernBerserker::ModInit() {

@@ -1,12 +1,11 @@
 #include "ZombieGargantuar.h"
 #include "GridItem.h"
+#include "ZombieHelper.h"
 
 void* ZombieVaseGargantuar::vftable = __null;
 Sexy::RtClass* ZombieVaseGargantuar::s_rtClass = __null;;
 
 typedef BoardEntity* (*getTarg)(ZombieVaseGargantuar*);
-typedef void (*zombieEnterState)(ZombieVaseGargantuar*, int, int);
-typedef void (*LoopWalk)(ZombieVaseGargantuar*);
 
 void VaseWalkOnLoop(ZombieVaseGargantuar* zombie) {
     bool foundVaseToSmash = false;
@@ -23,9 +22,7 @@ void VaseWalkOnLoop(ZombieVaseGargantuar* zombie) {
     scanRect.mHeight = 1; 
 
     std::vector<BoardEntity*> entityList;
-    typedef void (*GetEntitiesInRectFunc)(std::vector<BoardEntity*>*, int, Rect*);
-    GetEntitiesInRectFunc getEntitiesRect = (GetEntitiesInRectFunc)getActualOffset(0x86F180);
-    getEntitiesRect(&entityList, 63, &scanRect);
+    GetEntitiesInRectGrid(&entityList, 63, &scanRect);
 
     for (BoardEntity* ptr : entityList) {
         if (ptr == nullptr) continue;
@@ -41,10 +38,10 @@ void VaseWalkOnLoop(ZombieVaseGargantuar* zombie) {
     }
 
     if (foundVaseToSmash) {
-        ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 16, 0); 
+        ZombieEnterState(zombie, 16, 0); 
     }
     else {
-        ((LoopWalk)getActualOffset(0xB4C934))(zombie); 
+        CallFunc<void, ZombieVaseGargantuar*>(0xB4C934, zombie);
     }
 }
 void hkVaseGargantuarActionFrame(ZombieVaseGargantuar* zombie, int64_t unk1, SexyString* actionName, int64_t unk2, SexyString* currentAnim)
@@ -55,8 +52,6 @@ void hkVaseGargantuarActionFrame(ZombieVaseGargantuar* zombie, int64_t unk1, Sex
     typedef void* (*Func_VaseBreak)(GridItemVase*);
     Func_VaseBreak breakVase = (Func_VaseBreak)getActualOffset(0xA322B8);
 
-    typedef void (*GetEntitiesInRectFunc)(std::vector<BoardEntity*>*, int, Rect*);
-    GetEntitiesInRectFunc getEntitiesRect = (GetEntitiesInRectFunc)getActualOffset(0x86F180);
 
 	if (*actionName == "smash_vase")
 	{
@@ -73,7 +68,7 @@ void hkVaseGargantuarActionFrame(ZombieVaseGargantuar* zombie, int64_t unk1, Sex
         smashRect.mHeight = 1;
 
         std::vector<BoardEntity*> entityList;
-        getEntitiesRect(&entityList, 63, &smashRect);
+        GetEntitiesInRectGrid(&entityList, 63, &smashRect);
 
         for (BoardEntity* ptr : entityList) {
             if (ptr == nullptr) continue;
