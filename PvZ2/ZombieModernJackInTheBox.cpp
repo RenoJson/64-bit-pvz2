@@ -82,6 +82,7 @@ void BoxOnSpawn(ZombieModernJackInTheBox* zombie)
     ZombieOnSpawn(zombie);
     if (ZombieHasArmor(zombie, "JackInTheBox"))
     {
+        ZombiePlaySoundEvent(zombie, "Play_JackInTheBox_MusicBox", 0.0f);
         ZombieSetSpeedScale(zombie, props->HaveBoxSpeedScale);
     }
 }
