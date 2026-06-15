@@ -12,7 +12,6 @@
 
 void* ZombieModernDolphinRider::vftable = nullptr;
 Sexy::RtClass* ZombieModernDolphinRider::s_rtClass = nullptr;;
-typedef void* (*playSoundEvent)(ZombieModernDolphinRider*, const SexyString&, float);
 typedef bool (*isHeadDrop)(ZombieModernDolphinRider*);
 typedef bool (*isInWaterRegion)(Board*, SexyVector3*);
 
