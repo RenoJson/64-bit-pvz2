@@ -92,20 +92,9 @@ void PogoOnSpawn(ZombieModernPogo* zombie)
 {
 	zombie->m_hasTakenCatastrophicDamage = false;
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPogo*>(zombie->m_animRig.Get());
-	for (auto& weakArmor : zombie->m_armor)
-    {
-        Armor* armor = weakArmor.Get();
-        if (armor != nullptr)
-        {
-            auto* armorProps = reinterpret_cast<ArmorPropertySheet*>(armor->m_propertySheetPtr.Get());
-
-            if (armorProps != nullptr && armorProps->ArmorType == "Pogo")
-            {
-				rig->m_hasPogo = true;
-                break;
-            }
-        }
-    }
+	if (ZombieHasArmor(zombie, "Pogo")) {
+		rig->m_hasPogo = true;
+	}
 	ZombieOnSpawn(zombie);
 	SetWalkSpeed(rig, PogoGetWalkSpeed(zombie));
 	ZombieEnterState(zombie, 19, 0);

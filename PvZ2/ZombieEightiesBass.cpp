@@ -17,7 +17,6 @@ typedef Zombie* (*setEffectAnim)(Zombie*, const char*, const char*, const char*,
 typedef int (*playAnimWithCallback)(ZombieAnimRig*, const SexyString&, int, ZombieEvent& event);
 typedef ZombieEvent* (*ConstructEvent)(ZombieEvent*, RtWeakPtr<Zombie>& owner, const SexyString& eventName);
 typedef bool (*isAnimDone)(ZombieAnimRig*, int);
-typedef Zombie* (*removeeffectCondition)(Zombie*, ZombieConditions);
 
 typedef bool (*isTossedByPlant)(Zombie*, int);
 DECLARE_DELEGATES_SETUP(ZombieEightiesBass)
@@ -200,6 +199,7 @@ void ZombieEightiesBass::GuitarAttackOnEnter(ZombieEightiesBass* zombie)
     }
     if (targetSpeaker != nullptr) {
         auto* props = reinterpret_cast<ZombieEightiesBassProps*>(zombie->m_propertySheet.Get());
+        ZombiePlaySoundEvent(zombie, props->SoundOnRifting, 0.0f);
         Projectile* shockwave = AddProjectile(&props->ShockWaveProjectile,
                                                 zombie,
                                                 targetSpeaker->m_position.x - props->ShockWaveSpawnOffset.x,
@@ -306,7 +306,7 @@ void ZombieEightiesBass::GuitarIdleOnExit(ZombieEightiesBass* zombie)
 
 void ZombieEightiesBass::GuitarBreakOnEnter(ZombieEightiesBass* zombie)
 {
-    if (zombie->m_isRifting == true) {
+    if (zombie->m_isRifting == true && zombie->m_isJamming == true) {
         typedef int (*removeEffectAnim)(AttachedEffectManager*, const SexyString&);
         removeEffectAnim removeAnim = (removeEffectAnim)getActualOffset(0x662360);
         removeAnim(&zombie->m_attachedEffects, "rifting_idle");
@@ -332,6 +332,8 @@ void ZombieEightiesBass::GuitarBreakOnExit(ZombieEightiesBass* zombie)
 
 void ZombieEightiesBass::GrandDebutOnEnter(ZombieEightiesBass* zombie)
 {
+    auto* props = reinterpret_cast<ZombieEightiesBassProps*>(zombie->m_propertySheet.Get());
+    ZombiePlaySoundEvent(zombie, props->SoundOnDebut, 0.0f);
     zombie->m_teamFlags = 0;
     auto animRig = reinterpret_cast<ZombieAnimRig_EightiesBass*>(zombie->m_animRig.Get());
 	zombie->m_isInGrandDebut = true;

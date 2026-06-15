@@ -14,15 +14,6 @@
 
 void* ZombieModernJackInTheBox::vftable = nullptr;
 Sexy::RtClass* ZombieModernJackInTheBox::s_rtClass = nullptr;;
-typedef void (*zombieEnterState)(ZombieModernJackInTheBox*, int, int);
-typedef void* (*playSoundEvent)(ZombieModernJackInTheBox*, SexyString*, float);
-typedef Zombie* (*zombieAllowMovement)(Zombie*, int);
-typedef void (*LoopWalk)(ZombieModernJackInTheBox*);
-typedef void (*LoopEat)(ZombieModernJackInTheBox*);
-typedef Plant* (*getTarg)(ZombieModernJackInTheBox*);
-typedef bool (*isDeadOrDying)(ZombieModernJackInTheBox*);
-typedef void (*setSpeedScale)(ZombieModernJackInTheBox*, float);
-typedef void (*Destroy)(ZombieModernJackInTheBox*);
 std::map<GridItemVase*, float> g_VaseRevealTimers;
 DECLARE_DELEGATES_SETUP(ZombieModernJackInTheBox)
 
@@ -96,7 +87,6 @@ void BoxOnSpawn(ZombieModernJackInTheBox* zombie)
 }
 void BoxOnArmorDestroyed(ZombieModernJackInTheBox* zombie, int a2, SexyString* armorName)
 {
-    isDeadOrDying ZombieIsDeadOrDying = (isDeadOrDying)getActualOffset(0xC3E204);
     if (*armorName == "JackInTheBox" && !ZombieIsDeadOrDying(zombie)) {
         ZombieEnterState(zombie, 16, 0);
     }

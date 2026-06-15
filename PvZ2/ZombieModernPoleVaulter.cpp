@@ -150,8 +150,11 @@ void PoleWalkOnLoop(ZombieModernPoleVaulter* zombie)
 				}
 			}
 		}
+		return;
 	}
-	CallFunc<void, ZombieModernPoleVaulter*>(0xC506B4, zombie);
+	else {
+		CallFunc<void, ZombieModernPoleVaulter*>(0xC506B4, zombie);
+	}
 }
 
 void ZombieModernPoleVaulter::JumpOnEnter(ZombieModernPoleVaulter* zombie)

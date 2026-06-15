@@ -18,6 +18,9 @@ SexyString GetPigAshEffectName()
 {
 	return "POPANIM_EFFECTS_ZOMBIE_PIG_ASH";
 }
+bool PigIsShrunkenToObvillion() {
+	return true;
+}
 void ZombieJourneyToTheWestPiggy::ModInit() {
 	LOGI("ZombiePiggy mod init");
 
@@ -26,6 +29,7 @@ void ZombieJourneyToTheWestPiggy::ModInit() {
 	PatchVFTable(vftable, (void*)hkPigGetWalkSpeed, 118);
 	PatchVFTable(vftable, (void*)GetPigShockEffectName, 189);
 	PatchVFTable(vftable, (void*)GetPigAshEffectName, 190);
+	PatchVFTable(vftable, (void*)PigIsShrunkenToObvillion, 200);
 	ZombieJourneyToTheWestPiggy::StaticGetType();
 	LOGI("ZombiePiggy finish init");
 }

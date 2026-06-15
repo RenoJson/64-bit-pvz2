@@ -46,7 +46,7 @@ inline void ZombiePlaySoundEvent(Zombie* zombie, const SexyString& eventName, fl
 }
 
 inline void ZombieSetCondition(Zombie* zombie, int conditionID, int a3, float duration, float a5) {
-	CallFunc<void, Zombie*, int, int, float, float>(0x10B0608, zombie, conditionID, a3, duration, a5);
+	CallFunc<void, Zombie*, int, int, float, float>(0xC40CC0, zombie, conditionID, a3, duration, a5);
 }
 
 inline void ZombieSetSpeedScale(Zombie* zombie, float scale) {
@@ -66,7 +66,7 @@ inline bool ZombieHasArmor(Zombie* zombie, const SexyString& armorName) {
 }
 
 
-// Anim Rig Helper Function Start From Here
+// Zombie Anim Rig Helper Function Start From Here
 
 inline bool SetAnimLayerVisible(ZombieAnimRig* animRig, const SexyString& layerName, bool visible){
 	return CallFunc<bool, ZombieAnimRig*, const SexyString&, bool>(0x9DB8D0, animRig, layerName, visible);
@@ -85,6 +85,6 @@ inline void GetEntitiesInRectGrid(std::vector<BoardEntity*>* entities, uint type
 	CallFunc<void, std::vector<BoardEntity*>*, uint, Rect*>(0x86F180, entities, typeID, area);
 }
 
-inline void GetEntitiesInRectPixel(std::vector<BoardEntity*>* entities, uint typeID, Rect* area, int mY, int mY1) {
-	CallFunc<void, std::vector<BoardEntity*>*, uint, Rect*, int, int>(0x86F340, entities, typeID, area, mY, mY1);
+inline void GetEntitiesInRectPixel(std::vector<BoardEntity*>* entities, uint typeID, Rect* area, int minRow, int maxRow) {
+	CallFunc<void, std::vector<BoardEntity*>*, uint, Rect*, int, int>(0x86F340, entities, typeID, area, minRow, maxRow);
 }

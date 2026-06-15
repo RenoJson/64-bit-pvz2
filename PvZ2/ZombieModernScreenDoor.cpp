@@ -14,23 +14,11 @@ static Sexy::DelegateBase lostDoorCompletedDelegate;
 
 void* ZombieModernScreenDoor::vftable = nullptr;
 Sexy::RtClass* ZombieModernScreenDoor::s_rtClass = nullptr;;
-typedef void (*zombieEnterState)(ZombieModernScreenDoor*, int, int);
 
-typedef Zombie* (*update)(ZombieModernScreenDoor*);
-typedef bool (*checkZombieHasCondition)(Zombie*, int);
-typedef Zombie* (*removeCondition)(Zombie*, int);
-typedef bool (*isDeadOrDying)(ZombieModernScreenDoor*); 
 typedef uint64_t(*VirtualGetDamageFlagsFunc)(Projectile*);
 typedef bool (*VirtualIsValidTargetFunc)(Zombie*, uint64_t);
 typedef bool (*VirtualDoImpactFunc)(Projectile*, Zombie*);
-typedef bool (*HasArmorFunc)(Zombie*, const SexyString&);
 
-float DoorIsFacingOrNot(Zombie* zombie) {
-    if (!zombie->m_facing) {
-        return 1.0f;
-    }
-    return -1.0f;
-}
 Sexy::Rect ScreenDoorGetHitRect(ZombieModernScreenDoor* zombie) {
     auto props = reinterpret_cast<ZombieModernScreenDoorProps*>(zombie->m_propertySheet.Get());
     Rect hitRect;
