@@ -121,7 +121,7 @@ void BoxEatOnLoop(ZombieModernJackInTheBox* zombie)
     auto props = reinterpret_cast<ZombieModernJackInTheBoxProps*>(zombie->m_propertySheet.Get());
     CallFunc<void, ZombieModernJackInTheBox*>(0xC5082C, zombie);
     if (rig->m_hasBox == true && zombie->m_position.x <= props->MinXPosToExplode) {
-        if (TimeMgr::GetInstance()->m_curTime >= zombie->m_finalExplosionTime) {
+        if (TimeMgr::GetInstance()->m_curTime >= zombie->m_finalExplosionTime && ((zombie->m_teamFlags) & 2) != 0) {
             ZombieEnterState(zombie, 17, 0);
             return;
         }
@@ -217,6 +217,21 @@ void BoxOnGetCondition(ZombieModernJackInTheBox* zombie, int conditionID)
     {
         ZombiePlaySoundEvent(zombie, "Stop_JackInTheBox_MusicBox", 0.0f);
 	}
+}
+void BoxOnElectrocute(ZombieModernJackInTheBox* zombie)
+{
+    ZombiePlaySoundEvent(zombie, "Stop_JackInTheBox_MusicBox", 0.0f);
+    CallFunc<void, ZombieModernJackInTheBox*>(0xC51FB0, zombie);
+}
+void BoxOnAsh(ZombieModernJackInTheBox* zombie)
+{
+    ZombiePlaySoundEvent(zombie, "Stop_JackInTheBox_MusicBox", 0.0f);
+    CallFunc<void, ZombieModernJackInTheBox*>(0xC5274C, zombie);
+}
+void BoxOnDeath(ZombieModernJackInTheBox* zombie)
+{
+    ZombiePlaySoundEvent(zombie, "Stop_JackInTheBox_MusicBox", 0.0f);
+    CallFunc<void, ZombieModernJackInTheBox*>(0xC51A40, zombie);
 }
 void ZombieModernJackInTheBox::LostBoxOnEnter(ZombieModernJackInTheBox* zombie)
 {
@@ -319,6 +334,9 @@ void ZombieModernJackInTheBox::ModInit() {
     PatchVFTable(vftable, (void*)BoxWalkOnLoop, 124);
     PatchVFTable(vftable, (void*)BoxEatOnLoop, 127);
     PatchVFTable(vftable, (void*)BoxActionFrame, 170);
+    PatchVFTable(vftable, (void*)BoxOnElectrocute, 172);
+    PatchVFTable(vftable, (void*)BoxOnAsh, 173);
+    PatchVFTable(vftable, (void*)BoxOnDeath, 197);
 
     PatchVFTable(vftable, (void*)ZombieModernJackInTheBox::LostBoxOnEnter, 204);
     PatchVFTable(vftable, (void*)ZombieModernJackInTheBox::LostBoxOnLoop, 205);

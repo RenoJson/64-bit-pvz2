@@ -81,9 +81,6 @@ Sexy::Rect LostCityGargantuarGetAttackRect(ZombieLostCityTorchGargantuar* zombie
 
         float currentTorchReachX = outerArmPos.x - torchLitPos.x;
         float maxReachLimit = props->MaxTorchReach;
-        if (ZombieHasCondition(zombie, zombie_condition_shrinking) || ZombieHasCondition(zombie, zombie_condition_shrunken)) {
-            maxReachLimit = props->MaxTorchReach / 2;
-        }
         float finalReach = std::min(currentTorchReachX, maxReachLimit);
 
         int oldX = attackRect.mX;
@@ -121,8 +118,6 @@ void LostCityGargantuarWalkOnLoop(ZombieLostCityTorchGargantuar* zombie) {
 
 void LostCityGargantuarOnCreate(ZombieLostCityTorchGargantuar* self) {
     self->m_hasTorch = true;
-    auto rig = reinterpret_cast<ZombieAnimRig_Gargantuar*>(self->m_animRig.Get());
-    SetFlameLayersVisible(self, rig, true);
 }
 void LostCityGargFunction171(ZombieLostCityTorchGargantuar* self) {
     if(self->m_hasTorch == true) {
