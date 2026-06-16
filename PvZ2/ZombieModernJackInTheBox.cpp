@@ -21,6 +21,11 @@ static Sexy::DelegateBase lostBoxCompletedDelegate;
 
 static Sexy::DelegateBase explodedCompletedDelegate;
 
+void BoxOnDestroy(ZombieModernJackInTheBox* zombie)
+{
+    CallFunc<void, ZombieModernJackInTheBox*>(0xC40854, zombie);
+    ZombiePlaySoundEvent(zombie, "Stop_JackInTheBox_MusicBox", 0.0f);
+}
 bool BoxShouldIgnoreCollision(ZombieModernJackInTheBox* zombie, Projectile* proj)
 {
     int myTeam = zombie->m_teamFlags;
@@ -214,25 +219,6 @@ void BoxOnGetCondition(ZombieModernJackInTheBox* zombie, int conditionID)
     {
         ZombieEnterState(zombie, 17, 0);
     }
-    if (conditionID == zombie_condition_stun || conditionID == zombie_condition_warpingIn)
-    {
-        ZombiePlaySoundEvent(zombie, "Stop_JackInTheBox_MusicBox", 0.0f);
-	}
-}
-void BoxOnElectrocute(ZombieModernJackInTheBox* zombie)
-{
-    ZombiePlaySoundEvent(zombie, "Stop_JackInTheBox_MusicBox", 0.0f);
-    CallFunc<void, ZombieModernJackInTheBox*>(0xC51FB0, zombie);
-}
-void BoxOnAsh(ZombieModernJackInTheBox* zombie)
-{
-    ZombiePlaySoundEvent(zombie, "Stop_JackInTheBox_MusicBox", 0.0f);
-    CallFunc<void, ZombieModernJackInTheBox*>(0xC5274C, zombie);
-}
-void BoxOnDeath(ZombieModernJackInTheBox* zombie)
-{
-    ZombiePlaySoundEvent(zombie, "Stop_JackInTheBox_MusicBox", 0.0f);
-    CallFunc<void, ZombieModernJackInTheBox*>(0xC51A40, zombie);
 }
 void ZombieModernJackInTheBox::LostBoxOnEnter(ZombieModernJackInTheBox* zombie)
 {
@@ -328,6 +314,7 @@ void ZombieModernJackInTheBox::ModInit() {
     vftable = CreateChildVFTable(204 + 9, getActualOffset(0x241D430), 204);
     PatchVFTable(vftable, (void*)ZombieModernJackInTheBox::StaticGetType, 0);
 
+    PatchVFTable(vftable, (void*)BoxOnDestroy, 12);
     PatchVFTable(vftable, (void*)BoxShouldIgnoreCollision, 43);
     PatchVFTable(vftable, (void*)BoxOnSpawn, 49);
     PatchVFTable(vftable, (void*)BoxOnGetCondition, 71);
@@ -335,9 +322,6 @@ void ZombieModernJackInTheBox::ModInit() {
     PatchVFTable(vftable, (void*)BoxWalkOnLoop, 124);
     PatchVFTable(vftable, (void*)BoxEatOnLoop, 127);
     PatchVFTable(vftable, (void*)BoxActionFrame, 170);
-    PatchVFTable(vftable, (void*)BoxOnElectrocute, 172);
-    PatchVFTable(vftable, (void*)BoxOnAsh, 173);
-    PatchVFTable(vftable, (void*)BoxOnDeath, 197);
 
     PatchVFTable(vftable, (void*)ZombieModernJackInTheBox::LostBoxOnEnter, 204);
     PatchVFTable(vftable, (void*)ZombieModernJackInTheBox::LostBoxOnLoop, 205);
