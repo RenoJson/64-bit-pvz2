@@ -1,12 +1,13 @@
 #pragma once
-
+#include "Image.h"
 namespace Sexy
 {
 	class Image;
 
-	class Graphics
+	class GraphicsState
 	{
 	public:
+		void** vftable;
 		Image* mDestImage;
 		float mTransX;
 		float mTransY;
@@ -16,22 +17,30 @@ namespace Sexy
 		float mScaleOrigY;
 		Rect mClipRect;
 		Color mColor;
-		int mFont; // Sexy::Font type
+		void* mFont; // Sexy::Font*
 		int mDrawMode;
 		bool mColorizeImages;
 		bool mFastStretch;
 		bool mWriteColoredString;
 		bool mLinearBlend;
 		bool mIs3D;
-		int mRenderDevice; // AndroidRenderDevice*
+	};
+
+
+	typedef std::list<GraphicsState> GraphicsStateList;
+
+	class Graphics : public GraphicsState
+	{
+	public:
+		void* mRenderDevice; // AndroidRenderDevice*
 		int mRenderContext;
 		int mGraphics3D;
-		char mPad[58];
+		void* mPFActiveEdgeList; // Edge*
+		int	mPFNumActiveEdges;
+		int	mPFNumVertices;
+		GraphicsStateList mStateStack;
+
 	};
 
 	static_assert(sizeof(Graphics) == 152);
-	static_assert(offsetof(Graphics, mTransX) == 8);
-	static_assert(offsetof(Graphics, mClipRect) == 32);
-	static_assert(offsetof(Graphics, mDrawMode) == 68);
-	static_assert(offsetof(Graphics, mGraphics3D) == 88);
 }

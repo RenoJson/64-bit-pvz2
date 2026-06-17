@@ -65,6 +65,9 @@ inline bool ZombieHasArmor(Zombie* zombie, const SexyString& armorName) {
 	return CallFunc<bool, Zombie*, const SexyString&>(0xC3F2E4, zombie, armorName);
 }
 
+inline void ZombieApplyArmor(Zombie* zombie, const SexyString& armorName) {
+	CallFunc<void, Zombie*, const SexyString&>(0xC3EE98, zombie, armorName);
+}
 
 // Zombie Anim Rig Helper Function Start From Here
 

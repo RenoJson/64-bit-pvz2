@@ -1,5 +1,6 @@
 #pragma once
 #include <Sexy/SexyApp.h>
+#include <Sexy/ResourceManager.h>
 
 class Board;
 class WorldMap;
@@ -19,7 +20,9 @@ public:
 	char pad3[514];
 	int m_curWidth;
 	int m_curHeight;
-	char pad4[644];
+	char pad4[164];
+	Sexy::ResourceManager* m_resourceManager;
+	char pad5[472];
 	Board* m_board;
 	char pad6[8];
 	float m_contentResolutionWidth;

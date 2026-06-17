@@ -164,7 +164,7 @@ static_assert(offsetof(ZombieConditionEntry, Duration) == 4);
 class ZombieConditionTracker : public EntityConditionTracker<Zombie>
 {
 public:
-	float m_entityScale;
+	float m_scale;
 	char pad1[4];
 };
 

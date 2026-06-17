@@ -184,8 +184,8 @@ public:
 	int m_helm;
 	float m_helmHitpoints;
 	char pad_0084[28];
-	Sexy::RtWeakPtr<RtObject> m_type;
-	Sexy::RtWeakPtr<RtObject> m_animRig;
+	Sexy::RtWeakPtr<ZombieType> m_type;
+	Sexy::RtWeakPtr<ZombieAnimRig> m_animRig;
 	ZombieState m_entityState;
 	double m_elapsedTimeInState;
 	float m_stateMachineTimeScale;
@@ -230,7 +230,7 @@ public:
 	Sexy::Color m_highlightColor;
 	bool m_isBeingDestroyed;
 	bool m_wasMowedDown;
-	char pad_tail[2];
+	char pad_tail[10];
 	Sexy::RtWeakPtr<ZombiePropertySheet> m_propertySheet;
 
 	virtual Sexy::FPoint GetShadowScaling() {}

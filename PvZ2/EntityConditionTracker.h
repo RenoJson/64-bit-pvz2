@@ -35,7 +35,6 @@ public:
     Sexy::Color m_shaderOverrideColor;
     Sexy::Color m_currentColor;
     Sexy::RtWeakPtr<T> m_owner;
-    float m_scale;
 
     virtual ~EntityConditionTracker() {};
     virtual int GetConditionCount() {};

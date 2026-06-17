@@ -240,5 +240,7 @@
     <ClInclude Include="Sexy\LawnApp.h" />
     <ClInclude Include="Sexy\SexyApp.h" />
     <ClInclude Include="PvZ2\ZombieHelper.h" />
+    <ClInclude Include="Sexy\ResourceInfo.h" />
+    <ClInclude Include="Sexy\ResourceManager.h" />
   </ItemGroup>
 </Project>

@@ -6,7 +6,9 @@ namespace Sexy
 	class Image : public BaseResource
 	{
 	public:
-		char m_pad2[12];
+		int mImageFlags;
+		char pad1[4];
+		void* mRenderData;
 		SexyString mFilePath;
 		int mWidth;
 		int mHeight;
@@ -15,14 +17,14 @@ namespace Sexy
 		int mNumRows;
 		int mNumCols;
 
-		RtWeakPtr<Image> m_atlastImage;
-		int m_atlastStartX;
-		int m_atlastStartY;
-		int m_atlastEndX;
-		int m_atlastEndY;
+		RtWeakPtr<Image> mAtlasImage;
+		int mAtlasStartX;
+		int mAtlasStartY;
+		int mAtlasEndX;
+		int mAtlasEndY;
 	};
 
 	static_assert(sizeof(Image) == 112);
 	static_assert(offsetof(Image, mFilePath) == 48);
-	static_assert(offsetof(Image, m_atlastStartY) == 100);
+	static_assert(offsetof(Image, mAtlasStartY) == 100);
 }

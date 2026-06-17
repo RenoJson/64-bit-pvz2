@@ -1,14 +1,18 @@
 #pragma once
 #include "RtObject.h"
 #include "RtWeakPtr.h"
+#include "ResourceInfo.h"
 
 namespace Sexy
 {
+	class ResourceInfo;
+
 	class BaseResource : public RtObject
 	{
 	public:
-		char m_pad[4];
-		RtWeakPtr<void> pamRtId;
-		RtWeakPtr<void> unkPtr2;
+		char pad1[4];
+		RtWeakPtr<BaseResource> m_thisPtr;
+		RtWeakPtr<ResourceInfo> m_resInfo;
+		char pad2[4];
 	};
 }

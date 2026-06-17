@@ -259,7 +259,7 @@ public:
 	int m_relocationType;
 	char pad6[4];
 	EntityComponent_GroundEffect m_groundEffect;
-	char m_conditionTracker[144];
+	PlantConditionTracker m_conditionTracker;
 	AttachedBoardEntityManager m_attachedBoardEntities;
 	AttachedEffectManager m_attachedEffects;
 };

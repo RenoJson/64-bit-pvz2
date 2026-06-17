@@ -397,6 +397,8 @@
     <ClInclude Include="Sexy\PopAnim.h" />
     <ClInclude Include="Sexy\PopAnimListener.h" />
     <ClInclude Include="Sexy\PTXInfo.h" />
+    <ClInclude Include="Sexy\ResourceInfo.h" />
+    <ClInclude Include="Sexy\ResourceManager.h" />
     <ClInclude Include="Sexy\RtClass.h" />
     <ClInclude Include="Sexy\RtObject.h" />
     <ClInclude Include="Sexy\RtReflectionDelegateBase.h" />

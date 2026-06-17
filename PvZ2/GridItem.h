@@ -4,6 +4,7 @@
 #include "StringRestrictionSet.h"
 #include "ObjectTypeDescriptor.h"
 #include <Reflection/ReflectionBuilder.h>
+#include "GridItemCondition.h"
 
 class GridItemType;
 class PopAnimRig;
@@ -13,9 +14,7 @@ class GridItem : public BoardEntity
 {
 public:
 	RT_CLASS_GET_CLASS_WRAPPER(0x8051EC);
-	//GridItemConditionTracker m_conditionTracker;
-	char pad[8];
-	char m_pad5[144];
+	GridItemConditionTracker m_conditionTracker;
 	Sexy::RtWeakPtr<GridItemType> m_type;
 	float m_health;
 	float m_healthMax;
@@ -24,7 +23,6 @@ public:
 };
 
 static_assert(sizeof(GridItem) == 304);
-static_assert(offsetof(GridItem, m_pad5) == 128);
 static_assert(offsetof(GridItem, m_type) == 272);
 static_assert(offsetof(GridItem, m_gridLocation) == 288);
 
