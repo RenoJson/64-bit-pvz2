@@ -100,7 +100,9 @@ SexyString BassGetJamStyle(ZombieEightiesBass* zombie) {
     return props->JamStyle[randomIndex];
 }
 bool BassIsBeingTossedByPlant(ZombieEightiesBass* zombie, int a2) {
-    if(zombie->m_entityState.m_id == 16 || zombie->m_entityState.m_id == 17) {
+    if(zombie->m_entityState.m_id == 16 
+        || zombie->m_entityState.m_id == 17
+        || zombie->m_entityState.m_id == 19) {
         return false;
 	}
     else {
@@ -390,6 +392,7 @@ void BreakingCompletedCallback(Zombie* zombie) {
 		ZombieEnterState(bassZombie, 1, 0);
 	}
 }
+// a4 is parachute rain module
 Zombie* updateParachutePos(float mX, float mY, float mZ, void* a4, Zombie* zombie) {
 	SexyVector3 offset = { zombie->m_position.x, zombie->m_position.y, 0 };
     if(zombie->IsType(ZombieEightiesBass::StaticGetType())) {

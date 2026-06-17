@@ -117,15 +117,16 @@ void LanceSpawn(ZombieDarkCavalry* self)
             if (plant->m_isInPlantFoodState || isInvincible) {
                 continue;
             }
+
+            DamageInfo dmg;
+            dmg.m_attacker = self;
+
+            void** vtable = *(void***)target;
+            typedef void (*VirtualTakeDamageFunc)(PlantGroup*, DamageInfo*);
+            VirtualTakeDamageFunc takeDmg = (VirtualTakeDamageFunc)vtable[36];
+            takeDmg(target, &dmg);
         }
 
-        DamageInfo dmg;
-        dmg.m_attacker = self;
-
-        void** vtable = *(void***)target;
-        typedef void (*VirtualTakeDamageFunc)(PlantGroup*, DamageInfo*);
-        VirtualTakeDamageFunc takeDmg = (VirtualTakeDamageFunc)vtable[36];
-        takeDmg(target, &dmg);
     }
     else {
         rawPosX = self->m_position.x;
@@ -260,16 +261,17 @@ void CavalryAttack(ZombieDarkCavalry* zombie) {
                     if (plant->m_isInPlantFoodState || isInvincible) {
                         continue;
                     }
+
+                    DamageInfo dmg;
+                    dmg.m_attacker = zombie;
+                    dmg.m_damage = damageAmount;
+
+                    void** vtable = *(void***)ptr;
+                    typedef void (*VirtualTakeDamageFunc)(PlantGroup*, DamageInfo*);
+                    VirtualTakeDamageFunc takeDmg = (VirtualTakeDamageFunc)vtable[35];
+
+                    takeDmg((PlantGroup*)ptr, &dmg);
                 }
-                DamageInfo dmg;
-                dmg.m_attacker = zombie;
-                dmg.m_damage = damageAmount;
-
-                void** vtable = *(void***)ptr;
-                typedef void (*VirtualTakeDamageFunc)(PlantGroup*, DamageInfo*);
-                VirtualTakeDamageFunc takeDmg = (VirtualTakeDamageFunc)vtable[35];
-
-                takeDmg((PlantGroup*)ptr, &dmg);
             }
             else if (ptr->IsType(ZombieGum::StaticGetType()))
             {
@@ -412,14 +414,12 @@ void CavalryOnGetCondition(ZombieDarkCavalry* zombie, int conditionID)
         if (!zombie->m_hasLaunched) {
             ZombieEnterState(zombie, 21, 0);
         }
-        return;
     }
 
     if (conditionID == zombie_condition_hypnotized)
     {
         ZombieFlippedAnim(zombie, true);
         ZombieEnterState(zombie, 20, 0);
-        return;
     }
 }
 void ZombieDarkCavalry::AttackOnExit(ZombieDarkCavalry* zombie)
