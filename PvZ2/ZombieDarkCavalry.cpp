@@ -142,7 +142,7 @@ void LanceSpawn(ZombieDarkCavalry* self)
     if (spawnPosY < 0) spawnPosY = 0;
     if (spawnPosY > 4) spawnPosY = 4;
 
-    GridItemSurfboard* gridItem = (GridItemSurfboard*)AddGridItem(props->LanceType, spawnPosX, spawnPosY);
+    GridItem* gridItem = AddGridItem(props->LanceType, spawnPosX, spawnPosY);
 
     gridItem->m_health = props->LanceHitpoints;
     gridItem->m_healthMax = props->LanceHitpoints;
@@ -250,6 +250,17 @@ void CavalryAttack(ZombieDarkCavalry* zombie) {
             if (ptr == nullptr) continue;
             if (ptr->IsType(PlantGroup::StaticGetType()))
             {
+                PlantGroup* group = static_cast<PlantGroup*>(ptr);
+
+                for (auto& weakPlantPtr : group->m_plants.m_plants)
+                {
+                    Plant* plant = weakPlantPtr.Get();
+                    if (plant == nullptr) continue;
+                    bool isInvincible = CallFunc<bool, PlantFramework*>(0x7C8E58, plant->m_plantFramework);
+                    if (plant->m_isInPlantFoodState || isInvincible) {
+                        continue;
+                    }
+                }
                 DamageInfo dmg;
                 dmg.m_attacker = zombie;
                 dmg.m_damage = damageAmount;

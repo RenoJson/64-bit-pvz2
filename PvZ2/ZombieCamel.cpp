@@ -1,4 +1,5 @@
 ﻿#include "ZombieCamel.h"
+#include "ZombieHelper.h"
 
 Sexy::RtClass* ZombieCamelProps::s_rtClass = __null;
 Sexy::RtClass* ZombieCamelTouchProps::s_rtClass = __null;
@@ -68,12 +69,10 @@ Func_SetLeader SetCamelLeaderFlag = (Func_SetLeader)getActualOffset(0xB165E4);
 typedef ZombieCamel* (*Func_SpawnFollowers)(ZombieCamel*, int, int);
 Func_SpawnFollowers SpawnFollowers = (Func_SpawnFollowers)getActualOffset(0xB16770);
 
-typedef void (*Func_ZombieOnSpawn)(ZombieCamel*);
-Func_ZombieOnSpawn OnSpawn = (Func_ZombieOnSpawn)getActualOffset(0xC3D1F0);
 
 ZombieCamel* ZombieCamelOnSpawn(ZombieCamel* zombie)
 {
-    OnSpawn(zombie);
+    ZombieOnSpawn(zombie);
 
     auto* props = reinterpret_cast<ZombieCamelProps*>(zombie->m_propertySheet.Get());
     int followersToSpawn = props->SegmentCount;

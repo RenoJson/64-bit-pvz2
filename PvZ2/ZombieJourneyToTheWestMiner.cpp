@@ -12,17 +12,9 @@
 
 void* ZombieModernMiner::vftable = nullptr;
 Sexy::RtClass* ZombieModernMiner::s_rtClass = nullptr;;
-typedef void (*zombieEnterState)(ZombieModernMiner*, int, int);
-typedef Zombie* (*zombieAllowMovement)(Zombie*, int);
-typedef Zombie* (*zombieFlippedAnim)(Zombie*, int);
-typedef void (*LoopWalk)(ZombieModernMiner*);
-typedef bool (*isDeadOrDying)(ZombieModernMiner*);
-typedef void (*LoopEat)(ZombieModernMiner*);
 typedef uintptr_t (*RenderShadow)(ZombieModernMiner*, Sexy::Graphics*);
 typedef BoardEntity* (*getTarg)(ZombieModernMiner*);
-typedef void* (*funcC43B90)(ZombieModernMiner*, DamageInfo*);
 typedef void (*ActionFrame)(ZombieModernMiner*, int64_t, SexyString*, int64_t, SexyString*);
-typedef void (*setSpeedScale)(ZombieModernMiner*, float);
 typedef int64_t(*threatAlert)(ZombieModernMiner*);
 int LastVetBullyState = 18;
 DECLARE_DELEGATES_SETUP(ZombieModernMiner)
@@ -69,25 +61,13 @@ void TudigongOnSpawn(ZombieModernMiner* zombie)
 {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
 	auto props = reinterpret_cast<ZombieModernMinerProps*>(zombie->m_propertySheet.Get());
-    for (auto& weakArmor : zombie->m_armor)
-    {
-        Armor* armor = weakArmor.Get();
-        if (armor != nullptr)
-        {
-            auto* armorProps = reinterpret_cast<ArmorPropertySheet*>(armor->m_propertySheetPtr.Get());
-
-            if (armorProps != nullptr && armorProps->ArmorType == props->ArmorTypeToUseForDigging)
-            {
-                rig->m_hasStick = true;
-                break;
-            }
-        }
+    if (ZombieHasArmor(zombie, props->ArmorTypeToUseForDigging)) {
+        rig->m_hasStick = true;
     }
     rig->m_digging = false;
     zombie->m_isDigged = false;
     zombie->m_diggedDone = false;
-	typedef void (*zombieFun49)(ZombieModernMiner*);
-	((zombieFun49)getActualOffset(0xC3D1F0))(zombie);
+    ZombieOnSpawn(zombie);
 }
 int64_t TudigongThreatAlert(ZombieModernMiner* zombie) {
     auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
@@ -115,8 +95,7 @@ bool MinerIsBeingTossedByPlant(ZombieModernMiner* zombie, int a2) {
 void TudigongOnArmorDestroyed(ZombieModernMiner* zombie, int a2, SexyString* armorName)
 {
     auto props = reinterpret_cast<ZombieModernMinerProps*>(zombie->m_propertySheet.Get());
-    isDeadOrDying isDeadFunc = (isDeadOrDying)getActualOffset(0xC3E204);
-    if (*armorName == props->ArmorTypeToUseForDigging && !isDeadFunc(zombie)) {
+    if (*armorName == props->ArmorTypeToUseForDigging && !ZombieIsDeadOrDying(zombie)) {
         if (zombie->m_isDigged == false) {
             ZombieEnterState(zombie, 22, 0);
         }
@@ -127,30 +106,13 @@ void TudigongOnArmorDestroyed(ZombieModernMiner* zombie, int a2, SexyString* arm
 }
 void TudigongWalkOnLoop(ZombieModernMiner* zombie)
 {
-    isDeadOrDying isDeadFunc = (isDeadOrDying)getActualOffset(0xC3E204);
     if (ZombieIsDeadOrDying(zombie)) {
         ZombieSetSpeedScale(zombie, 1);
         CallFunc<void, ZombieModernMiner*>(0xC506B4, zombie);
         return;
     }
-    auto props = reinterpret_cast<ZombieModernMinerProps*>(zombie->m_propertySheet.Get());
-    bool hasArmorToDig = false;
-    for (auto& weakArmor : zombie->m_armor)
-    {
-        Armor* armor = weakArmor.Get();
-        if (armor != nullptr && !armor->m_destroyed)
-        {
-            auto* armorProps = reinterpret_cast<ArmorPropertySheet*>(armor->m_propertySheetPtr.Get());
-
-            if (armorProps != nullptr && armorProps->ArmorType == props->ArmorTypeToUseForDigging)
-            {
-                hasArmorToDig = true;
-                break;
-            }
-        }
-    }
-    if (hasArmorToDig)
-    {
+    auto props = reinterpret_cast<ZombieModernMinerProps*>(zombie->m_propertySheet.Get()); 
+    if (ZombieHasArmor(zombie, props->ArmorTypeToUseForDigging)) {
         if (zombie->m_position.x <= 700.0f)
         {
             if (!zombie->m_isDigged && !zombie->m_diggedDone && ((zombie->m_teamFlags) & 2) != 0)
@@ -222,8 +184,7 @@ void ZombieModernMiner::DiggingOnEnter(ZombieModernMiner* zombie)
 
 void ZombieModernMiner::DiggingOnLoop(ZombieModernMiner* zombie)
 {
-    isDeadOrDying isDeadFunc = (isDeadOrDying)getActualOffset(0xC3E204);
-    if (isDeadFunc(zombie)) {
+    if (ZombieIsDeadOrDying(zombie)) {
         ZombieSetSpeedScale(zombie, 1);
         return;
     }

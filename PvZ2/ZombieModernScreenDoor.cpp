@@ -78,7 +78,7 @@ void* ScreenDoorTakeDamage(ZombieModernScreenDoor* thisPtr, DamageInfo* damageIn
     {
         if (newDmgInfo.m_attacker->IsType(Plant::StaticGetType()))
         {
-            isPlantAttacker = true; 
+            isPlantAttacker = true;
 
             Plant* plant = static_cast<Plant*>(newDmgInfo.m_attacker);
             if (plant->m_type.Get() != nullptr)
@@ -96,7 +96,13 @@ void* ScreenDoorTakeDamage(ZombieModernScreenDoor* thisPtr, DamageInfo* damageIn
         }
     }
 
-    if ((newDmgInfo.m_flags & DamageTypeFlags::damage_shooter) == 0)
+    bool isShooter = (newDmgInfo.m_flags & DamageTypeFlags::damage_shooter) != 0;
+
+    if (isShooter)
+    {
+
+    }
+    else
     {
         if (isPlantAttacker && !isBlacklisted)
         {
@@ -161,8 +167,11 @@ bool ScreenDoorBlockProjectile(ZombieModernScreenDoor* thisPtr, Projectile* proj
             return true;
         }
 
-        bool NotCoward = (proj->m_velocity.x * proj->m_velocityScale.x > 0.0f != ZombieFacing(thisPtr) < 0.0f);
-        if (!NotCoward)
+        float projDirection = proj->m_velocity.x * proj->m_velocityScale.x;
+
+        bool isShotInBack = (projDirection * ZombieFacing(thisPtr)) > 0.0f;
+
+        if (isShotInBack)
         {
             int* projFlags = &proj->m_damageFlags;
             int originalFlags = *projFlags;
