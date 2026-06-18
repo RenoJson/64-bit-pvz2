@@ -50,12 +50,13 @@ void overrideFunction208(ZombieFutureJetpackVeteran* zombie) {
             (entity->IsType(Zombie::StaticGetType())))
         {
             zombie->m_jumpMovement = false;
+            ZombieSetSpeedScale(zombie, 1.0f);
             RegisterEventAfterAnim(zombie, "fly_down", "onFlyDownAnimDone");
         }
         else {
             auto props = reinterpret_cast<ZombieFutureJetpackVeteranProps*>(zombie->m_propertySheet.Get());
             float flyingSpeed = props->Speed * props->SpeedScaleWhenFlyOverPlant;
-
+            ZombieSetSpeedScale(zombie, props->SpeedScaleWhenFlyOverPlant);
             ZombieConditionTracker* zTracker = &zombie->m_conditionTracker;
             uint8_t* cond = zTracker->m_states.data();
 

@@ -242,5 +242,7 @@
     <ClInclude Include="PvZ2\ZombieHelper.h" />
     <ClInclude Include="Sexy\ResourceInfo.h" />
     <ClInclude Include="Sexy\ResourceManager.h" />
+    <ClInclude Include="PvZ2\randombs.cpp" />
+    <ClInclude Include="PvZ2\ZombieMausoleumVendor.h" />
   </ItemGroup>
 </Project>

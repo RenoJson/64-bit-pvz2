@@ -24,14 +24,7 @@ public:
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieJourneyToTheWestVendor, m_firstSpawned);
 	buildEventCallbacks(builder, rclass);
 	RT_CLASS_BUILD_SYMBOLS_END();
-	static void RegisterClass() {
-		void* v0 = CallFunc<void*>(0x1624024); if (v0) {
-			auto* builder = (Reflection::CRefManualSymbolBuilder*)CallFunc<void*, void*>(0x162413C, v0); if (builder) {
-				(builder)->RegisterClassWithProperties("ZombieJourneyToTheWestVendor", ZombieJourneyToTheWestVendor::BuildSymbols, sizeof(ZombieJourneyToTheWestVendor), 0);;
-			}
-		} 
-		buildStates();
-	};
+	RT_CLASS_REGISTER_CLASS_AND_STATES_FUNCTION(ZombieJourneyToTheWestVendor)
 	
 	RT_CLASS_GET_CLASS_FUNCTION(ZombieJourneyToTheWestVendor, 0xC36FE4);
 	

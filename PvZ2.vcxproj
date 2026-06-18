@@ -292,6 +292,7 @@
     <ClInclude Include="PvZ2\Projectile.h" />
     <ClInclude Include="PvZ2\PropertySheetBase.h" />
     <ClInclude Include="PvZ2\PVZDB.h" />
+    <ClInclude Include="PvZ2\randombs.cpp" />
     <ClInclude Include="PvZ2\RealObject.h" />
     <ClInclude Include="PvZ2\StageModule.h" />
     <ClInclude Include="PvZ2\StandaloneEffect.h" />
@@ -348,6 +349,7 @@
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestVendor.h" />
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestVendorProps.h" />
     <ClInclude Include="PvZ2\ZombieLostCityBug.h" />
+    <ClInclude Include="PvZ2\ZombieMausoleumVendor.h" />
     <ClInclude Include="PvZ2\ZombieModernAllStar.h" />
     <ClInclude Include="PvZ2\ZombieModernBalloon.h" />
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestBalloonProps.h" />
