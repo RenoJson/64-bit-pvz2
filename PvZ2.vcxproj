@@ -170,6 +170,7 @@
     <ClCompile Include="PvZ2\DangerRoomFallenKnightDesigner.cpp" />
     <ClCompile Include="PvZ2\DangerRoomHelpdeskSupportDesigner.cpp" />
     <ClCompile Include="PvZ2\FairyTaleWitchProjectile.cpp" />
+    <ClCompile Include="PvZ2\MausoleumGrid.cpp" />
     <ClCompile Include="PvZ2\PlantDinoGrass.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRigBasicTemplateProps.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_BasicTemplate.cpp" />
@@ -273,6 +274,7 @@
     <ClInclude Include="PvZ2\GridItem.h" />
     <ClInclude Include="PvZ2\GridItemAnimation.h" />
     <ClInclude Include="PvZ2\GridItemCondition.h" />
+    <ClInclude Include="PvZ2\GridItemMausoleumLawnTile.h" />
     <ClInclude Include="PvZ2\LevelDefinition.h" />
     <ClInclude Include="PvZ2\LevelModule.h" />
     <ClInclude Include="PvZ2\LevelModuleManager.h" />
@@ -292,7 +294,7 @@
     <ClInclude Include="PvZ2\Projectile.h" />
     <ClInclude Include="PvZ2\PropertySheetBase.h" />
     <ClInclude Include="PvZ2\PVZDB.h" />
-    <ClInclude Include="PvZ2\randombs.cpp" />
+    <ClInclude Include="PvZ2\ZombieMausoleumVendor.cpp" />
     <ClInclude Include="PvZ2\RealObject.h" />
     <ClInclude Include="PvZ2\StageModule.h" />
     <ClInclude Include="PvZ2\StandaloneEffect.h" />
