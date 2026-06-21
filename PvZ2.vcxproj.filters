@@ -145,6 +145,11 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernDolphinRider.cpp" />
     <ClCompile Include="PvZ2\ZombieLostCityTorchGargantuar.cpp" />
     <ClCompile Include="PvZ2\MausoleumGrid.cpp" />
+    <ClCompile Include="PvZ2\ZombieMausoleumCavalry.cpp" />
+    <ClCompile Include="PvZ2\ZombieMausoleumCavalryProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieMausoleumVendorProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieMausoleumPiggy.cpp" />
+    <ClCompile Include="PvZ2\ZombieMausoleumPiggyProps.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -246,5 +251,10 @@
     <ClInclude Include="PvZ2\ZombieMausoleumVendor.cpp" />
     <ClInclude Include="PvZ2\ZombieMausoleumVendor.h" />
     <ClInclude Include="PvZ2\GridItemMausoleumLawnTile.h" />
+    <ClInclude Include="PvZ2\ZombieMausoleumCavalry.h" />
+    <ClInclude Include="PvZ2\ZombieMausoleumCavalryProps.h" />
+    <ClInclude Include="PvZ2\ZombieMausoleumVendorProps.h" />
+    <ClInclude Include="PvZ2\ZombieMausoleumPiggy.h" />
+    <ClInclude Include="PvZ2\ZombieMausoleumPiggyProps.h" />
   </ItemGroup>
 </Project>

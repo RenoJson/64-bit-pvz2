@@ -17,7 +17,9 @@ public:
 	RT_CLASS_CONSTRUCT_FUNCTION_END();
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombiePropertySheet);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModernDolphinRiderProps, DolphinTransitionLocation);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModernDolphinRiderProps, RidingSpeed);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModernDolphinRiderProps, SpeedWhenCarryingDolphin);
 	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieModernDolphinRiderProps, Rect, JumpingRect);
 	RT_CLASS_BUILD_SYMBOLS_END();
 

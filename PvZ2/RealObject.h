@@ -13,9 +13,10 @@ enum class TeamFlags
 	everything = 3
 };
 // An object class for rendering visuals
-class RealObject : public GameObject, public Renderable
+class RealObject : public GameObject
 {
 public:
+	void** renderableVftable; // Renderable vftable
 	Sexy::SexyVector3 m_position;
 	int m_teamFlags;
 	int m_realObjectFlags;

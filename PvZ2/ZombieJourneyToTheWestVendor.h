@@ -22,7 +22,7 @@ public:
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieJourneyToTheWestVendor, m_nextPigTime);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieJourneyToTheWestVendor, m_speedModifier);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieJourneyToTheWestVendor, m_firstSpawned);
-	buildEventCallbacks(builder, rclass);
+	ZombieJourneyToTheWestVendor::buildEventCallbacks(builder, rclass);
 	RT_CLASS_BUILD_SYMBOLS_END();
 	RT_CLASS_REGISTER_CLASS_AND_STATES_FUNCTION(ZombieJourneyToTheWestVendor)
 	

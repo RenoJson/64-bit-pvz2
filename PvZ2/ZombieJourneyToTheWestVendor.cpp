@@ -6,7 +6,9 @@
 #include "ZombieAnimRig_Vendor.h"
 #include "StateMachineBuilder.h"
 #include "ZombieHelper.h"
-void* ZombieJourneyToTheWestVendor::vftable = nullptr; Sexy::RtClass* ZombieJourneyToTheWestVendor::s_rtClass = nullptr;;
+
+void* ZombieJourneyToTheWestVendor::vftable = nullptr; 
+Sexy::RtClass* ZombieJourneyToTheWestVendor::s_rtClass = nullptr;
 
 DECLARE_DELEGATES_SETUP(ZombieJourneyToTheWestVendor)
 

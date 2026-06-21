@@ -80,6 +80,13 @@
 #include <PvZ2/ZombieAnimRig_ModernDolphinRider.h>
 #include <PvZ2/ZombieModernDolphinRider.h>
 #include <PvZ2/ZombieModernDolphinRiderProps.h>
+#include <PvZ2/GridItemMausoleumLawnTile.h>
+#include <PvZ2/ZombieMausoleumCavalryProps.h>
+#include <PvZ2/ZombieMausoleumCavalry.h>
+#include <PvZ2/ZombieMausoleumVendorProps.h>
+#include <PvZ2/ZombieMausoleumVendor.h>
+#include <PvZ2/ZombieMausoleumPiggyProps.h>
+#include <PvZ2/ZombieMausoleumPiggy.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -585,18 +592,11 @@ AspectRatio GetAspectRatio()
         return Ultrawide;
     }
 }
+typedef void(*BoardRender)(Board*);
+BoardRender oBoardRender = nullptr;
 void hkBoardRender(Board* thisPtr)
 {
-    Sexy::SexyApp* sexyApp = Sexy::SexyApp::GetInstance();
-    LawnApp* lawnApp = LawnApp::GetInstance();
-
-    thisPtr->m_backdropResolutionX = sexyApp->ScaleArt(thisPtr->m_lawnRect.mWidth + thisPtr->m_lawnRect.mX) + thisPtr->m_lawnPositionX;
-    thisPtr->m_backdropResolutionY = lawnApp->mHeight - sexyApp->ScaleArt(60);
-
-    float backdropHeightScale = lawnApp->mHeight / sexyApp->ScaleArt<float>(thisPtr->m_lawnRect.mHeight + 120.0f);
-    float backdropWidthScale = sexyApp->ScaleArt<float>(thisPtr->m_lawnRect.mWidth + 140.0f);
-
-    float heightWidthRatio = lawnApp->mWidth / backdropWidthScale;
+    oBoardRender(thisPtr);
     if (GetAspectRatio() == Ultrawide)
     {
         float adjustedResolution = thisPtr->m_backdropResolutionX - (thisPtr->m_backdropResolutionX * -0.41f);
@@ -631,7 +631,7 @@ void libChair_main()
     PVZ2HookFunction(0x677B40, (void*)hkZombieConditionTrackerUpdate, (void**)&oZombieConditionTrackerUpdate);
     PVZ2HookFunction(0xA9E25C, (void*)hkBoardWaveFunc, (void**)&oBoardWaveFunc);
     PVZ2HookFunction(0xC1D1FC, (void*)hkInitZombiePianoList, (void**)&oInitZombiePianoList);
-    PVZ2HookFunction(0xAA0C40, (void*)hkBoardRender, nullptr);
+    PVZ2HookFunction(0xAA0C40, (void*)hkBoardRender, (void**)&oBoardRender);
     PVZ2HookFunction(0x168D580, (void*)hkLoadAndDecode, (void**)&oLoadAndDecode);
     PVZ2HookFunction(0x176D6CC, (void*)hkGetGLTextureTotalSize, (void**)&oGetGLTextureTotalSize);
 
@@ -721,4 +721,14 @@ void libChair_main()
     ZombieModernDolphinRider::ModInit();
     ZombieModernDolphinRiderProps::modInit();
 	ZombieAnimRig_ModernDolphinRider::modInit();
+    GridItemMausoleumLawnTile::modInit();
+    GridItemMausoleumLawnPath::modInit();
+    GridItemMausoleumLawnTileProps::modInit();
+    GridItemMausoleumLawnPathProps::modInit();
+    ZombieMausoleumCavalry::ModInit();
+    ZombieMausoleumCavalryProps::modInit();
+    ZombieMausoleumVendor::ModInit();
+    ZombieMausoleumVendorProps::modInit();
+    ZombieMausoleumPiggy::ModInit();
+    ZombieMausoleumPiggyProps::modInit();
 }

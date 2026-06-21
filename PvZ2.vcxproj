@@ -217,6 +217,11 @@
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestVendor.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestVendorProps.cpp" />
     <ClCompile Include="PvZ2\ZombieLostCityTorchGargantuar.cpp" />
+    <ClCompile Include="PvZ2\ZombieMausoleumCavalry.cpp" />
+    <ClCompile Include="PvZ2\ZombieMausoleumCavalryProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieMausoleumPiggy.cpp" />
+    <ClCompile Include="PvZ2\ZombieMausoleumPiggyProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieMausoleumVendorProps.cpp" />
     <ClCompile Include="PvZ2\ZombieModernAllStar.cpp" />
     <ClCompile Include="PvZ2\ZombieModernBalloon.cpp" />
     <ClCompile Include="PvZ2\ZombieModernBerserkerProps.cpp" />
@@ -294,6 +299,10 @@
     <ClInclude Include="PvZ2\Projectile.h" />
     <ClInclude Include="PvZ2\PropertySheetBase.h" />
     <ClInclude Include="PvZ2\PVZDB.h" />
+    <ClInclude Include="PvZ2\ZombieMausoleumCavalry.h" />
+    <ClInclude Include="PvZ2\ZombieMausoleumCavalryProps.h" />
+    <ClInclude Include="PvZ2\ZombieMausoleumPiggy.h" />
+    <ClInclude Include="PvZ2\ZombieMausoleumPiggyProps.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumVendor.cpp" />
     <ClInclude Include="PvZ2\RealObject.h" />
     <ClInclude Include="PvZ2\StageModule.h" />
@@ -352,6 +361,7 @@
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestVendorProps.h" />
     <ClInclude Include="PvZ2\ZombieLostCityBug.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumVendor.h" />
+    <ClInclude Include="PvZ2\ZombieMausoleumVendorProps.h" />
     <ClInclude Include="PvZ2\ZombieModernAllStar.h" />
     <ClInclude Include="PvZ2\ZombieModernBalloon.h" />
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestBalloonProps.h" />

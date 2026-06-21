@@ -11,11 +11,19 @@ class GridItemMausoleumLawnTile : public GridItem {
 public:
 	Sexy::RtWeakPtr<Image> m_imageRes;
 	static void* vftable;
+	static void* vftable1;
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;
 
-	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(GridItemMausoleumLawnTile, 0x805C04);
-	RT_CLASS_CONSTRUCT_FUNCTION_END();
+	static void* Construct() {
+		auto* instance = new GridItemMausoleumLawnTile(); 
+		typedef void* (*ctorWithThisPtr)(void*); 
+		ctorWithThisPtr baseCtor = (ctorWithThisPtr)getActualOffset(0x805C04); 
+		baseCtor(instance);;
+		SetVFTable(instance, (uintptr_t)vftable); 
+		instance->renderableVftable = (void**)vftable1;
+		return instance;
+	};
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(GridItem);
 	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(GridItemMausoleumLawnTile, m_imageRes, Image)
@@ -32,7 +40,7 @@ public:
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;
 
-	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(GridItemMausoleumLawnTileProps, 0x6BD264);
+	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(GridItemMausoleumLawnTileProps, 0x6BD338);
 	RT_CLASS_CONSTRUCT_FUNCTION_END();
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(GridItemPropertySheet);
@@ -47,11 +55,19 @@ class GridItemMausoleumLawnPath : public GridItem {
 public:
 	Sexy::RtWeakPtr<Image> m_imageRes;
 	static void* vftable;
+	static void* vftable1;
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;
 
-	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(GridItemMausoleumLawnPath, 0x805C04);
-	RT_CLASS_CONSTRUCT_FUNCTION_END();
+	static void* Construct() {
+		auto* instance = new GridItemMausoleumLawnPath(); 
+		typedef void* (*ctorWithThisPtr)(void*); 
+		ctorWithThisPtr baseCtor = (ctorWithThisPtr)getActualOffset(0x805C04); 
+		baseCtor(instance);;
+		SetVFTable(instance, (uintptr_t)vftable); 
+		instance->renderableVftable = (void**)vftable1;
+		return instance;
+	};
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(GridItem);
 	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(GridItemMausoleumLawnPath, m_imageRes, Image)
@@ -69,14 +85,14 @@ public:
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;
 
-	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(GridItemMausoleumLawnTileProps, 0x6BD264);
+	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(GridItemMausoleumLawnPathProps, 0x6BD338);
 	RT_CLASS_CONSTRUCT_FUNCTION_END();
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(GridItemPropertySheet);
-	RT_CLASS_REGISTER_STRING_PROPERTY(GridItemMausoleumLawnPathProps, Image);
 	RT_CLASS_REGISTER_STANDARD_VECTOR_PROPERTY(GridItemMausoleumLawnPathProps, DirectionType, int)
+	RT_CLASS_REGISTER_STRING_PROPERTY(GridItemMausoleumLawnPathProps, Image);
 	RT_CLASS_BUILD_SYMBOLS_END();
 
-	RT_CLASS_REGISTER_CLASS_FUNCTION(GridItemMausoleumLawnTileProps);
-	RT_CLASS_GET_CLASS_FUNCTION(GridItemMausoleumLawnTileProps, 0x1267EB0);
+	RT_CLASS_REGISTER_CLASS_FUNCTION(GridItemMausoleumLawnPathProps);
+	RT_CLASS_GET_CLASS_FUNCTION(GridItemMausoleumLawnPathProps, 0x1267EB0);
 };

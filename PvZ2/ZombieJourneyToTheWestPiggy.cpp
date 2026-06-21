@@ -1,5 +1,6 @@
 #include "ZombieJourneyToTheWestPiggy.h"
 #include "ZombieJourneyToTheWestPiggyProps.h"
+
 void* ZombieJourneyToTheWestPiggy::vftable = nullptr; 
 Sexy::RtClass* ZombieJourneyToTheWestPiggy::s_rtClass = nullptr;;
 
