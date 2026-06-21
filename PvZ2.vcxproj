@@ -221,6 +221,7 @@
     <ClCompile Include="PvZ2\ZombieMausoleumCavalryProps.cpp" />
     <ClCompile Include="PvZ2\ZombieMausoleumPiggy.cpp" />
     <ClCompile Include="PvZ2\ZombieMausoleumPiggyProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieMausoleumVendor.cpp" />
     <ClCompile Include="PvZ2\ZombieMausoleumVendorProps.cpp" />
     <ClCompile Include="PvZ2\ZombieModernAllStar.cpp" />
     <ClCompile Include="PvZ2\ZombieModernBalloon.cpp" />
@@ -303,7 +304,6 @@
     <ClInclude Include="PvZ2\ZombieMausoleumCavalryProps.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumPiggy.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumPiggyProps.h" />
-    <ClInclude Include="PvZ2\ZombieMausoleumVendor.cpp" />
     <ClInclude Include="PvZ2\RealObject.h" />
     <ClInclude Include="PvZ2\StageModule.h" />
     <ClInclude Include="PvZ2\StandaloneEffect.h" />

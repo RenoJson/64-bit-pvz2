@@ -84,9 +84,9 @@
 #include <PvZ2/ZombieMausoleumCavalryProps.h>
 #include <PvZ2/ZombieMausoleumCavalry.h>
 #include <PvZ2/ZombieMausoleumVendorProps.h>
-#include <PvZ2/ZombieMausoleumVendor.h>
 #include <PvZ2/ZombieMausoleumPiggyProps.h>
 #include <PvZ2/ZombieMausoleumPiggy.h>
+#include <PvZ2/ZombieMausoleumVendor.h>
 
 
 // TODO: Make every typedef function became a wrapper ig

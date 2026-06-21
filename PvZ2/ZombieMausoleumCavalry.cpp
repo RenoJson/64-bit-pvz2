@@ -72,7 +72,7 @@ void MausoleumCavalryLoopWalk(ZombieMausoleumCavalry* zombie)
         float stepDist = floatingSpeed * timeMoving;
 
         float pixelCenterX = 232.0f + (gX * 64.0f);
-        float pixelCenterY = 192.0f + (gY * 76.0f);
+        float pixelCenterY = 224.0f + (gY * 76.0f);
         bool reachedCenter = false;
         float nextX = pX;
         float nextY = pY;
@@ -168,7 +168,7 @@ void MausoleumCavalryLoopWalk(ZombieMausoleumCavalry* zombie)
                     const float VISUAL_OFFSET_Y = 32.0f;
 
                     if (nextDirection == 0 || nextDirection == 3) {
-                        pY = pixelCenterY + VISUAL_OFFSET_Y;
+                        pY = pixelCenterY;
                     }
                     else if (nextDirection == 1 || nextDirection == 2) {
                         pX = pixelCenterX + VISUAL_OFFSET_X;
