@@ -82,6 +82,9 @@ SexyString GetDolphinRiderAnimAsh(ZombieModernDolphinRider* zombie) {
 bool DolphinIsBeingTossedByPlant(ZombieModernDolphinRider* zombie, int a2) {
 	if (zombie->m_entityState.m_id == 16 
 		|| zombie->m_entityState.m_id == 17 
+		|| zombie->m_entityState.m_id == 18
+		|| zombie->m_entityState.m_id == 19
+		|| zombie->m_entityState.m_id == 20
 		|| zombie->m_entityState.m_id == 21) {
 		return false;
 	}

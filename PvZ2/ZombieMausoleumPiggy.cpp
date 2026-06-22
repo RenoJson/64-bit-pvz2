@@ -31,7 +31,7 @@ void MausoleumPiggyLoopWalk(ZombieMausoleumPiggy* zombie)
     int maxRow = std::min(5, currentZomRow + 1);
     GetEntitiesInRectPixel(&entities, 63, &feetRect, minRow, maxRow);
 
-    GridItemMausoleumLawnPath* activePathTile = nullptr;
+    GridItemMausoleumLawnPath* pathTile = nullptr;
 
     for (BoardEntity* ptr : entities) {
         if (ptr == nullptr) continue;
@@ -41,13 +41,13 @@ void MausoleumPiggyLoopWalk(ZombieMausoleumPiggy* zombie)
             GridItem* tile = static_cast<GridItem*>(ptr);
 
             if (tile->m_gridLocation.mX == gX && tile->m_gridLocation.mY == gY) {
-                activePathTile = static_cast<GridItemMausoleumLawnPath*>(tile);
+                pathTile = static_cast<GridItemMausoleumLawnPath*>(tile);
                 break;
             }
         }
     }
 
-    if (activePathTile != nullptr)
+    if (pathTile != nullptr)
     {
         ZombieAllowMovement(zombie, false);
         ZombieSetSpeedScale(zombie, props->TunnelSpeedScale);
@@ -67,7 +67,7 @@ void MausoleumPiggyLoopWalk(ZombieMausoleumPiggy* zombie)
         float stepDist = floatingSpeed * timeMoving;
 
         float pixelCenterX = 232.0f + (gX * 64.0f);
-        float pixelCenterY = 224.0f + (gY * 76.0f);
+        float pixelCenterY = 220.0f + (gY * 76.0f);
         bool reachedCenter = false;
         float nextX = pX;
         float nextY = pY;
@@ -95,7 +95,7 @@ void MausoleumPiggyLoopWalk(ZombieMausoleumPiggy* zombie)
         {
             if (gX != zombie->m_lastPathGridX || gY != zombie->m_lastPathGridY)
             {
-                auto* pathProps = reinterpret_cast<GridItemMausoleumLawnPathProps*>(activePathTile->m_propertySheet.Get());
+                auto* pathProps = reinterpret_cast<GridItemMausoleumLawnPathProps*>(pathTile->m_propertySheet.Get());
                 int numChoices = pathProps->DirectionType.size();
 
                 if (numChoices > 0)

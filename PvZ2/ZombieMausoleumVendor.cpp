@@ -68,7 +68,7 @@ void MausoleumVendorWalkOnLoop(ZombieMausoleumVendor* zombie) {
         int maxRow = std::min(5, currentZomRow + 1);
         GetEntitiesInRectPixel(&entities, 63, &feetRect, minRow, maxRow);
 
-        GridItemMausoleumLawnPath* activePathTile = nullptr;
+        GridItemMausoleumLawnPath* pathTile = nullptr;
 
         for (BoardEntity* ptr : entities) {
             if (ptr == nullptr) continue;
@@ -78,13 +78,13 @@ void MausoleumVendorWalkOnLoop(ZombieMausoleumVendor* zombie) {
                 GridItem* tile = static_cast<GridItem*>(ptr);
 
                 if (tile->m_gridLocation.mX == gX && tile->m_gridLocation.mY == gY) {
-                    activePathTile = static_cast<GridItemMausoleumLawnPath*>(tile);
+                    pathTile = static_cast<GridItemMausoleumLawnPath*>(tile);
                     break;
                 }
             }
         }
 
-        if (activePathTile != nullptr)
+        if (pathTile != nullptr)
         {
             ZombieAllowMovement(zombie, false);
             ZombieSetSpeedScale(zombie, props->TunnelSpeedScale);
@@ -104,7 +104,7 @@ void MausoleumVendorWalkOnLoop(ZombieMausoleumVendor* zombie) {
             float stepDist = floatingSpeed * timeMoving;
 
             float pixelCenterX = 232.0f + (gX * 64.0f);
-            float pixelCenterY = 224.0f + (gY * 76.0f); // y must be 224 to sync the zombie offset to the path
+            float pixelCenterY = 220.0f + (gY * 76.0f); 
             bool reachedCenter = false;
             float nextX = pX;
             float nextY = pY;
@@ -132,7 +132,7 @@ void MausoleumVendorWalkOnLoop(ZombieMausoleumVendor* zombie) {
             {
                 if (gX != zombie->m_lastPathGridX || gY != zombie->m_lastPathGridY)
                 {
-                    auto* pathProps = reinterpret_cast<GridItemMausoleumLawnPathProps*>(activePathTile->m_propertySheet.Get());
+                    auto* pathProps = reinterpret_cast<GridItemMausoleumLawnPathProps*>(pathTile->m_propertySheet.Get());
                     int numChoices = pathProps->DirectionType.size();
 
                     if (numChoices > 0)
@@ -196,14 +196,11 @@ void MausoleumVendorWalkOnLoop(ZombieMausoleumVendor* zombie) {
                         else if (gY <= 0 && nextDirection == 2) nextDirection = 0;
                         else if (gX >= 8 && nextDirection == 3) nextDirection = 0;
 
-                        const float VISUAL_OFFSET_X = 0.0f;
-                        const float VISUAL_OFFSET_Y = 32.0f;
-
                         if (nextDirection == 0 || nextDirection == 3) {
                             pY = pixelCenterY;
                         }
                         else if (nextDirection == 1 || nextDirection == 2) {
-                            pX = pixelCenterX + VISUAL_OFFSET_X;
+                            pX = pixelCenterX;
                         }
                         zombie->m_currentDirection = nextDirection;
                     }
@@ -278,7 +275,7 @@ void ZombieMausoleumVendor::PigOnEnter(ZombieMausoleumVendor* zombie)
     int maxRow = std::min(5, currentZomRow + 1);
     GetEntitiesInRectPixel(&entities, 63, &feetRect, minRow, maxRow);
 
-    GridItemMausoleumLawnPath* activePathTile = nullptr;
+    GridItemMausoleumLawnPath* pathTile = nullptr;
 
     for (BoardEntity* ptr : entities) {
         if (ptr == nullptr) continue;
@@ -288,13 +285,13 @@ void ZombieMausoleumVendor::PigOnEnter(ZombieMausoleumVendor* zombie)
             GridItem* tile = static_cast<GridItem*>(ptr);
 
             if (tile->m_gridLocation.mX == gX && tile->m_gridLocation.mY == gY) {
-                activePathTile = static_cast<GridItemMausoleumLawnPath*>(tile);
+                pathTile = static_cast<GridItemMausoleumLawnPath*>(tile);
                 break;
             }
         }
     }
 
-    if (activePathTile != nullptr)
+    if (pathTile != nullptr)
     {
         ZombieAllowMovement(zombie, false);
     }
