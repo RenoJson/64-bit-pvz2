@@ -73,6 +73,10 @@ public:
 	SexyString ZombieTypeName = "mummy";
 	SexyString ChooseYourSeedSegmentTypeName = "camel_segment"; // for fixing the CYS visual
 	std::vector<SexyString> FollowerSegmentTypeOrder;
+	SexyString HeadArmorType = "CamelSignHeadDefault";
+	SexyString MiddleArmorType = "CamelSignMiddleDefault";
+	SexyString TailArmorType = "CamelSignTailDefault";
+
 
 	static Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc oZombieCamelPropsBuildSymbols;
 	static Sexy::RtClass* s_rtClass;
@@ -106,6 +110,9 @@ public:
 		RT_CLASS_REGISTER_STRING_PROPERTY(ZombieCamelProps, ZombieTypeName);
 		RT_CLASS_REGISTER_STRING_PROPERTY(ZombieCamelProps, ChooseYourSeedSegmentTypeName);
 		RT_CLASS_REGISTER_STRING_VECTOR_PROPERTY(ZombieCamelProps, FollowerSegmentTypeOrder);
+		RT_CLASS_REGISTER_STRING_PROPERTY(ZombieCamelProps, HeadArmorType);
+		RT_CLASS_REGISTER_STRING_PROPERTY(ZombieCamelProps, MiddleArmorType);
+		RT_CLASS_REGISTER_STRING_PROPERTY(ZombieCamelProps, TailArmorType);
 		RT_CLASS_BUILD_SYMBOLS_END();
 		RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieCamelProps);
 

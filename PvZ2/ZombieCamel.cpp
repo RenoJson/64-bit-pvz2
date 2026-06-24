@@ -60,16 +60,30 @@ SexyString GetZombieTouchTypeName(ZombieCamelTouch* zombie)
     auto props = reinterpret_cast<ZombieCamelTouchProps*>(zombie->m_propertySheet.Get());
     return props->ZombieTypeName;
 }
-typedef void (*Func_ApplyArmor)(ZombieCamel* zombie, SexyString* armorName);
-Func_ApplyArmor ApplyArmor = (Func_ApplyArmor)getActualOffset(0xC3EE98);
-
 typedef void (*Func_SetLeader)(ZombieCamel*, int, RtWeakPtr<Zombie>*);
 Func_SetLeader SetCamelLeaderFlag = (Func_SetLeader)getActualOffset(0xB165E4);
 
 typedef ZombieCamel* (*Func_SpawnFollowers)(ZombieCamel*, int, int);
 Func_SpawnFollowers SpawnFollowers = (Func_SpawnFollowers)getActualOffset(0xB16770);
 
+void CamelApplyArmor(ZombieCamel* zombie, ZombieCamelSegmentType segmentType) {
+    auto props = reinterpret_cast<ZombieCamelProps*>(zombie->m_propertySheet.Get());
+    SexyString armorName;
+    if (segmentType == ZombieCamelSegmentType::head) {
+        armorName = props->HeadArmorType;
+    }
+    else if (segmentType == ZombieCamelSegmentType::body) {
+        armorName = props->MiddleArmorType;
 
+    }
+    else if (segmentType == ZombieCamelSegmentType::tail) {
+        armorName = props->TailArmorType;
+    }
+    else {
+        armorName = props->HeadArmorType;
+    }
+    ZombieApplyArmor(zombie, armorName);
+}
 ZombieCamel* ZombieCamelOnSpawn(ZombieCamel* zombie)
 {
     ZombieOnSpawn(zombie);
@@ -172,6 +186,7 @@ void ZombieCamelProps::modInit() {
     PVZ2HookFunction(0xC02CA0, (void*)GetZombieTypeName, nullptr);
     PVZ2HookFunction(0xC02CC8, (void*)GetZombieTypeName, nullptr);
     PVZ2HookFunction(0xB162A8, (void*)ZombieCamelOnSpawn, nullptr);
+    PVZ2HookFunction(0xB170D0, (void*)CamelApplyArmor, nullptr);
     //Roman
     PVZ2HookFunction(0xC10498, (void*)GetSegmentName, nullptr);
     PVZ2HookFunction(0xC104F8, (void*)GetZombieTypeName, nullptr);

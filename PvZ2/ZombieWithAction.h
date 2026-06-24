@@ -15,22 +15,28 @@ public:
 	RtWeakPtr<RtObject> m_lastAction;
 	RtWeakPtr<RtObject> m_currentAction;
 	std::vector<RtWeakPtr<RtObject>> m_actionQueue;
+	int m_currentPhase;
 };
-static_assert(sizeof(ZombieWithActions) == 1152);
+static_assert(sizeof(ZombieWithActions) == 1160);
 static_assert(offsetof(ZombieWithActions, m_queueEmptyState) == 1096);
 static_assert(offsetof(ZombieWithActions, m_queuedPhaseAfterAction) == 1100);
 static_assert(offsetof(ZombieWithActions, m_actionRepeatsLeft) == 1104);
 static_assert(offsetof(ZombieWithActions, m_lastAction) == 1112);
 static_assert(offsetof(ZombieWithActions, m_currentAction) == 1120);
 static_assert(offsetof(ZombieWithActions, m_actionQueue) == 1128);
+class ZombieWithActionsProps : public ZombiePropertySheet
+{
+public:
+	std::vector<Sexy::RtWeakPtr<Sexy::RtObject>> Actions;
+	char pad3[4];
+};
 class ZombieBeachOctopus: public ZombieWithActions{
 public:
-	int m_currentPhase;
 	float m_nextCastTime;
 };
 
-static_assert(sizeof(ZombieBeachOctopus) == 1160);
-static_assert(offsetof(ZombieBeachOctopus, m_nextCastTime) == 1156);
+//static_assert(sizeof(ZombieBeachOctopus) == 1168);
+//static_assert(offsetof(ZombieBeachOctopus, m_nextCastTime) == 1160);
 class ZombieFairyTaleWitch :public ZombieBeachOctopus {
 public:
 	static void* vftable;

@@ -17,6 +17,49 @@ static_assert(offsetof(ZombieAnimRig_Basic, m_helmType) == 668);
 static_assert(offsetof(ZombieAnimRig_Basic, m_helmDamageIndex) == 672);
 static_assert(offsetof(ZombieAnimRig_Basic, m_helmFlashStart) == 676);
 
+class ZombieAnimRig_Tutorial : public ZombieAnimRig_Basic
+{
+public:
+
+};
+
+class ZombieAnimRig_MausoleumBasicCursed : public ZombieAnimRig_Tutorial
+{
+public:
+	bool m_hasCursed;
+	static void* vftable;
+	static Sexy::RtClass* s_rtClass;
+	static void modInit();;
+
+	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(ZombieAnimRig_MausoleumBasicCursed, 0x9D9C4C);
+	RT_CLASS_CONSTRUCT_FUNCTION_END();
+
+	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombieAnimRig_Tutorial);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieAnimRig_MausoleumBasicCursed, m_hasCursed);
+	RT_CLASS_BUILD_SYMBOLS_END();
+
+	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieAnimRig_MausoleumBasicCursed);
+	RT_CLASS_GET_CLASS_FUNCTION(ZombieAnimRig_MausoleumBasicCursed, 0x12E3600);
+};
+
+class ZombieAnimRig_MausoleumBasic : public ZombieAnimRig_Tutorial
+{
+public:
+	bool m_hasCursed;
+	static void* vftable;
+	static Sexy::RtClass* s_rtClass;
+	static void modInit();;
+
+	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(ZombieAnimRig_MausoleumBasic, 0x9D9C4C);
+	RT_CLASS_CONSTRUCT_FUNCTION_END();
+
+	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombieAnimRig_Tutorial);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieAnimRig_MausoleumBasic, m_hasCursed);
+	RT_CLASS_BUILD_SYMBOLS_END();
+
+	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieAnimRig_MausoleumBasic);
+	RT_CLASS_GET_CLASS_FUNCTION(ZombieAnimRig_MausoleumBasic, 0x12E3600);
+};
 class ZombieAnimRig_CowboyBasic : public ZombieAnimRig_Basic
 {
 public:

@@ -164,14 +164,11 @@ void MausoleumCavalryLoopWalk(ZombieMausoleumCavalry* zombie)
                     else if (gY <= 0 && nextDirection == 2) nextDirection = 0;
                     else if (gX >= 8 && nextDirection == 3) nextDirection = 0;
 
-                    const float VISUAL_OFFSET_X = 0.0f;
-                    const float VISUAL_OFFSET_Y = 32.0f;
-
                     if (nextDirection == 0 || nextDirection == 3) {
                         pY = pixelCenterY;
                     }
                     else if (nextDirection == 1 || nextDirection == 2) {
-                        pX = pixelCenterX + VISUAL_OFFSET_X;
+                        pX = pixelCenterX;
                     }
                     zombie->m_currentDirection = nextDirection;
                 }

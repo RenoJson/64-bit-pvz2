@@ -87,6 +87,7 @@
 #include <PvZ2/ZombieMausoleumPiggyProps.h>
 #include <PvZ2/ZombieMausoleumPiggy.h>
 #include <PvZ2/ZombieMausoleumVendor.h>
+#include <PvZ2/ZombieMausoleumBasic.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -667,6 +668,16 @@ void libChair_main()
     ZombieLostCityGargantuarProps::modInit();// free stuff
     PatchRedStingerPF();// free stuff
 
+    ZombieModernScreenDoor::ModInit();
+    ZombieAnimRig_ModernScreenDoor::modInit();
+    ZombieAnimRig_ModernScreenDoorAlmanac::modInit();
+    ZombieModernScreenDoorProps::modInit();
+    ZombieEightiesBassProps::modInit();
+    ZombieEightiesBass::ModInit();
+    ZombieAnimRig_EightiesBass::modInit();
+    ZombieModernDolphinRider::ModInit();
+    ZombieModernDolphinRiderProps::modInit();
+    ZombieAnimRig_ModernDolphinRider::modInit();
     ZombieCamelProps::modInit();
     ZombieCamelTouchProps::modInit();
     ZombieFairyTaleImp::modInit();
@@ -709,18 +720,8 @@ void libChair_main()
     ZombieModernPogo::ModInit();
     ZombieAnimRig_ModernPogo::modInit();
     ZombieModernPogoProps::modInit();
-    ZombieModernScreenDoor::ModInit();
-    ZombieAnimRig_ModernScreenDoor::modInit();
-    ZombieAnimRig_ModernScreenDoorAlmanac::modInit();
-    ZombieModernScreenDoorProps::modInit();
-    ZombieEightiesBassProps::modInit();
-    ZombieEightiesBass::ModInit();
-    ZombieAnimRig_EightiesBass::modInit();
     PlantDinoGrass::modInit();
 	DinoGrassProps::modInit();
-    ZombieModernDolphinRider::ModInit();
-    ZombieModernDolphinRiderProps::modInit();
-	ZombieAnimRig_ModernDolphinRider::modInit();
     GridItemMausoleumLawnTile::modInit();
     GridItemMausoleumLawnPath::modInit();
     GridItemMausoleumLawnTileProps::modInit();
@@ -731,4 +732,9 @@ void libChair_main()
     ZombieMausoleumVendorProps::modInit();
     ZombieMausoleumPiggy::ModInit();
     ZombieMausoleumPiggyProps::modInit();
+    ZombieMausoleumSpirit::modInit();
+    ZombieMausoleumBasic::modInit();
+    ZombieMausoleumBasicProps::modInit();
+    ZombieAnimRig_MausoleumBasic::modInit();
+    ZombieAnimRig_MausoleumBasicCursed::modInit();
 }
