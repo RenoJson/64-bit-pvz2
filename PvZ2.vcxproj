@@ -184,6 +184,8 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_JourneyToTheWestGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_JourneyToTheWestMiner.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_JourneyToTheWestTrident.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_MausoleumArcher.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_MausoleumAssasin.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_MausoleumBasic.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernAllStar.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernBalloon.cpp" />
@@ -218,6 +220,8 @@
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestVendor.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestVendorProps.cpp" />
     <ClCompile Include="PvZ2\ZombieLostCityTorchGargantuar.cpp" />
+    <ClCompile Include="PvZ2\ZombieMausoleumArcher.cpp" />
+    <ClCompile Include="PvZ2\ZombieMausoleumAssasin.cpp" />
     <ClCompile Include="PvZ2\ZombieMausoleumBasic.cpp" />
     <ClCompile Include="PvZ2\ZombieMausoleumCavalry.cpp" />
     <ClCompile Include="PvZ2\ZombieMausoleumCavalryProps.cpp" />
@@ -302,6 +306,10 @@
     <ClInclude Include="PvZ2\Projectile.h" />
     <ClInclude Include="PvZ2\PropertySheetBase.h" />
     <ClInclude Include="PvZ2\PVZDB.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumArcher.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumAssasin.h" />
+    <ClInclude Include="PvZ2\ZombieMausoleumArcher.h" />
+    <ClInclude Include="PvZ2\ZombieMausoleumAssasin.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumBasic.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumCavalry.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumCavalryProps.h" />

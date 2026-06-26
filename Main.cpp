@@ -88,6 +88,10 @@
 #include <PvZ2/ZombieMausoleumPiggy.h>
 #include <PvZ2/ZombieMausoleumVendor.h>
 #include <PvZ2/ZombieMausoleumBasic.h>
+#include <PvZ2/ZombieMausoleumAssasin.h>
+#include <PvZ2/ZombieAnimRig_MausoleumAssasin.h>
+#include <PvZ2/ZombieMausoleumArcher.h>
+#include <PvZ2/ZombieAnimRig_MausoleumArcher.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -737,4 +741,10 @@ void libChair_main()
     ZombieMausoleumBasicProps::modInit();
     ZombieAnimRig_MausoleumBasic::modInit();
     ZombieAnimRig_MausoleumBasicCursed::modInit();
+    ZombieMausoleumAssasin::modInit();
+    ZombieMausoleumAssasinProps::modInit();
+    ZombieAnimRig_MausoleumAssasin::modInit();
+    ZombieMausoleumArcher::modInit();
+    ZombieMausoleumArcherProps::modInit();
+    ZombieAnimRig_MausoleumArcher::modInit();
 }

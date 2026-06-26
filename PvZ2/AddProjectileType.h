@@ -9,3 +9,6 @@ inline Projectile* AddProjectile(Sexy::RtWeakPtr<ProjectilePropertySheet>* type,
 	addProjectileByType funAddProjectileByType = (addProjectileByType)getActualOffset(0xAAE5B4);
 	return funAddProjectileByType(board, type, owner, mX, mY, mZ);
 }
+inline float FirePultProjectile(Projectile* proj, SexyVector3 targetPos, float projHeight, float projAirTime) {
+	return CallFunc<float, Projectile*, SexyVector3*, float, float>(0xCA2D50, proj, &targetPos, projHeight, projAirTime);
+}

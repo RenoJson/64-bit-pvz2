@@ -79,6 +79,10 @@ inline bool GetAnimRigSpritePosition(ZombieAnimRig* animRig, const SexyString& l
 	return CallFunc<bool, ZombieAnimRig*, const SexyString&, SexyVector2*>(0x9DFBD4, animRig, layerName, spritePos);
 }
 
+inline bool IsAnimDone(ZombieAnimRig* animRig, int duration) {
+	return CallFunc<bool, ZombieAnimRig*, int>(0x9DCBE8, animRig, duration);
+}
+
 inline void SetWalkSpeed(ZombieAnimRig* animRig, float speed) {
 	return CallFunc<void, ZombieAnimRig*, float>(0x8DDAA4, animRig, speed);
 }
