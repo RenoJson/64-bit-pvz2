@@ -34,11 +34,16 @@ void ArcherOnSpawn(ZombieMausoleumArcher* zombie) {
     ZombieOnSpawn(zombie);
     ZombieEnterState(zombie, 16, 0);
 }
-
+void ArcherOnAffectedByCondition(ZombieMausoleumArcher* zombie, int condition) {
+    if (condition == zombie_condition_hypnotized) {
+        ZombieEnterState(zombie, 19, 0);
+    }
+}
 bool ArcherIsBeingTossedByPlant(ZombieMausoleumArcher* zombie, int a2) {
     if (zombie->m_entityState.m_id == 16
         || zombie->m_entityState.m_id == 17
-        || zombie->m_entityState.m_id == 18) {
+        || zombie->m_entityState.m_id == 18
+        || zombie->m_entityState.m_id == 20) {
         return false;
     }
     else {
@@ -233,6 +238,7 @@ void ZombieMausoleumArcher::modInit() {
     vftable = CreateChildVFTable(204 + 18, getActualOffset(0x241D430), 204);
     PatchVFTable(vftable, (void*)ZombieMausoleumArcher::StaticGetType, 0);
     PatchVFTable(vftable, (void*)ArcherOnSpawn, 49);
+    PatchVFTable(vftable, (void*)ArcherOnAffectedByCondition, 71);
     PatchVFTable(vftable, (void*)ArcherIsBeingTossedByPlant, 97);
     PatchVFTable(vftable, (void*)MausoleumArcherActionFrame, 170);
 

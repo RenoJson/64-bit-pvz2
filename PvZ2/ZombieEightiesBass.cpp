@@ -383,7 +383,7 @@ void DebutCompletedCallback(Zombie* zombie) {
 }
 void BreakingCompletedCallback(Zombie* zombie) {
 	ZombieEightiesBass* bassZombie = static_cast<ZombieEightiesBass*>(zombie);
-	if (bassZombie) {
+	if (bassZombie && !ZombieIsDeadOrDying(bassZombie)) {
         auto animRig = reinterpret_cast<ZombieAnimRig_EightiesBass*>(bassZombie->m_animRig.Get());
         animRig->m_hasGuitar = false;
         auto* props = reinterpret_cast<ZombieEightiesBassProps*>(bassZombie->m_propertySheet.Get());

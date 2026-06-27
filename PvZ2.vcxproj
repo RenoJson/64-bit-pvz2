@@ -187,6 +187,7 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_MausoleumArcher.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_MausoleumAssasin.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_MausoleumBasic.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_MausoleumDrunkard.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernAllStar.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernBalloon.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernDolphinRider.cpp" />
@@ -225,6 +226,7 @@
     <ClCompile Include="PvZ2\ZombieMausoleumBasic.cpp" />
     <ClCompile Include="PvZ2\ZombieMausoleumCavalry.cpp" />
     <ClCompile Include="PvZ2\ZombieMausoleumCavalryProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieMausoleumDrunkard.cpp" />
     <ClCompile Include="PvZ2\ZombieMausoleumPiggy.cpp" />
     <ClCompile Include="PvZ2\ZombieMausoleumPiggyProps.cpp" />
     <ClCompile Include="PvZ2\ZombieMausoleumVendor.cpp" />
@@ -308,11 +310,13 @@
     <ClInclude Include="PvZ2\PVZDB.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumArcher.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumAssasin.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumDrunkard.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumArcher.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumAssasin.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumBasic.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumCavalry.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumCavalryProps.h" />
+    <ClInclude Include="PvZ2\ZombieMausoleumDrunkard.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumPiggy.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumPiggyProps.h" />
     <ClInclude Include="PvZ2\RealObject.h" />

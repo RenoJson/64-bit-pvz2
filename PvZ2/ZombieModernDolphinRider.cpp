@@ -54,7 +54,6 @@ Zombie* DolphinRiderOnSpawn(ZombieModernDolphinRider* zombie)
 	SetWalkSpeed(rig, DolphinRiderGetWalkSpeed(zombie));
 	ZombieEnterState(zombie, 18, 0);
 	return ZombieUpdatePosition(zombie, &zombiePos);
-	
 }
 SexyString GetDolphinRiderAnimShock(ZombieModernDolphinRider* zombie) {
 	if (zombie->m_isRidingDolphin == true && zombie->m_isCarryingDolphin == false) {

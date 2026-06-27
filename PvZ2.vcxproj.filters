@@ -157,6 +157,8 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_MausoleumAssasin.cpp" />
     <ClCompile Include="PvZ2\ZombieMausoleumArcher.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_MausoleumArcher.cpp" />
+    <ClCompile Include="PvZ2\ZombieMausoleumDrunkard.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_MausoleumDrunkard.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -267,5 +269,7 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumAssasin.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumArcher.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumArcher.h" />
+    <ClInclude Include="PvZ2\ZombieMausoleumDrunkard.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumDrunkard.h" />
   </ItemGroup>
 </Project>

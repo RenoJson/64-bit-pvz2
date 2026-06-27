@@ -13,7 +13,6 @@ Sexy::RtClass* ZombieMausoleumAssasin::s_rtClass = nullptr;
 void* ZombieMausoleumAssasinProps::vftable = nullptr;
 Sexy::RtClass* ZombieMausoleumAssasinProps::s_rtClass = nullptr;
 
-typedef bool (*isAnimDone)(ZombieAnimRig*, int);
 typedef int (*playAnimWithoutCallback)(ZombieAnimRig*, const SexyString&, int, DelegateBase&);
 typedef int (*playAnimWithCallback)(ZombieAnimRig*, const SexyString&, int, ZombieEvent& event);
 typedef ZombieEvent* (*ConstructEvent)(ZombieEvent*, RtWeakPtr<Zombie>& owner, const SexyString& eventName);
@@ -161,8 +160,7 @@ void ZombieMausoleumAssasin::BackstabOnEnter(ZombieMausoleumAssasin* zombie)
 void ZombieMausoleumAssasin::BackstabOnLoop(ZombieMausoleumAssasin* zombie)
 {
     auto animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
-    bool animDone = ((isAnimDone)getActualOffset(0x9DCBE8))(animRig, zombie->m_animHandle);
-    if (animDone)
+    if (IsAnimDone(animRig, zombie->m_animHandle))
     {
         ZombieEnterState(zombie, 1, 0);
     }

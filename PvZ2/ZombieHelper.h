@@ -1,5 +1,6 @@
 #pragma once
 #include "Zombie.h"
+#include "Plant.h"
 // Zombie Helper Function Start Here
 
 inline float ZombieFacing(Zombie* zombie) {
@@ -94,4 +95,9 @@ inline void GetEntitiesInRectGrid(std::vector<BoardEntity*>* entities, uint type
 
 inline void GetEntitiesInRectPixel(std::vector<BoardEntity*>* entities, uint typeID, Rect* area, int minRow, int maxRow) {
 	CallFunc<void, std::vector<BoardEntity*>*, uint, Rect*, int, int>(0x86F340, entities, typeID, area, minRow, maxRow);
+}
+
+// Plant helper start here
+inline void PlantSetCondition(PlantGroup* plant, int conditionID, float duration, float a4) {
+	CallFunc<void, PlantGroup*, int, float, float>(0x13399F8, plant, conditionID, duration, a4);
 }

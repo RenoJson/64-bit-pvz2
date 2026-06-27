@@ -10,7 +10,12 @@ void* hkInitGargantuarHeadList() {
 
     static std::vector<SexyString> gargantuarHeadList = {
         "Zombie_gargantuar_head",
-        "Zombie_gargantuar_jaw"
+        "Zombie_gargantuar_jaw",
+        "Zombie_gargantuar_head_back",
+        "zombie_eighties_gargantuar_70x141",
+        "zombie_gargantuar_underbite",
+        "Zombie_gargantuar_headBehind",
+        "Zombie_gargantuar_head_Dress_Back"
     };
     return &gargantuarHeadList;
 }
