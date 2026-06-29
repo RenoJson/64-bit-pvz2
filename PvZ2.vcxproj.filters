@@ -159,6 +159,8 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_MausoleumArcher.cpp" />
     <ClCompile Include="PvZ2\ZombieMausoleumDrunkard.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_MausoleumDrunkard.cpp" />
+    <ClCompile Include="PvZ2\PlantUnchartedHaystack.cpp" />
+    <ClCompile Include="PvZ2\GridItemHaystack.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -271,5 +273,7 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumArcher.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumDrunkard.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumDrunkard.h" />
+    <ClInclude Include="PvZ2\PlantUnchartedHaystack.h" />
+    <ClInclude Include="PvZ2\GridItemHaystack.h" />
   </ItemGroup>
 </Project>

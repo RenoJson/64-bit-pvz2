@@ -94,6 +94,7 @@
 #include <PvZ2/ZombieAnimRig_MausoleumArcher.h>
 #include <PvZ2/ZombieMausoleumDrunkard.h>
 #include <PvZ2/ZombieAnimRig_MausoleumDrunkard.h>
+#include <PvZ2/PlantUnchartedHaystack.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -752,4 +753,6 @@ void libChair_main()
     ZombieMausoleumArcher::modInit();
     ZombieMausoleumArcherProps::modInit();
     ZombieAnimRig_MausoleumArcher::modInit();
+    PlantUnchartedHaystack::modInit();
+    GridItemHaystack::modInit();
 }

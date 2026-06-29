@@ -65,6 +65,18 @@ static_assert(sizeof(GridItemAnimation) == 320);
 static_assert(offsetof(GridItemAnimation, m_hasLinkedAnimRig) == 304);
 static_assert(offsetof(GridItemAnimation, m_animRig) == 312);
 
+class GridItemLilyPad : public GridItemAnimation
+{
+public:
+	bool m_isDuplicate;
+	char pad7[7];
+	std::vector<RtWeakPtr<GridItem>> m_PFSpawnedPads;
+	int m_level;
+};
+
+
+
+
 class GridItemGravestone : public GridItemAnimation
 {
 public:

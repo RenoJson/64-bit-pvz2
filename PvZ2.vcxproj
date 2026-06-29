@@ -170,8 +170,10 @@
     <ClCompile Include="PvZ2\DangerRoomFallenKnightDesigner.cpp" />
     <ClCompile Include="PvZ2\DangerRoomHelpdeskSupportDesigner.cpp" />
     <ClCompile Include="PvZ2\FairyTaleWitchProjectile.cpp" />
+    <ClCompile Include="PvZ2\GridItemHaystack.cpp" />
     <ClCompile Include="PvZ2\MausoleumGrid.cpp" />
     <ClCompile Include="PvZ2\PlantDinoGrass.cpp" />
+    <ClCompile Include="PvZ2\PlantUnchartedHaystack.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRigBasicTemplateProps.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_BasicTemplate.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_Consultant.cpp" />
@@ -288,6 +290,7 @@
     <ClInclude Include="PvZ2\GridItem.h" />
     <ClInclude Include="PvZ2\GridItemAnimation.h" />
     <ClInclude Include="PvZ2\GridItemCondition.h" />
+    <ClInclude Include="PvZ2\GridItemHaystack.h" />
     <ClInclude Include="PvZ2\GridItemMausoleumLawnTile.h" />
     <ClInclude Include="PvZ2\LevelDefinition.h" />
     <ClInclude Include="PvZ2\LevelModule.h" />
@@ -304,6 +307,7 @@
     <ClInclude Include="PvZ2\PlantConditions.h" />
     <ClInclude Include="PvZ2\PlantDinoGrass.h" />
     <ClInclude Include="PvZ2\PlantFramework.h" />
+    <ClInclude Include="PvZ2\PlantUnchartedHaystack.h" />
     <ClInclude Include="PvZ2\PopAnimRig.h" />
     <ClInclude Include="PvZ2\Projectile.h" />
     <ClInclude Include="PvZ2\PropertySheetBase.h" />

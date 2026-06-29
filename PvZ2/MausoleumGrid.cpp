@@ -1,6 +1,8 @@
 ﻿#include "GridItemMausoleumLawnTile.h"
 #include "Sexy/LawnApp.h"
 #include "Board.h"
+#include "Plant.h"
+#include "ZombieHelper.h"
 
 void* GridItemMausoleumLawnTile::vftable = __null;
 void* GridItemMausoleumLawnTile::vftable1 = __null;
@@ -28,6 +30,61 @@ void GetImageResPtr(Sexy::RtWeakPtr<Image>*imgPtr, SexyString imageName) {
     if (resNode != 0) {
         auto internalWeakPtr = reinterpret_cast<Sexy::RtWeakPtr<Image>*>(resNode + 32);
         imgPtr->FromOther(internalWeakPtr); 
+    }
+}
+void PathUpdate(GridItemMausoleumLawnPath* tile) {
+    Rect scanRect;
+    scanRect.mX = tile->m_gridLocation.mX;
+    scanRect.mY = tile->m_gridLocation.mY;
+    scanRect.mWidth = 1;
+    scanRect.mHeight = 1;
+
+    std::vector<BoardEntity*> entityList;
+
+    GetEntitiesInRectGrid(&entityList, 63, &scanRect);
+
+    bool foundSod = false;
+
+    for (BoardEntity* ptr : entityList)
+    {
+        if (ptr == nullptr) continue;
+
+        if (ptr->IsType(PlantGroup::StaticGetType()))
+        {
+            PlantGroup* plantGroup = static_cast<PlantGroup*>(ptr);
+
+            for (auto& weakPlantPtr : plantGroup->m_plants.m_plants)
+            {
+                Plant* plant = reinterpret_cast<Plant*>(weakPlantPtr.Get());
+
+                if (plant != nullptr && plant->m_isOnBoard && !plant->m_isDead)
+                {
+                    auto type = reinterpret_cast<PlantType*>(plant->m_type.Get());
+                    SexyString plantName = type->TypeName;
+
+                    if (plantName == "sod")
+                    {
+                        foundSod = true;
+                        break; 
+                    }
+                }
+            }
+        }
+
+        if (foundSod) break; 
+    }
+
+    tile->m_hasSodded = foundSod;
+    CallFunc<void, GridItemMausoleumLawnPath*>(0x76DA44, tile);
+}
+void PathCanPlantGoHere(GridItemMausoleumLawnPath* tile, const SexyString& plantName, std::vector<int>* list) {
+    if(tile->m_hasSodded == true) 
+    {
+        auto props = reinterpret_cast<GridItemMausoleumLawnPathProps*>(tile->m_propertySheet.Get());
+        CallFunc<void, PlantingRestrictionSet*, const SexyString&, std::vector<int>*>(0x13656C0, &props->PlantsWhichCannotBePlantedOnPathAfterSodded, plantName, list);
+    }
+    else {
+        CallFunc<void, GridItemMausoleumLawnPath*, const SexyString&, std::vector<int>*>(0x806E14, tile, plantName, list);
     }
 }
 
@@ -101,6 +158,8 @@ void GridItemMausoleumLawnPath::modInit() {
     PatchVFTable(vftable, (void*)GridItemMausoleumLawnPath::StaticGetType, 0);
     PatchVFTable(vftable1, (void*)PathGetRenderOrder, 3);
     PatchVFTable(vftable, (void*)PathRender, 27);
+    PatchVFTable(vftable, (void*)PathUpdate, 29);
+    PatchVFTable(vftable, (void*)PathCanPlantGoHere, 55);
     GridItemMausoleumLawnPath::StaticGetType();
     LOGI("GridItemMausoleumLawnPath finish init");
 }

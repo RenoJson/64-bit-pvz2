@@ -66,53 +66,41 @@ void MausoleumArcherActionFrame(ZombieMausoleumArcher* self, SexyString* current
         ExplodeRect.mHeight = 1;
 
         std::vector<BoardEntity*> entityList;
-
         GetEntitiesInRectGrid(&entityList, 63, &ExplodeRect);
 
+        PlantGroup* closestPlant = nullptr;
+        float minDistance = 99999.0f;
+
         for (BoardEntity* ptr : entityList) {
-            if (ptr == nullptr) continue;
-
-            if (ptr->IsType(PlantGroup::StaticGetType()))
+            if (ptr != nullptr && ptr->IsType(PlantGroup::StaticGetType()))
             {
-                PlantGroup* closestPlant = nullptr;
-                float minDistance = 99999.0f;
+                PlantGroup* plant = static_cast<PlantGroup*>(ptr);
+                float distance = self->m_position.x - plant->m_position.x;
 
-                for (BoardEntity* ptr : entityList) {
-                    if (ptr == nullptr) continue;
-
-                    if (ptr->IsType(PlantGroup::StaticGetType())) 
-                    {
-                        PlantGroup* plant = static_cast<PlantGroup*>(ptr);
-
-                        float distance = self->m_position.x - plant->m_position.x;
-
-                        if (distance > 0.0f && distance < minDistance)
-                        {
-                            minDistance = distance;
-                            closestPlant = plant;
-                        }
-                    }
-                }
-                if (closestPlant != nullptr)
+                if (distance > 0.0f && distance < minDistance)
                 {
-                    auto proj = AddProjectile(&props->Projectile,
-                        self,
-                        self->m_position.x - props->ProjectileOffset.x,
-                        self->m_position.y - props->ProjectileOffset.y,
-                        self->m_position.z - props->ProjectileOffset.z);
-                    FirePultProjectile(proj, closestPlant->m_position, 250.0f, 2.0f);
-                }
-                else
-                {
-                    SexyVector3 missPos = { self->m_position.x - 100.0f, self->m_position.y, self->m_position.z };
-                    auto proj = AddProjectile(&props->Projectile,
-                        self,
-                        self->m_position.x - props->ProjectileOffset.x,
-                        self->m_position.y - props->ProjectileOffset.y,
-                        self->m_position.z - props->ProjectileOffset.z);
-                    FirePultProjectile(proj, missPos, 250.0f, 2.0f);
+                    minDistance = distance;
+                    closestPlant = plant;
                 }
             }
+        }
+
+        if (closestPlant != nullptr)
+        {
+            auto proj = AddProjectile(&props->Projectile, self,
+                self->m_position.x - props->ProjectileOffset.x,
+                self->m_position.y - props->ProjectileOffset.y,
+                self->m_position.z - props->ProjectileOffset.z);
+            FirePultProjectile(proj, closestPlant->m_position, 250.0f, 2.0f);
+        }
+        else
+        {
+            SexyVector3 missPos = { self->m_position.x - 100.0f, self->m_position.y, self->m_position.z };
+            auto proj = AddProjectile(&props->Projectile, self,
+                self->m_position.x - props->ProjectileOffset.x,
+                self->m_position.y - props->ProjectileOffset.y,
+                self->m_position.z - props->ProjectileOffset.z);
+            FirePultProjectile(proj, missPos, 250.0f, 2.0f);
         }
     }
 }
@@ -124,7 +112,7 @@ void ZombieMausoleumArcher::WalkIntoPositionOnEnter(ZombieMausoleumArcher* zombi
 
 void ZombieMausoleumArcher::WalkIntoPositionOnLoop(ZombieMausoleumArcher* zombie)
 {
-    if (zombie->m_position.x <= 744.0f) {
+    if (zombie->m_position.x <= 776.0f) {
         ZombieEnterState(zombie, 20, 0);
     }
 }
@@ -152,14 +140,47 @@ void ZombieMausoleumArcher::WaitShootingOnLoop(ZombieMausoleumArcher* zombie)
 {
     auto* props = reinterpret_cast<ZombieMausoleumArcherProps*>(zombie->m_propertySheet.Get());
     auto animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
-    if (zombie->m_elapsedTimeInState >= props->FireInterval) {
-        ZombieEnterState(zombie, 18, 0);
-    }
-    else if ((zombie->m_hitpoints / zombie->m_maxHitpoints) <= 0.5f && !ZombieIsDeadOrDying(zombie)){
+
+    float hpPercentage = zombie->m_hitpoints / zombie->m_maxHitpoints;
+    if (hpPercentage <= 0.5f && !ZombieIsDeadOrDying(zombie)) {
         ZombieEnterState(zombie, 19, 0);
+        return;
     }
-    else if (IsAnimDone(animRig, zombie->m_animHandle)){
-        auto animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
+    if (zombie->m_elapsedTimeInState >= props->FireInterval)
+    {
+        int zX = static_cast<int>((zombie->m_position.x - 200.0f) / 64.0f);
+        int zY = static_cast<int>((zombie->m_position.y - 160.0f) / 76.0f);
+
+        Rect ExplodeRect;
+        ExplodeRect.mX = (zX - 8 > 0) ? (zX - 8) : 0;
+        ExplodeRect.mY = zY;
+        ExplodeRect.mWidth = 8;
+        ExplodeRect.mHeight = 1;
+
+        std::vector<BoardEntity*> entityList;
+        GetEntitiesInRectGrid(&entityList, 63, &ExplodeRect);
+
+        bool hasTarget = false;
+
+        for (BoardEntity* ptr : entityList) {
+            if (ptr != nullptr && ptr->IsType(PlantGroup::StaticGetType()))
+            {
+                PlantGroup* plant = static_cast<PlantGroup*>(ptr);
+                float distance = zombie->m_position.x - plant->m_position.x;
+
+                if (distance > 0.0f) {
+                    hasTarget = true;
+                    break;
+                }
+            }
+        }
+        if (hasTarget) {
+            ZombieEnterState(zombie, 18, 0);
+            return;
+        }
+    }
+    if (IsAnimDone(animRig, zombie->m_animHandle))
+    {
         RtWeakPtr<Zombie> zombiePtr;
         zombiePtr.FromOther((RtWeakPtr<Zombie>*) & zombie->m_thisPtr);
 
@@ -167,11 +188,9 @@ void ZombieMausoleumArcher::WaitShootingOnLoop(ZombieMausoleumArcher* zombie)
         ((ConstructEvent)getActualOffset(0x6FDDDC))(&zombieEvent, zombiePtr, "onWaitingContinue");
 
         playAnimWithCallback func = ((playAnimWithCallback)getActualOffset(0x8DCEDC));
-
         zombie->m_animHandle = func(animRig, "waitshoot", 3, zombieEvent);
     }
 }
-
 void ZombieMausoleumArcher::WaitShootingOnExit(ZombieMausoleumArcher* zombie)
 {
 
@@ -327,6 +346,6 @@ void ZombieMausoleumArcher::buildStates()
         (uintptr_t)ZombieMausoleumArcher::StartShootOnEnter,
         (uintptr_t)ZombieMausoleumArcher::StartShootOnLoop,
         (uintptr_t)ZombieMausoleumArcher::StartShootOnExit,
-        "ZS_Archer_Shoot");
+        "ZS_Archer_StartShoot");
     LOGI("Reg state complete");
 }

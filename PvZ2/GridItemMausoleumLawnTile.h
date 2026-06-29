@@ -54,6 +54,7 @@ public:
 class GridItemMausoleumLawnPath : public GridItem {
 public:
 	Sexy::RtWeakPtr<Image> m_imageRes;
+	bool m_hasSodded = false;
 	static void* vftable;
 	static void* vftable1;
 	static Sexy::RtClass* s_rtClass;
@@ -71,6 +72,7 @@ public:
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(GridItem);
 	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(GridItemMausoleumLawnPath, m_imageRes, Image)
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(GridItemMausoleumLawnPath, m_hasSodded);
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(GridItemMausoleumLawnPath);
@@ -81,6 +83,7 @@ class GridItemMausoleumLawnPathProps : public GridItemPropertySheet {
 public:
 	std::vector<int> DirectionType;
 	SexyString Image;
+	PlantingRestrictionSet PlantsWhichCannotBePlantedOnPathAfterSodded;
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;
@@ -91,6 +94,7 @@ public:
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(GridItemPropertySheet);
 	RT_CLASS_REGISTER_STANDARD_VECTOR_PROPERTY(GridItemMausoleumLawnPathProps, DirectionType, int)
 	RT_CLASS_REGISTER_STRING_PROPERTY(GridItemMausoleumLawnPathProps, Image);
+	RT_CLASS_REGISTER_CLASS_PROPERTY(GridItemMausoleumLawnPathProps, PlantingRestrictionSet, PlantsWhichCannotBePlantedOnPathAfterSodded);
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(GridItemMausoleumLawnPathProps);

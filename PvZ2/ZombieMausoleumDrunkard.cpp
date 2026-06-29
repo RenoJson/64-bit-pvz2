@@ -21,12 +21,6 @@ static Sexy::DelegateBase drunkCompletedDelegate;
 
 static Sexy::DelegateBase pukeCompletedDelegate;
 
-void DrunkardOnSpawn(ZombieMausoleumDrunkard* zombie)
-{
-    ZombieOnSpawn(zombie);
-    SexyVector3 zombiePos = { 780.0f, zombie->m_position.y, 0.0f };
-    ZombieUpdatePosition(zombie, &zombiePos);
-}
 
 void DrunkardWalkOnLoop(ZombieMausoleumDrunkard* self) {
 	auto props = reinterpret_cast<ZombieMausoleumDrunkardProps*>(self->m_propertySheet.Get());
@@ -145,14 +139,13 @@ void ZombieMausoleumDrunkard::ChangeLaneOnLoop(ZombieMausoleumDrunkard* zombie)
     float pX = zombie->m_position.x;
     float pY = zombie->m_position.y;
     float pZ = zombie->m_position.z;
-
-    float baseSpeed = props->Speed;
+    ZombieSetSpeedScale(zombie, 2.0f);
+    float baseSpeed = props->Speed * 2;
     float speedScale = zombie->m_conditionTracker.m_speedScale;
+
     float stepDist = baseSpeed * speedScale * 64.0f * TimeMgr::GetInstance()->m_unkTime;
 
-    float startY = 220.0f + (zombie->m_lastPathGridX * 76.0f);
     float targetY = 220.0f + (zombie->m_lastPathGridY * 76.0f);
-
     bool reachedCenter = false;
 
     if (pY < targetY) {
@@ -167,28 +160,20 @@ void ZombieMausoleumDrunkard::ChangeLaneOnLoop(ZombieMausoleumDrunkard* zombie)
         reachedCenter = true;
     }
 
+    if (!reachedCenter) {
+        pX -= stepDist; 
+    }
+
     if (reachedCenter)
     {
-        pY = targetY;
-        pZ = 0.0f; 
+        pY = targetY; 
         zombie->m_lastPathGridY = static_cast<int>((pY - 160.0f) / 76.0f);
-
+        ZombieSetSpeedScale(zombie, 1.0f);
         SexyVector3 newPos = { pX, pY, pZ };
         ZombieUpdatePosition(zombie, &newPos);
-
         ZombieEnterState(zombie, 1, 0); 
         return;
     }
-
-    float totalDist = std::abs(targetY - startY);
-    if (totalDist == 0.0f) totalDist = 76.0f;
-
-    float currentDistWalked = std::abs(pY - startY);
-    float progress = currentDistWalked / totalDist;
-
-    float stumbleHeight = 18.0f;
-    pZ = stumbleHeight * std::abs(std::sin(progress * 2.0f * 3.14159f));
-
     SexyVector3 newPos = { pX, pY, pZ };
     ZombieUpdatePosition(zombie, &newPos);
 }
