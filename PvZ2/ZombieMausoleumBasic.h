@@ -5,7 +5,6 @@
 class ZombieMausoleumBasic : public ZombieBasic
 {
 public:
-	bool m_hasCursed;
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;

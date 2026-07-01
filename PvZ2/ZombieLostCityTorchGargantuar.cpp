@@ -96,7 +96,7 @@ void LostCityGargantuarWalkOnLoop(ZombieLostCityTorchGargantuar* zombie) {
         if (entity != nullptr) {
             if (entity->IsType(PlantGroup::StaticGetType())) {
 
-                CallFunc<void, BoardEntity*, int, int, bool, ZombieLostCityTorchGargantuar*>(0x1336D2C, entity, 512, 2, false, zombie);
+                CallFunc<void, BoardEntity*, int64_t, int, bool, ZombieLostCityTorchGargantuar*>(0x1336D2C, entity, damage_fire, 2, false, zombie);
             }
             else {
                 ZombieEnterState(zombie, 16, 0);
@@ -138,9 +138,9 @@ Zombie* LostCityGargFunction184(ZombieLostCityTorchGargantuar* self, DamageInfo*
     return self;
 }
 void LostCityGargFunction185(ZombieLostCityTorchGargantuar* self) {
-        self->m_hasTorch = false;
-        auto rig = reinterpret_cast<ZombieAnimRig_Gargantuar*>(self->m_animRig.Get());
-        SetFlameLayersVisible(self, rig, false);
+    self->m_hasTorch = false;
+    auto rig = reinterpret_cast<ZombieAnimRig_Gargantuar*>(self->m_animRig.Get());
+    SetFlameLayersVisible(self, rig, false);
 }
 void ZombieLostCityTorchGargantuar::modInit() {
 	LOGI("ZombieLostCityTorchGargantuar mod init");

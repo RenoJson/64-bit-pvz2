@@ -29,16 +29,8 @@ bool MausoleumSpiritCanBeTargeted(ZombieMausoleumSpirit* zombie, char a2) {
 
 void MausoleumBasicOnCreate(ZombieMausoleumBasic* zombie) {
 	auto props = reinterpret_cast<ZombieMausoleumBasicProps*>(zombie->m_propertySheet.Get());
-	auto rig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
-	zombie->m_hasCursed = props->CursedAtStart;
-	if (rig->IsType(ZombieAnimRig_MausoleumBasic::StaticGetType())) {
-		auto mausoleumRig = static_cast<ZombieAnimRig_MausoleumBasic*>(rig);
-		mausoleumRig->m_hasCursed = props->CursedAtStart;
-	}
-	if (rig->IsType(ZombieAnimRig_MausoleumBasicCursed::StaticGetType())) {
-		auto mausoleumRig = static_cast<ZombieAnimRig_MausoleumBasicCursed*>(rig);
-		mausoleumRig->m_hasCursed = props->CursedAtStart;
-	}
+	auto rig = reinterpret_cast<ZombieAnimRig_MausoleumBasicCursed*>(zombie->m_animRig.Get());
+	rig->m_hasCursed = props->CursedAtStart;
 }
 
 

@@ -35,18 +35,5 @@ public:
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieAnimRig_ModernScreenDoorAlmanac);
-	static Sexy::RtClass* StaticGetType() {
-		if (s_rtClass) {
-			return s_rtClass;
-		}
-		typedef Sexy::RtClass* (*initRtClass)();
-		Sexy::RtClass* rtClass = ((initRtClass)getActualOffset(0x163A068))();
-		s_rtClass = rtClass;
-		Sexy::RtClass* parent = ZombieAnimRig_ModernScreenDoor::StaticGetType();
-		typedef uintptr_t(*rtClassRegisterClass)(void*, const char*, Sexy::RtClass*, ParameterlessConstructorFunc);
-		rtClassRegisterClass regrtclass = *(rtClassRegisterClass*)(*(uintptr_t*)rtClass + 0x40);
-		uintptr_t registeredClassResult = regrtclass(rtClass, "ZombieAnimRig_ModernScreenDoorAlmanac", parent, ZombieAnimRig_ModernScreenDoorAlmanac::Construct);
-		ZombieAnimRig_ModernScreenDoorAlmanac::RegisterClass();
-		return s_rtClass;
-	};
+	RT_CLASS_GET_CLASS_NO_PARENT_ADDRESS_CLASS_FUNCTION(ZombieAnimRig_ModernScreenDoorAlmanac, ZombieAnimRig_ModernScreenDoor::StaticGetType)
 };

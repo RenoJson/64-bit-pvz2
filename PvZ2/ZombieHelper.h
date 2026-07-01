@@ -42,8 +42,8 @@ inline void ZombieOnSpawn(Zombie* zombie) {
 	CallFunc<void, Zombie*>(0xC3D1F0, zombie);
 }
 
-inline void ZombiePlaySoundEvent(Zombie* zombie, const SexyString& eventName, float delayDuration) {
-	CallFunc<void*, Zombie*, const SexyString&, float>(0x10B0608, zombie, eventName, delayDuration);
+inline void ZombiePlaySoundEvent(RealObject* zombie, const SexyString& eventName, float delayDuration) {
+	CallFunc<void*, RealObject*, const SexyString&, float>(0x10B0608, zombie, eventName, delayDuration);
 }
 
 inline void ZombieSetCondition(Zombie* zombie, int conditionID, int a3, float duration, float a5) {

@@ -225,6 +225,25 @@ inline Reflection::ReflectionFieldType GetPropertyType()
         className::RegisterClass(); \
         return s_rtClass; \
     }
+#define RT_CLASS_GET_CLASS_NO_PARENT_ADDRESS_CLASS_FUNCTION(className, parentGetType) \
+   static Sexy::RtClass* StaticGetType() \
+    { \
+        if (s_rtClass) \
+            return s_rtClass; \
+        \
+        typedef Sexy::RtClass* (*initRtClass)(); \
+        Sexy::RtClass* rtClass = ((initRtClass)getActualOffset(0x163A068))(); \
+        s_rtClass = rtClass; \
+        \
+        Sexy::RtClass* parent = parentGetType(); \
+        \
+        typedef uintptr_t (*rtClassRegisterClass)(void*, const char*, Sexy::RtClass*, ParameterlessConstructorFunc); \
+        rtClassRegisterClass regrtclass = *(rtClassRegisterClass*)(*(uintptr_t*)rtClass + 0x40); \
+        regrtclass(rtClass, #className, parent, className::Construct); \
+        \
+        className::RegisterClass(); \
+        return s_rtClass; \
+    }
 
 #define RT_CLASS_GET_CLASS_WRAPPER(getTypeAddr) \
     static Sexy::RtClass* StaticGetType() \

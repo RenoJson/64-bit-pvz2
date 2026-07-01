@@ -22,14 +22,6 @@ std::vector<SexyString>* hkInitMausoleumBasicHeadList() {
     };
     return &MausoleumBasicHeadList;
 }
-SexyString BasicDie(ZombieAnimRig_MausoleumBasic* thisPtr) {
-    if (thisPtr->m_hasCursed == true) {
-        return "die_reincarnation";
-    }
-    else {
-        return "die";
-    }
-}
 SexyString BasicCursedDie(ZombieAnimRig_MausoleumBasicCursed* thisPtr) {
     if (thisPtr->m_hasCursed == true) {
         return "die_reincarnation";
@@ -39,21 +31,6 @@ SexyString BasicCursedDie(ZombieAnimRig_MausoleumBasicCursed* thisPtr) {
     }
 }
 
-void ZombieAnimRig_MausoleumBasic::modInit() {
-    LOGI("ZombieAnimRig_MausoleumBasicCursed init");
-
-    vftable = CopyVFTable(getActualOffset(0x24BDA80), 85);
-
-    PatchVFTable(vftable, (void*)ZombieAnimRig_MausoleumBasic::StaticGetType, 0);
-
-    PatchVFTable(vftable, (void*)CreateBasicAnimRig, 21);
-    PatchVFTable(vftable, (void*)hkInitMausoleumBasicHeadList, 55);
-
-    PatchVFTable(vftable, (void*)BasicDie, 63);
-
-    ZombieAnimRig_MausoleumBasic::StaticGetType();
-    LOGI("ZombieAnimRig_MausoleumBasicCursed finish init");
-}
 
 void ZombieAnimRig_MausoleumBasicCursed::modInit() {
     LOGI("ZombieAnimRig_MausoleumBasicCursed init");
@@ -66,5 +43,21 @@ void ZombieAnimRig_MausoleumBasicCursed::modInit() {
     PatchVFTable(vftable, (void*)BasicCursedDie, 63);
 
     ZombieAnimRig_MausoleumBasicCursed::StaticGetType();
+    LOGI("ZombieAnimRig_MausoleumBasicCursed finish init");
+}
+
+void ZombieAnimRig_MausoleumBasic::modInit() {
+    LOGI("ZombieAnimRig_MausoleumBasicCursed init");
+
+    vftable = CopyVFTable(getActualOffset(0x24BDA80), 85);
+
+    PatchVFTable(vftable, (void*)ZombieAnimRig_MausoleumBasic::StaticGetType, 0);
+
+    PatchVFTable(vftable, (void*)CreateBasicAnimRig, 21);
+    PatchVFTable(vftable, (void*)hkInitMausoleumBasicHeadList, 55);
+
+    PatchVFTable(vftable, (void*)BasicCursedDie, 63);
+
+    ZombieAnimRig_MausoleumBasic::StaticGetType();
     LOGI("ZombieAnimRig_MausoleumBasicCursed finish init");
 }

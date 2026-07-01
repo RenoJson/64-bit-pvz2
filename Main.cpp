@@ -7,6 +7,7 @@
 #include "Main.h"
 
 #include "PvZ2/Board.h"
+#include "PvZ2/Effect_PopAnim.h"
 #include "Sexy/LawnApp.h"
 #include "PvZ2/AudioMgr.h"
 #include "PvZ2/WorldMap.h"
@@ -95,6 +96,8 @@
 #include <PvZ2/ZombieMausoleumDrunkard.h>
 #include <PvZ2/ZombieAnimRig_MausoleumDrunkard.h>
 #include <PvZ2/PlantUnchartedHaystack.h>
+#include <PvZ2/DamageInfo.h>
+#include <PvZ2/ZombieHelper.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -614,6 +617,33 @@ void hkBoardRender(Board* thisPtr)
     }
 }
 #pragma endregion
+typedef void (*Fire)(BoardEntity*, int64_t);
+Fire oFire = nullptr;
+void hkFire(BoardEntity* thisPtr, int64_t flag)
+{
+    bool isFire = (flag & DamageTypeFlags::damage_fire) != 0;
+    bool isRemoved = (flag & DamageTypeFlags::damage_removed_from_board) != 0;
+    if (isFire && isRemoved)
+    {
+        int posX = static_cast<int>((thisPtr->m_position.x - 200.0f) / 64.0f);
+        int posY = static_cast<int>((thisPtr->m_position.y - 160.0f) / 76.0f);
+        SexyVector3 entityPos;
+        entityPos.x = static_cast<float>((posX * 64) + 200);
+        entityPos.y = static_cast<float>((posY * 76) + 160);
+		entityPos.z = 0.0f;
+        Board* boardPtr = Board::GetBoard();
+        auto type = Effect_PopAnim::StaticGetType();
+        auto popAnim = CallFunc<Effect_PopAnim*, Board*, Sexy::RtClass*>(0xAA1EFC, boardPtr, type);
+        popAnim->SetFromResource("POPANIM_EFFECTS_ZOMBIE_FRISTKING_DRUNK_GHOST_EFFECT");
+        popAnim->SetFocusFracAndScale(1);
+
+        popAnim->SetPositionAndLayer(entityPos, -1);
+        popAnim->PlayAnimation("fire", 0);
+        ZombiePlaySoundEvent(thisPtr, "Play_Zomb_Egypt_Explorer_Mvmt_Burn", 0.0f);
+        flag &= ~DamageTypeFlags::damage_fire;
+    }
+    oFire(thisPtr, flag);
+}
 __attribute__((constructor))
 // This is automatically executed when the lib is loaded
 // Run your initialization code here
@@ -640,6 +670,7 @@ void libChair_main()
     PVZ2HookFunction(0xA9E25C, (void*)hkBoardWaveFunc, (void**)&oBoardWaveFunc);
     PVZ2HookFunction(0xC1D1FC, (void*)hkInitZombiePianoList, (void**)&oInitZombiePianoList);
     PVZ2HookFunction(0xAA0C40, (void*)hkBoardRender, (void**)&oBoardRender);
+    PVZ2HookFunction(0x1273244, (void*)hkFire, (void**)&oFire);
     PVZ2HookFunction(0x168D580, (void*)hkLoadAndDecode, (void**)&oLoadAndDecode);
     PVZ2HookFunction(0x176D6CC, (void*)hkGetGLTextureTotalSize, (void**)&oGetGLTextureTotalSize);
 
@@ -742,8 +773,8 @@ void libChair_main()
     ZombieMausoleumSpirit::modInit();
     ZombieMausoleumBasic::modInit();
     ZombieMausoleumBasicProps::modInit();
-    ZombieAnimRig_MausoleumBasic::modInit();
     ZombieAnimRig_MausoleumBasicCursed::modInit();
+    ZombieAnimRig_MausoleumBasic::modInit();
     ZombieMausoleumAssasin::modInit();
     ZombieMausoleumAssasinProps::modInit();
     ZombieAnimRig_MausoleumAssasin::modInit();

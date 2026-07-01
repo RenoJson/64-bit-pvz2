@@ -161,6 +161,8 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_MausoleumDrunkard.cpp" />
     <ClCompile Include="PvZ2\PlantUnchartedHaystack.cpp" />
     <ClCompile Include="PvZ2\GridItemHaystack.cpp" />
+    <ClCompile Include="PvZ2\Effect_PopAnim.cpp" />
+    <ClCompile Include="Sexy\ResourceManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -275,5 +277,6 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumDrunkard.h" />
     <ClInclude Include="PvZ2\PlantUnchartedHaystack.h" />
     <ClInclude Include="PvZ2\GridItemHaystack.h" />
+    <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumCursedBase.h" />
   </ItemGroup>
 </Project>

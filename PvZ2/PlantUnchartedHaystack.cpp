@@ -13,9 +13,6 @@ uint HaystackRenderOrder() {
 bool HaystackCanUsePlantfood() {
 	return false;
 }
-bool HaystackCanBeShoveled() {
-	return false;
-}
 bool HaystackHasShadow() {
 	return true;
 }

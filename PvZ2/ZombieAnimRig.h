@@ -1,7 +1,6 @@
 #pragma once
 #include "PopAnimRig.h"
 
-class ZombieType;
 
 class ZombieAnimRig : public PopAnimRig
 {

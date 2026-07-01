@@ -27,6 +27,7 @@ static_assert(offsetof(AnimationSequence, m_animationEntries) == 0);
 class Effect_PopAnim : public StandaloneEffect
 {
 public:
+	RT_CLASS_GET_CLASS_WRAPPER(0x1230EDC);
 	Sexy::RtWeakPtr<PopAnimRig> m_rig;
 	AnimationSequence m_animSequence;
 	int m_animSequenceCurrentIndex;
@@ -38,6 +39,12 @@ public:
 	float m_orientation;
 	Sexy::SexyVector2 m_translation;
 	char m_pad3[36];
+
+	void PlayAnimation(const SexyString& animName, int selectionMethod);
+	void SetFromResource(const SexyString& resourceName);
+	void SetFromResource(void* popAnimRes, Sexy::RtClass* rtClass = nullptr);
+	int SetFocusFracAndScale(int unkValue);
+	void SetPositionAndLayer(const Sexy::SexyVector3& pos, int layer);
 };
 
 static_assert(sizeof(Effect_PopAnim) == 280);
