@@ -38,6 +38,8 @@ class ZombieMausoleumAssasinProps : public ZombiePropertySheet
 {
 public:
 	float AssasinateDamage = 300.0f;
+	SexyString SpiritTypeName = "mausoleum_assasin_spirit";
+	bool CursedAtStart = false;
 
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;
@@ -48,6 +50,8 @@ public:
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombiePropertySheet);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumAssasinProps, AssasinateDamage);
+	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieMausoleumAssasinProps, SpiritTypeName);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumAssasinProps, CursedAtStart);
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieMausoleumAssasinProps);

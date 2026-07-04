@@ -47,210 +47,292 @@ void MausoleumVendorOnAffectedByCondition(ZombieMausoleumVendor* zombie, int con
 	}
 }
 void MausoleumVendorWalkOnLoop(ZombieMausoleumVendor* zombie) {
-		auto props = reinterpret_cast<ZombieMausoleumVendorProps*>(zombie->m_propertySheet.Get());
-        float pX = zombie->m_position.x;
-        float pY = zombie->m_position.y;
-        float pZ = zombie->m_position.z;
+    auto props = reinterpret_cast<ZombieMausoleumVendorProps*>(zombie->m_propertySheet.Get());
+    float pX = zombie->m_position.x;
+    float pY = zombie->m_position.y;
+    float pZ = zombie->m_position.z;
 
-        int gX = static_cast<int>((pX - 200.0f) / 64.0f);
-        int gY = static_cast<int>((pY - 160.0f) / 76.0f);
-        int currentZomRow = static_cast<int>((pY - 160.0f) / 76.0f);
+    int gX = static_cast<int>((pX - 200.0f) / 64.0f);
+    int gY = static_cast<int>((pY - 160.0f) / 76.0f);
+    int currentZomRow = static_cast<int>((pY - 160.0f) / 76.0f);
 
-        Rect feetRect;
-        feetRect.mX = static_cast<int>(pX) - 10;
-        feetRect.mY = static_cast<int>(pY - pZ) - 10;
-        feetRect.mWidth = 20;
-        feetRect.mHeight = 20;
+    Rect feetRect;
+    feetRect.mX = static_cast<int>(pX) - 10;
+    feetRect.mY = static_cast<int>(pY - pZ) - 10;
+    feetRect.mWidth = 20;
+    feetRect.mHeight = 20;
 
-        std::vector<BoardEntity*> entities;
+    std::vector<BoardEntity*> entities;
 
-        int minRow = std::max(0, currentZomRow - 1);
-        int maxRow = std::min(5, currentZomRow + 1);
-        GetEntitiesInRectPixel(&entities, 63, &feetRect, minRow, maxRow);
+    int minRow = std::max(0, currentZomRow - 1);
+    int maxRow = std::min(5, currentZomRow + 1);
+    GetEntitiesInRectPixel(&entities, 63, &feetRect, minRow, maxRow);
 
-        GridItemMausoleumLawnPath* pathTile = nullptr;
+    GridItemMausoleumLawnPath* pathTile = nullptr;
 
-        for (BoardEntity* ptr : entities) {
-            if (ptr == nullptr) continue;
+    for (BoardEntity* ptr : entities) {
+        if (ptr == nullptr) continue;
 
-            if (ptr->IsType(GridItemMausoleumLawnPath::StaticGetType()))
-            {
-                GridItem* tile = static_cast<GridItem*>(ptr);
+        if (ptr->IsType(GridItemMausoleumLawnPath::StaticGetType()))
+        {
+            GridItem* tile = static_cast<GridItem*>(ptr);
 
-                if (tile->m_gridLocation.mX == gX && tile->m_gridLocation.mY == gY) {
-                    pathTile = static_cast<GridItemMausoleumLawnPath*>(tile);
-                    break;
-                }
+            if (tile->m_gridLocation.mX == gX && tile->m_gridLocation.mY == gY) {
+                pathTile = static_cast<GridItemMausoleumLawnPath*>(tile);
+                break;
             }
         }
+    }
 
-        if (pathTile != nullptr)
+    if (pathTile != nullptr)
+    {
+        ZombieAllowMovement(zombie, false);
+        ZombieSetSpeedScale(zombie, props->TunnelSpeedScale);
+
+        ZombieConditionTracker* zTracker = &zombie->m_conditionTracker;
+        uint8_t* cond = zTracker->m_states.data();
+        if (cond != nullptr && *cond != 0) {
+            typedef void (*UpdateConditionsFunc)(ZombieConditionTracker*);
+            ((UpdateConditionsFunc)(*(void***)zTracker)[3])(zTracker);
+            *cond = 0;
+        }
+
+        float baseSpeed = props->TunnelSpeed;
+        float speedScale = zTracker->m_speedScale;
+        float floatingSpeed = baseSpeed * speedScale * 64.0f;
+        float timeMoving = TimeMgr::GetInstance()->m_unkTime;
+        float stepDist = floatingSpeed * timeMoving;
+
+        float pixelCenterX = 232.0f + (gX * 64.0f);
+        float pixelCenterY = 220.0f + (gY * 76.0f);
+        bool reachedCenter = false;
+        float nextX = pX;
+        float nextY = pY;
+
+        switch (zombie->m_currentDirection) {
+        case 0:
+            nextX -= stepDist;
+            if (pX >= pixelCenterX && nextX <= pixelCenterX) reachedCenter = true;
+            break;
+        case 3:
+            nextX += stepDist;
+            if (pX <= pixelCenterX && nextX >= pixelCenterX) reachedCenter = true;
+            break;
+        case 1:
+            nextY += stepDist;
+            if (pY <= pixelCenterY && nextY >= pixelCenterY) reachedCenter = true;
+            break;
+        case 2:
+            nextY -= stepDist;
+            if (pY >= pixelCenterY && nextY <= pixelCenterY) reachedCenter = true;
+            break;
+        }
+
+        if (reachedCenter)
         {
-            ZombieAllowMovement(zombie, false);
-            ZombieSetSpeedScale(zombie, props->TunnelSpeedScale);
-
-            ZombieConditionTracker* zTracker = &zombie->m_conditionTracker;
-            uint8_t* cond = zTracker->m_states.data();
-            if (cond != nullptr && *cond != 0) {
-                typedef void (*UpdateConditionsFunc)(ZombieConditionTracker*);
-                ((UpdateConditionsFunc)(*(void***)zTracker)[3])(zTracker);
-                *cond = 0;
-            }
-
-            float baseSpeed = props->TunnelSpeed;
-            float speedScale = zTracker->m_speedScale;
-            float floatingSpeed = baseSpeed * speedScale * 64.0f;
-            float timeMoving = TimeMgr::GetInstance()->m_unkTime;
-            float stepDist = floatingSpeed * timeMoving;
-
-            float pixelCenterX = 232.0f + (gX * 64.0f);
-            float pixelCenterY = 220.0f + (gY * 76.0f); 
-            bool reachedCenter = false;
-            float nextX = pX;
-            float nextY = pY;
-
-            switch (zombie->m_currentDirection) {
-            case 0:
-                nextX -= stepDist;
-                if (pX >= pixelCenterX && nextX <= pixelCenterX) reachedCenter = true;
-                break;
-            case 3:
-                nextX += stepDist;
-                if (pX <= pixelCenterX && nextX >= pixelCenterX) reachedCenter = true;
-                break;
-            case 1:
-                nextY += stepDist;
-                if (pY <= pixelCenterY && nextY >= pixelCenterY) reachedCenter = true;
-                break;
-            case 2:
-                nextY -= stepDist;
-                if (pY >= pixelCenterY && nextY <= pixelCenterY) reachedCenter = true;
-                break;
-            }
-
-            if (reachedCenter)
+            if (gX != zombie->m_lastPathGridX || gY != zombie->m_lastPathGridY)
             {
-                if (gX != zombie->m_lastPathGridX || gY != zombie->m_lastPathGridY)
+                auto* pathProps = reinterpret_cast<GridItemMausoleumLawnPathProps*>(pathTile->m_propertySheet.Get());
+                int numChoices = pathProps->DirectionType.size();
+
+                if (numChoices > 0)
                 {
-                    auto* pathProps = reinterpret_cast<GridItemMausoleumLawnPathProps*>(pathTile->m_propertySheet.Get());
-                    int numChoices = pathProps->DirectionType.size();
+                    int oppositeDirection = -1;
+                    switch (zombie->m_currentDirection) {
+                    case 0: oppositeDirection = 3; break;
+                    case 1: oppositeDirection = 2; break;
+                    case 2: oppositeDirection = 1; break;
+                    case 3: oppositeDirection = 0; break;
+                    }
 
-                    if (numChoices > 0)
+                    std::vector<int> validTurns;
+                    bool isStraightValid = false;
+
+                    for (int i = 0; i < numChoices; i++)
                     {
-                        int oppositeDirection = -1;
-                        switch (zombie->m_currentDirection) {
-                        case 0: oppositeDirection = 3; break;
-                        case 1: oppositeDirection = 2; break;
-                        case 2: oppositeDirection = 1; break;
-                        case 3: oppositeDirection = 0; break;
-                        }
+                        int checkDir = pathProps->DirectionType[i];
 
-                        std::vector<int> turnChoices;
-                        bool canKeepGoing = false;
-
-                        for (int i = 0; i < numChoices; i++)
+                        if (checkDir != oppositeDirection)
                         {
-                            int checkDir = pathProps->DirectionType[i];
+                            bool routeLeadsToHouse = false;
 
-                            if (checkDir != oppositeDirection)
+                            if (checkDir == 0) {
+                                routeLeadsToHouse = true;
+                            }
+                            else if (checkDir == 3 && zombie->m_currentDirection != 3) {
+                                routeLeadsToHouse = false;
+                            }
+                            else
                             {
+                                int simX = gX;
+                                int simY = gY;
+                                int simDir = checkDir;
+
+                                for (int step = 0; step < 6; step++) {
+                                    if (simDir == 0) simX -= 1;
+                                    else if (simDir == 1) simY += 1;
+                                    else if (simDir == 2) simY -= 1;
+                                    else if (simDir == 3) simX += 1;
+
+                                    if (simX < 0 || simX > 8 || simY < 0 || simY > 4) break;
+
+                                    float simPixelX = 232.0f + (simX * 64.0f);
+                                    float simPixelY = 220.0f + (simY * 76.0f);
+                                    Rect simRect;
+                                    simRect.mX = static_cast<int>(simPixelX) - 10;
+                                    simRect.mY = static_cast<int>(simPixelY) - 10;
+                                    simRect.mWidth = 20;
+                                    simRect.mHeight = 20;
+
+                                    std::vector<BoardEntity*> simEnts;
+                                    int nMinRow = std::max(0, simY - 1);
+                                    int nMaxRow = std::min(5, simY + 1);
+                                    GetEntitiesInRectPixel(&simEnts, 63, &simRect, nMinRow, nMaxRow);
+
+                                    GridItemMausoleumLawnPath* simTile = nullptr;
+                                    for (BoardEntity* ptr : simEnts) {
+                                        if (ptr != nullptr && ptr->IsType(GridItemMausoleumLawnPath::StaticGetType())) {
+                                            GridItem* nextTile = static_cast<GridItem*>(ptr);
+                                            if (nextTile->m_gridLocation.mX == simX && nextTile->m_gridLocation.mY == simY) {
+                                                simTile = static_cast<GridItemMausoleumLawnPath*>(nextTile);
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    if (simTile == nullptr) break;
+
+                                    auto* simProps = reinterpret_cast<GridItemMausoleumLawnPathProps*>(simTile->m_propertySheet.Get());
+                                    bool foundLeft = false;
+                                    bool canGoStraight = false;
+                                    int turnDir = -1;
+
+                                    int oppSimDir = -1;
+                                    switch (simDir) {
+                                    case 0: oppSimDir = 3; break;
+                                    case 1: oppSimDir = 2; break;
+                                    case 2: oppSimDir = 1; break;
+                                    case 3: oppSimDir = 0; break;
+                                    }
+
+                                    for (size_t j = 0; j < simProps->DirectionType.size(); j++) {
+                                        int d = simProps->DirectionType[j];
+                                        if (d == 0) foundLeft = true;
+                                        if (d == simDir) canGoStraight = true;
+                                        if (d != oppSimDir) turnDir = d;
+                                    }
+
+                                    if (foundLeft) {
+                                        routeLeadsToHouse = true;
+                                        break;
+                                    }
+
+                                    if (!canGoStraight) {
+                                        if (turnDir == -1 || turnDir == 3) break;
+                                        simDir = turnDir;
+                                    }
+                                }
+                            }
+
+                            if (routeLeadsToHouse) {
                                 if (checkDir == zombie->m_currentDirection) {
-                                    canKeepGoing = true;
+                                    isStraightValid = true;
                                 }
                                 else {
-                                    turnChoices.push_back(checkDir);
+                                    validTurns.push_back(checkDir);
                                 }
                             }
                         }
+                    }
 
-                        int nextDirection = zombie->m_currentDirection;
-                        bool hasTurnChoices = (turnChoices.size() > 0);
+                    int nextDirection = zombie->m_currentDirection;
 
-                        if (canKeepGoing && hasTurnChoices)
-                        {
-                            int roll = rand() % 100;
-
-                            if (roll < 40) {
-                                nextDirection = zombie->m_currentDirection;
-                            }
-                            else {
-                                int randomIndex = rand() % turnChoices.size();
-                                nextDirection = turnChoices[randomIndex];
-                            }
-                        }
-                        else if (!canKeepGoing && hasTurnChoices)
-                        {
-                            int randomIndex = rand() % turnChoices.size();
-                            nextDirection = turnChoices[randomIndex];
-                        }
-                        else if (canKeepGoing && !hasTurnChoices)
-                        {
+                    if (!isStraightValid && !validTurns.empty())
+                    {
+                        int randomIndex = rand() % validTurns.size();
+                        nextDirection = validTurns[randomIndex];
+                    }
+                    else if (isStraightValid && !validTurns.empty())
+                    {
+                        int roll = rand() % 100;
+                        if (roll < 40) {
                             nextDirection = zombie->m_currentDirection;
                         }
-                        else
-                        {
-                            nextDirection = 0;
+                        else {
+                            int randomIndex = rand() % validTurns.size();
+                            nextDirection = validTurns[randomIndex];
                         }
-
-                        if (gY >= 4 && nextDirection == 1)      nextDirection = 0;
-                        else if (gY <= 0 && nextDirection == 2) nextDirection = 0;
-                        else if (gX >= 8 && nextDirection == 3) nextDirection = 0;
-
-                        if (nextDirection == 0 || nextDirection == 3) {
-                            pY = pixelCenterY;
-                        }
-                        else if (nextDirection == 1 || nextDirection == 2) {
-                            pX = pixelCenterX;
-                        }
-                        zombie->m_currentDirection = nextDirection;
                     }
-                    zombie->m_lastPathGridX = gX;
-                    zombie->m_lastPathGridY = gY;
-                }
-            }
-
-            switch (zombie->m_currentDirection) {
-            case 0: pX -= stepDist; break;
-            case 1: pY += stepDist; break;
-            case 2: pY -= stepDist; break;
-            case 3: pX += stepDist; break;
-            }
-
-            SexyVector3 newPos = { pX, pY, zombie->m_position.z };
-            ZombieUpdatePosition(zombie, &newPos);
-            bool isShrunken = (ZombieHasCondition(zombie, zombie_condition_shrinking) || ZombieHasCondition(zombie, zombie_condition_shrunken));
-            if (!isShrunken) {
-                if (zombie->m_firstSpawned == false) {
-                    if (TimeMgr::GetInstance()->m_curTime >= zombie->m_creationTime + props->SetPigInterval) {
-                        zombie->m_firstSpawned = true;
-                        ZombieEnterState(zombie, 16, 0);
+                    else if (isStraightValid)
+                    {
+                        nextDirection = zombie->m_currentDirection;
                     }
+                    else
+                    {
+                        nextDirection = 0;
+                    }
+
+                    if (gY >= 4 && nextDirection == 1)      nextDirection = 0;
+                    else if (gY <= 0 && nextDirection == 2) nextDirection = 0;
+                    else if (gX >= 8 && nextDirection == 3) nextDirection = 0;
+
+                    if (nextDirection == 0 || nextDirection == 3) {
+                        pY = pixelCenterY;
+                    }
+                    else if (nextDirection == 1 || nextDirection == 2) {
+                        pX = pixelCenterX;
+                    }
+                    zombie->m_currentDirection = nextDirection;
                 }
-                else if (TimeMgr::GetInstance()->m_curTime >= zombie->m_nextPigTime) {
+                zombie->m_lastPathGridX = gX;
+                zombie->m_lastPathGridY = gY;
+            }
+        }
+
+        switch (zombie->m_currentDirection) {
+        case 0: pX -= stepDist; break;
+        case 1: pY += stepDist; break;
+        case 2: pY -= stepDist; break;
+        case 3: pX += stepDist; break;
+        }
+
+        SexyVector3 newPos = { pX, pY, zombie->m_position.z };
+        ZombieUpdatePosition(zombie, &newPos);
+
+        bool isShrunken = (ZombieHasCondition(zombie, zombie_condition_shrinking) || ZombieHasCondition(zombie, zombie_condition_shrunken));
+        if (!isShrunken) {
+            if (zombie->m_firstSpawned == false) {
+                if (TimeMgr::GetInstance()->m_curTime >= zombie->m_creationTime + props->SetPigInterval) {
+                    zombie->m_firstSpawned = true;
                     ZombieEnterState(zombie, 16, 0);
                 }
             }
-            CallFunc<void, ZombieMausoleumVendor*>(0xC506B4, zombie);
+            else if (TimeMgr::GetInstance()->m_curTime >= zombie->m_nextPigTime) {
+                ZombieEnterState(zombie, 16, 0);
+            }
         }
-        else
-        {
-            zombie->m_currentDirection = 0;
-            ZombieAllowMovement(zombie, true);
-            ZombieSetSpeedScale(zombie, 1.0f);
-            bool isShrunken = (ZombieHasCondition(zombie, zombie_condition_shrinking) || ZombieHasCondition(zombie, zombie_condition_shrunken));
-            if (!isShrunken) {
-                if (zombie->m_firstSpawned == false) {
-                    if (TimeMgr::GetInstance()->m_curTime >= zombie->m_creationTime + props->SetPigInterval) {
-                        zombie->m_firstSpawned = true;
-                        ZombieEnterState(zombie, 16, 0);
-                    }
-                }
-                else if (TimeMgr::GetInstance()->m_curTime >= zombie->m_nextPigTime) {
+        CallFunc<void, ZombieMausoleumVendor*>(0xC506B4, zombie);
+    }
+    else
+    {
+        zombie->m_currentDirection = 0;
+        ZombieAllowMovement(zombie, true);
+        ZombieSetSpeedScale(zombie, 1.0f);
+
+        bool isShrunken = (ZombieHasCondition(zombie, zombie_condition_shrinking) || ZombieHasCondition(zombie, zombie_condition_shrunken));
+        if (!isShrunken) {
+            if (zombie->m_firstSpawned == false) {
+                if (TimeMgr::GetInstance()->m_curTime >= zombie->m_creationTime + props->SetPigInterval) {
+                    zombie->m_firstSpawned = true;
                     ZombieEnterState(zombie, 16, 0);
                 }
             }
-            CallFunc<void, ZombieMausoleumVendor*>(0xC506B4, zombie);
+            else if (TimeMgr::GetInstance()->m_curTime >= zombie->m_nextPigTime) {
+                ZombieEnterState(zombie, 16, 0);
+            }
         }
+        CallFunc<void, ZombieMausoleumVendor*>(0xC506B4, zombie);
+    }
 }
 
 void ZombieMausoleumVendor::PigOnEnter(ZombieMausoleumVendor* zombie)

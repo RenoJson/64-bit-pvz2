@@ -43,7 +43,9 @@ class ZombieMausoleumArcherProps : public ZombiePropertySheet
 public:
 	float FireInterval = 6.0f;
 	Sexy::RtWeakPtr<ProjectilePropertySheet> Projectile;
-	SexyVector3 ProjectileOffset;
+	SexyVector3 ProjectileOffset; 
+	SexyString SpiritTypeName = "mausoleum_archer_spirit";
+	bool CursedAtStart = false;
 
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;
@@ -56,6 +58,8 @@ public:
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumArcherProps, FireInterval);
 	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(ZombieMausoleumArcherProps, Projectile, ProjectilePropertySheet);
 	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieMausoleumArcherProps, SexyVector3, ProjectileOffset);
+	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieMausoleumArcherProps, SpiritTypeName);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumArcherProps, CursedAtStart);
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieMausoleumArcherProps);

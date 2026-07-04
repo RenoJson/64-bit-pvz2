@@ -1,4 +1,4 @@
-#include "ZombieMausoleumPiggy.h"
+﻿#include "ZombieMausoleumPiggy.h"
 #include "ZombieMausoleumPiggyProps.h"
 #include "ZombieHelper.h"
 #include "GridItemMausoleumLawnTile.h"
@@ -108,8 +108,8 @@ void MausoleumPiggyLoopWalk(ZombieMausoleumPiggy* zombie)
                     case 3: oppositeDirection = 0; break;
                     }
 
-                    std::vector<int> turnChoices;
-                    bool canKeepGoing = false;
+                    std::vector<int> validTurns;
+                    bool isStraightValid = false;
 
                     for (int i = 0; i < numChoices; i++)
                     {
@@ -117,36 +117,116 @@ void MausoleumPiggyLoopWalk(ZombieMausoleumPiggy* zombie)
 
                         if (checkDir != oppositeDirection)
                         {
-                            if (checkDir == zombie->m_currentDirection) {
-                                canKeepGoing = true;
+                            bool routeLeadsToHouse = false;
+
+                            if (checkDir == 0) {
+                                routeLeadsToHouse = true;
                             }
-                            else {
-                                turnChoices.push_back(checkDir);
+                            else if (checkDir == 3 && zombie->m_currentDirection != 3) {
+                                routeLeadsToHouse = false;
+                            }
+                            else
+                            {
+                                int simX = gX;
+                                int simY = gY;
+                                int simDir = checkDir;
+
+                                for (int step = 0; step < 6; step++) {
+                                    if (simDir == 0) simX -= 1;
+                                    else if (simDir == 1) simY += 1;
+                                    else if (simDir == 2) simY -= 1;
+                                    else if (simDir == 3) simX += 1;
+
+                                    if (simX < 0 || simX > 8 || simY < 0 || simY > 4) break;
+
+                                    float simPixelX = 232.0f + (simX * 64.0f);
+                                    float simPixelY = 220.0f + (simY * 76.0f);
+                                    Rect simRect;
+                                    simRect.mX = static_cast<int>(simPixelX) - 10;
+                                    simRect.mY = static_cast<int>(simPixelY) - 10;
+                                    simRect.mWidth = 20;
+                                    simRect.mHeight = 20;
+
+                                    std::vector<BoardEntity*> simEnts;
+                                    int nMinRow = std::max(0, simY - 1);
+                                    int nMaxRow = std::min(5, simY + 1);
+                                    GetEntitiesInRectPixel(&simEnts, 63, &simRect, nMinRow, nMaxRow);
+
+                                    GridItemMausoleumLawnPath* simTile = nullptr;
+                                    for (BoardEntity* ptr : simEnts) {
+                                        if (ptr != nullptr && ptr->IsType(GridItemMausoleumLawnPath::StaticGetType())) {
+                                            GridItem* nextTile = static_cast<GridItem*>(ptr);
+                                            if (nextTile->m_gridLocation.mX == simX && nextTile->m_gridLocation.mY == simY) {
+                                                simTile = static_cast<GridItemMausoleumLawnPath*>(nextTile);
+                                                break;
+                                            }
+                                        }
+                                    }
+
+                                    if (simTile == nullptr) break;
+
+                                    auto* simProps = reinterpret_cast<GridItemMausoleumLawnPathProps*>(simTile->m_propertySheet.Get());
+                                    bool foundLeft = false;
+                                    bool canGoStraight = false;
+                                    int turnDir = -1;
+
+                                    int oppSimDir = -1;
+                                    switch (simDir) {
+                                    case 0: oppSimDir = 3; break;
+                                    case 1: oppSimDir = 2; break;
+                                    case 2: oppSimDir = 1; break;
+                                    case 3: oppSimDir = 0; break;
+                                    }
+
+                                    for (size_t j = 0; j < simProps->DirectionType.size(); j++) {
+                                        int d = simProps->DirectionType[j];
+                                        if (d == 0) foundLeft = true;
+                                        if (d == simDir) canGoStraight = true;
+                                        if (d != oppSimDir) turnDir = d;
+                                    }
+
+                                    if (foundLeft) {
+                                        routeLeadsToHouse = true;
+                                        break;
+                                    }
+
+                                    if (!canGoStraight) {
+                                        if (turnDir == -1 || turnDir == 3) break;
+                                        simDir = turnDir;
+                                    }
+                                }
+                            }
+
+                            if (routeLeadsToHouse) {
+                                if (checkDir == zombie->m_currentDirection) {
+                                    isStraightValid = true;
+                                }
+                                else {
+                                    validTurns.push_back(checkDir);
+                                }
                             }
                         }
                     }
 
                     int nextDirection = zombie->m_currentDirection;
-                    bool hasTurnChoices = (turnChoices.size() > 0);
 
-                    if (canKeepGoing && hasTurnChoices)
+                    if (!isStraightValid && !validTurns.empty())
+                    {
+                        int randomIndex = rand() % validTurns.size();
+                        nextDirection = validTurns[randomIndex];
+                    }
+                    else if (isStraightValid && !validTurns.empty())
                     {
                         int roll = rand() % 100;
-
                         if (roll < 40) {
                             nextDirection = zombie->m_currentDirection;
                         }
                         else {
-                            int randomIndex = rand() % turnChoices.size();
-                            nextDirection = turnChoices[randomIndex];
+                            int randomIndex = rand() % validTurns.size();
+                            nextDirection = validTurns[randomIndex];
                         }
                     }
-                    else if (!canKeepGoing && hasTurnChoices)
-                    {
-                        int randomIndex = rand() % turnChoices.size();
-                        nextDirection = turnChoices[randomIndex];
-                    }
-                    else if (canKeepGoing && !hasTurnChoices)
+                    else if (isStraightValid)
                     {
                         nextDirection = zombie->m_currentDirection;
                     }
@@ -159,7 +239,6 @@ void MausoleumPiggyLoopWalk(ZombieMausoleumPiggy* zombie)
                     else if (gY <= 0 && nextDirection == 2) nextDirection = 0;
                     else if (gX >= 8 && nextDirection == 3) nextDirection = 0;
 
-                   
                     if (nextDirection == 0 || nextDirection == 3) {
                         pY = pixelCenterY;
                     }

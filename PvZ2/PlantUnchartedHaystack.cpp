@@ -14,7 +14,7 @@ bool HaystackCanUsePlantfood() {
 	return false;
 }
 bool HaystackHasShadow() {
-	return true;
+	return false;
 }
 
 void PlantUnchartedHaystack::modInit() {
@@ -23,7 +23,7 @@ void PlantUnchartedHaystack::modInit() {
 	PatchVFTable(vftable, (void*)PlantUnchartedHaystack::StaticGetType, 0);
 	PatchVFTable(vftable, (void*)HaystackRenderOrder, 12);
 	PatchVFTable(vftable, (void*)HaystackCanUsePlantfood, 40);
-	PatchVFTable(vftable, (void*)HaystackHasShadow, 60);
+	PatchVFTable(vftable, (void*)HaystackHasShadow, 76);
 	PlantUnchartedHaystack::StaticGetType();
 	LOGI("PlantUnchartedHaystack finish init");
 }

@@ -628,8 +628,8 @@ void hkFire(BoardEntity* thisPtr, int64_t flag)
         int posX = static_cast<int>((thisPtr->m_position.x - 200.0f) / 64.0f);
         int posY = static_cast<int>((thisPtr->m_position.y - 160.0f) / 76.0f);
         SexyVector3 entityPos;
-        entityPos.x = static_cast<float>((posX * 64) + 200);
-        entityPos.y = static_cast<float>((posY * 76) + 160);
+        entityPos.x = static_cast<float>((posX * 64.0f) + 200.0f);
+        entityPos.y = static_cast<float>((posY * 76.0f) + 160.0f);
 		entityPos.z = 0.0f;
         Board* boardPtr = Board::GetBoard();
         auto type = Effect_PopAnim::StaticGetType();

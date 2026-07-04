@@ -39,6 +39,8 @@ public:
 	float ConditionLifetime = 5.0f;
 	int PukeOffsetGridX = -2;
 	int PukeWidth = 2;
+	SexyString SpiritTypeName = "mausoleum_drunkard_spirit";
+	bool CursedAtStart = false;
 
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;
@@ -52,8 +54,35 @@ public:
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumDrunkardProps, ConditionLifetime);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumDrunkardProps, PukeOffsetGridX);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumDrunkardProps, PukeWidth);
+	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieMausoleumDrunkardProps, SpiritTypeName);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumDrunkardProps, CursedAtStart);
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieMausoleumDrunkardProps);
 	RT_CLASS_GET_CLASS_FUNCTION(ZombieMausoleumDrunkardProps, 0xDA5B00);
+};
+
+class ZombieMausoleumDrunkardSpiritProps : public ZombiePropertySheet
+{
+public:
+	float DrunkInterval = 7.5f;
+	std::vector<ZombieConditions> ConditionToApply;
+	std::vector<float> DamageDealtToZombiesWhenHypnotized;
+	float ConditionLifetime = 5.0f;
+	static void* vftable;
+	static Sexy::RtClass* s_rtClass;
+	static void modInit();;
+
+	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(ZombieMausoleumDrunkardSpiritProps, 0xC136A4);
+	RT_CLASS_CONSTRUCT_FUNCTION_END();
+
+	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombiePropertySheet);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumDrunkardSpiritProps, DrunkInterval);
+	RT_CLASS_REGISTER_CLASS_VECTOR_PROPERTY(ZombieMausoleumDrunkardSpiritProps, ConditionToApply, ZombieConditions);
+	RT_CLASS_REGISTER_STANDARD_VECTOR_PROPERTY(ZombieMausoleumDrunkardSpiritProps, DamageDealtToZombiesWhenHypnotized, float);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumDrunkardSpiritProps, ConditionLifetime);
+	RT_CLASS_BUILD_SYMBOLS_END();
+
+	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieMausoleumDrunkardSpiritProps);
+	RT_CLASS_GET_CLASS_FUNCTION(ZombieMausoleumDrunkardSpiritProps, 0xDA5B00);
 };
