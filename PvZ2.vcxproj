@@ -191,6 +191,7 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_MausoleumAssasin.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_MausoleumBasic.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_MausoleumDrunkard.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_MausoleumGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernAllStar.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernBalloon.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernDolphinRider.cpp" />
@@ -230,6 +231,7 @@
     <ClCompile Include="PvZ2\ZombieMausoleumCavalry.cpp" />
     <ClCompile Include="PvZ2\ZombieMausoleumCavalryProps.cpp" />
     <ClCompile Include="PvZ2\ZombieMausoleumDrunkard.cpp" />
+    <ClCompile Include="PvZ2\ZombieMausoleumGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieMausoleumPiggy.cpp" />
     <ClCompile Include="PvZ2\ZombieMausoleumPiggyProps.cpp" />
     <ClCompile Include="PvZ2\ZombieMausoleumVendor.cpp" />

@@ -8,6 +8,7 @@
 #include "ZombieHelper.h"
 #include "Board.h"
 #include "Plant.h"
+#include "AddZombieType.h"
 
 void* ZombieMausoleumDrunkard::vftable = nullptr;
 Sexy::RtClass* ZombieMausoleumDrunkard::s_rtClass = nullptr;
@@ -22,28 +23,32 @@ static Sexy::DelegateBase drunkCompletedDelegate;
 static Sexy::DelegateBase pukeCompletedDelegate;
 
 
-void DrunkardWalkOnLoop(ZombieMausoleumDrunkard* self) {
-	auto props = reinterpret_cast<ZombieMausoleumDrunkardProps*>(self->m_propertySheet.Get());
-	if (props->DrunkInterval <= 0.0f || self->m_elapsedTimeInState <= props->DrunkInterval) {
-		CallFunc<void, ZombieMausoleumDrunkard*>(0xC506B4, self);
+void DrunkardWalkOnLoop(ZombieMausoleumDrunkard* zombie) {
+	auto props = reinterpret_cast<ZombieMausoleumDrunkardProps*>(zombie->m_propertySheet.Get());
+	if (props->DrunkInterval <= 0.0f || zombie->m_elapsedTimeInState <= props->DrunkInterval) {
+		CallFunc<void, ZombieMausoleumDrunkard*>(0xC506B4, zombie);
 	}
 	else {
-		ZombieEnterState(self, 16, 0);
+		ZombieEnterState(zombie, 16, 0);
 	}
 }
-void DrunkardEatOnLoop(ZombieMausoleumDrunkard* self) {
-    auto props = reinterpret_cast<ZombieMausoleumDrunkardProps*>(self->m_propertySheet.Get());
-    if (props->DrunkInterval <= 0.0f || self->m_elapsedTimeInState <= props->DrunkInterval) {
-        CallFunc<void, ZombieMausoleumDrunkard*>(0xC5082C, self);
+void DrunkardEatOnLoop(ZombieMausoleumDrunkard* zombie) {
+    auto props = reinterpret_cast<ZombieMausoleumDrunkardProps*>(zombie->m_propertySheet.Get());
+    if (props->DrunkInterval <= 0.0f || zombie->m_elapsedTimeInState <= props->DrunkInterval) {
+        CallFunc<void, ZombieMausoleumDrunkard*>(0xC5082C, zombie);
     }
     else {
-        ZombieEnterState(self, 16, 0);
+        ZombieEnterState(zombie, 16, 0);
     }
 }
 
 void DrunkardOnCreate(ZombieMausoleumDrunkard* zombie) {
     zombie->m_lastPathGridX = 0;
     zombie->m_lastPathGridY = 0;
+    auto props = reinterpret_cast<ZombieMausoleumDrunkardProps*>(zombie->m_propertySheet.Get());
+    auto rig = reinterpret_cast<ZombieAnimRig_MausoleumDrunkard*>(zombie->m_animRig.Get());
+    rig->m_hasCursed = props->CursedAtStart;
+    SetAnimLayerVisible(rig, "zombie_eyes_curse", rig->m_hasCursed);
 }
 void DrunkardActionFrame(ZombieMausoleumDrunkard* zombie, SexyString* currentAnim, SexyString* actionName, SexyString* param, float nextFrameTime)
 {
@@ -76,6 +81,32 @@ void DrunkardActionFrame(ZombieMausoleumDrunkard* zombie, SexyString* currentAni
             else if (ptr->IsType(Zombie::StaticGetType()) && zombie->m_teamFlags == 2) {
                 ZombieSetCondition((Zombie*)ptr, zombie_condition_potiontoughness2, 0, props->ConditionLifetime, 0.0f);
             }
+        }
+    }
+
+    if (*actionName == "ghost_intro")
+    {
+        auto* props = reinterpret_cast<ZombieMausoleumDrunkardProps*>(zombie->m_propertySheet.Get());
+        SexyString name = props->SpiritTypeName;
+        Zombie* spirit = AddZombie(name, -1, 6, -1);
+        float newX = zombie->m_position.x;
+        float newY = zombie->m_position.y;
+        float newZ = zombie->m_position.z;
+        SexyVector3 newCoords = SexyVector3(newX, newY, newZ);
+        ZombieSetPosition(spirit, &newCoords);
+        if (ZombieHasCondition(zombie, zombie_condition_hypnotized)) {
+
+            ZombieSetCondition(spirit, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
+
+            spirit->m_teamFlags = zombie->m_teamFlags;
+            typedef void* (*GetHypnoDataFunc)(Zombie*);
+            GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
+
+            void* hypnoData = funGetHypnoData(zombie);
+            typedef void (*ApplyHypnoDataFunc)(Zombie*, void*);
+            ApplyHypnoDataFunc funApplyHypnoData = (ApplyHypnoDataFunc)getActualOffset(0xC41290);
+
+            funApplyHypnoData(spirit, hypnoData);
         }
     }
 }

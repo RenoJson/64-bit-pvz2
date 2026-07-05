@@ -71,3 +71,23 @@ public:
     RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieLostCityGargantuarProps);
     RT_CLASS_GET_CLASS_FUNCTION(ZombieLostCityGargantuarProps, 0xDAA338);
 };
+class ZombieMausoleumGargantuarProps : public ZombieGargantuarProps
+{
+public:
+    bool CursedAtStart = false;
+	SexyString SpiritTypeName = "mausoleum_gargantuar_spirit";
+    static void* vftable;
+    static Sexy::RtClass* s_rtClass;
+    static void modInit();
+
+    RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(ZombieMausoleumGargantuarProps, 0xC136A4);
+    RT_CLASS_CONSTRUCT_FUNCTION_END();
+
+    RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombieGargantuarProps);
+    RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumGargantuarProps, CursedAtStart);
+    RT_CLASS_REGISTER_STRING_PROPERTY(ZombieMausoleumGargantuarProps, SpiritTypeName);
+    RT_CLASS_BUILD_SYMBOLS_END();
+
+    RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieMausoleumGargantuarProps);
+    RT_CLASS_GET_CLASS_FUNCTION(ZombieMausoleumGargantuarProps, 0xDAA338);
+};

@@ -163,6 +163,8 @@
     <ClCompile Include="PvZ2\GridItemHaystack.cpp" />
     <ClCompile Include="PvZ2\Effect_PopAnim.cpp" />
     <ClCompile Include="Sexy\ResourceManager.cpp" />
+    <ClCompile Include="PvZ2\ZombieMausoleumGargantuar.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_MausoleumGargantuar.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />

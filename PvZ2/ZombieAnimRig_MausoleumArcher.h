@@ -1,9 +1,9 @@
 #pragma once
-#include "ZombieAnimRig.h"
+#include "ZombieAnimRig_Basic.h"
 #include <Reflection/ReflectionBuilder.h>
 #include "Zombie.h"
 
-class ZombieAnimRig_MausoleumArcher : public ZombieAnimRig
+class ZombieAnimRig_MausoleumArcher : public ZombieAnimRig_MausoleumBasic
 {
 public:
 	static void* vftable;
@@ -13,9 +13,9 @@ public:
 	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(ZombieAnimRig_MausoleumArcher, 0x9D9C4C);
 	RT_CLASS_CONSTRUCT_FUNCTION_END();
 
-	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombieAnimRig);
+	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombieAnimRig_MausoleumBasic);
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieAnimRig_MausoleumArcher);
-	RT_CLASS_GET_CLASS_FUNCTION(ZombieAnimRig_MausoleumArcher, 0x8DBB70);
+	RT_CLASS_GET_CLASS_NO_PARENT_ADDRESS_CLASS_FUNCTION(ZombieAnimRig_MausoleumArcher, ZombieAnimRig_MausoleumBasic::StaticGetType);
 };

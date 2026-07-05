@@ -10,6 +10,14 @@ void CreateAssasinAnimRig(ZombieAnimRig_MausoleumAssasin* thisPtr)
     CallFunc<void, ZombieAnimRig_MausoleumAssasin*>(0x8DE104, thisPtr);
 }
 
+SexyString ParticleHead2(ZombieAnimRig_MausoleumBasic* thisPtr) {
+    if (thisPtr->m_hasCursed == true) {
+        return "particle_head_cursed";
+    }
+    else {
+        return "particle_head";
+    }
+}
 void* hkInitMausoleumAssasinLowerArmList() {
 
     static std::vector<SexyString> MausoleumAssasinLowerArmList = {
@@ -36,7 +44,8 @@ void* hkInitMausoleumAssasinHeadList() {
     static std::vector<SexyString> MausoleumAssasinHeadList = {
        "zombie_skull",
        "zombie_jaw",
-       "_zombie_glasses"
+       "_zombie_glasses",
+       "zombie_eyes_curse"
     };
     return &MausoleumAssasinHeadList;
 }
@@ -59,24 +68,30 @@ SexyString hkEatAnim(ZombieAnimRig_MausoleumAssasin* thisptr) {
         return "eat02";
     }
 }
-SexyString hkDieAnim(ZombieAnimRig_MausoleumAssasin* thisptr) {
-     return "die";
+SexyString hkDieAnim2(ZombieAnimRig_MausoleumBasic* thisPtr) {
+    if (thisPtr->m_hasCursed == true) {
+        return "die_reincarnation";
+    }
+    else {
+        return "die";
+    }
 }
 
 void ZombieAnimRig_MausoleumAssasin::modInit() {
     LOGI("ZombieAnimRig_MausoleumAssasin init");
 
-    vftable = CopyVFTable(getActualOffset(0x23ABF70), 67);
+    vftable = CopyVFTable(getActualOffset(0x24BDA80), 85);
 
     PatchVFTable(vftable, (void*)ZombieAnimRig_MausoleumAssasin::StaticGetType, 0);
     PatchVFTable(vftable, (void*)CreateAssasinAnimRig, 21);
+    PatchVFTable(vftable, (void*)ParticleHead2, 44);
     PatchVFTable(vftable, (void*)hkInitMausoleumAssasinHeadList, 55);
     PatchVFTable(vftable, (void*)hkInitMausoleumAssasinLowerArmList, 56);
     PatchVFTable(vftable, (void*)hkInitMausoleumAssasinUpperArmList, 57);
     PatchVFTable(vftable, (void*)hkIdleAnim, 58);
     PatchVFTable(vftable, (void*)hkWalkAnim, 59);
     PatchVFTable(vftable, (void*)hkEatAnim, 61);
-    PatchVFTable(vftable, (void*)hkDieAnim, 63);
+    PatchVFTable(vftable, (void*)hkDieAnim2, 63);
 
     ZombieAnimRig_MausoleumAssasin::StaticGetType();
 

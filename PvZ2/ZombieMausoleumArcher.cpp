@@ -8,6 +8,7 @@
 #include "Board.h"
 #include "Plant.h"
 #include "AddProjectileType.h"
+#include "AddZombieType.h"
 
 void* ZombieMausoleumArcher::vftable = nullptr;
 Sexy::RtClass* ZombieMausoleumArcher::s_rtClass = nullptr;
@@ -33,6 +34,12 @@ static Sexy::DelegateBase startShootCompletedDelegate;
 void ArcherOnSpawn(ZombieMausoleumArcher* zombie) {
     ZombieOnSpawn(zombie);
     ZombieEnterState(zombie, 16, 0);
+}
+void MausoleumArcherOnCreate(ZombieMausoleumArcher* zombie) {
+    auto props = reinterpret_cast<ZombieMausoleumArcherProps*>(zombie->m_propertySheet.Get());
+    auto rig = reinterpret_cast<ZombieAnimRig_MausoleumArcher*>(zombie->m_animRig.Get());
+    rig->m_hasCursed = props->CursedAtStart;
+    SetAnimLayerVisible(rig, "zombie_eyes_curse", rig->m_hasCursed);
 }
 void ArcherOnAffectedByCondition(ZombieMausoleumArcher* zombie, int condition) {
     if (condition == zombie_condition_hypnotized) {
@@ -101,6 +108,31 @@ void MausoleumArcherActionFrame(ZombieMausoleumArcher* self, SexyString* current
                 self->m_position.y - props->ProjectileOffset.y,
                 self->m_position.z - props->ProjectileOffset.z);
             FirePultProjectile(proj, missPos, 250.0f, 2.0f);
+        }
+    }
+    if (*actionName == "ghost_intro")
+    {
+        auto* props = reinterpret_cast<ZombieMausoleumArcherProps*>(self->m_propertySheet.Get());
+        SexyString name = props->SpiritTypeName;
+        Zombie* spirit = AddZombie(name, -1, 6, -1);
+        float newX = self->m_position.x;
+        float newY = self->m_position.y;
+        float newZ = self->m_position.z;
+        SexyVector3 newCoords = SexyVector3(newX, newY, newZ);
+        ZombieSetPosition(spirit, &newCoords);
+        if (ZombieHasCondition(self, zombie_condition_hypnotized)) {
+
+            ZombieSetCondition(spirit, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
+
+            spirit->m_teamFlags = self->m_teamFlags;
+            typedef void* (*GetHypnoDataFunc)(Zombie*);
+            GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
+
+            void* hypnoData = funGetHypnoData(self);
+            typedef void (*ApplyHypnoDataFunc)(Zombie*, void*);
+            ApplyHypnoDataFunc funApplyHypnoData = (ApplyHypnoDataFunc)getActualOffset(0xC41290);
+
+            funApplyHypnoData(spirit, hypnoData);
         }
     }
 }
@@ -258,7 +290,8 @@ void ZombieMausoleumArcher::modInit() {
     PatchVFTable(vftable, (void*)ZombieMausoleumArcher::StaticGetType, 0);
     PatchVFTable(vftable, (void*)ArcherOnSpawn, 49);
     PatchVFTable(vftable, (void*)ArcherOnAffectedByCondition, 71);
-    PatchVFTable(vftable, (void*)ArcherIsBeingTossedByPlant, 97);
+    PatchVFTable(vftable, (void*)ArcherIsBeingTossedByPlant, 97); 
+    PatchVFTable(vftable, (void*)MausoleumArcherOnCreate, 169);
     PatchVFTable(vftable, (void*)MausoleumArcherActionFrame, 170);
 
     PatchVFTable(vftable, (void*)ZombieMausoleumArcher::WalkIntoPositionOnEnter, 204);

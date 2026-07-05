@@ -4,13 +4,14 @@
 void* ZombieAnimRig_MausoleumBasic::vftable = __null;
 Sexy::RtClass* ZombieAnimRig_MausoleumBasic::s_rtClass = __null;;
 
-void* ZombieAnimRig_MausoleumBasicCursed::vftable = __null;
-Sexy::RtClass* ZombieAnimRig_MausoleumBasicCursed::s_rtClass = __null;;
 
-void CreateBasicAnimRig(ZombieAnimRig_MausoleumBasic* thisPtr)
-{
-    CallFunc<void, ZombieAnimRig_MausoleumBasic*>(0x8DE104, thisPtr);
-    SetAnimLayerVisible(thisPtr, "zombie_eyes_curse", false);
+SexyString ParticleHead(ZombieAnimRig_MausoleumBasic* thisPtr) {
+    if (thisPtr->m_hasCursed == true) {
+        return "particle_head_cursed";
+    }
+    else {
+        return "particle_head";
+    }
 }
 
 std::vector<SexyString>* hkInitMausoleumBasicHeadList() {
@@ -22,7 +23,7 @@ std::vector<SexyString>* hkInitMausoleumBasicHeadList() {
     };
     return &MausoleumBasicHeadList;
 }
-SexyString BasicCursedDie(ZombieAnimRig_MausoleumBasicCursed* thisPtr) {
+SexyString BasicCursedDie(ZombieAnimRig_MausoleumBasic* thisPtr) {
     if (thisPtr->m_hasCursed == true) {
         return "die_reincarnation";
     }
@@ -31,29 +32,14 @@ SexyString BasicCursedDie(ZombieAnimRig_MausoleumBasicCursed* thisPtr) {
     }
 }
 
-
-void ZombieAnimRig_MausoleumBasicCursed::modInit() {
-    LOGI("ZombieAnimRig_MausoleumBasicCursed init");
-
-    vftable = CopyVFTable(getActualOffset(0x24BDA80), 85);
-
-    PatchVFTable(vftable, (void*)ZombieAnimRig_MausoleumBasicCursed::StaticGetType, 0);
-    PatchVFTable(vftable, (void*)hkInitMausoleumBasicHeadList, 55);
-
-    PatchVFTable(vftable, (void*)BasicCursedDie, 63);
-
-    ZombieAnimRig_MausoleumBasicCursed::StaticGetType();
-    LOGI("ZombieAnimRig_MausoleumBasicCursed finish init");
-}
-
 void ZombieAnimRig_MausoleumBasic::modInit() {
     LOGI("ZombieAnimRig_MausoleumBasicCursed init");
 
     vftable = CopyVFTable(getActualOffset(0x24BDA80), 85);
 
     PatchVFTable(vftable, (void*)ZombieAnimRig_MausoleumBasic::StaticGetType, 0);
+    PatchVFTable(vftable, (void*)ParticleHead, 44);
 
-    PatchVFTable(vftable, (void*)CreateBasicAnimRig, 21);
     PatchVFTable(vftable, (void*)hkInitMausoleumBasicHeadList, 55);
 
     PatchVFTable(vftable, (void*)BasicCursedDie, 63);

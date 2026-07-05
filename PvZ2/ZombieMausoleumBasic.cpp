@@ -29,8 +29,14 @@ bool MausoleumSpiritCanBeTargeted(ZombieMausoleumSpirit* zombie, char a2) {
 
 void MausoleumBasicOnCreate(ZombieMausoleumBasic* zombie) {
 	auto props = reinterpret_cast<ZombieMausoleumBasicProps*>(zombie->m_propertySheet.Get());
-	auto rig = reinterpret_cast<ZombieAnimRig_MausoleumBasicCursed*>(zombie->m_animRig.Get());
+	auto rig = reinterpret_cast<ZombieAnimRig_MausoleumBasic*>(zombie->m_animRig.Get());
 	rig->m_hasCursed = props->CursedAtStart;
+	SetAnimLayerVisible(rig, "zombie_eyes_curse", rig->m_hasCursed);
+}
+
+void MausoleumSpiritOnSpawn(ZombieMausoleumSpirit* zombie) {
+	ZombieOnSpawn(zombie);
+	ZombieEnterState(zombie, 16, 0);
 }
 
 
@@ -60,7 +66,6 @@ void MausoleumBasicActionFrame(ZombieMausoleumBasic* self, SexyString* currentAn
 
 			funApplyHypnoData(spirit, hypnoData);
 		}
-		ZombieEnterState(spirit, 16, 0);
 	}
 }
 
@@ -92,6 +97,7 @@ void ZombieMausoleumSpirit::modInit() {
 	vftable = CreateChildVFTable(206 + 6, getActualOffset(0x23DEFB8), 206);
 	PatchVFTable(vftable, (void*)ZombieMausoleumSpirit::StaticGetType, 0);
 	PatchVFTable(vftable, (void*)MausoleumSpiritCanBeTargeted, 21);
+	PatchVFTable(vftable, (void*)MausoleumSpiritOnSpawn, 49);
 
 	PatchVFTable(vftable, (void*)ZombieMausoleumSpirit::IntroOnEnter, 207);
 	PatchVFTable(vftable, (void*)ZombieMausoleumSpirit::IntroOnLoop, 208);
