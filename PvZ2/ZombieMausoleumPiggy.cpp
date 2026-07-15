@@ -47,6 +47,10 @@ void MausoleumPiggyLoopWalk(ZombieMausoleumPiggy* zombie)
         }
     }
 
+    bool isCharmed = ZombieHasCondition(zombie, zombie_condition_hypnotized);
+    int homeDir = isCharmed ? 3 : 0;
+    int backDir = isCharmed ? 0 : 3;
+
     if (pathTile != nullptr)
     {
         ZombieAllowMovement(zombie, false);
@@ -119,10 +123,10 @@ void MausoleumPiggyLoopWalk(ZombieMausoleumPiggy* zombie)
                         {
                             bool routeLeadsToHouse = false;
 
-                            if (checkDir == 0) {
+                            if (checkDir == homeDir) {
                                 routeLeadsToHouse = true;
                             }
-                            else if (checkDir == 3 && zombie->m_currentDirection != 3) {
+                            else if (checkDir == backDir && zombie->m_currentDirection != backDir) {
                                 routeLeadsToHouse = false;
                             }
                             else
@@ -166,7 +170,7 @@ void MausoleumPiggyLoopWalk(ZombieMausoleumPiggy* zombie)
                                     if (simTile == nullptr) break;
 
                                     auto* simProps = reinterpret_cast<GridItemMausoleumLawnPathProps*>(simTile->m_propertySheet.Get());
-                                    bool foundLeft = false;
+                                    bool foundHome = false;
                                     bool canGoStraight = false;
                                     int turnDir = -1;
 
@@ -180,18 +184,18 @@ void MausoleumPiggyLoopWalk(ZombieMausoleumPiggy* zombie)
 
                                     for (size_t j = 0; j < simProps->DirectionType.size(); j++) {
                                         int d = simProps->DirectionType[j];
-                                        if (d == 0) foundLeft = true;
+                                        if (d == homeDir) foundHome = true;
                                         if (d == simDir) canGoStraight = true;
                                         if (d != oppSimDir) turnDir = d;
                                     }
 
-                                    if (foundLeft) {
+                                    if (foundHome) {
                                         routeLeadsToHouse = true;
                                         break;
                                     }
 
                                     if (!canGoStraight) {
-                                        if (turnDir == -1 || turnDir == 3) break;
+                                        if (turnDir == -1 || turnDir == backDir) break;
                                         simDir = turnDir;
                                     }
                                 }
@@ -232,12 +236,13 @@ void MausoleumPiggyLoopWalk(ZombieMausoleumPiggy* zombie)
                     }
                     else
                     {
-                        nextDirection = 0;
+                        nextDirection = homeDir;
                     }
 
-                    if (gY >= 4 && nextDirection == 1)      nextDirection = 0;
-                    else if (gY <= 0 && nextDirection == 2) nextDirection = 0;
-                    else if (gX >= 8 && nextDirection == 3) nextDirection = 0;
+                    if (gY >= 4 && nextDirection == 1)      nextDirection = homeDir;
+                    else if (gY <= 0 && nextDirection == 2) nextDirection = homeDir;
+                    else if (!isCharmed && gX >= 8 && nextDirection == 3) nextDirection = 0;
+                    else if (isCharmed && gX <= 0 && nextDirection == 0) nextDirection = 3;
 
                     if (nextDirection == 0 || nextDirection == 3) {
                         pY = pixelCenterY;
@@ -265,7 +270,7 @@ void MausoleumPiggyLoopWalk(ZombieMausoleumPiggy* zombie)
     }
     else
     {
-        zombie->m_currentDirection = 0;
+        zombie->m_currentDirection = homeDir;
         ZombieAllowMovement(zombie, true);
         ZombieSetSpeedScale(zombie, 1.0f);
         CallFunc<void, Zombie*>(0xC506B4, zombie);

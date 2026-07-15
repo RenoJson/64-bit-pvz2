@@ -312,6 +312,7 @@
     <ClInclude Include="PvZ2\PlantDinoGrass.h" />
     <ClInclude Include="PvZ2\PlantFramework.h" />
     <ClInclude Include="PvZ2\PlantUnchartedHaystack.h" />
+    <ClInclude Include="PvZ2\PlantZhongKuiLycoris.h" />
     <ClInclude Include="PvZ2\PopAnimRig.h" />
     <ClInclude Include="PvZ2\Projectile.h" />
     <ClInclude Include="PvZ2\PropertySheetBase.h" />

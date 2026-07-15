@@ -280,5 +280,6 @@
     <ClInclude Include="PvZ2\PlantUnchartedHaystack.h" />
     <ClInclude Include="PvZ2\GridItemHaystack.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumCursedBase.h" />
+    <ClInclude Include="PvZ2\PlantZhongKuiLycoris.h" />
   </ItemGroup>
 </Project>
