@@ -200,6 +200,7 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernPoleVaulter.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_ModernScreenDoor.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_PirateBoomBarrel.cpp" />
+    <ClCompile Include="PvZ2\ZombieAnimRig_TombRaiser.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_Vendor.cpp" />
     <ClCompile Include="PvZ2\ZombieBasicProps.cpp" />
     <ClCompile Include="PvZ2\ZombieBasicTemplate.cpp" />

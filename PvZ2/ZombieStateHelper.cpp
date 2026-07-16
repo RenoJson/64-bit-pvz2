@@ -8,6 +8,7 @@
 
 #define ZOMBIE_STATE_ADDSTATE_ADDR 0xAC7638
 #define ZOMBIE_EVENT_CONSTRUCT_ADDR 0x6FDDDC
+#define DELEGATE_CONSTRUCT_ADDR 0x68C408
 #define DELEGATE_GENERIC_ADDR 0x2377498
 #define DELEGATE_ZOMBIE_STATE_ADDR 0x241A528
 #define DELEGATE_ADDR 0x2377498
@@ -27,13 +28,14 @@ typedef ZombieAnimRig* (*playLoopAnimWithCallback)(ZombieAnimRig*, ZombieEvent& 
 typedef StateMachineTableBuilder* (*getStateMachine)(StateMachineTableBuilder*, Sexy::RtClass*);
 
 typedef ZombieEvent* (*ConstructEvent)(ZombieEvent*, RtWeakPtr<Zombie>& owner, const SexyString& eventName);
+typedef RtReflectionDelegateBase* (*ConstructDelegateEvent)(RtReflectionDelegateBase*, RtWeakPtr<Zombie>& owner, const SexyString& eventName);
 
 void RegisterEventCallback(Reflection::CRefManualSymbolBuilder* builder, void* rClass, const SexyString& eventName, Sexy::DelegateBase& delegate) {
 	void* voidPropType = builder->GetPropertyOfType(Reflection::Type_Void, 0);
 	uintptr_t unk1 = ((sub709E68)getActualOffset(0x709E68))(builder, eventName);
 	uintptr_t unk2 = ((sub161BE6C)getActualOffset(0x161BE6C))(builder, 6, rClass, voidPropType, 1, unk1);
 	builder->RegisterCallback(rClass, eventName, &delegate, unk2, 0);
-	LOGI("Callback registered");
+	//LOGI("Callback registered");
 }
 
 void setVftable(Sexy::DelegateBase* a1, uint vtableAddr) {
@@ -128,6 +130,15 @@ void RegisterEventAfterAnim(Zombie* zombie, const SexyString& animName, const Se
 	
 	func(animRig, animName, 0, zombieEvent);
 }
+void RegisterDelegateEvent(Zombie* zombie, const SexyString& animName, const SexyString& eventName) {
+	auto* animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
+	RtWeakPtr<Zombie> zombiePtr;
+	zombiePtr.FromOther((RtWeakPtr<Zombie>*) & zombie->m_thisPtr);
+
+	RtReflectionDelegateBase zombieEvent;
+	((ConstructDelegateEvent)getActualOffset(DELEGATE_CONSTRUCT_ADDR))(&zombieEvent, zombiePtr, eventName);
+
+}
 void RegisterEventOnWalkLoop(Zombie* zombie, const SexyString& eventName) {
 	auto* animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
 	RtWeakPtr<Zombie> zombiePtr;
@@ -185,9 +196,3 @@ void SetupLiteralDelegate(Sexy::DelegateBase* delegate, uintptr_t delegateAddr) 
 	delegate->m_executeCallbackFunction = (void*)getActualOffset(EXECUTE_CALLBACK_ADDR);
 }
 
-void SetDesiredSpeed(Zombie* zombie, float speed) {
-	auto* animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
-
-	typedef void (*sub8DDAA4)(ZombieAnimRig*, float);
-	((sub8DDAA4)getActualOffset(0x8DDAA4))(animRig, speed);
-}

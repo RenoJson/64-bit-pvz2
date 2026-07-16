@@ -5,6 +5,11 @@
 #include <Reflection/ReflectionBuilder.h>
 using namespace Sexy;
 class SpellBolt {
+public:
+	int posX;
+	int posY;
+	float velX;
+	float velY;
 	float lifetime;
 	int TargetCellX;
 	int TargetCellY;
@@ -24,6 +29,16 @@ static_assert(offsetof(ZombieTombRaiser, m_remainingGravespawnAttempts) == 1100)
 static_assert(offsetof(ZombieTombRaiser, m_startThrowTime) == 1104);
 static_assert(offsetof(ZombieTombRaiser, m_throwingTarget) == 1108);
 static_assert(offsetof(ZombieTombRaiser, m_pendingGraves) == 1120);
+
+class ZombieMysticFormation : public Zombie {
+public:
+	int m_remainingAmmo;
+	int m_remainingTokenspawnAttempts;
+	float m_startThrowTime;
+	Point m_throwingTarget;
+	int m_projectileIndex;
+	std::vector<SpellBolt> m_pendingTokens;
+};
 
 class ZombieZCorpEnergyDrinker : public Zombie {
 public:

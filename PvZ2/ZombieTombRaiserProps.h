@@ -3,6 +3,18 @@
 #include <SexyTypes.h>
 #include "Reflection/CRefManualSymbolBuilder.h"
 #include <Reflection/ReflectionBuilder.h>
+
+class TokenLayersConfig : public PropertySheetBase
+{
+public:
+	SexyString ProjectileOffsetTokenLayerName = "_token";
+	SexyString GreenTokenProjectileLayerName = "_token_green";
+	SexyString RedTokenProjectileLayerName = "_token_red";
+	Sexy::RtWeakPtr<ProjectilePropertySheet> GreenTokenProjectile;
+	Sexy::RtWeakPtr<ProjectilePropertySheet> RedTokenProjectile;
+};
+
+
 class ZombieTombRaiserProps : public ZombiePropertySheet
 {
 public:
@@ -11,6 +23,16 @@ public:
 	int NumberOfTombsToSpawn = 2;
 	Sexy::RtWeakPtr<Sexy::RtObject> Projectile;
 };
+
+class ZombieMysticFormationProps : public ZombiePropertySheet
+{
+public:
+	float TimeBetweenCast = 0.0f;
+	float TimeBetweenRaisings = 6.0f;
+	int NumberOfTokensToSpawn = 2;
+	TokenLayersConfig TokenProjectileLayerProps;
+};
+
 class ZombieZCorpEnergyDrinkerProps : public ZombiePropertySheet {
 public:
 	float ChanceToApplyGoodCondition = 50.0f;

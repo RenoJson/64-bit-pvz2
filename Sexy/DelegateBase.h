@@ -5,16 +5,13 @@ namespace Sexy
 	class DelegateBase
 	{
 	public:
+		void** delegateBaseVftable; // delegate base vftable
 		uint64_t m_callbackFunc;
 		uint64_t m_vftableDelta;
 		void* m_callee;
 		bool m_initialized;
+		char pad[7];
 		void* m_executeCallbackFunction;
-
-		virtual void Function0() {};
-		virtual void Function1() {};
-		virtual void Function2() {};
-		virtual void Delete() {};
 	};
 }
 

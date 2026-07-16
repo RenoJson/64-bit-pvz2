@@ -484,13 +484,17 @@ void SpawnZombiePigAfterDie1(ZombieMausoleumVendor* self) {
 	}
 }
 
-void MausoleumVendorActionFrame(ZombieMausoleumVendor* vendor, SexyString* currentAnim, SexyString* actionName, SexyString* param, float nextFrameTime)
+void MausoleumVendorActionFrame(ZombieMausoleumVendor* vendor, 
+                                SexyString* currentAnim, 
+                                SexyString* actionName, 
+                                SexyString* param, 
+                                float nextFrameTime)
 {
-	if (*actionName == "use_action")
+	if (*actionName == "use_action" && !ZombieIsDeadOrDying(vendor))
 	{
 		SpawnZombiePig1(vendor);
 	}
-	else if (*actionName == "set_allpig") {
+	else if (*actionName == "set_allpig" && !ZombieIsDeadOrDying(vendor)) {
 		SpawnZombiePigAfterDie1(vendor);
 	}
 }

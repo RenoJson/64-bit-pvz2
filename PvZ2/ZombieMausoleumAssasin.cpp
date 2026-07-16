@@ -101,7 +101,7 @@ void AssasinOnCreate(ZombieMausoleumAssasin* zombie) {
 
 void MausoleumAssasinActionFrame(ZombieMausoleumAssasin* self, SexyString* currentAnim, SexyString* actionName, SexyString* param, float nextFrameTime)
 {
-    if (*actionName == "kill_plant")
+    if (*actionName == "kill_plant" && !ZombieIsDeadOrDying(self))
     {
         if (ZombieHasArmor(self, "Dao")) {
             auto* props = reinterpret_cast<ZombieMausoleumAssasinProps*>(self->m_propertySheet.Get());
@@ -119,30 +119,30 @@ void MausoleumAssasinActionFrame(ZombieMausoleumAssasin* self, SexyString* curre
                 takeDmg(target, &dmg);
             }
         }
-        if (*actionName == "ghost_intro")
-        {
-            auto* props = reinterpret_cast<ZombieMausoleumAssasinProps*>(self->m_propertySheet.Get());
-            SexyString name = props->SpiritTypeName;
-            Zombie* spirit = AddZombie(name, -1, 6, -1);
-            float newX = self->m_position.x;
-            float newY = self->m_position.y;
-            float newZ = self->m_position.z;
-            SexyVector3 newCoords = SexyVector3(newX, newY, newZ);
-            ZombieSetPosition(spirit, &newCoords);
-            if (ZombieHasCondition(self, zombie_condition_hypnotized)) {
+    }
+    if (*actionName == "ghost_intro")
+    {
+        auto* props = reinterpret_cast<ZombieMausoleumAssasinProps*>(self->m_propertySheet.Get());
+        SexyString name = props->SpiritTypeName;
+        Zombie* spirit = AddZombie(name, -1, 6, -1);
+        float newX = self->m_position.x;
+        float newY = self->m_position.y;
+        float newZ = self->m_position.z;
+        SexyVector3 newCoords = SexyVector3(newX, newY, newZ);
+        ZombieSetPosition(spirit, &newCoords);
+        if (ZombieHasCondition(self, zombie_condition_hypnotized)) {
 
-                ZombieSetCondition(spirit, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
+            ZombieSetCondition(spirit, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
 
-                spirit->m_teamFlags = self->m_teamFlags;
-                typedef void* (*GetHypnoDataFunc)(Zombie*);
-                GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
+            spirit->m_teamFlags = self->m_teamFlags;
+            typedef void* (*GetHypnoDataFunc)(Zombie*);
+            GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
 
-                void* hypnoData = funGetHypnoData(self);
-                typedef void (*ApplyHypnoDataFunc)(Zombie*, void*);
-                ApplyHypnoDataFunc funApplyHypnoData = (ApplyHypnoDataFunc)getActualOffset(0xC41290);
+            void* hypnoData = funGetHypnoData(self);
+            typedef void (*ApplyHypnoDataFunc)(Zombie*, void*);
+            ApplyHypnoDataFunc funApplyHypnoData = (ApplyHypnoDataFunc)getActualOffset(0xC41290);
 
-                funApplyHypnoData(spirit, hypnoData);
-            }
+            funApplyHypnoData(spirit, hypnoData);
         }
     }
 }

@@ -6,13 +6,32 @@ class ZombieAnimRig_TombRaiser : public ZombieAnimRig
 {
 public:
 	RtReflectionDelegateBase m_onAnimDone;
-	char pad[56];
 	RtReflectionDelegateBase m_onThrow;
-	char pad1[56];
 };
 static_assert(sizeof(ZombieAnimRig_TombRaiser) == 840);
 static_assert(offsetof(ZombieAnimRig_TombRaiser, m_onAnimDone) == 664);
 static_assert(offsetof(ZombieAnimRig_TombRaiser, m_onThrow) == 752);
+
+class ZombieAnimRig_MysticFormation : public ZombieAnimRig
+{
+public:
+	static void OnInitializeAnimRigDelegate(ZombieAnimRig_MysticFormation* thisPtr, RtReflectionDelegateBase* dlgt);
+	RtReflectionDelegateBase m_onThrow;
+	static void* vftable;
+	static Sexy::RtClass* s_rtClass;
+	static void modInit();
+
+	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(ZombieAnimRig_MysticFormation, 0x9D9C4C);
+	RT_CLASS_CONSTRUCT_FUNCTION_END();
+
+	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombieAnimRig);
+	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieAnimRig_MysticFormation, RtReflectionDelegateBase, m_onThrow);
+	RT_CLASS_BUILD_SYMBOLS_END();
+
+	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieAnimRig_MysticFormation);
+	RT_CLASS_GET_CLASS_FUNCTION(ZombieAnimRig_MysticFormation, 0x8DBB70);
+};
+
 class ZombieAnimRig_EnergyDrinker : public ZombieAnimRig
 {
 public:

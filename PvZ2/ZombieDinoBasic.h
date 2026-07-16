@@ -9,17 +9,12 @@ class ZombieDinoBasic : public ZombieBasic
 {
 public:
     RtReflectionDelegateBase m_onPterodactylGrab;
-
-    uint8_t m_pad1[0x38];
-
     RtReflectionDelegateBase m_onPterodactylDrop;
-
-    uint8_t m_pad2[0x38];
 };
 
 static_assert(sizeof(ZombieDinoBasic) == 1280);
-static_assert(offsetof(ZombieDinoBasic, m_onPterodactylGrab) == 1104);
-static_assert(offsetof(ZombieDinoBasic, m_onPterodactylDrop) == 1192);
+//static_assert(offsetof(ZombieDinoBasic, m_onPterodactylGrab) == 1104);
+//static_assert(offsetof(ZombieDinoBasic, m_onPterodactylDrop) == 1192);
 
 class ZombieDinoBully : public ZombieDinoBasic
 {

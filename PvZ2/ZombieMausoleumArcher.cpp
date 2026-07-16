@@ -100,15 +100,6 @@ void MausoleumArcherActionFrame(ZombieMausoleumArcher* self, SexyString* current
                 self->m_position.z - props->ProjectileOffset.z);
             FirePultProjectile(proj, closestPlant->m_position, 250.0f, 2.0f);
         }
-        else
-        {
-            SexyVector3 missPos = { self->m_position.x - 100.0f, self->m_position.y, self->m_position.z };
-            auto proj = AddProjectile(&props->Projectile, self,
-                self->m_position.x - props->ProjectileOffset.x,
-                self->m_position.y - props->ProjectileOffset.y,
-                self->m_position.z - props->ProjectileOffset.z);
-            FirePultProjectile(proj, missPos, 250.0f, 2.0f);
-        }
     }
     if (*actionName == "ghost_intro")
     {
