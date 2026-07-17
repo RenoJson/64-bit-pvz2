@@ -166,6 +166,7 @@
     <ClCompile Include="PvZ2\ZombieMausoleumGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_MausoleumGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_TombRaiser.cpp" />
+    <ClCompile Include="PvZ2\ZombieTombRaiser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />

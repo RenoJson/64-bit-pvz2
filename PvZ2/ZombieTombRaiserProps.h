@@ -11,7 +11,23 @@ public:
 	SexyString GreenTokenProjectileLayerName = "_token_green";
 	SexyString RedTokenProjectileLayerName = "_token_red";
 	Sexy::RtWeakPtr<ProjectilePropertySheet> GreenTokenProjectile;
-	Sexy::RtWeakPtr<ProjectilePropertySheet> RedTokenProjectile;
+	Sexy::RtWeakPtr<ProjectilePropertySheet> RedTokenProjectile; 
+	static void* vftable;
+	static Sexy::RtClass* s_rtClass;
+	static void modInit();;
+
+	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(TokenLayersConfig, 0x8AE3A8);
+	RT_CLASS_CONSTRUCT_FUNCTION_END();
+	RT_CLASS_BUILD_SYMBOLS_BEGIN(PropertySheetBase);
+	RT_CLASS_REGISTER_STRING_PROPERTY(TokenLayersConfig, ProjectileOffsetTokenLayerName);
+	RT_CLASS_REGISTER_STRING_PROPERTY(TokenLayersConfig, GreenTokenProjectileLayerName);
+	RT_CLASS_REGISTER_STRING_PROPERTY(TokenLayersConfig, RedTokenProjectileLayerName);
+	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(TokenLayersConfig, GreenTokenProjectile, ProjectilePropertySheet);
+	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(TokenLayersConfig, RedTokenProjectile, ProjectilePropertySheet);
+	RT_CLASS_BUILD_SYMBOLS_END();
+
+	RT_CLASS_REGISTER_CLASS_FUNCTION(TokenLayersConfig);
+	RT_CLASS_GET_CLASS_FUNCTION(TokenLayersConfig, 0xD1FB60);
 };
 
 
@@ -31,6 +47,23 @@ public:
 	float TimeBetweenRaisings = 6.0f;
 	int NumberOfTokensToSpawn = 2;
 	TokenLayersConfig TokenProjectileLayerProps;
+	static void* vftable;
+	static Sexy::RtClass* s_rtClass;
+	static void modInit();;
+
+	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(ZombieMysticFormationProps, 0xC136A4);
+	RT_CLASS_CONSTRUCT_FUNCTION_END();
+
+	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombiePropertySheet);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMysticFormationProps, TimeBetweenCast);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMysticFormationProps, TimeBetweenRaisings);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMysticFormationProps, TimeBetweenCast);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMysticFormationProps, NumberOfTokensToSpawn);
+	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieMysticFormationProps, TokenLayersConfig, TokenProjectileLayerProps);
+	RT_CLASS_BUILD_SYMBOLS_END();
+
+	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieMysticFormationProps);
+	RT_CLASS_GET_CLASS_FUNCTION(ZombieMysticFormationProps, 0xDA5B00);
 };
 
 class ZombieZCorpEnergyDrinkerProps : public ZombiePropertySheet {

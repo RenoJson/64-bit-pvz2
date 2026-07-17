@@ -21,10 +21,11 @@ typedef uintptr_t(*sub161BE6C)(Reflection::CRefManualSymbolBuilder*, uintptr_t, 
 typedef void* (*SetStateName)(SexyString* straddr, const SexyString& stateName, size_t length);
 typedef void* (*RegisterState)(void* stateMachine, int stateid, ZombieState* state);
 
-typedef ZombieAnimRig* (*playAnimWithCallback)(ZombieAnimRig*, const SexyString&, int, ZombieEvent& event);
+typedef int (*playAnimWithCallback)(ZombieAnimRig*, const SexyString&, int, ZombieEvent& event);
 typedef int (*playAnimWithoutCallback)(ZombieAnimRig*, const SexyString&, int, ZombieEvent& event);
 
-typedef ZombieAnimRig* (*playLoopAnimWithCallback)(ZombieAnimRig*, ZombieEvent& event);
+typedef int (*playLoopWalkAnimWithCallback)(ZombieAnimRig*, ZombieEvent& event);
+typedef int (*playLoopIdleAnimWithCallback)(ZombieAnimRig*, ZombieEvent& event);
 typedef StateMachineTableBuilder* (*getStateMachine)(StateMachineTableBuilder*, Sexy::RtClass*);
 
 typedef ZombieEvent* (*ConstructEvent)(ZombieEvent*, RtWeakPtr<Zombie>& owner, const SexyString& eventName);
@@ -130,15 +131,16 @@ void RegisterEventAfterAnim(Zombie* zombie, const SexyString& animName, const Se
 	
 	func(animRig, animName, 0, zombieEvent);
 }
-void RegisterDelegateEvent(Zombie* zombie, const SexyString& animName, const SexyString& eventName) {
-	auto* animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
+
+RtReflectionDelegateBase* RegisterDelegateEvent(Zombie* zombie, const SexyString& eventName) {
 	RtWeakPtr<Zombie> zombiePtr;
 	zombiePtr.FromOther((RtWeakPtr<Zombie>*) & zombie->m_thisPtr);
-
-	RtReflectionDelegateBase zombieEvent;
-	((ConstructDelegateEvent)getActualOffset(DELEGATE_CONSTRUCT_ADDR))(&zombieEvent, zombiePtr, eventName);
-
+	RtReflectionDelegateBase* dlgt = new RtReflectionDelegateBase();
+	auto constructFunc = (ConstructDelegateEvent)getActualOffset(DELEGATE_CONSTRUCT_ADDR);
+	constructFunc(dlgt, zombiePtr, eventName);
+	return dlgt;
 }
+
 void RegisterEventOnWalkLoop(Zombie* zombie, const SexyString& eventName) {
 	auto* animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
 	RtWeakPtr<Zombie> zombiePtr;
@@ -147,11 +149,11 @@ void RegisterEventOnWalkLoop(Zombie* zombie, const SexyString& eventName) {
 	ZombieEvent zombieEvent;
 	((ConstructEvent)getActualOffset(ZOMBIE_EVENT_CONSTRUCT_ADDR))(&zombieEvent, zombiePtr, eventName);
 
-	playLoopAnimWithCallback func = ((playLoopAnimWithCallback)getActualOffset(0x8DC460));
+	playLoopWalkAnimWithCallback func = ((playLoopWalkAnimWithCallback)getActualOffset(0x8DC460));
 	func(animRig, zombieEvent);
 }
 
-void RegisterEventOnIdleLoop(Zombie* zombie, const SexyString& animName, const SexyString& eventName) {
+void RegisterEventOnIdleLoop(Zombie* zombie, const SexyString& eventName) {
 	auto* animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
 	RtWeakPtr<Zombie> zombiePtr;
 	zombiePtr.FromOther((RtWeakPtr<Zombie>*) & zombie->m_thisPtr);
@@ -159,9 +161,8 @@ void RegisterEventOnIdleLoop(Zombie* zombie, const SexyString& animName, const S
 	ZombieEvent zombieEvent;
 	((ConstructEvent)getActualOffset(ZOMBIE_EVENT_CONSTRUCT_ADDR))(&zombieEvent, zombiePtr, eventName);
 
-	playAnimWithCallback func = ((playAnimWithCallback)getActualOffset(0x8DCEDC));
-
-	func(animRig, animName, 3, zombieEvent);
+	playLoopIdleAnimWithCallback func = ((playLoopIdleAnimWithCallback)getActualOffset(0x8DC27C));
+	func(animRig, zombieEvent);
 }
 
 void RegisterEventOnLoop(Zombie* zombie, const SexyString& animName, const SexyString& eventName) {

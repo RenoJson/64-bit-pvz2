@@ -15,7 +15,11 @@ static_assert(offsetof(ZombieAnimRig_TombRaiser, m_onThrow) == 752);
 class ZombieAnimRig_MysticFormation : public ZombieAnimRig
 {
 public:
-	static void OnInitializeAnimRigDelegate(ZombieAnimRig_MysticFormation* thisPtr, RtReflectionDelegateBase* dlgt);
+	static uint64_t OnAnimCommand(ZombieAnimRig_MysticFormation* thisPtr, const SexyString& actionName);
+	static std::vector<SexyString>* lowerArmList();
+	static std::vector<SexyString>* upperArmList();
+	static std::vector<SexyString>* headList();
+	static bool OnInitializeAnimRigDelegate(ZombieAnimRig_MysticFormation* thisPtr, RtReflectionDelegateBase* dlgt);
 	RtReflectionDelegateBase m_onThrow;
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;

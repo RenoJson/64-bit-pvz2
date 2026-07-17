@@ -38,6 +38,33 @@ public:
 	Point m_throwingTarget;
 	int m_projectileIndex;
 	std::vector<SpellBolt> m_pendingTokens;
+	static void* vftable;
+	static Sexy::RtClass* s_rtClass;
+	static void modInit();;
+
+	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(ZombieMysticFormation, 0xC3AB1C);
+	RT_CLASS_CONSTRUCT_FUNCTION_END();
+
+	RT_CLASS_BUILD_SYMBOLS_BEGIN(Zombie);
+	ZombieMysticFormation::buildEventCallbacks(builder, rclass);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMysticFormation, m_remainingAmmo);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMysticFormation, m_remainingTokenspawnAttempts);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMysticFormation, m_startThrowTime);
+	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieMysticFormation, Point, m_throwingTarget);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMysticFormation, m_projectileIndex);
+	RT_CLASS_REGISTER_CLASS_VECTOR_PROPERTY(ZombieMysticFormation, SpellBolt, m_pendingTokens);
+	RT_CLASS_BUILD_SYMBOLS_END();
+
+	RT_CLASS_REGISTER_CLASS_AND_STATES_FUNCTION(ZombieMysticFormation);
+	RT_CLASS_GET_CLASS_FUNCTION(ZombieMysticFormation, 0xC36FE4);
+	static void buildEventCallbacks(Reflection::CRefManualSymbolBuilder* builder, Reflection::RClass* rtClass);
+	static void buildStates();
+	static void WaitingOnEnter(ZombieMysticFormation* zombie);
+	static void WaitingOnLoop(ZombieMysticFormation* zombie);
+	static void WaitingOnExit(ZombieMysticFormation* zombie);
+	static void ThrowOnEnter(ZombieMysticFormation* zombie);
+	static void ThrowOnLoop(ZombieMysticFormation* zombie);
+	static void ThrowOnExit(ZombieMysticFormation* zombie);
 };
 
 class ZombieZCorpEnergyDrinker : public Zombie {

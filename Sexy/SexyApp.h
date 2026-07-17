@@ -31,6 +31,11 @@ namespace Sexy
 		{
 			return (T)Sexy::SexyApp::GetInstance()->m_appScale * objectScale;
 		}
+		template<typename T = int>
+		T ScaleRender(T objectScale)
+		{
+			return objectScale / (T)Sexy::SexyApp::GetInstance()->m_appScale;
+		}
 	};
 
 	static_assert(sizeof(Sexy::SexyApp));
