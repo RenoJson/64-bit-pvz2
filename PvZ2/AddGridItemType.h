@@ -13,6 +13,6 @@ inline GridItem* AddGridItem(SexyString type, int gridX, int gridY) {
 inline bool CanSpawnGridItemAt(int col, int row, bool displacePlant, bool canAddOnMold) {
 	Board* board = Board::GetBoard();
 	typedef bool (*addGridItemByType)(Board*, int, int, bool, bool);
-	addGridItemByType funAddGridItemByType = (addGridItemByType)getActualOffset(0xAA230C);
+	addGridItemByType funAddGridItemByType = (addGridItemByType)getActualOffset(0xAA2D10);
 	return funAddGridItemByType(board, col, row, displacePlant, canAddOnMold);
 }

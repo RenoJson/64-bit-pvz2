@@ -1,6 +1,9 @@
 #include "ZombieAnimRig_TombRaiser.h"
 #include "ZombieTombRaiser.h"
 
+void* ZombieAnimRig_MysticFormation::vftable = nullptr;
+Sexy::RtClass* ZombieAnimRig_MysticFormation::s_rtClass = nullptr;
+
 uint64_t ZombieAnimRig_MysticFormation::OnAnimCommand(ZombieAnimRig_MysticFormation* thisPtr, const SexyString& actionName)
 {
     if (actionName == "throw")
@@ -56,4 +59,19 @@ bool ZombieAnimRig_MysticFormation::OnInitializeAnimRigDelegate(ZombieAnimRig_My
 	return true;
 }
 
+void ZombieAnimRig_MysticFormation::modInit() {
+    LOGI("ZombieAnimRig_MysticFormation init");
+
+    vftable = CreateChildVFTable(67 + 1, getActualOffset(0x23ABF70), 67);
+    PatchVFTable(vftable, (void*)ZombieAnimRig_MysticFormation::StaticGetType, 0);
+    PatchVFTable(vftable, (void*)ZombieAnimRig_MysticFormation::OnAnimCommand, 25);
+    PatchVFTable(vftable, (void*)ZombieAnimRig_MysticFormation::headList, 55);
+    PatchVFTable(vftable, (void*)ZombieAnimRig_MysticFormation::lowerArmList, 56);
+    PatchVFTable(vftable, (void*)ZombieAnimRig_MysticFormation::upperArmList, 57);
+    PatchVFTable(vftable, (void*)ZombieAnimRig_MysticFormation::OnInitializeAnimRigDelegate, 67);
+
+    ZombieAnimRig_MysticFormation::StaticGetType();
+
+    LOGI("ZombieAnimRig_MysticFormation finish init");
+}
 

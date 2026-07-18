@@ -20,6 +20,12 @@ Sexy::RtClass* TokenLayersConfig::s_rtClass = nullptr;
 void* ZombieMysticFormationProps::vftable = nullptr;
 Sexy::RtClass* ZombieMysticFormationProps::s_rtClass = nullptr;
 
+DECLARE_DELEGATES_SETUP(ZombieMysticFormation)
+
+static Sexy::DelegateBase throwDelegate;
+
+static Sexy::DelegateBase spawnDoneDelegate;
+
 bool IsPendingTokens(ZombieMysticFormation* thisPtr, int gridX, int gridY)
 {
     for (const SpellBolt& bolt : thisPtr->m_pendingTokens)
@@ -147,7 +153,7 @@ void MysticOnSpawn(ZombieMysticFormation* zombie) {
     ZombieEnterState(zombie, 1, 0);
 }
 void MysticWalkOnLoop(ZombieMysticFormation* zombie) {
-    if (zombie->m_position.x > 776.0f || zombie->m_teamFlags != 2 || ZombieIsDeadOrDying(zombie)) {
+    if (zombie->m_position.x > 744.0f || zombie->m_teamFlags != 2 || ZombieIsDeadOrDying(zombie)) {
         CallFunc<void, ZombieMysticFormation*>(0xC506B4, zombie);
         return;
     }
@@ -157,7 +163,9 @@ void MysticWalkOnLoop(ZombieMysticFormation* zombie) {
     {
         if (FindTargetGrid(zombie, &zombie->m_throwingTarget))
         {
-            ZombieEnterState(zombie, 17, 0);
+            auto* props = reinterpret_cast<ZombieMysticFormationProps*>(zombie->m_propertySheet.Get());
+            zombie->m_remainingTokenspawnAttempts = props->NumberOfTokensToSpawn;
+            ZombieEnterState(zombie, 16, 0);
             return;
         }
     }
@@ -167,6 +175,17 @@ void MysticOnCreate(ZombieMysticFormation* zombie) {
     auto props = reinterpret_cast<ZombieMysticFormationProps*>(zombie->m_propertySheet.Get());
     zombie->m_remainingAmmo = props->Ammo;
 }
+void MysticActionFrame(ZombieMysticFormation* zombie,
+    SexyString* currentAnim,
+    SexyString* actionName,
+    SexyString* param,
+    float nextFrameTime)
+{
+    if (*actionName == "token_swap") {
+        zombie->m_projectileIndex = rand() % 2;
+        MysticProjectileLayerChange(zombie);
+    }
+}
 void ZombieMysticFormation::WaitingOnEnter(ZombieMysticFormation* zombie)
 {
 	RegisterEventOnIdleLoop(zombie, "onIdleAnimationCycle");
@@ -175,7 +194,7 @@ void ZombieMysticFormation::WaitingOnEnter(ZombieMysticFormation* zombie)
 void ZombieMysticFormation::WaitingOnLoop(ZombieMysticFormation* zombie)
 {
 	auto props = reinterpret_cast<ZombieMysticFormationProps*>(zombie->m_propertySheet.Get());
-    if (zombie->m_elapsedTimeInState > props->TimeBetweenCast) {
+    if (zombie->m_elapsedTimeInState > props->TimeBetweenCasts) {
         if (FindTargetGrid(zombie, &zombie->m_throwingTarget)) {
             ZombieEnterState(zombie, 17, 0);
         }
@@ -211,24 +230,29 @@ void ZombieMysticFormation::ThrowOnExit(ZombieMysticFormation* zombie)
 
 void MysticOnSpawnDoneCallback(Zombie* zombie) {
     ZombieMysticFormation* mysticZombie = static_cast<ZombieMysticFormation*>(zombie);
-    if (mysticZombie) {
-        mysticZombie->m_remainingTokenspawnAttempts--;
-        if (mysticZombie->m_remainingTokenspawnAttempts > 0) {
-            ZombieMysticFormation::ThrowOnEnter(mysticZombie);
-        }
-        if (mysticZombie->m_remainingAmmo < 1) {
-            mysticZombie->m_startThrowTime = MAXFLOAT;
-        }
-        else {
-            auto props = reinterpret_cast<ZombieMysticFormationProps*>(mysticZombie->m_propertySheet.Get());
-            float currentTime = TimeMgr::GetInstance()->m_curTime;
-            float cooldown = props->TimeBetweenRaisings;
-            mysticZombie->m_startThrowTime = currentTime + cooldown;
 
+    if (!mysticZombie) return;
+
+    mysticZombie->m_remainingTokenspawnAttempts--;
+
+    if (mysticZombie->m_remainingTokenspawnAttempts > 0) {
+        if (FindTargetGrid(mysticZombie, &mysticZombie->m_throwingTarget)) {
+            ZombieMysticFormation::ThrowOnEnter(mysticZombie);
+            return;
         }
-        if (!ZombieIsDeadOrDying(mysticZombie)) {
-            ZombieEnterState(zombie, 1, 0);
-        }
+    }
+    if (mysticZombie->m_remainingAmmo < 1) {
+        mysticZombie->m_startThrowTime = FLT_MAX;
+    }
+    else {
+        auto props = reinterpret_cast<ZombieMysticFormationProps*>(mysticZombie->m_propertySheet.Get());
+        float currentTime = TimeMgr::GetInstance()->m_curTime;
+        float cooldown = props->TimeBetweenRaisings;
+
+        mysticZombie->m_startThrowTime = currentTime + cooldown;
+    }
+    if (!ZombieIsDeadOrDying(mysticZombie)) {
+        ZombieEnterState(zombie, 1, 0); 
     }
 }
 
@@ -261,15 +285,88 @@ void MysticOnThrowCallback(Zombie* zombie) {
             ? &props->TokenProjectileLayerProps.GreenTokenProjectile
             : &props->TokenProjectileLayerProps.RedTokenProjectile;
 
-        auto projectile = AddProjectile(projectileToSpawn, mysticZombie, spawnPosX, spawnPosY, spawnPosZ);
+        auto projectile = (TombraiserProjectile*)AddProjectile(projectileToSpawn, mysticZombie, spawnPosX, spawnPosY, spawnPosZ);
         float targetPosX = (mysticZombie->m_throwingTarget.mX * 64.0f) + 232.0f;
         float targetPosY = (mysticZombie->m_throwingTarget.mY * 76.0f) + 222.0f;
+        projectile->m_targetGridLoc = mysticZombie->m_throwingTarget;
         SexyVector3 launchPos = { targetPosX, targetPosY, 0 };
         FirePultProjectile(projectile, launchPos, 250.0f, 1.5f);
         mysticZombie->m_remainingAmmo--;
-        mysticZombie->m_projectileIndex = rand() % 2;
-        MysticProjectileLayerChange(mysticZombie);
     }
+}
+
+void TokenLayersConfig::modInit() {
+    LOGI("TokenLayersConfig init");
+
+    vftable = CopyVFTable(getActualOffset(0x2428660), 14);
+
+    PatchVFTable(vftable, (void*)TokenLayersConfig::StaticGetType, 0);
+
+    TokenLayersConfig::StaticGetType();
+
+    LOGI("TokenLayersConfig finish init");
+}
+
+
+void ZombieMysticFormation::modInit() {
+
+    vftable = CreateChildVFTable(204 + 6, getActualOffset(0x241D430), 204);
+    PatchVFTable(vftable, (void*)ZombieMysticFormation::StaticGetType, 0);
+    PatchVFTable(vftable, (void*)MysticOnSpawn, 49);
+    PatchVFTable(vftable, (void*)MysticWalkOnLoop, 124);
+    PatchVFTable(vftable, (void*)MysticOnCreate, 169);
+    PatchVFTable(vftable, (void*)MysticActionFrame, 170);
+
+    PatchVFTable(vftable, (void*)ZombieMysticFormation::WaitingOnEnter, 204);
+    PatchVFTable(vftable, (void*)ZombieMysticFormation::WaitingOnLoop, 205);
+    PatchVFTable(vftable, (void*)ZombieMysticFormation::WaitingOnExit, 206);
+
+    PatchVFTable(vftable, (void*)ZombieMysticFormation::ThrowOnEnter, 207);
+    PatchVFTable(vftable, (void*)ZombieMysticFormation::ThrowOnLoop, 208);
+    PatchVFTable(vftable, (void*)ZombieMysticFormation::ThrowOnExit, 209);
+
+    ZombieMysticFormation::StaticGetType();
+}
+
+void ZombieMysticFormationProps::modInit() {
+    LOGI("ZombieArcherProps init");
+
+    vftable = CopyVFTable(getActualOffset(0x24328D0), 14);
+
+    PatchVFTable(vftable, (void*)ZombieMysticFormationProps::StaticGetType, 0);
+
+    ZombieMysticFormationProps::StaticGetType();
+
+    LOGI("ZombieArcherProps finish init");
+}
+
+void ZombieMysticFormation::buildEventCallbacks(Reflection::CRefManualSymbolBuilder* builder, Reflection::RClass* rtClass)
+{
+    IF_CALLBACK_NOTSETUP(ZombieMysticFormation) {
+        SetupLiteralDelegate(&throwDelegate, MysticOnThrowCallback);
+        SetupLiteralDelegate(&spawnDoneDelegate, MysticOnSpawnDoneCallback);
+        ZombieMysticFormation_delegatesSetup = true;
+    }
+    RegisterEventCallback(builder, rtClass, "onThrow", throwDelegate);
+    RegisterEventCallback(builder, rtClass, "onSpawnAnimDone", spawnDoneDelegate);
+}
+
+void ZombieMysticFormation::buildStates()
+{
+    StateMachineTableBuilder* stateMachine = CallGetStateMachine(ZombieMysticFormation::StaticGetType());
+    RegisterStateByOffsets(stateMachine,
+        16,
+        (uintptr_t)ZombieMysticFormation::WaitingOnEnter,
+        (uintptr_t)ZombieMysticFormation::WaitingOnLoop,
+        (uintptr_t)ZombieMysticFormation::WaitingOnExit,
+        "ZS_Mystic_Waiting");
+    RegisterStateByOffsets(stateMachine,
+        17,
+        (uintptr_t)ZombieMysticFormation::ThrowOnEnter,
+        (uintptr_t)ZombieMysticFormation::ThrowOnLoop,
+        (uintptr_t)ZombieMysticFormation::ThrowOnExit,
+        "ZS_Mystic_Throw");
+    LOGI("Reg state complete");
 }
 
 

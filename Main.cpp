@@ -788,5 +788,9 @@ void libChair_main()
     GridItemHaystack::modInit();
     ZombieMausoleumGargantuar::modInit();
     ZombieMausoleumGargantuarProps::modInit();
-    ZombieAnimRig_MausoleumGargantuar::modInit();
+    ZombieAnimRig_MausoleumGargantuar::modInit(); 
+    TokenLayersConfig::modInit();
+    ZombieMysticFormation::modInit();
+    ZombieMysticFormationProps::modInit();
+    ZombieAnimRig_MysticFormation::modInit();
 }

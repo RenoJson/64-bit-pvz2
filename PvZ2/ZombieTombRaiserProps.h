@@ -1,5 +1,6 @@
 #pragma once
 #include "Zombie.h"
+#include "Projectile.h"
 #include <SexyTypes.h>
 #include "Reflection/CRefManualSymbolBuilder.h"
 #include <Reflection/ReflectionBuilder.h>
@@ -34,7 +35,7 @@ public:
 class ZombieTombRaiserProps : public ZombiePropertySheet
 {
 public:
-	float TimeBetweenCast = 0.0f;
+	float TimeBetweenCasts = 0.0f;
 	float TimeBetweenRaisings = 6.0f;
 	int NumberOfTombsToSpawn = 2;
 	Sexy::RtWeakPtr<Sexy::RtObject> Projectile;
@@ -43,7 +44,7 @@ public:
 class ZombieMysticFormationProps : public ZombiePropertySheet
 {
 public:
-	float TimeBetweenCast = 0.0f;
+	float TimeBetweenCasts = 0.0f;
 	float TimeBetweenRaisings = 6.0f;
 	int NumberOfTokensToSpawn = 2;
 	TokenLayersConfig TokenProjectileLayerProps;
@@ -55,9 +56,8 @@ public:
 	RT_CLASS_CONSTRUCT_FUNCTION_END();
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombiePropertySheet);
-	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMysticFormationProps, TimeBetweenCast);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMysticFormationProps, TimeBetweenCasts);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMysticFormationProps, TimeBetweenRaisings);
-	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMysticFormationProps, TimeBetweenCast);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMysticFormationProps, NumberOfTokensToSpawn);
 	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieMysticFormationProps, TokenLayersConfig, TokenProjectileLayerProps);
 	RT_CLASS_BUILD_SYMBOLS_END();

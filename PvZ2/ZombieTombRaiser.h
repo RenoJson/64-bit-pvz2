@@ -1,9 +1,18 @@
 #pragma once
 #include "Zombie.h"
+#include "Projectile.h"
 #include <SexyTypes.h>
 #include "Reflection/CRefManualSymbolBuilder.h"
 #include <Reflection/ReflectionBuilder.h>
 using namespace Sexy;
+
+class TombraiserProjectile : public Projectile
+{
+public:
+	Sexy::Point m_targetGridLoc;
+};
+
+
 class SpellBolt {
 public:
 	int posX;
@@ -38,6 +47,7 @@ public:
 	Point m_throwingTarget;
 	int m_projectileIndex;
 	std::vector<SpellBolt> m_pendingTokens;
+	int m_animHandle;
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;
@@ -52,7 +62,7 @@ public:
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMysticFormation, m_startThrowTime);
 	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieMysticFormation, Point, m_throwingTarget);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMysticFormation, m_projectileIndex);
-	RT_CLASS_REGISTER_CLASS_VECTOR_PROPERTY(ZombieMysticFormation, SpellBolt, m_pendingTokens);
+	RT_CLASS_REGISTER_CLASS_VECTOR_PROPERTY(ZombieMysticFormation, m_pendingTokens, SpellBolt);
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_AND_STATES_FUNCTION(ZombieMysticFormation);
