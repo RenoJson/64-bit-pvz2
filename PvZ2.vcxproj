@@ -175,6 +175,7 @@
     <ClCompile Include="PvZ2\MausoleumGrid.cpp" />
     <ClCompile Include="PvZ2\PlantDinoGrass.cpp" />
     <ClCompile Include="PvZ2\PlantUnchartedHaystack.cpp" />
+    <ClCompile Include="PvZ2\TombraiserProjectileProps.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRigBasicTemplateProps.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_BasicTemplate.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_Consultant.cpp" />
@@ -319,6 +320,7 @@
     <ClInclude Include="PvZ2\Projectile.h" />
     <ClInclude Include="PvZ2\PropertySheetBase.h" />
     <ClInclude Include="PvZ2\PVZDB.h" />
+    <ClInclude Include="PvZ2\TombraiserProjectileProps.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumArcher.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumAssasin.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumCursedBase.h" />

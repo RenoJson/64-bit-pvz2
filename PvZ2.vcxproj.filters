@@ -167,6 +167,7 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_MausoleumGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_TombRaiser.cpp" />
     <ClCompile Include="PvZ2\ZombieTombRaiser.cpp" />
+    <ClCompile Include="PvZ2\TombraiserProjectileProps.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -283,5 +284,6 @@
     <ClInclude Include="PvZ2\GridItemHaystack.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumCursedBase.h" />
     <ClInclude Include="PvZ2\PlantZhongKuiLycoris.h" />
+    <ClInclude Include="PvZ2\TombraiserProjectileProps.h" />
   </ItemGroup>
 </Project>

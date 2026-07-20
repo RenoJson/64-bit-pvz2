@@ -19,7 +19,8 @@ public:
 
 class ZombieSpawnerProjectileProps : public ProjectilePropertySheet {
 public:
-	SexyString ZombieTypeName = "tutorial";
+	std::vector<SexyString> ZombieTypeName;
+	std::vector<float> Weight;
 	bool RiseFromGround = false;
 	DECLARE_STATIC_RT_CLASS_MEMBERS(ZombieSpawnerProjectileProps)
 
@@ -27,7 +28,8 @@ public:
 	RT_CLASS_CONSTRUCT_FUNCTION_END();
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(ProjectilePropertySheet);
-	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieSpawnerProjectileProps, ZombieTypeName);
+	RT_CLASS_REGISTER_STRING_VECTOR_PROPERTY(ZombieSpawnerProjectileProps, ZombieTypeName);
+	RT_CLASS_REGISTER_STANDARD_VECTOR_PROPERTY(ZombieSpawnerProjectileProps, Weight, float);
 	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieSpawnerProjectileProps, RiseFromGround);
 	RT_CLASS_BUILD_SYMBOLS_END();
 

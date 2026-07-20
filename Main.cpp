@@ -99,6 +99,7 @@
 #include <PvZ2/DamageInfo.h>
 #include <PvZ2/ZombieHelper.h>
 #include <PvZ2/ZombieAnimRig_MausoleumCursedBase.h>
+#include <PvZ2/TombraiserProjectileProps.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -789,8 +790,9 @@ void libChair_main()
     ZombieMausoleumGargantuar::modInit();
     ZombieMausoleumGargantuarProps::modInit();
     ZombieAnimRig_MausoleumGargantuar::modInit(); 
-    TokenLayersConfig::modInit();
+    ProjectileActions::modInit();
     ZombieMysticFormation::modInit();
     ZombieMysticFormationProps::modInit();
     ZombieAnimRig_MysticFormation::modInit();
+    TombraiserProjectileProps::modInit();
 }

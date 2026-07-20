@@ -9,7 +9,8 @@ using namespace Sexy;
 class TombraiserProjectile : public Projectile
 {
 public:
-	Sexy::Point m_targetGridLoc;
+	Sexy::Point m_targetGridLoc; 
+	RT_CLASS_GET_CLASS_WRAPPER(0xB22B18);
 };
 
 

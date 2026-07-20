@@ -5,30 +5,26 @@
 #include "Reflection/CRefManualSymbolBuilder.h"
 #include <Reflection/ReflectionBuilder.h>
 
-class TokenLayersConfig : public PropertySheetBase
+class ProjectileActions : public PropertySheetBase
 {
 public:
-	SexyString ProjectileOffsetTokenLayerName = "_token";
-	SexyString GreenTokenProjectileLayerName = "_token_green";
-	SexyString RedTokenProjectileLayerName = "_token_red";
-	Sexy::RtWeakPtr<ProjectilePropertySheet> GreenTokenProjectile;
-	Sexy::RtWeakPtr<ProjectilePropertySheet> RedTokenProjectile; 
+	Sexy::RtWeakPtr<ProjectilePropertySheet> Projectile;
+	float Weight = 55.0f;
+	SexyString ProjectileLayerName = "_token_red";
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;
 
-	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(TokenLayersConfig, 0x8AE3A8);
+	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(ProjectileActions, 0x8AE3A8);
 	RT_CLASS_CONSTRUCT_FUNCTION_END();
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(PropertySheetBase);
-	RT_CLASS_REGISTER_STRING_PROPERTY(TokenLayersConfig, ProjectileOffsetTokenLayerName);
-	RT_CLASS_REGISTER_STRING_PROPERTY(TokenLayersConfig, GreenTokenProjectileLayerName);
-	RT_CLASS_REGISTER_STRING_PROPERTY(TokenLayersConfig, RedTokenProjectileLayerName);
-	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(TokenLayersConfig, GreenTokenProjectile, ProjectilePropertySheet);
-	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(TokenLayersConfig, RedTokenProjectile, ProjectilePropertySheet);
+	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(ProjectileActions, Projectile, ProjectilePropertySheet);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ProjectileActions, Weight);
+	RT_CLASS_REGISTER_STRING_PROPERTY(ProjectileActions, ProjectileLayerName);
 	RT_CLASS_BUILD_SYMBOLS_END();
 
-	RT_CLASS_REGISTER_CLASS_FUNCTION(TokenLayersConfig);
-	RT_CLASS_GET_CLASS_FUNCTION(TokenLayersConfig, 0xD1FB60);
+	RT_CLASS_REGISTER_CLASS_FUNCTION(ProjectileActions);
+	RT_CLASS_GET_CLASS_FUNCTION(ProjectileActions, 0xD1FB60);
 };
 
 
@@ -47,7 +43,7 @@ public:
 	float TimeBetweenCasts = 0.0f;
 	float TimeBetweenRaisings = 6.0f;
 	int NumberOfTokensToSpawn = 2;
-	TokenLayersConfig TokenProjectileLayerProps;
+	std::vector<ProjectileActions> Actions;
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;
@@ -59,7 +55,7 @@ public:
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMysticFormationProps, TimeBetweenCasts);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMysticFormationProps, TimeBetweenRaisings);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMysticFormationProps, NumberOfTokensToSpawn);
-	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieMysticFormationProps, TokenLayersConfig, TokenProjectileLayerProps);
+	RT_CLASS_REGISTER_CLASS_VECTOR_PROPERTY(ZombieMysticFormationProps, Actions, ProjectileActions);
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieMysticFormationProps);
