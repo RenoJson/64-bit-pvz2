@@ -41,3 +41,8 @@ public:
 	static void RideDolphinToWalkOnLoop(ZombieModernDolphinRider* zombie);
 	static void RideDolphinToWalkOnExit(ZombieModernDolphinRider* zombie);
 };
+
+class ZombieBeachSurfer : public Zombie {
+public:
+	RtWeakPtr<BoardEntity> m_eatTarget;
+};

@@ -490,11 +490,11 @@ void MausoleumVendorActionFrame(ZombieMausoleumVendor* vendor,
                                 SexyString* param, 
                                 float nextFrameTime)
 {
-	if (*actionName == "use_action" && !ZombieIsDeadOrDying(vendor))
+    if (*actionName == "use_action" && !(ZombieIsInState(vendor, 5) || ZombieIsInState(vendor, 6)))
 	{
 		SpawnZombiePig1(vendor);
 	}
-	else if (*actionName == "set_allpig" && !ZombieIsDeadOrDying(vendor)) {
+	else if (*actionName == "set_allpig" && !(ZombieIsInState(vendor, 5) || ZombieIsInState(vendor, 6))) {
 		SpawnZombiePigAfterDie1(vendor);
 	}
 }

@@ -176,6 +176,7 @@
     <ClCompile Include="PvZ2\PlantDinoGrass.cpp" />
     <ClCompile Include="PvZ2\PlantUnchartedHaystack.cpp" />
     <ClCompile Include="PvZ2\TombraiserProjectileProps.cpp" />
+    <ClCompile Include="PvZ2\Zombie.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRigBasicTemplateProps.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_BasicTemplate.cpp" />
     <ClCompile Include="PvZ2\ZombieAnimRig_Consultant.cpp" />
@@ -207,6 +208,7 @@
     <ClCompile Include="PvZ2\ZombieBasicTemplate.cpp" />
     <ClCompile Include="PvZ2\ZombieCamel.cpp" />
     <ClCompile Include="PvZ2\ZombieCavalryProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieConditions.cpp" />
     <ClCompile Include="PvZ2\ZombieCowboyBasic.cpp" />
     <ClCompile Include="PvZ2\ZombieDarkCavalry.cpp" />
     <ClCompile Include="PvZ2\ZombieEightiesBass.cpp" />

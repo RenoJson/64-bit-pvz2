@@ -50,6 +50,10 @@ inline void ZombieSetCondition(Zombie* zombie, int conditionID, int a3, float du
 	CallFunc<void, Zombie*, int, int, float, float>(0xC40CC0, zombie, conditionID, a3, duration, a5);
 }
 
+inline void ZombieRemoveCondition(Zombie* zombie, int conditionID) {
+	CallFunc<void, Zombie*, int>(0xC420D0, zombie, conditionID);
+}
+
 inline void ZombieSetSpeedScale(Zombie* zombie, float scale) {
 	CallFunc<void, Zombie*, float>(0xC484C0, zombie, scale);
 }

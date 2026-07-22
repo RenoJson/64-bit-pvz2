@@ -73,9 +73,9 @@ public:
 	SexyString ZombieTypeName = "mummy";
 	SexyString ChooseYourSeedSegmentTypeName = "camel_segment"; // for fixing the CYS visual
 	std::vector<SexyString> FollowerSegmentTypeOrder;
-	SexyString HeadArmorType = "CamelSignHeadDefault";
-	SexyString MiddleArmorType = "CamelSignMiddleDefault";
-	SexyString TailArmorType = "CamelSignTailDefault";
+	SexyString HeadArmorType;
+	SexyString MiddleArmorType;
+	SexyString TailArmorType;
 
 
 	static Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc oZombieCamelPropsBuildSymbols;

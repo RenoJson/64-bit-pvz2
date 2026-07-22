@@ -176,7 +176,7 @@ void ZombieMausoleumDrunkard::ChangeLaneOnLoop(ZombieMausoleumDrunkard* zombie)
 
     float stepDist = baseSpeed * speedScale * 64.0f * TimeMgr::GetInstance()->m_unkTime;
 
-    float targetY = 220.0f + (zombie->m_lastPathGridY * 76.0f);
+    float targetY = 222.0f + (zombie->m_lastPathGridY * 76.0f);
     bool reachedCenter = false;
 
     if (pY < targetY) {

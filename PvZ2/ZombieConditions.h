@@ -166,6 +166,12 @@ class ZombieConditionTracker : public EntityConditionTracker<Zombie>
 public:
 	float m_scale;
 	char pad1[4];
+
+
+	void UpdateIfB1();
+
+	virtual int GetConditionCount() {};
+	virtual void Update() {};
 };
 
 static_assert(offsetof(ZombieConditionTracker, m_currentColor) == 120);

@@ -100,6 +100,8 @@
 #include <PvZ2/ZombieHelper.h>
 #include <PvZ2/ZombieAnimRig_MausoleumCursedBase.h>
 #include <PvZ2/TombraiserProjectileProps.h>
+#include <PvZ2/MessageRouter.h>
+#include <PvZ2/Messages.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -512,15 +514,7 @@ void hkBoardWaveFunc(Board* thisPtr, int waveIndex, int waveType, bool isFinalWa
     }
 }
 #pragma endregion 
-#pragma region Build Symbol Funcs
 
-Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc PlantType::oPlantTypeBuildSymbols = nullptr;
-Reflection::CRefManualSymbolBuilder::ConstructFunc PlantType::oPlantTypeConstruct = nullptr;
-Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc ZombieType::oZombieTypeBuildSymbols = nullptr;
-Reflection::CRefManualSymbolBuilder::ConstructFunc ZombieType::oZombieTypeConstruct = nullptr;
-
-
-#pragma endregion
 #pragma region Format 150
 // thanks jay_krow for format 150 code (yummy)
 typedef uint(*getGLTextureTotalSize)(IResStreamDriver*, PTXInfo*);
@@ -630,8 +624,8 @@ void hkFire(BoardEntity* thisPtr, int64_t flag)
         int posX = static_cast<int>((thisPtr->m_position.x - 200.0f) / 64.0f);
         int posY = static_cast<int>((thisPtr->m_position.y - 160.0f) / 76.0f);
         SexyVector3 entityPos;
-        entityPos.x = static_cast<float>((posX * 64.0f) + 200.0f);
-        entityPos.y = static_cast<float>((posY * 76.0f) + 160.0f);
+        entityPos.x = static_cast<float>((posX * 64.0f) + 232.0f);
+        entityPos.y = static_cast<float>((posY * 76.0f) + 222.0f);
 		entityPos.z = 0.0f;
         Board* boardPtr = Board::GetBoard();
         auto type = Effect_PopAnim::StaticGetType();
@@ -646,6 +640,89 @@ void hkFire(BoardEntity* thisPtr, int64_t flag)
     }
     oFire(thisPtr, flag);
 }
+bool IsReadyToDie(Zombie* thisPtr) {
+    return thisPtr->m_elapsedTimeInState >= 2.5;
+}
+
+
+bool hkCanBeTargetted(Zombie* thisPtr, char targetingFlags) {
+    int state = thisPtr->m_entityState.m_id;
+
+    int zombieFlags = thisPtr->m_zombieFlags;
+
+    if ((targetingFlags & 4) == 0)
+    {
+        if ((state >= 4 && state <= 8) || state == 14)
+        {
+            return false;
+        }
+
+        if (state == 10 || state == 11)
+        {
+            if (thisPtr->m_hitpoints <= 0.0f)
+            {
+                return false;
+            }
+        }
+    }
+
+    if (thisPtr->m_hitpoints <= 0.0f)
+    {
+        return false;
+    }
+    ZombieConditionTracker* zTracker = &thisPtr->m_conditionTracker;
+    if (zTracker->m_conditionFlags[31] || zTracker->m_conditionFlags[34] || zTracker->m_conditionFlags[60]) {
+        return false;
+    }
+    if (state == 12)
+    {
+        unsigned int isRising = 0x1600;
+        if (((1 << state) & isRising) != 0)
+        {
+            return false;
+        }
+    }
+
+
+    bool isWinning = ((zombieFlags & 0x40) != 0) || (thisPtr->m_position.x > 0.0f);
+
+    if ((targetingFlags & 1) == 0 || isWinning)
+    {
+        if ((targetingFlags & 2) != 0)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    return true;
+}
+
+float SurferIsHeadDrop(ZombieBeachSurfer* zombie)
+{
+    if (zombie->m_entityState.m_id == 16) {
+        return -1.0f;
+    }
+    else {
+        auto props = reinterpret_cast<ZombiePropertySheet*>(zombie->m_propertySheet.Get());
+        return props->HeadDropFraction;
+    }
+}
+
+
+
+#pragma region Build Symbol Funcs
+
+Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc PlantType::oPlantTypeBuildSymbols = nullptr;
+Reflection::CRefManualSymbolBuilder::ConstructFunc PlantType::oPlantTypeConstruct = nullptr;
+Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc ZombieType::oZombieTypeBuildSymbols = nullptr;
+Reflection::CRefManualSymbolBuilder::ConstructFunc ZombieType::oZombieTypeConstruct = nullptr;
+Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc ZombiePropertySheet::oZombiePropsBuildSymbols = nullptr;
+Reflection::CRefManualSymbolBuilder::ConstructFunc ZombiePropertySheet::oZombiePropsConstruct = nullptr;
+
+
+#pragma endregion
+
 __attribute__((constructor))
 // This is automatically executed when the lib is loaded
 // Run your initialization code here
@@ -664,7 +741,9 @@ void libChair_main()
     PVZ2HookFunction(0xC6D080, (void*)PlantType::construct, (void**)&PlantType::oPlantTypeConstruct);
     PVZ2HookFunction(0xC6BF48, (void*)PlantType::buildSymbols, (void**)&PlantType::oPlantTypeBuildSymbols);
     PVZ2HookFunction(0x10680BC, (void*)ZombieType::construct, (void**)&ZombieType::oZombieTypeConstruct);
-    PVZ2HookFunction(0x106828C, (void*)ZombieType::buildSymbols, (void**)&ZombieType::oZombieTypeBuildSymbols); 
+    PVZ2HookFunction(0x106828C, (void*)ZombieType::buildSymbols, (void**)&ZombieType::oZombieTypeBuildSymbols);
+    PVZ2HookFunction(0xC136A4, (void*)ZombiePropertySheet::construct, (void**)&ZombiePropertySheet::oZombiePropsConstruct);
+    PVZ2HookFunction(0xDA69D4, (void*)ZombiePropertySheet::buildSymbols, (void**)&ZombiePropertySheet::oZombiePropsBuildSymbols);
 
     PVZ2HookFunction(0xC4987C, (void*)hkEffectCondition, (void**)&oEffCond);
     PVZ2HookFunction(0xC4BC48, (void*)hkRemoveEffectCondition, (void**)&oRemoveEffCond);
@@ -673,6 +752,9 @@ void libChair_main()
     PVZ2HookFunction(0xC1D1FC, (void*)hkInitZombiePianoList, (void**)&oInitZombiePianoList);
     PVZ2HookFunction(0xAA0C40, (void*)hkBoardRender, (void**)&oBoardRender);
     PVZ2HookFunction(0x1273244, (void*)hkFire, (void**)&oFire);
+    PVZ2HookFunction(0xC4CED8, (void*)IsReadyToDie, nullptr);
+    PVZ2HookFunction(0xC4D594, (void*)hkCanBeTargetted, nullptr);
+    PVZ2HookFunction(0xAD117C, (void*)SurferIsHeadDrop, nullptr);
     PVZ2HookFunction(0x168D580, (void*)hkLoadAndDecode, (void**)&oLoadAndDecode);
     PVZ2HookFunction(0x176D6CC, (void*)hkGetGLTextureTotalSize, (void**)&oGetGLTextureTotalSize);
 

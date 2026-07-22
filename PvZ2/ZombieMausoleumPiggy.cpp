@@ -71,7 +71,7 @@ void MausoleumPiggyLoopWalk(ZombieMausoleumPiggy* zombie)
         float stepDist = floatingSpeed * timeMoving;
 
         float pixelCenterX = 232.0f + (gX * 64.0f);
-        float pixelCenterY = 220.0f + (gY * 76.0f);
+        float pixelCenterY = 222.0f + (gY * 76.0f);
         bool reachedCenter = false;
         float nextX = pX;
         float nextY = pY;

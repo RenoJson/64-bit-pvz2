@@ -114,7 +114,24 @@ public:
 	bool FlickIsLaneRestricted;
 	bool IsSpawnedFlying;
 	float ShrunkenScale;
-	float HeadDropFraction;
+	float HeadDropFraction = 0.3f;
+	static Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc oZombiePropsBuildSymbols;
+	static Reflection::CRefManualSymbolBuilder::ConstructFunc oZombiePropsConstruct;
+
+	static void* construct(ZombiePropertySheet* self)
+	{
+		oZombiePropsConstruct(self);
+
+		self->HeadDropFraction = 0.3f;
+
+		return self;
+	}
+
+	static void buildSymbols(Reflection::CRefManualSymbolBuilder* builder, Reflection::RClass* rclass)
+	{
+		oZombiePropsBuildSymbols(builder, rclass);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombiePropertySheet, HeadDropFraction);
+	}
 };
 
 static_assert(sizeof(ZombiePropertySheet) == 568);
@@ -122,6 +139,7 @@ static_assert(offsetof(ZombiePropertySheet, Speed) == 64);
 static_assert(offsetof(ZombiePropertySheet, AlmanacScale) == 96);
 static_assert(offsetof(ZombiePropertySheet, HypnoshroomEffectOffset) == 296);
 static_assert(offsetof(ZombiePropertySheet, CanBeFlicked) == 552);
+static_assert(offsetof(ZombiePropertySheet, HeadDropFraction) == 560);
 
 enum ZombieFlagType
 {
@@ -232,6 +250,8 @@ public:
 	bool m_wasMowedDown;
 	char pad_tail[10];
 	Sexy::RtWeakPtr<ZombiePropertySheet> m_propertySheet;
+
+	void SetStatusesFromDamageInfo(DamageInfo* dmgInfo);
 
 	virtual Sexy::FPoint GetShadowScaling() {}
 	virtual void Function51() {}

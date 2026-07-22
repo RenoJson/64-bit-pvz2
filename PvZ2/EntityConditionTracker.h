@@ -1,4 +1,6 @@
 #pragma once
+#include <Sexy/RtWeakPtr.h>
+#include <Sexy/RtObject.h>
 
 struct EntityCondition
 {

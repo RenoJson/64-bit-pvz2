@@ -10,11 +10,12 @@ enum MessageId
 	SurvivalLevelEnded = -2,
 	NextWaveProgressMsg = 0x5672FC,
 	ExplorerMsg = 0xB1D100,
+	EntityTakeDamage = 0xC35748,
 	LevelStartMsg = 0x2ACC78
 };
 
-void DisableProgressMeterMsg() {};
-void SurvivalLevelEndedMsg() {};
+inline void DisableProgressMeterMsg() {};
+inline void SurvivalLevelEndedMsg() {};
 
 class Messages
 {

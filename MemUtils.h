@@ -33,8 +33,8 @@ template<typename R, typename... Args>
 R CallVirtualFunc(void* obj, int index, Args... args)
 {
     void* func = GetVirtualFunc(obj, index);
-    auto castedFunc = reinterpret_cast<R(*)(Args...)>(func);
-    return castedFunc(args...);
+    auto castedFunc = reinterpret_cast<R(*)(void*, Args...)>(func);
+    return castedFunc(obj, args...);
 }
 
 // Call a function from libPVZ2.so. It supports multiple parameters, so it's very flexible and shortens the time of decompiling functions

@@ -91,10 +91,17 @@ bool DolphinIsBeingTossedByPlant(ZombieModernDolphinRider* zombie, int a2) {
 		return CallFunc<bool, ZombieModernDolphinRider*, int>(0xC4D2EC, zombie, a2);
 	}
 }
-bool DolphinRiderIsHeadDrop(ZombieModernDolphinRider* zombie)
+float DolphinRiderIsHeadDrop(ZombieModernDolphinRider* zombie)
 {
-	return zombie->m_entityState.m_id == 20 || CallFunc<bool, ZombieModernDolphinRider*>(0xC41014, zombie);
+	if (zombie->m_entityState.m_id == 20) {
+		return -1.0f;
+	}
+	else {
+		auto props = reinterpret_cast<ZombieModernDolphinRiderProps*>(zombie->m_propertySheet.Get());
+		return props->HeadDropFraction;
+	}
 }
+
 void ZombieModernDolphinRider::JumpOnEnter(ZombieModernDolphinRider* zombie)
 {
 	ZombieAllowMovement(zombie, true);

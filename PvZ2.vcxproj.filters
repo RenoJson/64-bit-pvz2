@@ -168,6 +168,8 @@
     <ClCompile Include="PvZ2\ZombieAnimRig_TombRaiser.cpp" />
     <ClCompile Include="PvZ2\ZombieTombRaiser.cpp" />
     <ClCompile Include="PvZ2\TombraiserProjectileProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieConditions.cpp" />
+    <ClCompile Include="PvZ2\Zombie.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />

@@ -11,10 +11,7 @@ void VetBullFunction204(ZombieBullVeteran* self, BoardEntity* entity) {
 		DamageInfo dmgInfo;
 		dmgInfo.m_damage = props->BullRammingDamage;
 		dmgInfo.m_flags = DamageTypeFlags::damage_crushing; 
-		void** vtable = *(void***)entity;
-		typedef void (*VirtualTakeDamageFunc)(BoardEntity*, DamageInfo*);
-		VirtualTakeDamageFunc takeDmg = (VirtualTakeDamageFunc)vtable[35];
-		takeDmg(entity, &dmgInfo);
+		CallVirtualFunc<void>(entity, 35, &dmgInfo);
 	}
 	if (!ZombieIsDeadOrDying(self)) {
 		ZombieEnterState(self, 20, 0);

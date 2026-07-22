@@ -1,6 +1,7 @@
 #pragma once
 #include "PropertySheetBase.h"
 #include "Zombie.h"
+#include "DamageInfo.h"
 using namespace Sexy;
 class Zombie;
 enum ArmorTypeFlags {
@@ -52,5 +53,7 @@ public:
 	bool m_score;
 	uint8_t m_padTo56[2];
 	int m_armorFlagsOverride;
+
+	virtual DamageInfo Function1(DamageInfo* dmgInfo) {};
 };
 static_assert(sizeof(Armor) == 64);
