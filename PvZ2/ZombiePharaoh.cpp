@@ -286,6 +286,11 @@ bool hkIsDeadOrDying(Zombie* thisPtr)
     {
         return true;
     }
+    if (stateId == 3) {
+        if (thisPtr->m_position.x <= 264.0f) {
+            return true;
+        }
+    }
 
     if (stateId == 10 || stateId == 11)
     {
