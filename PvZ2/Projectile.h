@@ -94,7 +94,8 @@ class Projectile : public ModularRealObject
 {
 public:
 	bool m_shouldAffectTarget;
-	char pad2[12];
+	char pad2[4];
+	Projectile* proj;
 	Sexy::RtWeakPtr<ProjectilePropertySheet> m_propertySheet;
 	Sexy::RtWeakPtr<RtObject> m_instigator;
 	int m_instigatorLevel;

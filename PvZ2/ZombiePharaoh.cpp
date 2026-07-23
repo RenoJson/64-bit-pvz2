@@ -3,6 +3,8 @@
 #include "ZombieHelper.h"
 #include "MessageRouter.h"
 #include "Messages.h"
+#include "ZombieStateHelper.h"
+#include "Board.h"
 
 
 #define VFUNC_CAN_DROP_ARM        81
@@ -15,8 +17,14 @@
 
 
 float hkGetHeadDrop(Zombie* thisPtr) {
-    auto props = reinterpret_cast<ZombiePropertySheet*>(thisPtr->m_propertySheet.Get());
-    return props->HeadDropFraction;
+    auto props = reinterpret_cast<ZombiePropertySheet*>(thisPtr->m_propertySheet.Get()); 
+    if (props->SkipHeadDropState)
+    {
+        return -1.0f;
+    }
+    else {
+        return props->HeadDropFraction;
+    }
 }
 bool isHeadDrop(Zombie* thisPtr) {
     return ((thisPtr->m_zombieFlags & 4) == 0) && hkGetHeadDrop(thisPtr) >= 0.0f;
@@ -60,7 +68,7 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
                 {
                     CallVirtualFunc<void>(thisPtr, VFUNC_ENTER_BLEEDING);
                     CallFunc<void>(0xC47BF8, thisPtr, damageInfo);
-                    CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_attacker); 
+                    CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_attacker);
                 }
             }
         }
@@ -249,7 +257,7 @@ void hkTakeDamage(Zombie* thisPtr, DamageInfo* damageInfo)
                 bool zombieCanTakeDmg = (thisPtr->m_zombieFlags & 0x100000) != 0;
                 auto newState = thisPtr->m_entityState.m_id;
 
-                if (newState > ZS_Plantify || ((1 << newState) & 0x41F0) == 0)
+                if (newState > ZS_Plantify || ((m_stateId >= 4 && m_stateId <= 8) || m_stateId == 10 || m_stateId == 14))
                 {
                     if (!zombieCanTakeDmg)
                     {
@@ -267,13 +275,14 @@ void hkTakeDamage(Zombie* thisPtr, DamageInfo* damageInfo)
         }
     }
 }
-
+bool IsReadyToDie(Zombie* thisPtr) {
+    return thisPtr->m_elapsedTimeInState >= 5.0f;
+}
 bool hkIsDeadOrDying(Zombie* thisPtr)
 {
     int stateId = thisPtr->m_entityState.m_id;
 
-    if (stateId == 4 || stateId == 5 || stateId == 6 ||
-        stateId == 7 || stateId == 8 || stateId == 14)
+    if ((stateId >= 4 && stateId <= 8) || stateId == 14)
     {
         return true;
     }
@@ -289,10 +298,30 @@ bool hkIsDeadOrDying(Zombie* thisPtr)
     return false;
 }
 
+bool hkZombieCheckConditionsFlag(Zombie* zombie, int flag) {
+    if ((flag & 1) == 0 || !hkIsDeadOrDying(zombie)) {
+        if ((flag & 0x10) == 0 || (zombie->m_zombieFlags & zombiegrabbedbyptero) != 0 || zombie->IsInGridItem()){
+            if ((flag & 0x20) == 0 || (zombie->m_zombieFlags & zombiegrabbedbyptero) == 0 || !zombie->IsInGridItem()) {
+                auto board = Board::GetBoard();
+                auto boardProps = CallFunc<BoardPropertySheet*>(0xAA1EF4, board);
+                if ((flag & 0x200) == 0 || (zombie->m_position.x <= boardProps->PlantTargetingXThreshold)) {
+                    if ((flag & 0x100) == 0 || (zombie->m_position.x > boardProps->PlantTargetingXThreshold)) {
+                        if ((flag & 0x10000) == 0 || (zombie->m_zombieFlags & 0x2000000) == 0) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return true;
+}
 
 void ZombiePharaoh::ModInit() {
     LOGI("ZombiePharaoh init");
+    PVZ2HookFunction(0xC56A54, (void*)hkZombieCheckConditionsFlag, nullptr);
     PVZ2HookFunction(0xC3E204, (void*)hkIsDeadOrDying, nullptr);
+    PVZ2HookFunction(0xC4CED8, (void*)IsReadyToDie, nullptr);
     PVZ2HookFunction(0xC490AC, (void*)isHeadDrop, nullptr);
     PVZ2HookFunction(0xC41014, (void*)hkGetHeadDrop, nullptr);
     PVZ2HookFunction(0xC450BC, (void*)hkZombieTakeRealDamage, nullptr);

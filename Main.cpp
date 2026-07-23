@@ -471,6 +471,14 @@ void PatchRedStingerPF()
     uint32_t value = 0x528004A1; // changes sapped to slowdown2
     ReplaceBytes(0xE7DB9C, &value, 4);
 }
+
+void PatchPlantsTargetPriority()
+{
+    uint32_t value = 0x528550BC; // make plant allow to target bleeding zombie
+    ReplaceBytes(0x7C8310, &value, 4);
+}
+
+
 typedef bool (*initZombiePianoList)(int64_t, int64_t);
 initZombiePianoList oInitZombiePianoList = NULL;
 
@@ -640,9 +648,6 @@ void hkFire(BoardEntity* thisPtr, int64_t flag)
     }
     oFire(thisPtr, flag);
 }
-bool IsReadyToDie(Zombie* thisPtr) {
-    return thisPtr->m_elapsedTimeInState >= 2.5;
-}
 
 
 bool hkCanBeTargetted(Zombie* thisPtr, char targetingFlags) {
@@ -684,9 +689,9 @@ bool hkCanBeTargetted(Zombie* thisPtr, char targetingFlags) {
     }
 
 
-    bool isWinning = ((zombieFlags & 0x40) != 0) || (thisPtr->m_position.x > 0.0f);
+    bool isFlying = ((zombieFlags & 0x40) != 0) || (thisPtr->m_position.x > 0.0f);
 
-    if ((targetingFlags & 1) == 0 || isWinning)
+    if ((targetingFlags & 1) == 0 || isFlying)
     {
         if ((targetingFlags & 2) != 0)
         {
@@ -705,11 +710,18 @@ float SurferIsHeadDrop(ZombieBeachSurfer* zombie)
     }
     else {
         auto props = reinterpret_cast<ZombiePropertySheet*>(zombie->m_propertySheet.Get());
-        return props->HeadDropFraction;
+        if (props->SkipHeadDropState)
+        {
+            return -1.0f;
+        }
+        else {
+            return props->HeadDropFraction;
+        }
     }
 }
-
-
+bool IsInBleedingState(Zombie* thisPtr) {
+    return thisPtr->m_entityState.m_id == -1;
+}
 
 #pragma region Build Symbol Funcs
 
@@ -752,7 +764,7 @@ void libChair_main()
     PVZ2HookFunction(0xC1D1FC, (void*)hkInitZombiePianoList, (void**)&oInitZombiePianoList);
     PVZ2HookFunction(0xAA0C40, (void*)hkBoardRender, (void**)&oBoardRender);
     PVZ2HookFunction(0x1273244, (void*)hkFire, (void**)&oFire);
-    PVZ2HookFunction(0xC4CED8, (void*)IsReadyToDie, nullptr);
+    PVZ2HookFunction(0xC4CEC8, (void*)IsInBleedingState, nullptr);
     PVZ2HookFunction(0xC4D594, (void*)hkCanBeTargetted, nullptr);
     PVZ2HookFunction(0xAD117C, (void*)SurferIsHeadDrop, nullptr);
     PVZ2HookFunction(0x168D580, (void*)hkLoadAndDecode, (void**)&oLoadAndDecode);
@@ -789,6 +801,7 @@ void libChair_main()
     ZombieLostCityTorchGargantuar::modInit();// free stuff
     ZombieLostCityGargantuarProps::modInit();// free stuff
     PatchRedStingerPF();// free stuff
+    PatchPlantsTargetPriority();
 
     ZombieModernScreenDoor::ModInit();
     ZombieAnimRig_ModernScreenDoor::modInit();

@@ -72,7 +72,7 @@ public:
 	bool ChillInsteadOfFreeze;
 	bool CanBePlantTossedStrong = true;
 	bool CanBePlantTossedWeak = true;
-	bool SkipHeadDropState;
+	bool SkipHeadDropState = false;
 	float ArmDropFraction = 0.5f;
 	HelmType Helm;
 	float HelmHitpoints;
@@ -194,6 +194,31 @@ static_assert(offsetof(ZombieType, PopAnim) == 128);
 static_assert(offsetof(ZombieType, AnimRigClass) == 152);
 static_assert(offsetof(ZombieType, Placeable) == 232);
 
+enum ZombieFlags
+{ // add to this as I learn more
+	zombiecanmove = 1,
+	zombienoarmdrop = 1 << 1,
+	zombiekillafterstorm = 1 << 2, // if this flag is on it also instantly dies after sandstorms? I think this zombiehasnoheaddrop is not its name.
+	cannotdroploot = 0x10,
+	zombieisairborne = 0x40,
+	zombierenderontop = 0x80,
+	zombiehavedoneondeath = 0x100,
+	zombieisinstorm = 0x200, // removed by OnStormEntranceExit
+	zombieunmoveable = 0x400,
+	zombieisashing = 0x800,
+	zombieinvinciblestatus = 0x1000, // invulnerable because statuses
+	zombieinvincibleaction = 0x2000, // invulnerable because the action says so
+	zombieinvincible = 0x3000, // combination of prior flags
+	zombiegrabbedbyptero = 0x40000,
+	zombienoflagcollisions = 0x80000,
+	zombiewarpout = 0xC0000, // basically combination of prior flags
+	zombiedead = 0x200000, // set in Zombie::Die
+	zombiemagneted = 0x100000, // set in Zombie::TakeDamage if damage flags is magnet
+	zombienocolor = 0x1000000,
+	abouttodie = 0x2000000,
+	noclipground = 0x4000000 // doesn't clip with the ground even if it's z < 0
+};
+
 class Zombie : public BoardEntity
 {
 public:
@@ -252,6 +277,7 @@ public:
 	Sexy::RtWeakPtr<ZombiePropertySheet> m_propertySheet;
 
 	void SetStatusesFromDamageInfo(DamageInfo* dmgInfo);
+	bool IsInGridItem();
 
 	virtual Sexy::FPoint GetShadowScaling() {}
 	virtual void Function51() {}

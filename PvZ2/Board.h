@@ -2,6 +2,7 @@
 #include <Sexy/RtObject.h>
 #include <Sexy/RtWeakPtr.h>
 #include "GameObject.h"
+#include "PropertySheetBase.h"
 
 #define GRID_TILE_WIDTH 64.0f
 #define GRID_TILE_HEIGHT 76.0f
@@ -82,6 +83,32 @@ static_assert(offsetof(BoardLayerEffect, m_startTime) == 48);
 static_assert(offsetof(BoardLayerEffect, m_curveType) == 60);
 static_assert(offsetof(BoardLayerEffect, m_useTimeScaleCurve) == 65);
 
+class BoardPropertySheet : public PropertySheetBase {
+public:
+	float PlantTargetingXThreshold;
+	int MaxSunCurrency;
+	float ZombieThreatLowAlert_TriggerPositionX;
+	float ZombieThreatHighAlert_TriggerPositionX;
+	float ZombieThreatLowAlert_StarChallengeOffsetX;
+	float ZombieThreatHighAlert_StarChallengeOffsetX;
+	float ZombieThreatLowAlert_ProtectPlantOffsetX;
+	float ZombieThreatHighAlert_ProtectPlantOffsetX;
+	int CoinAlert_LowBalanceThreshold;
+	char pad_004C[4];
+	std::vector<std::string> RequiredSubsystems;
+	float ZombieTideMaxHeightPct;
+	float DefaultTideMaxHeightPct;
+	float MaxTideDropoffDistance;
+	char pad_0074[4];
+	std::vector<float> DynamicDifficultyMowerImmunity;
+	std::vector<float> DynamicDifficultyMowerCooldown;
+	float DangerRoomMowerImmunity;
+	float DangerRoomMowerCooldown;
+	std::vector<std::string> LastStandPlantExcludelist;
+	std::vector<std::string> PlantFrostExcludelist;
+	std::vector<std::string> ProtectThePlantAdditionalPlantingExcludelist;
+	std::vector<std::string> PlantSmashAttackExcludelist;
+};
 class Zombie;
 class GridItem;
 class LevelDefinition;
@@ -149,7 +176,9 @@ public:
 	SexyString m_collectableID_SunFromSky;
 	Sexy::RtWeakPtr<LevelDefinition> m_levelDefinition;
 	LevelModuleManager* m_levelModuleManager;
-	char m_pad8[88];
+	char m_pad8[40];
+	Sexy::RtWeakPtr<BoardPropertySheet> m_boardProps;
+	char m_pad89[40];
 	int m_lawnPositionX;
 	int m_lawnPositionY;
 	Sexy::Rect m_lawnRect; // grid size + zoom
