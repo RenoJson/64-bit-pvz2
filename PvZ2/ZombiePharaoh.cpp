@@ -388,32 +388,21 @@ bool hkZombieCheckConditionsFlag(Zombie* zombie, int flag) {
    
     if ((flag & 1) == 0 || !hkIsDeadOrDying(zombie))
     {
-        bool isGrabbedByPtero = (zombie->m_zombieFlags & zombiegrabbedbyptero) != 0;
-        bool isInGridItem = zombie->IsInGridItem();
-
-        if ((flag & 0x10) == 0 || isGrabbedByPtero || isInGridItem)
+        if ((flag & 0x10) == 0 || ((zombie->m_zombieFlags & zombiegrabbedbyptero) != 0) || zombie->IsInGridItem())
         {
-            if ((flag & 0x20) == 0 || (!isGrabbedByPtero && !isInGridItem))
+            if ((flag & 0x20) == 0 || (!((zombie->m_zombieFlags & zombiegrabbedbyptero) != 0) && !zombie->IsInGridItem()))
             {
                 auto board = Board::GetBoard();
-                if (board)
+                auto boardProps = CallFunc<BoardPropertySheet*>(0xAA1EF4, board);
+                if ((flag & 0x200) == 0 || (zombie->m_position.x <= boardProps->PlantTargetingXThreshold))
                 {
-                    auto boardProps = CallFunc<BoardPropertySheet*>(0xAA1EF4, board);
-                    if (boardProps)
-                    {
-                        float threshold = boardProps->PlantTargetingXThreshold;
-
-                        if ((flag & 0x200) == 0 || (zombie->m_position.x <= threshold))
-                        {
-                            if ((flag & 0x100) == 0 || (zombie->m_position.x > threshold))
-                            {
-                                if ((flag & 0x10000) == 0 || (zombie->m_zombieFlags & 0x2000000) == 0)
-                                {
-                                    return false;
-                                }
-                            }
-                        }
-                    }
+                   if ((flag & 0x100) == 0 || (zombie->m_position.x > boardProps->PlantTargetingXThreshold))
+                   {
+                         if ((flag & 0x10000) == 0 || (zombie->m_zombieFlags & 0x2000000) == 0)
+                         {
+                            return false;
+                         }
+                   }
                 }
             }
         }
