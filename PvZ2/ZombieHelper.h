@@ -22,6 +22,10 @@ inline Zombie* ZombieAllowMovement(Zombie* zombie, bool isAllowed) {
 	return CallFunc<Zombie*, Zombie*, bool>(0xC51F94, zombie, isAllowed);
 }
 
+inline Zombie* ZombieSetNoCollisionFlag(Zombie* zombie, bool isAllowed) {
+	return CallFunc<Zombie*, Zombie*, bool>(0xC4C828, zombie, isAllowed);
+}
+
 inline Zombie* ZombieFlippedAnim(Zombie* zombie, bool isFlipped) {
 	return CallFunc<Zombie*, Zombie*, bool>(0xC41290, zombie, isFlipped);
 }

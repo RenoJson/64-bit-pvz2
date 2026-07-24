@@ -472,9 +472,15 @@ void PatchRedStingerPF()
     ReplaceBytes(0xE7DB9C, &value, 4);
 }
 
-void PatchPlantsTargetPriority()
+void PatchZombieSetCondition()
 {
-    uint32_t value = 0x528550BC; // make plant allow to target bleeding zombie
+    uint32_t value = 0x7100011F; // restore damage flash for corpse
+    ReplaceBytes(0xC43898, &value, 4);
+}
+
+void PatchPlantTarget()
+{
+    uint32_t value = 0x528550BC; // restore damage flash for corpse
     ReplaceBytes(0x7C8310, &value, 4);
 }
 
@@ -650,79 +656,64 @@ void hkFire(BoardEntity* thisPtr, int64_t flag)
 }
 
 
-bool hkCanBeTargetted(Zombie* thisPtr, char targetingFlags) {
-    int state = thisPtr->m_entityState.m_id;
+typedef void* (*ZTakeDmg)(Zombie*, DamageInfo*);
+ZTakeDmg oZTakeDmg = nullptr;
 
-    int zombieFlags = thisPtr->m_zombieFlags;
-
-    if ((targetingFlags & 4) == 0)
-    {
-        if ((state >= 4 && state <= 8) || state == 14)
-        {
-            return false;
-        }
-
-        if (state == 10 || state == 11)
-        {
-            if (thisPtr->m_hitpoints <= 0.0f)
-            {
-                return false;
-            }
-        }
-    }
-
-    if (thisPtr->m_hitpoints <= 0.0f)
-    {
-        return false;
-    }
-    ZombieConditionTracker* zTracker = &thisPtr->m_conditionTracker;
-    if (zTracker->m_conditionFlags[31] || zTracker->m_conditionFlags[34] || zTracker->m_conditionFlags[60]) {
-        return false;
-    }
-    if (state == 12)
-    {
-        unsigned int isRising = 0x1600;
-        if (((1 << state) & isRising) != 0)
-        {
-            return false;
-        }
-    }
-
-
-    bool isFlying = ((zombieFlags & 0x40) != 0) || (thisPtr->m_position.x > 0.0f);
-
-    if ((targetingFlags & 1) == 0 || isFlying)
-    {
-        if ((targetingFlags & 2) != 0)
-        {
-            return true;
-        }
-        return false;
-    }
-
-    return true;
-}
-
-float SurferIsHeadDrop(ZombieBeachSurfer* zombie)
+void* hkTakeDamageNoCorpse(Zombie* thisPtr, DamageInfo* damageInfo)
 {
-    if (zombie->m_entityState.m_id == 16) {
-        return -1.0f;
-    }
-    else {
-        auto props = reinterpret_cast<ZombiePropertySheet*>(zombie->m_propertySheet.Get());
-        if (props->SkipHeadDropState)
-        {
-            return -1.0f;
-        }
-        else {
-            return props->HeadDropFraction;
-        }
-    }
-}
-bool IsInBleedingState(Zombie* thisPtr) {
-    return thisPtr->m_entityState.m_id == -1;
-}
+    for (size_t i = 0; i < thisPtr->m_armor.size(); i++)
+    {
+        Armor* armor = thisPtr->m_armor[i].Get();
 
+        if (armor != nullptr && !armor->m_destroyed && armor->m_health > 0)
+        {
+            auto* armorProps = reinterpret_cast<ArmorPropertySheet*>(armor->m_propertySheetPtr.Get());
+
+            if (armorProps != nullptr)
+            {
+                bool hasAbsorbOverflow = false;
+
+                for (size_t j = 0; j < armorProps->ArmorFlags.size(); j++)
+                {
+                    if (armorProps->ArmorFlags[j] == ArmorTypeFlags::absorboverflow)
+                    {
+                        hasAbsorbOverflow = true;
+                        break;
+                    }
+                }
+
+                if (hasAbsorbOverflow)
+                {
+                    if (damageInfo->m_damage >= armor->m_health)
+                    {
+                        damageInfo->m_flags &= ~DamageTypeFlags::damage_bypass_shield;
+                        damageInfo->m_flags &= ~DamageTypeFlags::damage_hits_shield_and_body;
+
+                        damageInfo->m_flags &= ~DamageTypeFlags::damage_hits_only_shield;
+
+                        float calculatedDamage = armor->m_health;
+
+                        if (thisPtr->m_damageScale > 0.001f)
+                        {
+                            calculatedDamage /= thisPtr->m_damageScale;
+                        }
+
+                        bool isShrunken = CallFunc<bool, Zombie*, int>(0xC3E44C, thisPtr, zombie_condition_shrinking)
+                            || CallFunc<bool, Zombie*, int>(0xC3E44C, thisPtr, zombie_condition_shrunken);
+
+                        if (isShrunken && thisPtr->m_shrunkenDamageScale > 0.001f)
+                        {
+                            calculatedDamage /= thisPtr->m_shrunkenDamageScale;
+                        }
+                        damageInfo->m_damage = calculatedDamage;
+                    }
+                }
+            }
+            break;
+        }
+    }
+    return oZTakeDmg(thisPtr, damageInfo);
+}
 #pragma region Build Symbol Funcs
 
 Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc PlantType::oPlantTypeBuildSymbols = nullptr;
@@ -764,9 +755,7 @@ void libChair_main()
     PVZ2HookFunction(0xC1D1FC, (void*)hkInitZombiePianoList, (void**)&oInitZombiePianoList);
     PVZ2HookFunction(0xAA0C40, (void*)hkBoardRender, (void**)&oBoardRender);
     PVZ2HookFunction(0x1273244, (void*)hkFire, (void**)&oFire);
-    PVZ2HookFunction(0xC4CEC8, (void*)IsInBleedingState, nullptr);
-    PVZ2HookFunction(0xC4D594, (void*)hkCanBeTargetted, nullptr);
-    PVZ2HookFunction(0xAD117C, (void*)SurferIsHeadDrop, nullptr);
+    //PVZ2HookFunction(0xC43B90, (void*)hkTakeDamageNoCorpse, (void**)&oZTakeDmg);
     PVZ2HookFunction(0x168D580, (void*)hkLoadAndDecode, (void**)&oLoadAndDecode);
     PVZ2HookFunction(0x176D6CC, (void*)hkGetGLTextureTotalSize, (void**)&oGetGLTextureTotalSize);
 
@@ -801,7 +790,8 @@ void libChair_main()
     ZombieLostCityTorchGargantuar::modInit();// free stuff
     ZombieLostCityGargantuarProps::modInit();// free stuff
     PatchRedStingerPF();// free stuff
-    PatchPlantsTargetPriority();
+    PatchZombieSetCondition();
+    PatchPlantTarget();
 
     ZombieModernScreenDoor::ModInit();
     ZombieAnimRig_ModernScreenDoor::modInit();

@@ -5,6 +5,7 @@
 #include "Messages.h"
 #include "ZombieStateHelper.h"
 #include "Board.h"
+#include "ZombieModernDolphinRider.h"
 
 
 #define VFUNC_CAN_DROP_ARM        81
@@ -29,6 +30,7 @@ float hkGetHeadDrop(Zombie* thisPtr) {
 bool isHeadDrop(Zombie* thisPtr) {
     return ((thisPtr->m_zombieFlags & 4) == 0) && hkGetHeadDrop(thisPtr) >= 0.0f;
 }
+// TODO: Re-implement Ice Bloom entomb zombie in iceblock code and make corpse have damage flash
 void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
 {
 
@@ -69,6 +71,7 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
                     CallVirtualFunc<void>(thisPtr, VFUNC_ENTER_BLEEDING);
                     CallFunc<void>(0xC47BF8, thisPtr, damageInfo);
                     CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_attacker);
+                    thisPtr->m_zombieFlags &= ~0x2000000;
                 }
             }
         }
@@ -143,8 +146,7 @@ void hkTakeDamage(Zombie* thisPtr, DamageInfo* damageInfo)
     {
         if ((thisPtr->m_zombieFlags & 0x3000) == 0)
         {
-            ZombieConditionTracker* zTracker = &thisPtr->m_conditionTracker;
-            if (!(zTracker->m_conditionFlags[31] || zTracker->m_conditionFlags[34] || zTracker->m_conditionFlags[60]))
+            if (!thisPtr->IsInGridItem())
             {
                 auto newdamageInfo = CallVirtualFunc<DamageInfo>(thisPtr, 55, damageInfo);
 
@@ -302,23 +304,121 @@ bool hkIsDeadOrDying(Zombie* thisPtr)
 
     return false;
 }
+bool hkCanBeTargetted(Zombie* thisPtr, char targetingFlags) {
+    int state = thisPtr->m_entityState.m_id;
+    int zombieFlags = thisPtr->m_zombieFlags;
+
+    if ((targetingFlags & 4) == 0)
+    {
+        if ((state >= 3 && state <= 8) || state == 14)
+        {
+            if (state == 3) {
+                if ((targetingFlags & 8) != 0) {
+                    return false; 
+                }
+                
+            }
+            else {
+                return false; 
+            }
+        }
+
+        if (state == 10 || state == 11)
+        {
+            if (thisPtr->m_hitpoints <= 0.0f)
+            {
+                return false;
+            }
+        }
+    }
+
+    if ((zombieFlags & 0x80000) != 0) {
+        return false;
+    }
+
+    ZombieConditionTracker* zTracker = &thisPtr->m_conditionTracker;
+    if (zTracker->m_conditionFlags[31] || zTracker->m_conditionFlags[34] || zTracker->m_conditionFlags[60]) {
+        return false;
+    }
+
+    if (state <= 12) 
+    {
+        unsigned int isRising = 0x1600;
+        if (((1 << state) & isRising) != 0)
+        {
+            return false;
+        }
+    }
+
+    if ((targetingFlags & 1) == 0 || ((zombieFlags & 0x40) != 0) || (thisPtr->m_position.z > 0.0f))
+    {
+        if ((targetingFlags & 2) != 0)
+        {
+            if (((zombieFlags & 0x40) != 0) || (thisPtr->m_position.z > 0.0f)) {
+                return true; 
+            }
+        }
+        return false;
+    }
+
+    return true;
+}
+
+float SurferIsHeadDrop(ZombieBeachSurfer* zombie)
+{
+    if (zombie->m_entityState.m_id == 16) {
+        return -1.0f;
+    }
+    else {
+        auto props = reinterpret_cast<ZombiePropertySheet*>(zombie->m_propertySheet.Get());
+        if (props->SkipHeadDropState)
+        {
+            return -1.0f;
+        }
+        else {
+            return props->HeadDropFraction;
+        }
+    }
+}
+bool IsInBleedingState(Zombie* thisPtr) {
+    return thisPtr->m_entityState.m_id == -1;
+}
 
 bool hkZombieCheckConditionsFlag(Zombie* zombie, int flag) {
-    if ((flag & 1) == 0 || !hkIsDeadOrDying(zombie)) {
-        if ((flag & 0x10) == 0 || (zombie->m_zombieFlags & zombiegrabbedbyptero) != 0 || zombie->IsInGridItem()){
-            if ((flag & 0x20) == 0 || (zombie->m_zombieFlags & zombiegrabbedbyptero) == 0 || !zombie->IsInGridItem()) {
+   
+    if ((flag & 1) == 0 || !hkIsDeadOrDying(zombie))
+    {
+        bool isGrabbedByPtero = (zombie->m_zombieFlags & zombiegrabbedbyptero) != 0;
+        bool isInGridItem = zombie->IsInGridItem();
+
+        if ((flag & 0x10) == 0 || isGrabbedByPtero || isInGridItem)
+        {
+            if ((flag & 0x20) == 0 || (!isGrabbedByPtero && !isInGridItem))
+            {
                 auto board = Board::GetBoard();
-                auto boardProps = CallFunc<BoardPropertySheet*>(0xAA1EF4, board);
-                if ((flag & 0x200) == 0 || (zombie->m_position.x <= boardProps->PlantTargetingXThreshold)) {
-                    if ((flag & 0x100) == 0 || (zombie->m_position.x > boardProps->PlantTargetingXThreshold)) {
-                        if ((flag & 0x10000) == 0 || (zombie->m_zombieFlags & 0x2000000) == 0) {
-                            return false;
+                if (board)
+                {
+                    auto boardProps = CallFunc<BoardPropertySheet*>(0xAA1EF4, board);
+                    if (boardProps)
+                    {
+                        float threshold = boardProps->PlantTargetingXThreshold;
+
+                        if ((flag & 0x200) == 0 || (zombie->m_position.x <= threshold))
+                        {
+                            if ((flag & 0x100) == 0 || (zombie->m_position.x > threshold))
+                            {
+                                if ((flag & 0x10000) == 0 || (zombie->m_zombieFlags & 0x2000000) == 0)
+                                {
+                                    return false;
+                                }
+                            }
                         }
                     }
                 }
             }
         }
     }
+
     return true;
 }
 
@@ -331,5 +431,8 @@ void ZombiePharaoh::ModInit() {
     PVZ2HookFunction(0xC41014, (void*)hkGetHeadDrop, nullptr);
     PVZ2HookFunction(0xC450BC, (void*)hkZombieTakeRealDamage, nullptr);
     PVZ2HookFunction(0xC43B90, (void*)hkTakeDamage, nullptr);
+    PVZ2HookFunction(0xC4CEC8, (void*)IsInBleedingState, nullptr);
+    PVZ2HookFunction(0xC4D594, (void*)hkCanBeTargetted, nullptr);
+    PVZ2HookFunction(0xAD117C, (void*)SurferIsHeadDrop, nullptr);
     LOGI("ZombiePharaoh finish init");
 }
