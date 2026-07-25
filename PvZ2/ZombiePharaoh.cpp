@@ -7,6 +7,7 @@
 #include "Board.h"
 #include "ZombieModernDolphinRider.h"
 #include "DamageLifetime.h"
+#include "PlantIceBloom.h"
 
 
 #define VFUNC_CAN_DROP_ARM        81
@@ -34,14 +35,45 @@ bool isHeadDrop(Zombie* thisPtr) {
 // TODO: Re-implement Ice Bloom entomb zombie in iceblock code
 void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
 {
-
     if (damageInfo->m_damage <= 0.0f)
     {
         return;
     }
+
     bool isAlreadyHeadless = (thisPtr->m_zombieFlags & 0x200) != 0 || (thisPtr->m_entityState.m_id == 3);
-    float oldHp = thisPtr->m_hitpoints;
+
+    float expectedHp = thisPtr->m_hitpoints - damageInfo->m_damage;
+
+    float headDropThreshold = -1.0f;
+    if (CallVirtualFunc<bool>(thisPtr, VFUNC_HAS_HEAD_DROP)) {
+        headDropThreshold = CallVirtualFunc<float>(thisPtr, VFUNC_GET_HEAD_THRESHOLD) * thisPtr->m_maxHitpoints;
+    }
+
+    if (damageInfo->m_attacker != nullptr && damageInfo->m_attacker->IsType(Plant::StaticGetType()))
+    {
+        auto plant = static_cast<Plant*>(damageInfo->m_attacker);
+
+        if (plant->m_plantFramework->IsType(PlantIceBloom::StaticGetType()))
+        {
+            if (ZombieHasCondition(thisPtr, zombie_condition_iceblocked)) {
+                return;
+            }
+
+            bool willDie = (expectedHp <= 0.0f);
+            bool willDropHead = (headDropThreshold >= 0.0f && expectedHp < headDropThreshold);
+
+            if (!isAlreadyHeadless && (willDie || willDropHead))
+            {
+                auto iceBloomProps = reinterpret_cast<IceBloomProps*>(plant->m_propertySheet.Get());
+                float blockHP = iceBloomProps->IceBlockHealth;
+                CallFunc<void>(0xC42320, thisPtr, &iceBloomProps->IceBlockDamagePhases, plant, blockHP);
+                return;
+            }
+        }
+    }
+
     thisPtr->m_hitpoints -= (damageInfo->m_damage >= thisPtr->m_hitpoints) ? thisPtr->m_hitpoints : damageInfo->m_damage;
+
     if ((damageInfo->m_flags & damage_no_sound) == 0)
     {
         auto props = reinterpret_cast<ZombiePropertySheet*>(thisPtr->m_propertySheet.Get());
@@ -58,28 +90,32 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
             CallFunc<void>(0xC47944, thisPtr); //Do Arm Drop
         }
     }
-
-    if (CallVirtualFunc<bool>(thisPtr, VFUNC_HAS_HEAD_DROP))
+    bool isIceBlocked = ZombieHasCondition(thisPtr, zombie_condition_iceblocked);
+    if (headDropThreshold >= 0.0f && thisPtr->m_hitpoints < headDropThreshold && !isIceBlocked)
     {
-        float headDropThreshold = CallVirtualFunc<float>(thisPtr, VFUNC_GET_HEAD_THRESHOLD) * thisPtr->m_maxHitpoints;
-        if (headDropThreshold >= 0.0f && thisPtr->m_hitpoints < headDropThreshold)
+        if ((thisPtr->m_zombieFlags & 0x200) == 0)
         {
-            if ((thisPtr->m_zombieFlags & 0x200) == 0)
+            thisPtr->m_zombieFlags |= 0x200;
+            if (CallVirtualFunc<bool>(thisPtr, VFUNC_DUMMY_TRUE))
             {
-                thisPtr->m_zombieFlags |= 0x200;
-                if (CallVirtualFunc<bool>(thisPtr, VFUNC_DUMMY_TRUE))
-                {
-                    CallVirtualFunc<void>(thisPtr, VFUNC_ENTER_BLEEDING);
-                    CallFunc<void>(0xC47BF8, thisPtr, damageInfo);
-                    CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_attacker); //Do Head Drop
-                    thisPtr->m_zombieFlags &= ~0x2000000;
-                }
+                CallVirtualFunc<void>(thisPtr, VFUNC_ENTER_BLEEDING);
+                CallFunc<void>(0xC47BF8, thisPtr, damageInfo);
+                CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_attacker); // Do Head Drop
             }
         }
     }
+
     if (thisPtr->m_hitpoints <= 0.0f)
     {
-        CallFunc<void>(0xC48338, thisPtr, damageInfo);
+        if (isIceBlocked)
+        {
+            CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_attacker); // Do Head Drop
+            CallFunc<void>(0xC48338, thisPtr, damageInfo);
+        }
+        else
+        {
+            CallFunc<void>(0xC48338, thisPtr, damageInfo);
+        }
     }
 }
 
