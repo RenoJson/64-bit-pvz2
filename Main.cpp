@@ -791,7 +791,6 @@ void libChair_main()
     ZombieLostCityGargantuarProps::modInit();// free stuff
     PatchRedStingerPF();// free stuff
     PatchZombieSetCondition();
-    PatchPlantTarget();
 
     ZombieModernScreenDoor::ModInit();
     ZombieAnimRig_ModernScreenDoor::modInit();

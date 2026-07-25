@@ -289,6 +289,7 @@
     <ClInclude Include="PvZ2\Collectable.h" />
     <ClInclude Include="PvZ2\Creature.h" />
     <ClInclude Include="PvZ2\DamageInfo.h" />
+    <ClInclude Include="PvZ2\DamageLifetime.h" />
     <ClInclude Include="PvZ2\DangerRoomLevelDesigner.h" />
     <ClInclude Include="PvZ2\Effect_PopAnim.h" />
     <ClInclude Include="PvZ2\EntityConditionTracker.h" />
@@ -316,6 +317,7 @@
     <ClInclude Include="PvZ2\PlantConditions.h" />
     <ClInclude Include="PvZ2\PlantDinoGrass.h" />
     <ClInclude Include="PvZ2\PlantFramework.h" />
+    <ClInclude Include="PvZ2\PlantIceBloom.h" />
     <ClInclude Include="PvZ2\PlantUnchartedHaystack.h" />
     <ClInclude Include="PvZ2\PlantZhongKuiLycoris.h" />
     <ClInclude Include="PvZ2\PopAnimRig.h" />

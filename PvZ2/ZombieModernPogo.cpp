@@ -65,7 +65,7 @@ void* PogoTakeDamage(ZombieModernPogo* thisPtr, DamageInfo* damageInfo)
 			{
 				newDmgInfo.m_flags &= ~DamageTypeFlags::damage_bypass_shield;
 				newDmgInfo.m_flags &= ~DamageTypeFlags::damage_hits_shield_and_body;
-				newDmgInfo.m_flags != DamageTypeFlags::damage_hits_only_shield;
+				newDmgInfo.m_flags |= DamageTypeFlags::damage_hits_only_shield;
 				float calculatedDamage = balloonHP;
 
 				float effDamageScale = thisPtr->m_damageScale;

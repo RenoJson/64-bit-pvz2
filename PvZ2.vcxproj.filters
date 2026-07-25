@@ -287,5 +287,7 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumCursedBase.h" />
     <ClInclude Include="PvZ2\PlantZhongKuiLycoris.h" />
     <ClInclude Include="PvZ2\TombraiserProjectileProps.h" />
+    <ClInclude Include="PvZ2\PlantIceBloom.h" />
+    <ClInclude Include="PvZ2\DamageLifetime.h" />
   </ItemGroup>
 </Project>

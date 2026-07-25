@@ -6,6 +6,7 @@
 #include "ZombieStateHelper.h"
 #include "Board.h"
 #include "ZombieModernDolphinRider.h"
+#include "DamageLifetime.h"
 
 
 #define VFUNC_CAN_DROP_ARM        81
@@ -30,7 +31,7 @@ float hkGetHeadDrop(Zombie* thisPtr) {
 bool isHeadDrop(Zombie* thisPtr) {
     return ((thisPtr->m_zombieFlags & 4) == 0) && hkGetHeadDrop(thisPtr) >= 0.0f;
 }
-// TODO: Re-implement Ice Bloom entomb zombie in iceblock code and make corpse have damage flash
+// TODO: Re-implement Ice Bloom entomb zombie in iceblock code
 void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
 {
 
@@ -38,7 +39,7 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
     {
         return;
     }
-
+    bool isAlreadyHeadless = (thisPtr->m_zombieFlags & 0x200) != 0 || (thisPtr->m_entityState.m_id == 3);
     float oldHp = thisPtr->m_hitpoints;
     thisPtr->m_hitpoints -= (damageInfo->m_damage >= thisPtr->m_hitpoints) ? thisPtr->m_hitpoints : damageInfo->m_damage;
     if ((damageInfo->m_flags & damage_no_sound) == 0)
@@ -54,7 +55,7 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
         float armDropThreshold = CallVirtualFunc<float>(thisPtr, VFUNC_GET_ARM_THRESHOLD) * thisPtr->m_maxHitpoints;
         if (armDropThreshold >= 0.0f && thisPtr->m_hitpoints < armDropThreshold)
         {
-            CallFunc<void>(0xC47944, thisPtr);
+            CallFunc<void>(0xC47944, thisPtr); //Do Arm Drop
         }
     }
 
@@ -70,7 +71,7 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
                 {
                     CallVirtualFunc<void>(thisPtr, VFUNC_ENTER_BLEEDING);
                     CallFunc<void>(0xC47BF8, thisPtr, damageInfo);
-                    CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_attacker);
+                    CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_attacker); //Do Head Drop
                     thisPtr->m_zombieFlags &= ~0x2000000;
                 }
             }
@@ -111,8 +112,7 @@ void hkTakeDamage(Zombie* thisPtr, DamageInfo* damageInfo)
                     {
                         damageInfo->m_flags &= ~DamageTypeFlags::damage_bypass_shield;
                         damageInfo->m_flags &= ~DamageTypeFlags::damage_hits_shield_and_body;
-
-                        damageInfo->m_flags &= ~DamageTypeFlags::damage_hits_only_shield;
+                        damageInfo->m_flags |= DamageTypeFlags::damage_hits_only_shield;
 
                         float calculatedDamage = armor->m_health;
 
@@ -278,7 +278,7 @@ void hkTakeDamage(Zombie* thisPtr, DamageInfo* damageInfo)
     }
 }
 bool IsReadyToDie(Zombie* thisPtr) {
-    return thisPtr->m_elapsedTimeInState >= 5.0f;
+    return thisPtr->m_elapsedTimeInState >= 5.0;
 }
 bool hkIsDeadOrDying(Zombie* thisPtr)
 {
@@ -310,17 +310,9 @@ bool hkCanBeTargetted(Zombie* thisPtr, char targetingFlags) {
 
     if ((targetingFlags & 4) == 0)
     {
-        if ((state >= 3 && state <= 8) || state == 14)
+        if ((state >= 4 && state <= 8) || state == 14)
         {
-            if (state == 3) {
-                if ((targetingFlags & 8) != 0) {
-                    return false; 
-                }
-                
-            }
-            else {
-                return false; 
-            }
+            return false; 
         }
 
         if (state == 10 || state == 11)
@@ -336,8 +328,7 @@ bool hkCanBeTargetted(Zombie* thisPtr, char targetingFlags) {
         return false;
     }
 
-    ZombieConditionTracker* zTracker = &thisPtr->m_conditionTracker;
-    if (zTracker->m_conditionFlags[31] || zTracker->m_conditionFlags[34] || zTracker->m_conditionFlags[60]) {
+    if (thisPtr->IsInGridItem()) {
         return false;
     }
 
@@ -410,9 +401,23 @@ bool hkZombieCheckConditionsFlag(Zombie* zombie, int flag) {
 
     return true;
 }
+typedef void (*Update)(Zombie*);
+Update oUpdate = nullptr;
+
+void hkUpdate(Zombie* thisPtr) {
+    oUpdate(thisPtr);
+    if (thisPtr->m_entityState.m_id == 3)
+    {
+        ZombieRemoveCondition(thisPtr, zombie_condition_butter);
+        ZombieRemoveCondition(thisPtr, zombie_condition_contagiouspoison);
+        ZombieRemoveCondition(thisPtr, zombie_condition_decaypoison);
+        ZombieRemoveCondition(thisPtr, zombie_condition_poisoned);
+    }
+}
 
 void ZombiePharaoh::ModInit() {
     LOGI("ZombiePharaoh init");
+    PVZ2HookFunction(0xC3D7A0, (void*)hkUpdate, (void**)&oUpdate);
     PVZ2HookFunction(0xC56A54, (void*)hkZombieCheckConditionsFlag, nullptr);
     PVZ2HookFunction(0xC3E204, (void*)hkIsDeadOrDying, nullptr);
     PVZ2HookFunction(0xC4CED8, (void*)IsReadyToDie, nullptr);
