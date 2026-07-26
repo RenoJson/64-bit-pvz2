@@ -109,8 +109,12 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
     {
         if (headDropThreshold <= 0.0f) 
         {
-            CallFunc<void>(0xC47BF8, thisPtr, damageInfo);
-            CallFunc<void>(0xC48338, thisPtr, damageInfo);
+            if ((thisPtr->m_zombieFlags & 0x200) == 0)
+            {
+                thisPtr->m_zombieFlags |= 0x200;
+                CallFunc<void>(0xC47BF8, thisPtr, damageInfo);
+                CallFunc<void>(0xC48338, thisPtr, damageInfo);
+            }
         }
         else if (isIceBlocked)
         {
