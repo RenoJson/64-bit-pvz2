@@ -32,7 +32,7 @@ float hkGetHeadDrop(Zombie* thisPtr) {
 bool isHeadDrop(Zombie* thisPtr) {
     return ((thisPtr->m_zombieFlags & 4) == 0) && hkGetHeadDrop(thisPtr) >= 0.0f;
 }
-// TODO: Re-implement Ice Bloom entomb zombie in iceblock code
+
 void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
 {
     if (damageInfo->m_damage <= 0.0f)
@@ -107,7 +107,12 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
 
     if (thisPtr->m_hitpoints <= 0.0f)
     {
-        if (isIceBlocked)
+        if (headDropThreshold <= 0.0f) 
+        {
+            CallFunc<void>(0xC47BF8, thisPtr, damageInfo);
+            CallFunc<void>(0xC48338, thisPtr, damageInfo);
+        }
+        else if (isIceBlocked)
         {
             CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_attacker); // Do Head Drop
             CallFunc<void>(0xC48338, thisPtr, damageInfo);
