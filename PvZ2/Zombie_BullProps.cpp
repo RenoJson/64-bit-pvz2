@@ -10,11 +10,10 @@
 #include "ZombieImp.h"
 #include "ZombieBull.h"
 #include "ZombieAnimRig_Bull.h"
+#include "ZombieHelper.h"
 using namespace Sexy;
 
 #pragma region Hide Custom Rider Layer 
-typedef void(*zombieBullHideLayer)(Zombie*, ZombieAnimRig_Bull*);
-zombieBullHideLayer oZombieBullHideLayer = nullptr;
 void HideCustomRiderLayer(ZombieBull* self, ZombieAnimRig_Bull* animRig) {
 
     auto* props = reinterpret_cast<ZombieBullProps*>(self->m_propertySheet.Get());
@@ -47,22 +46,19 @@ void HideCustomRiderLayer(ZombieBull* self, ZombieAnimRig_Bull* animRig) {
          "_zombie_imp_head_top"
     };
 
-    typedef int64_t(*setLayerVisibleFunc)(ZombieAnimRig_Bull*, SexyString*, bool);
-    setLayerVisibleFunc setLayerVisible = (setLayerVisibleFunc)getActualOffset(0x9DB8D0);
-
     size_t customLayersCount = props->RiderLayersToHide.size();
     if (!props->RiderLayersToHide.empty()) {
         for (size_t i = 0; i < customLayersCount; i++) {
             const auto& layerStr = props->RiderLayersToHide[i];
             SexyString layerName(layerStr);
-            setLayerVisible(animRig, &layerName, false);
+            SetAnimLayerVisible(animRig, layerName, false);
         }
     }
     else {
         for (size_t i = 0; i < HardcodedLayer.size(); i++) {
             const auto& layerStr = HardcodedLayer[i];
             SexyString layerName(layerStr);
-            setLayerVisible(animRig, &layerName, false);
+            SetAnimLayerVisible(animRig, layerName, false);
         }
     }
 }
@@ -71,23 +67,8 @@ void HideCustomRiderLayer(ZombieBull* self, ZombieAnimRig_Bull* animRig) {
 // thanks jay_krow for the codebase to help me recreate the function has more context
 #pragma region hk Rider Type To Launch
 
-
-typedef void(*zombieBullThrowRider)(ZombieBull*, int);
-zombieBullThrowRider oZombieBullThrowRider = nullptr;
-
-// these function is must have to make the bull work properly
-
-typedef bool (*checkZombieHasCondition)(Zombie*, int);
-checkZombieHasCondition hasZCondition = (checkZombieHasCondition)getActualOffset(0xC3E44C);
-
-typedef void (*setConditionZ)(Zombie*, int, int, float, float);
-setConditionZ setZCondition = (setConditionZ)getActualOffset(0xC40CC0);
-
-typedef int (*boardEntitySetPosition)(Zombie*, SexyVector3*);
-boardEntitySetPosition ZfunBoardEntitySetPosition = (boardEntitySetPosition)getActualOffset(0x628058);
-
 //Bull and Vet Bull class
-void hkZombieBullThrowRider(ZombieBull* self, int a2)
+void hkZombieBullThrowRider(ZombieBull* self)
 {
     SexyString name;
     float distance;
@@ -108,17 +89,14 @@ void hkZombieBullThrowRider(ZombieBull* self, int a2)
     }
 
 
-    bool isShrinking = hasZCondition(self, zombie_condition_shrinking);
-    bool isShrunken = hasZCondition(self, zombie_condition_shrunken);
-
-    if (!self->m_hasLaunched && !isShrinking && !isShrunken)
+    if (!self->m_hasLaunched && !ZombieHasCondition(self, zombie_condition_shrinking) && !ZombieHasCondition(self, zombie_condition_shrunken))
     {
         auto* rig = reinterpret_cast<ZombieAnimRig_Bull*>(self->m_animRig.Get());
         HideCustomRiderLayer(self, rig);
         ZombieImp* spawnedRider = (ZombieImp*)AddZombie(name, -1, 6, -1);
 
         spawnedRider->m_getsUpFromLanding = true;
-        bool isHypnotized = hasZCondition(self, zombie_condition_hypnotized);
+        bool isHypnotized = ZombieHasCondition(self, zombie_condition_hypnotized);
         float newX = self->m_position.x - riderOffset.x;
         if (isHypnotized)
         {
@@ -127,7 +105,7 @@ void hkZombieBullThrowRider(ZombieBull* self, int a2)
         float newY = self->m_position.y + riderOffset.y;
         float newZ = self->m_position.z + riderOffset.z;
         SexyVector3 newCoords = SexyVector3(newX, newY, newZ);
-        ZfunBoardEntitySetPosition(spawnedRider, &newCoords);
+        ZombieSetPosition(spawnedRider, &newCoords);
         typedef void (*ZombieThrowVirtual)(Zombie*, int, float, float, float, float, float);
         uintptr_t* vtable = *(uintptr_t**)spawnedRider;
         ZombieThrowVirtual virtualThrow = (ZombieThrowVirtual)(vtable[206]);
@@ -136,7 +114,7 @@ void hkZombieBullThrowRider(ZombieBull* self, int a2)
 
         if (isHypnotized) {
 
-            setZCondition(spawnedRider, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
+            ZombieSetCondition(spawnedRider, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
 
             int teamflag = self->m_teamFlags;
             typedef void (*func10B013C)(Zombie*, int);
@@ -178,7 +156,7 @@ void hkZombieBullThrowRider(ZombieBull* self, int a2)
     }
 }
 //Cavalry class
-void hkZombieCavalryThrowRider(ZombieBull* self, int a2)
+void hkZombieCavalryThrowRider(ZombieBull* self)
 {
     SexyString name;
     float distance;
@@ -197,21 +175,18 @@ void hkZombieCavalryThrowRider(ZombieBull* self, int a2)
         name = "dark_cavalry_rider";
     }
 
-    bool isShrinking = hasZCondition(self, zombie_condition_shrinking);
-    bool isShrunken = hasZCondition(self, zombie_condition_shrunken);
-
     if (!self->m_hasLaunched)
     {
         auto* rig = reinterpret_cast<ZombieAnimRig_Bull*>(self->m_animRig.Get());
         HideCustomRiderLayer(self, rig);
         Zombie* spawnedRider = AddZombie(name, -1, 6, -1);
 
-        if (hasZCondition(self, zombie_condition_shrinking) || hasZCondition(self, zombie_condition_shrunken)) {
+        if (ZombieHasCondition(self, zombie_condition_shrinking) || ZombieHasCondition(self, zombie_condition_shrunken)) {
 
-            setZCondition(spawnedRider, zombie_condition_shrunken, 0, 3.4028e38f, 0.0f);
+            ZombieSetCondition(spawnedRider, zombie_condition_shrunken, 0, 3.4028e38f, 0.0f);
         }
 
-        bool isHypnotized = hasZCondition(self, zombie_condition_hypnotized);
+        bool isHypnotized = ZombieHasCondition(self, zombie_condition_hypnotized);
         float newX = self->m_position.x - riderOffset.x;
         if (isHypnotized)
         {
@@ -220,7 +195,7 @@ void hkZombieCavalryThrowRider(ZombieBull* self, int a2)
         float newY = self->m_position.y + riderOffset.y;
         float newZ = self->m_position.z + riderOffset.z;
         SexyVector3 newCoords = SexyVector3(newX, newY, newZ);
-        ZfunBoardEntitySetPosition(spawnedRider, &newCoords);
+        ZombieSetPosition(spawnedRider, &newCoords);
         typedef void (*ZombieThrowVirtual)(Zombie*, int, float, float, float, float, float);
         uintptr_t* vtable = *(uintptr_t**)spawnedRider;
         ZombieThrowVirtual virtualThrow = (ZombieThrowVirtual)(vtable[206]);
@@ -230,7 +205,7 @@ void hkZombieCavalryThrowRider(ZombieBull* self, int a2)
 
         if (isHypnotized) {
 
-            setZCondition(spawnedRider, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
+            ZombieSetCondition(spawnedRider, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
 
             int teamflag = self->m_teamFlags;
             typedef void (*func10B013C)(Zombie*, int);
@@ -271,40 +246,29 @@ void hkZombieCavalryThrowRider(ZombieBull* self, int a2)
         LOGI("Already shrinking, shrunken or being thrown");
     }
 }
-void hkBullThrowRoute(ZombieBull* self, int a2) {
+void hkBullThrowRoute(ZombieBull* self) {
     auto* props = reinterpret_cast<ZombieBullProps*>(self->m_propertySheet.Get());
 
     bool isCavalry = props->isCavalry;
-    if (!isCavalry) {
-        return hkZombieBullThrowRider(self, a2);
+    if (!isCavalry && !ZombieIsDeadOrDying(self)) {
+        return hkZombieBullThrowRider(self);
     }
-    else if (isCavalry) {
-        return hkZombieCavalryThrowRider(self, a2);
+    else if (isCavalry && !ZombieIsDeadOrDying(self)) {
+        return hkZombieCavalryThrowRider(self);
     }
 }
-
-typedef void (*zombieBullPlayDeath)(Zombie*);
-zombieBullPlayDeath oZombieBullPlayDeath = nullptr;
 
 void hkZombieBullPlayDeath(ZombieBull* self) {
 
     typedef void(*zombieFun197)(ZombieBull*);
     ((zombieFun197)getActualOffset(0xC51A40))(self); // does not play the bull's death sound effect
 }
-typedef void (*zombieBullElectrocute)(ZombieBull*);
-zombieBullPlayDeath oZombieBullElectrocute = nullptr;
-//this function is for bull when electrocuted
-//Rewrite this to make sure it don't use the original hiding layer function
 void hkZombieBullElectrocute(ZombieBull* self) {
     auto* rig = reinterpret_cast<ZombieAnimRig_Bull*>(self->m_animRig.Get());
     HideCustomRiderLayer(self, rig);
     typedef void (*electrocute)(ZombieBull*);
     ((electrocute)getActualOffset(0xC51FB0))(self);
 }
-typedef void (*FuncOnCondition)(Zombie*, int);
-FuncOnCondition oBullFunction71 = nullptr;
-//this function is for bull when hypnotized, shrinking or gummed
-//Rewrite this to make sure it don't use the original hiding layer function
 void hkBullFunction71(ZombieBull* self, int conditionID)
 {
     auto* props = reinterpret_cast<ZombieBullProps*>(self->m_propertySheet.Get());
@@ -323,24 +287,15 @@ void hkBullFunction71(ZombieBull* self, int conditionID)
     if (conditionID == zombie_condition_gummed)
     {
         if (!self->m_hasLaunched) {
-            //Enter state function, 20 is rearing state that bull will using bull jump back anim
-            typedef int (*FuncC3D428)(Zombie*, int, int);
-            FuncC3D428 funC3D428 = (FuncC3D428)getActualOffset(0xC3D428);
-            funC3D428(self, 20, 0);
+            ZombieEnterState(self, 20, 0);
         }
         return;
     }
 
     if (conditionID == zombie_condition_hypnotized)
     {
-        typedef void (*FuncC41290)(Zombie*, int);
-        FuncC41290 funC41290 = (FuncC41290)getActualOffset(0xC41290);
-        funC41290(self, 0);
-        //Enter state function, 20 is rearing state that bull will using bull jump back anim
-        typedef uintptr_t(*FuncC3D428)(Zombie*, int, int);
-        FuncC3D428 funC3D428 = (FuncC3D428)getActualOffset(0xC3D428);
-        funC3D428(self, 20, 0);
-
+        ZombieFlippedAnim(self, false);
+        ZombieEnterState(self, 20, 0);
         return;
     }
 }
@@ -351,11 +306,11 @@ Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc ZombieBullProps::oZombieBu
 
 void ZombieBullProps::modInit() {
     LOGI("init bull class");
-    PVZ2HookFunction(0xAE4FF8, (void*)hkBullThrowRoute, (void**)&oZombieBullThrowRider);
-    PVZ2HookFunction(0xAE541C, (void*)HideCustomRiderLayer, (void**)&oZombieBullHideLayer);
-    PVZ2HookFunction(0xAE3A64, (void*)hkZombieBullPlayDeath, (void**)&oZombieBullPlayDeath);
-    PVZ2HookFunction(0xAE53A0, (void*)hkBullFunction71, (void**)&oBullFunction71);
-    PVZ2HookFunction(0xAE5CD4, (void*)hkZombieBullElectrocute, (void**)&oZombieBullElectrocute);
+    PVZ2HookFunction(0xAE4FF8, (void*)hkBullThrowRoute, nullptr);
+    PVZ2HookFunction(0xAE541C, (void*)HideCustomRiderLayer, nullptr);
+    PVZ2HookFunction(0xAE3A64, (void*)hkZombieBullPlayDeath, nullptr);
+    PVZ2HookFunction(0xAE53A0, (void*)hkBullFunction71, nullptr);
+    PVZ2HookFunction(0xAE5CD4, (void*)hkZombieBullElectrocute, nullptr);
     PVZ2HookFunction(0xDAE1B0, (void*)construct, nullptr);
     LOGI("init bull class complete");
     LOGI("init bull props");

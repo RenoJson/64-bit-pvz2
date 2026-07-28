@@ -18,6 +18,16 @@ static_assert(offsetof(ZombieBull, m_hitEntity) == 1097);
 static_assert(offsetof(ZombieBull, m_walkCycled) == 1098);
 static_assert(offsetof(ZombieBull, m_damageState) == 1100);
 
+class ZombieZCorpRacer : public Zombie
+{
+public:
+    bool m_hasLaunched; // unregistered bool
+    bool m_hitEntity;
+    bool m_walkCycled;
+    char pad_align[1];
+    int m_damageState;
+};
+
 class ZombieBullVeteran : public ZombieBull 
 {
 public:

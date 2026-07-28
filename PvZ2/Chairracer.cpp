@@ -6,20 +6,17 @@
 #include <assert.h>
 #include <pch.h>
 #include "PvZ2/Zombie.h"
-
 #include "ZcorpRacerZombie.h"
 #include "AddZombieType.h"
 #include "ZombiePirateBoomBarrel.h"
+#include "ZombieBull.h"
+#include "ZombieHelper.h"
 
 Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc ZombieZcorpRacerProps::oZombieZcorpRacerPropsBuildSymbols = nullptr;
 
 #pragma region hk Racer Type To Launch
 
-typedef void(*zombieChairThrowRacer)(Zombie*, int);
-zombieChairThrowRacer oZombieChairThrowRacer = nullptr;
-
-
-void hkZombieChairThrowRacer(Zombie * self, int a2)
+void hkZombieChairThrowRacer(ZombieZCorpRacer* self)
 {
 
     auto* props = reinterpret_cast<ZombieZcorpRacerProps*>(self->m_propertySheet.Get());
@@ -32,16 +29,7 @@ void hkZombieChairThrowRacer(Zombie * self, int a2)
 
     }
 
-    typedef bool (*checkZombieHasCondition)(Zombie*, int); 
-    checkZombieHasCondition hasCondition = (checkZombieHasCondition)getActualOffset(0xC3E44C);
-
-    typedef void (*setConditionZ)(Zombie*, int, int, float, float);
-    setConditionZ setCondition = (setConditionZ)getActualOffset(0xC40CC0);
-
-    bool hasThrown = *(bool*)((uintptr_t)self + 0x448);
-
-
-    if (!hasThrown) {
+    if (!self->m_hasLaunched) {
 
         float tileDistance = props->LaunchZombieDistance;
 
@@ -49,9 +37,9 @@ void hkZombieChairThrowRacer(Zombie * self, int a2)
 
         spawnedRider->m_getsUpFromLanding = true;
 
-        if (hasCondition(self, zombie_condition_shrinking) || hasCondition(self, zombie_condition_shrunken)) {
+        if (ZombieHasCondition(self, zombie_condition_shrinking) || ZombieHasCondition(self, zombie_condition_shrunken)) {
 
-            setCondition(spawnedRider, zombie_condition_shrunken, 0, 3.4028e38f, 0.0f);
+            ZombieSetCondition(spawnedRider, zombie_condition_shrunken, 0, 3.4028e38f, 0.0f);
         }
 
         float launchDistance = tileDistance * 64.0f;
@@ -60,17 +48,15 @@ void hkZombieChairThrowRacer(Zombie * self, int a2)
         float currentY = self->m_position.y;
         float currentZ = self->m_position.z;
 
-        typedef SexyVector3 (*boardEntitySetPosition)(Zombie*, SexyVector3*);
-        boardEntitySetPosition funBoardEntitySetPosition = (boardEntitySetPosition)getActualOffset(0x628058);
         SexyVector3 position = SexyVector3(currentX, currentY, currentZ);
-        SexyVector3 updatePos = funBoardEntitySetPosition(spawnedRider, &position);
+        ZombieSetPosition(spawnedRider, &position);
 
         float targetX = currentX - launchDistance;
         uintptr_t* vtable = *(uintptr_t**)spawnedRider;
 
-        if (hasCondition(self, zombie_condition_hypnotized)) {
+        if (ZombieHasCondition(self, zombie_condition_hypnotized)) {
 
-            setCondition(spawnedRider, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
+            ZombieSetCondition(spawnedRider, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
 
             int teamflag = self->m_teamFlags;
             typedef void (*func10B013C)(Zombie*, int);
@@ -105,12 +91,9 @@ void hkZombieChairThrowRacer(Zombie * self, int a2)
 
         virtualThrow(spawnedRider, 0, targetX, currentY, currentZ, launchTime, launchApex);
         // Mark as launched
-        *(bool*)((uintptr_t)self + 0x448) = true;
+        self->m_hasLaunched = true;
     }
 }
-
-typedef void* (*initZcorpRacerArmList)();
-initZcorpRacerArmList oInitZcorpRacerArmList = NULL;
 
 void* hkInitZcorpRacerArmList() {
 
@@ -150,19 +133,11 @@ void* hkInitZcorpRacerUpperArmList(uintptr_t* rig) {
 
 bool hkMuteImpSound(Zombie* imp)
 {
-    typedef bool (*checkZombieHasCondition)(Zombie*, int);
-    checkZombieHasCondition hasCondition = (checkZombieHasCondition)getActualOffset(0xC3E44C);
-    typedef bool (*isInState)(Zombie*, int);
-    isInState IsInState = (isInState)getActualOffset(0xC3E43C);
-    typedef bool (*isDeadOrDying)(Zombie*);
-    isDeadOrDying isDead = (isDeadOrDying)getActualOffset(0xC3E204);
-    return !IsInState(imp, 16)
-        && !IsInState(imp, 19)
-        && !isDead(imp)
-        && !IsInState(imp, -1)
-        && !hasCondition(imp, 31) // these three are the imp stuck in GI
-        && !hasCondition(imp, 34) // or they are calling function 199 of zombie imp class idk
-        && !hasCondition(imp, 60)
+    return !ZombieIsInState(imp, 16)
+        && !ZombieIsInState(imp, 19)
+        && !ZombieIsDeadOrDying(imp)
+        && !ZombieIsInState(imp, 3)
+        && !imp->IsInGridItem()
         && !imp->IsType(ZombieZcorpRacerZombie::StaticGetType())
         && !imp->IsType(ZombiePirateBoomBarrel::StaticGetType());
 }
@@ -172,7 +147,7 @@ bool hkMuteImpSound(Zombie* imp)
 
 void ZombieZcorpRacerProps::modInit() {
     LOGI("init chair class");
-    PVZ2HookFunction(0xBEFEE0, (void*)hkZombieChairThrowRacer, (void**)&oZombieChairThrowRacer);
+    PVZ2HookFunction(0xBEFEE0, (void*)hkZombieChairThrowRacer, nullptr);
     PVZ2HookFunction(0xBEEC10, (void*)ZombieZcorpRacerProps::construct, nullptr);
     PVZ2HookFunction(0xB57128, (void*)hkMuteImpSound, nullptr);
     LOGI("init chair class complete");
@@ -180,7 +155,7 @@ void ZombieZcorpRacerProps::modInit() {
     PVZ2HookFunction(0xBEED50, (void*)ZombieZcorpRacerProps::buildSymbols, (void**)&oZombieZcorpRacerPropsBuildSymbols);
     LOGI("init chair props complete");
     LOGI("init chair rig");
-    PVZ2HookFunction(0xBF1998, (void*)hkInitZcorpRacerArmList, (void**)&oInitZcorpRacerArmList);
+    PVZ2HookFunction(0xBF1998, (void*)hkInitZcorpRacerArmList, nullptr);
     PVZ2HookFunction(0xB57768, (void*)hkInitZcorpRacerUpperArmList, (void**)&oInitZcorpRacerUpperArmList);
     LOGI("init chair rig complete");
     LOGI("finish chair init");
