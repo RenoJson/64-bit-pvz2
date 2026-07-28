@@ -58,7 +58,7 @@ bool AssasinIsBeingTossedByPlant(ZombieMausoleumAssasin* zombie, int a2) {
 
 void AssasinOnArmorDestroyed(ZombieMausoleumAssasin* zombie, int a2, SexyString* armorName)
 {
-    if (*armorName == "Scroll" && !ZombieIsDeadOrDying(zombie)) {
+    if (*armorName == "Scroll" && !ZombieIsDeadOrDying(zombie) && zombie->m_entityState.m_id != 3) {
         auto rig = reinterpret_cast<ZombieAnimRig_MausoleumAssasin*>(zombie->m_animRig.Get());
         rig->m_hasScroll = false;
         if (ZombieHasArmor(zombie, "Dao")) {
@@ -66,7 +66,7 @@ void AssasinOnArmorDestroyed(ZombieMausoleumAssasin* zombie, int a2, SexyString*
         }
         ZombieEnterState(zombie, 16, 0);
     }
-    if (*armorName == "Dao" && !ZombieIsDeadOrDying(zombie)) {
+    if (*armorName == "Dao" && !ZombieIsDeadOrDying(zombie) && zombie->m_entityState.m_id != 3) {
         auto rig = reinterpret_cast<ZombieAnimRig_MausoleumAssasin*>(zombie->m_animRig.Get());
         rig->m_hasDagger = false;
     }
@@ -202,7 +202,7 @@ void ZombieMausoleumAssasin::BackstabOnExit(ZombieMausoleumAssasin* zombie)
 
 void RevealCompletedCallback(Zombie* zombie) {
     ZombieMausoleumAssasin* doorZombie = static_cast<ZombieMausoleumAssasin*>(zombie);
-    if (doorZombie && !ZombieIsDeadOrDying(zombie)) {
+    if (doorZombie && !ZombieIsDeadOrDying(zombie) && doorZombie->m_entityState.m_id != 3) {
         if (ZombieHasArmor(doorZombie, "Dao")) {
             ZombieEnterState(doorZombie, 17, 0);
         }
@@ -213,7 +213,7 @@ void RevealCompletedCallback(Zombie* zombie) {
 }
 void SprintStartCompletedCallback(Zombie* zombie) {
     ZombieMausoleumAssasin* doorZombie = static_cast<ZombieMausoleumAssasin*>(zombie);
-    if (doorZombie && !ZombieIsDeadOrDying(zombie)) {
+    if (doorZombie && !ZombieIsDeadOrDying(zombie) && doorZombie->m_entityState.m_id != 3) {
         doorZombie->m_becomeAssasin = true;
         Sexy::SexyVector3 newPos = { 232.0f, zombie->m_position.y, 0 };
         ZombieUpdatePosition(doorZombie, &newPos);
@@ -224,7 +224,7 @@ void SprintStartCompletedCallback(Zombie* zombie) {
 }
 void SprintEndCompletedCallback(Zombie* zombie) {
     ZombieMausoleumAssasin* doorZombie = static_cast<ZombieMausoleumAssasin*>(zombie);
-    if (doorZombie && !ZombieIsDeadOrDying(zombie)) {
+    if (doorZombie && !ZombieIsDeadOrDying(zombie) && doorZombie->m_entityState.m_id != 3) {
         ZombieEnterState(doorZombie, 1, 0);
     }
 }

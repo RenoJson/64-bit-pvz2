@@ -65,7 +65,21 @@ void* BallonTakeDamage(ZombieJourneyToTheWestBalloon* thisPtr, DamageInfo* damag
 
     return ZTakeDmg(thisPtr, &newDmgInfo);
 }
-SexyString hkJFixAnimShock(ZombieJourneyToTheWestBalloon* zombie, DamageInfo* damage) {
+
+void BallonOnArmorDestroyed(ZombieJourneyToTheWestBalloon* zombie, int a2, SexyString* armorName)
+{
+    auto rig = reinterpret_cast<ZombieAnimRig_ModernBalloon*>(zombie->m_animRig.Get());
+    if (rig->m_hasBalloon && !ZombieIsDeadOrDying(zombie) && zombie->m_entityState.m_id != 3) {
+        ZombieEnterState(zombie, 19, 0);
+    }
+}
+void BallonOnHealthChanged(ZombieJourneyToTheWestBalloon* zombie) {
+    if (!ZombieIsDeadOrDying(zombie) && zombie->m_entityState.m_id != 3) {
+        CallFunc<void>(0xBBBAF0, zombie);
+    }
+}
+
+SexyString hkJFixAnimShock(ZombieJourneyToTheWestBalloon* zombie) {
 	auto* getProps = reinterpret_cast<ZombieJourneyToTheWestBalloonProps*>(zombie->m_propertySheet.Get());
 	if (zombie->m_hasTakenCatastrophicDamage == true) {
 		return getProps->OnAirShockAnimName;
@@ -75,7 +89,7 @@ SexyString hkJFixAnimShock(ZombieJourneyToTheWestBalloon* zombie, DamageInfo* da
 	}
 }
 
-SexyString hkJFixAnimAsh(ZombieJourneyToTheWestBalloon* zombie, DamageInfo* damage) {
+SexyString hkJFixAnimAsh(ZombieJourneyToTheWestBalloon* zombie) {
 	auto* getProps = reinterpret_cast<ZombieJourneyToTheWestBalloonProps*>(zombie->m_propertySheet.Get());
 	if (zombie->m_hasTakenCatastrophicDamage == true) {
 		return getProps->OnAirAshAnimName;
@@ -93,6 +107,10 @@ void ZombieJourneyToTheWestBalloon::modInit() {
 	PatchVFTable(vftable, (void*)ZombieJourneyToTheWestBalloon::StaticGetType, 0);
 
 	PatchVFTable(vftable, (void*)BallonTakeDamage, 35);
+
+    PatchVFTable(vftable, (void*)BallonOnArmorDestroyed, 115);
+
+    PatchVFTable(vftable, (void*)BallonOnHealthChanged, 184);
 
 	PatchVFTable(vftable, (void*)hkJFixAnimShock, 189);
 

@@ -27,40 +27,6 @@ static Sexy::DelegateBase breakingGuitarCompletedDelegate;
 
 static Sexy::DelegateBase debutingCompletedDelegate;
 
-void* BassTakeDamage(ZombieEightiesBass* zombie, DamageInfo* damageInfo)
-{
-    auto* props = reinterpret_cast<ZombieEightiesBassProps*>(zombie->m_propertySheet.Get());
-    DamageInfo newDmgInfo = *damageInfo;
-    if(zombie->m_isInGrandDebut == true)
-    {
-        newDmgInfo.m_damage = 0.0f;
-	}
-    typedef void* (*funcC43B90)(ZombieEightiesBass*, DamageInfo*);
-    static auto* ZTakeDmg = ((funcC43B90)getActualOffset(0xC43B90));
-
-    return ZTakeDmg(zombie, &newDmgInfo);
-}
-bool BassShouldIgnoreCollision(ZombieEightiesBass* zombie, Projectile* proj)
-{
-    int myTeam = zombie->m_teamFlags;
-    int otherTeam = proj->m_teamFlags;
-    if (zombie->m_isInGrandDebut == true) {
-        return true;
-    }
-    else {
-        if ((otherTeam & 2) != 0 && (myTeam & 1) != 0)
-        {
-            return false;
-        }
-        else
-        {
-            bool isOtherNotPlant = ((otherTeam & 1) == 0);
-            bool isMeNotZombie = ((myTeam & 2) == 0);
-
-            return isOtherNotPlant || isMeNotZombie;
-        }
-    }
-}
 Zombie* BassActivateJam(ZombieEightiesBass* zombie) {
     zombie->m_isJamming = true;
     if(zombie->m_isRifting == true){
@@ -155,19 +121,12 @@ void BassActionFrame(ZombieEightiesBass* zombie, int64_t unk1, SexyString* actio
                     if (plant->m_isInPlantFoodState || isInvincible) {
                         continue; 
                     }
-
-                    int oldFlags = zombie->m_teamFlags;
-                    zombie->m_teamFlags = 2; 
-
                     DamageInfo dmg;
                     dmg.m_attacker = zombie;
                     void** plantVtable = *(void***)plant;
                     typedef DamageInfo* (*PlantTakeDamageFunc)(Plant*, DamageInfo*);
                     PlantTakeDamageFunc takeDmg = (PlantTakeDamageFunc)plantVtable[36];
-
                     takeDmg(plant, &dmg);
-
-                    zombie->m_teamFlags = oldFlags; 
                 }
             }
         }
@@ -227,16 +186,9 @@ void ZombieEightiesBass::GuitarAttackOnExit(ZombieEightiesBass* zombie)
 
 void ZombieEightiesBass::GuitarIdleOnEnter(ZombieEightiesBass* zombie)
 {
-    auto animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
-    RtWeakPtr<Zombie> zombiePtr;
-    zombiePtr.FromOther((RtWeakPtr<Zombie>*) & zombie->m_thisPtr);
-
-    ZombieEvent zombieEvent;
-    ((ConstructEvent)getActualOffset(0x6FDDDC))(&zombieEvent, zombiePtr, "onWaitingToRiftEnd");
-
-    playAnimWithCallback func = ((playAnimWithCallback)getActualOffset(0x8DCEDC));
-
-    zombie->m_animHandle = func(animRig, "attack", 3, zombieEvent);
+    auto dlgtEvent = RegisterDelegateEvent(zombie, "onWaitingToRiftEnd");
+    auto rig = reinterpret_cast<ZombieAnimRig_EightiesBass*>(zombie->m_animRig.Get());
+    PlayAndContinueAnim(rig, "attack", 3, dlgtEvent);
 }
 
 void ZombieEightiesBass::GuitarIdleOnLoop(ZombieEightiesBass* zombie)
@@ -268,8 +220,6 @@ void ZombieEightiesBass::GuitarIdleOnLoop(ZombieEightiesBass* zombie)
     }
 
     if (targetSpeaker != nullptr) {
-        if (animDone)
-        {
             auto* props = reinterpret_cast<ZombieEightiesBassProps*>(zombie->m_propertySheet.Get());
             if (zombie->m_isJamming && zombie->m_elapsedTimeInState >= props->ShockWaveSpawnIntervalWhileJamming) {
                 ZombieEnterState(zombie, 16, 0);
@@ -277,18 +227,6 @@ void ZombieEightiesBass::GuitarIdleOnLoop(ZombieEightiesBass* zombie)
             else if (!zombie->m_isJamming && zombie->m_elapsedTimeInState >= props->ShockWaveSpawnInterval) {
                 ZombieEnterState(zombie, 16, 0);
 		    }
-            else {
-                RtWeakPtr<Zombie> zombiePtr;
-                zombiePtr.FromOther((RtWeakPtr<Zombie>*) & zombie->m_thisPtr);
-
-                ZombieEvent zombieEvent;
-                ((ConstructEvent)getActualOffset(0x6FDDDC))(&zombieEvent, zombiePtr, "onWaitingToRiftEnd");
-
-                playAnimWithCallback func = ((playAnimWithCallback)getActualOffset(0x8DCEDC));
-
-                zombie->m_animHandle = func(animRig, "attack", 3, zombieEvent);
-            }
-        }
     }
     else {
         ZombieEnterState(zombie, 18, 0);
@@ -336,10 +274,11 @@ void ZombieEightiesBass::GrandDebutOnEnter(ZombieEightiesBass* zombie)
 {
     auto* props = reinterpret_cast<ZombieEightiesBassProps*>(zombie->m_propertySheet.Get());
     ZombiePlaySoundEvent(zombie, props->SoundOnDebut, 0.0f);
-    zombie->m_teamFlags = 0;
     auto animRig = reinterpret_cast<ZombieAnimRig_EightiesBass*>(zombie->m_animRig.Get());
 	zombie->m_isInGrandDebut = true;
 	animRig->m_hasGuitar = true;
+    ZombieSetInvincibleStatusFlag(zombie, true);
+    ZombieSetNoCollisionFlag(zombie, true);
 	RegisterEventAfterAnim(zombie, "attack_on", "onDebutCompleted");
 }
 
@@ -376,8 +315,10 @@ void DebutCompletedCallback(Zombie* zombie) {
         auto* props = reinterpret_cast<ZombieEightiesBassProps*>(bassZombie->m_propertySheet.Get());
         GridItemSpeaker* gridItem = (GridItemSpeaker*)AddGridItem(props->SpeakerType, spawnPosX, spawnPosY);
         gridItem->m_speakerState = 2;
+        gridItem->m_realObjectFlags &= ~1;
         bassZombie->m_isInGrandDebut = false;
-		bassZombie->m_teamFlags = 2;
+        ZombieSetInvincibleStatusFlag(bassZombie, false);
+        ZombieSetNoCollisionFlag(bassZombie, false);
         ZombieEnterState(bassZombie, 17, 0);
     }
 }
@@ -410,14 +351,11 @@ void ZombieEightiesBass::ModInit() {
     vftable = CreateChildVFTable(204 + 15, getActualOffset(0x241D430), 204);
     PatchVFTable(vftable, (void*)ZombieEightiesBass::StaticGetType, 0);
 
-    PatchVFTable(vftable, (void*)BassTakeDamage, 35);
-    PatchVFTable(vftable, (void*)BassShouldIgnoreCollision, 43);
     PatchVFTable(vftable, (void*)BassActivateJam, 64);
     PatchVFTable(vftable, (void*)BassDeactivateJam, 65);
     PatchVFTable(vftable, (void*)BassGetJamStyle, 66);
     PatchVFTable(vftable, (void*)BassOnGetCondition, 71);
     PatchVFTable(vftable, (void*)BassIsBeingTossedByPlant, 97);
-    PatchVFTable(vftable, (void*)BassWalkOnLoop, 124);
     PatchVFTable(vftable, (void*)BassActionFrame, 170);
 
     PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarAttackOnEnter, 204);

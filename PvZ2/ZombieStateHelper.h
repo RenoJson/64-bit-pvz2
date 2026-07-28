@@ -37,7 +37,7 @@ StateMachineTableBuilder* CallGetStateMachine(Sexy::RtClass* rClass);
 
 void RegisterEventAfterAnim(Zombie* zombie, const SexyString & animName, const SexyString& eventName);
 
-RtReflectionDelegateBase* RegisterDelegateEvent(Zombie * zombie, const SexyString & eventName);
+RtReflectionDelegateBase RegisterDelegateEvent(Zombie * zombie, const SexyString & eventName);
 
 void RegisterEventOnWalkLoop(Zombie* zombie, const SexyString& eventName);
 

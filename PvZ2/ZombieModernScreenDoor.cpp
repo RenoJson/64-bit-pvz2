@@ -215,7 +215,7 @@ Sexy::Rect ScreenDoorGetAttackRect(ZombieModernScreenDoor* zombie) {
 }
 void DoorOnArmorDestroyed(ZombieModernScreenDoor* zombie, int a2, SexyString* armorName)
 {
-    if (*armorName == "ScreenDoor" && !ZombieIsDeadOrDying(zombie)) {
+    if (*armorName == "ScreenDoor" && !ZombieIsDeadOrDying(zombie) && zombie->m_entityState.m_id != 3) {
         auto rig = reinterpret_cast<ZombieAnimRig_ModernScreenDoor*>(zombie->m_animRig.Get());
         rig->m_hasDoor = false;
         ZombieEnterState(zombie, 16, 0);

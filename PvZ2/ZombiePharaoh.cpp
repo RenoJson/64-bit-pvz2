@@ -40,7 +40,7 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
         return;
     }
 
-    bool isAlreadyHeadless = (thisPtr->m_zombieFlags & 0x200) != 0 || (thisPtr->m_entityState.m_id == 3);
+    bool isAlreadyHeadless = (thisPtr->m_zombieFlags & 8) != 0 || (thisPtr->m_entityState.m_id == 3);
 
     float expectedHp = thisPtr->m_hitpoints - damageInfo->m_damage;
 
@@ -113,7 +113,6 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
             {
                 thisPtr->m_zombieFlags |= 0x200;
                 CallFunc<void>(0xC47BF8, thisPtr, damageInfo);
-                CallFunc<void>(0xC48338, thisPtr, damageInfo);
             }
         }
         else if (isIceBlocked)
@@ -121,10 +120,7 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
             CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_attacker); // Do Head Drop
             CallFunc<void>(0xC48338, thisPtr, damageInfo);
         }
-        else
-        {
-            CallFunc<void>(0xC48338, thisPtr, damageInfo);
-        }
+        CallFunc<void>(0xC48338, thisPtr, damageInfo);
     }
 }
 
@@ -448,7 +444,6 @@ bool hkZombieCheckConditionsFlag(Zombie* zombie, int flag) {
 }
 typedef void (*Update)(Zombie*);
 Update oUpdate = nullptr;
-
 void hkUpdate(Zombie* thisPtr) {
     oUpdate(thisPtr);
     if (thisPtr->m_entityState.m_id == 3)
@@ -458,6 +453,12 @@ void hkUpdate(Zombie* thisPtr) {
         ZombieRemoveCondition(thisPtr, zombie_condition_decaypoison);
         ZombieRemoveCondition(thisPtr, zombie_condition_poisoned);
     }
+}
+
+void PatchZombieSetCondition()
+{
+    uint32_t value = 0x7100011F; // restore damage flash for corpse by changing state cant get condition to idle
+    ReplaceBytes(0xC43898, &value, 4);
 }
 
 void ZombiePharaoh::ModInit() {
@@ -473,5 +474,6 @@ void ZombiePharaoh::ModInit() {
     PVZ2HookFunction(0xC4CEC8, (void*)IsInBleedingState, nullptr);
     PVZ2HookFunction(0xC4D594, (void*)hkCanBeTargetted, nullptr);
     PVZ2HookFunction(0xAD117C, (void*)SurferIsHeadDrop, nullptr);
+    PatchZombieSetCondition();
     LOGI("ZombiePharaoh finish init");
 }

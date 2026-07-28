@@ -311,7 +311,7 @@ void ZombieModernDolphinRider::RideDolphinToWalkOnExit(ZombieModernDolphinRider*
 void DolphinRiderJumpingCompletedCallback(Zombie* zombie) {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernDolphinRider*>(zombie->m_animRig.Get());
 	ZombieModernDolphinRider* dolphinRiderZombie = static_cast<ZombieModernDolphinRider*>(zombie);
-	if (dolphinRiderZombie) {
+	if (dolphinRiderZombie && !ZombieIsDeadOrDying(dolphinRiderZombie) && dolphinRiderZombie->m_entityState.m_id != 3) {
 		dolphinRiderZombie->m_dpsScale = 1.0f;
 		ZombieEnterState(dolphinRiderZombie, 1, 0);
 		SetWalkSpeed(rig, DolphinRiderGetWalkSpeed(dolphinRiderZombie));
@@ -320,7 +320,7 @@ void DolphinRiderJumpingCompletedCallback(Zombie* zombie) {
 void DolphinRiderBonkingCompletedCallback(Zombie* zombie) {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernDolphinRider*>(zombie->m_animRig.Get());
 	ZombieModernDolphinRider* dolphinRiderZombie = static_cast<ZombieModernDolphinRider*>(zombie);
-	if (dolphinRiderZombie) {
+	if (dolphinRiderZombie && !ZombieIsDeadOrDying(dolphinRiderZombie) && dolphinRiderZombie->m_entityState.m_id != 3) {
 		dolphinRiderZombie->m_dpsScale = 1.0f;
 		ZombieEnterState(dolphinRiderZombie, 1, 0);
 		SetWalkSpeed(rig, DolphinRiderGetWalkSpeed(dolphinRiderZombie));
@@ -332,7 +332,7 @@ void PreWalkDolphinRiderCompletedCallback(Zombie* zombie) {}
 void TransitionCompletedCallback(Zombie* zombie) {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernDolphinRider*>(zombie->m_animRig.Get());
 	ZombieModernDolphinRider* dolphinRiderZombie = static_cast<ZombieModernDolphinRider*>(zombie);
-	if (dolphinRiderZombie) {
+	if (dolphinRiderZombie && !ZombieIsDeadOrDying(dolphinRiderZombie) && dolphinRiderZombie->m_entityState.m_id != 3) {
 		dolphinRiderZombie->m_isRidingDolphin = true;
 		dolphinRiderZombie->m_isCarryingDolphin = false;
 		rig->m_isCarryingDolphin = dolphinRiderZombie->m_isCarryingDolphin;
@@ -347,7 +347,7 @@ void RidingDolphinCompletedCallback(Zombie* zombie) {}
 void RidingToWalkCompletedCallback(Zombie* zombie) {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernDolphinRider*>(zombie->m_animRig.Get());
 	ZombieModernDolphinRider* dolphinRiderZombie = static_cast<ZombieModernDolphinRider*>(zombie);
-	if (dolphinRiderZombie) {
+	if (dolphinRiderZombie && !ZombieIsDeadOrDying(dolphinRiderZombie) && dolphinRiderZombie->m_entityState.m_id != 3) {
 		ZombieEnterState(dolphinRiderZombie, 1, 0);
 		SetWalkSpeed(rig, DolphinRiderGetWalkSpeed(dolphinRiderZombie));
 	}

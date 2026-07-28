@@ -147,16 +147,9 @@ void ZombieMausoleumArcher::WalkIntoPositionOnExit(ZombieMausoleumArcher* zombie
 
 void ZombieMausoleumArcher::WaitShootingOnEnter(ZombieMausoleumArcher* zombie)
 {
-    auto animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
-    RtWeakPtr<Zombie> zombiePtr;
-    zombiePtr.FromOther((RtWeakPtr<Zombie>*) & zombie->m_thisPtr);
-
-    ZombieEvent zombieEvent;
-    ((ConstructEvent)getActualOffset(0x6FDDDC))(&zombieEvent, zombiePtr, "onWaitingContinue");
-
-    playAnimWithCallback func = ((playAnimWithCallback)getActualOffset(0x8DCEDC));
-
-    zombie->m_animHandle = func(animRig, "waitshoot", 3, zombieEvent);
+    auto dlgtEvent = RegisterDelegateEvent(zombie, "onWaitingContinue");
+    auto rig = reinterpret_cast<ZombieAnimRig_MausoleumArcher*>(zombie->m_animRig.Get());
+    PlayAndContinueAnim(rig, "waitshoot", 3, dlgtEvent);
 }
 
 void ZombieMausoleumArcher::WaitShootingOnLoop(ZombieMausoleumArcher* zombie)
@@ -165,7 +158,7 @@ void ZombieMausoleumArcher::WaitShootingOnLoop(ZombieMausoleumArcher* zombie)
     auto animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
 
     float hpPercentage = zombie->m_hitpoints / zombie->m_maxHitpoints;
-    if (hpPercentage <= 0.5f && !ZombieIsDeadOrDying(zombie)) {
+    if (hpPercentage <= 0.5f && !ZombieIsDeadOrDying(zombie) && zombie->m_entityState.m_id != 3) {
         ZombieEnterState(zombie, 19, 0);
         return;
     }
@@ -201,17 +194,6 @@ void ZombieMausoleumArcher::WaitShootingOnLoop(ZombieMausoleumArcher* zombie)
             ZombieEnterState(zombie, 18, 0);
             return;
         }
-    }
-    if (IsAnimDone(animRig, zombie->m_animHandle))
-    {
-        RtWeakPtr<Zombie> zombiePtr;
-        zombiePtr.FromOther((RtWeakPtr<Zombie>*) & zombie->m_thisPtr);
-
-        ZombieEvent zombieEvent;
-        ((ConstructEvent)getActualOffset(0x6FDDDC))(&zombieEvent, zombiePtr, "onWaitingContinue");
-
-        playAnimWithCallback func = ((playAnimWithCallback)getActualOffset(0x8DCEDC));
-        zombie->m_animHandle = func(animRig, "waitshoot", 3, zombieEvent);
     }
 }
 void ZombieMausoleumArcher::WaitShootingOnExit(ZombieMausoleumArcher* zombie)

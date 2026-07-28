@@ -95,7 +95,7 @@ bool MinerIsBeingTossedByPlant(ZombieModernMiner* zombie, int a2) {
 void TudigongOnArmorDestroyed(ZombieModernMiner* zombie, int a2, SexyString* armorName)
 {
     auto props = reinterpret_cast<ZombieModernMinerProps*>(zombie->m_propertySheet.Get());
-    if (*armorName == props->ArmorTypeToUseForDigging && !ZombieIsDeadOrDying(zombie)) {
+    if (*armorName == props->ArmorTypeToUseForDigging && !ZombieIsDeadOrDying(zombie) && zombie->m_entityState.m_id != 3) {
         if (zombie->m_isDigged == false) {
             ZombieEnterState(zombie, 22, 0);
         }
@@ -249,7 +249,7 @@ void ZombieModernMiner::LostStickDiggingOnExit(ZombieModernMiner* zombie)
 
 void DiveInCompletedCallback(Zombie* zombie) {
     ZombieModernMiner* diggerZombie = static_cast<ZombieModernMiner*>(zombie);
-    if (diggerZombie && !ZombieIsDeadOrDying(diggerZombie)) {
+    if (diggerZombie && !ZombieIsDeadOrDying(diggerZombie) && diggerZombie->m_entityState.m_id != 3) {
         ZombieEnterState(diggerZombie, 20, 0);
     }
 }
@@ -258,7 +258,7 @@ void DiggingCompletedCallback(Zombie* zombie) {
 }
 void DiveOutCompletedCallback(Zombie* zombie) {
     ZombieModernMiner* diggerZombie = static_cast<ZombieModernMiner*>(zombie);
-    if (diggerZombie && !ZombieIsDeadOrDying(diggerZombie)) {
+    if (diggerZombie && !ZombieIsDeadOrDying(diggerZombie) && diggerZombie->m_entityState.m_id != 3) {
         diggerZombie->m_isDigged = false;
         diggerZombie->m_diggedDone = true;
         ZombieEnterState(diggerZombie, 1, 0);
@@ -266,7 +266,7 @@ void DiveOutCompletedCallback(Zombie* zombie) {
 }
 void LostStickCompletedCallback(Zombie* zombie) {
     ZombieModernMiner* diggerZombie = static_cast<ZombieModernMiner*>(zombie);
-    if (diggerZombie && !ZombieIsDeadOrDying(diggerZombie)) {
+    if (diggerZombie && !ZombieIsDeadOrDying(diggerZombie) && diggerZombie->m_entityState.m_id != 3) {
         auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
         rig->m_hasStick = false;
         ZombieEnterState(diggerZombie, 1, 0);
@@ -274,7 +274,7 @@ void LostStickCompletedCallback(Zombie* zombie) {
 }
 void LostStickDiggingCompletedCallback(Zombie* zombie) {
     ZombieModernMiner* diggerZombie = static_cast<ZombieModernMiner*>(zombie);
-    if (diggerZombie && !ZombieIsDeadOrDying(diggerZombie)) {
+    if (diggerZombie && !ZombieIsDeadOrDying(diggerZombie) && diggerZombie->m_entityState.m_id != 3) {
         auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
         rig->m_hasStick = false;
         diggerZombie->m_isDigged = false;

@@ -26,27 +26,6 @@ void BoxOnDestroy(ZombieModernJackInTheBox* zombie)
     CallFunc<void, ZombieModernJackInTheBox*>(0xC40854, zombie);
     ZombiePlaySoundEvent(zombie, "Stop_JackInTheBox_MusicBox", 0.0f);
 }
-bool BoxShouldIgnoreCollision(ZombieModernJackInTheBox* zombie, Projectile* proj)
-{
-    int myTeam = zombie->m_teamFlags;
-    int otherTeam = proj->m_teamFlags;
-    if (zombie->m_isExploded == true) {
-        return true;
-    }
-    else {
-        if ((otherTeam & 2) != 0 && (myTeam & 1) != 0)
-        {
-            return false;
-        }
-        else
-        {
-            bool isOtherNotPlant = ((otherTeam & 1) == 0);
-            bool isMeNotZombie = ((myTeam & 2) == 0);
-
-            return isOtherNotPlant || isMeNotZombie;
-        }
-    }
-}
 
 void BoxOnSpawn(ZombieModernJackInTheBox* zombie)
 {
@@ -93,7 +72,7 @@ void BoxOnSpawn(ZombieModernJackInTheBox* zombie)
 }
 void BoxOnArmorDestroyed(ZombieModernJackInTheBox* zombie, int a2, SexyString* armorName)
 {
-    if (*armorName == "JackInTheBox" && !ZombieIsDeadOrDying(zombie)) {
+    if (*armorName == "JackInTheBox" && !ZombieIsDeadOrDying(zombie) && zombie->m_entityState.m_id != 3) {
         ZombieEnterState(zombie, 16, 0);
     }
 }
@@ -155,6 +134,8 @@ void BoxExplosion(ZombieModernJackInTheBox* zombie) {
     Func_VaseReveal revealVase = (Func_VaseReveal)getActualOffset(0xA311B0);
 
     GetEntitiesInRectGrid(&entityList, 63, &ExplodeRect);
+    ZombieSetInvincibleStatusFlag(zombie, true);
+    ZombieSetNoCollisionFlag(zombie, true);
 
     for (BoardEntity* ptr : entityList) {
         if (ptr == nullptr) continue;
@@ -208,8 +189,6 @@ void BoxActionFrame(ZombieModernJackInTheBox* zombie, SexyString* currentAnim, S
 {
     if (*actionName == "explode" && !zombie->m_isExploded)
     {
-        zombie->m_isExploded = true;
-        zombie->m_damageScale = 0.0f;
         BoxExplosion(zombie);
     }
 }
@@ -263,7 +242,6 @@ void LostBoxCompletedCallback(Zombie* zombie) {
 void SurpriseCompletedCallback(Zombie* zombie) {
     ZombieModernJackInTheBox* boxZombie = static_cast<ZombieModernJackInTheBox*>(zombie);
     if (boxZombie) {
-        boxZombie->m_damageScale = 1.0f;
         for (auto& weakArmor : zombie->m_armor)
         {
             Armor* armor = weakArmor.Get();
@@ -315,7 +293,6 @@ void ZombieModernJackInTheBox::ModInit() {
     PatchVFTable(vftable, (void*)ZombieModernJackInTheBox::StaticGetType, 0);
 
     PatchVFTable(vftable, (void*)BoxOnDestroy, 12);
-    PatchVFTable(vftable, (void*)BoxShouldIgnoreCollision, 43);
     PatchVFTable(vftable, (void*)BoxOnSpawn, 49);
     PatchVFTable(vftable, (void*)BoxOnGetCondition, 71);
     PatchVFTable(vftable, (void*)BoxOnArmorDestroyed, 115);

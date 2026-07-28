@@ -119,7 +119,7 @@ bool PogoIsBeingTossedByPlant(ZombieModernPogo* zombie, int a2) {
 }
 void PogoOnArmorDestroyed(ZombieModernPogo* zombie, int a2, SexyString* armorName)
 {
-	if (*armorName == "Pogo" && !ZombieIsDeadOrDying(zombie)) {
+	if (*armorName == "Pogo" && !ZombieIsDeadOrDying(zombie) && zombie->m_entityState.m_id != 3) {
 		auto rig = reinterpret_cast<ZombieAnimRig_ModernPogo*>(zombie->m_animRig.Get());
 		rig->m_hasPogo = false;
 		ZombieEnterState(zombie, 18, 0);
@@ -196,7 +196,7 @@ void ZombieModernPogo::WalkPogoOnEnter(ZombieModernPogo* zombie)
 }
 void ZombieModernPogo::WalkPogoOnLoop(ZombieModernPogo* zombie)
 {
-	if (ZombieIsDeadOrDying(zombie)) {
+	if (ZombieIsDeadOrDying(zombie) && zombie->m_entityState.m_id != 3) {
 		CallFunc<void, ZombieModernPogo*>(0xC506B4, zombie);
 		return;
 	}
@@ -300,7 +300,7 @@ void ZombieModernPogo::WalkPogoOnExit(ZombieModernPogo* zombie)
 void PogoJumpingCompletedCallback(Zombie* zombie) {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPogo*>(zombie->m_animRig.Get());
 	ZombieModernPogo* PogoZombie = static_cast<ZombieModernPogo*>(zombie);
-	if (PogoZombie) {
+	if (PogoZombie && !ZombieIsDeadOrDying(PogoZombie) && PogoZombie->m_entityState.m_id != 3) {
 		rig->m_hasPogo = true;
 		ZombieEnterState(PogoZombie, 19, 0);
 		SetWalkSpeed(rig, PogoGetWalkSpeed(PogoZombie));
@@ -309,7 +309,7 @@ void PogoJumpingCompletedCallback(Zombie* zombie) {
 void PogoBonkingCompletedCallback(Zombie* zombie) {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPogo*>(zombie->m_animRig.Get());
 	ZombieModernPogo* PogoZombie = static_cast<ZombieModernPogo*>(zombie);
-	if (PogoZombie) {
+	if (PogoZombie && !ZombieIsDeadOrDying(PogoZombie) && PogoZombie->m_entityState.m_id != 3) {
 		rig->m_hasPogo = false;
 		for (auto& weakArmor : zombie->m_armor)
 		{
@@ -326,7 +326,7 @@ void PogoBonkingCompletedCallback(Zombie* zombie) {
 void LostPogoCompletedCallback(Zombie* zombie) {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPogo*>(zombie->m_animRig.Get());
 	ZombieModernPogo* PogoZombie = static_cast<ZombieModernPogo*>(zombie);
-	if (PogoZombie) {
+	if (PogoZombie && !ZombieIsDeadOrDying(PogoZombie) && PogoZombie->m_entityState.m_id != 3) {
 		rig->m_hasPogo = false;
 		ZombieEnterState(PogoZombie, 1, 0);
 		SetWalkSpeed(rig, PogoGetWalkSpeed(PogoZombie));

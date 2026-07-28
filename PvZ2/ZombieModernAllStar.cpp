@@ -106,7 +106,7 @@ void ZombieModernBerserker::ChargeOnExit(ZombieModernBerserker* zombie)
 void ChargeCompletedCallback(Zombie* zombie)
 {
 	ZombieModernBerserker* berserkerZombie = static_cast<ZombieModernBerserker*>(zombie);
-	if (berserkerZombie) {
+	if (berserkerZombie && !ZombieIsDeadOrDying(berserkerZombie) && berserkerZombie->m_entityState.m_id != 3) {
 		ZombieEnterState(berserkerZombie, 16, 0);
 	}
 }

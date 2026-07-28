@@ -146,7 +146,7 @@ void MysticOnSpawn(ZombieMysticFormation* zombie) {
     ZombieEnterState(zombie, 1, 0);
 }
 void MysticWalkOnLoop(ZombieMysticFormation* zombie) {
-    if (zombie->m_position.x > 744.0f || zombie->m_teamFlags != 2 || ZombieIsDeadOrDying(zombie)) {
+    if (zombie->m_position.x > 744.0f || zombie->m_teamFlags != 2 || ZombieIsDeadOrDying(zombie) || zombie->m_entityState.m_id != 3) {
         CallFunc<void, ZombieMysticFormation*>(0xC506B4, zombie);
         return;
     }
@@ -208,7 +208,7 @@ void ZombieMysticFormation::ThrowOnEnter(ZombieMysticFormation* zombie)
 	RegisterEventAfterAnim(zombie, "power", "onSpawnAnimDone");
 	auto dlgtEvent = RegisterDelegateEvent(zombie, "onThrow");
 	auto rig = reinterpret_cast<ZombieAnimRig_MysticFormation*>(zombie->m_animRig.Get());
-	ZombieAnimRig_MysticFormation::OnInitializeAnimRigDelegate(rig, dlgtEvent);
+	ZombieAnimRig_MysticFormation::OnInitializeAnimRigDelegate(rig, &dlgtEvent);
 }
 
 void ZombieMysticFormation::ThrowOnLoop(ZombieMysticFormation* zombie)
@@ -240,7 +240,7 @@ void MysticOnSpawnDoneCallback(Zombie* zombie) {
 
         mysticZombie->m_startThrowTime = currentTime + cooldown;
     }
-    if (!ZombieIsDeadOrDying(mysticZombie)) {
+    if (!ZombieIsDeadOrDying(mysticZombie) && zombie->m_entityState.m_id != 3) {
         ZombieEnterState(zombie, 1, 0); 
     }
 }
@@ -248,7 +248,7 @@ void MysticOnSpawnDoneCallback(Zombie* zombie) {
 void MysticOnThrowCallback(Zombie* zombie) {
     ZombieMysticFormation* mysticZombie = static_cast<ZombieMysticFormation*>(zombie);
 
-    if (mysticZombie && !ZombieIsDeadOrDying(mysticZombie)) {
+    if (mysticZombie && !ZombieIsDeadOrDying(mysticZombie) && zombie->m_entityState.m_id != 3) {
         if (FindTargetGrid(mysticZombie, &mysticZombie->m_throwingTarget)) {
 
             auto props = reinterpret_cast<ZombieMysticFormationProps*>(mysticZombie->m_propertySheet.Get());

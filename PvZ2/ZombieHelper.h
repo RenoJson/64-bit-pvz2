@@ -26,6 +26,10 @@ inline Zombie* ZombieSetNoCollisionFlag(Zombie* zombie, bool isAllowed) {
 	return CallFunc<Zombie*, Zombie*, bool>(0xC4C828, zombie, isAllowed);
 }
 
+inline Zombie* ZombieSetInvincibleStatusFlag(Zombie* zombie, bool isAllowed) {
+	return CallFunc<Zombie*, Zombie*, bool>(0xC3CDC4, zombie, isAllowed);
+}
+
 inline Zombie* ZombieFlippedAnim(Zombie* zombie, bool isFlipped) {
 	return CallFunc<Zombie*, Zombie*, bool>(0xC41290, zombie, isFlipped);
 }
@@ -80,20 +84,24 @@ inline void ZombieApplyArmor(Zombie* zombie, const SexyString& armorName) {
 
 // Zombie Anim Rig Helper Function Start From Here
 
-inline bool SetAnimLayerVisible(ZombieAnimRig* animRig, const SexyString& layerName, bool visible){
-	return CallFunc<bool, ZombieAnimRig*, const SexyString&, bool>(0x9DB8D0, animRig, layerName, visible);
+inline bool SetAnimLayerVisible(PopAnimRig* animRig, const SexyString& layerName, bool visible){
+	return CallFunc<bool, PopAnimRig*, const SexyString&, bool>(0x9DB8D0, animRig, layerName, visible);
 }
 
-inline bool GetAnimRigSpritePosition(ZombieAnimRig* animRig, const SexyString& layerName, SexyVector2* spritePos) {
-	return CallFunc<bool, ZombieAnimRig*, const SexyString&, SexyVector2*>(0x9DFBD4, animRig, layerName, spritePos);
+inline bool GetAnimRigSpritePosition(PopAnimRig* animRig, const SexyString& layerName, SexyVector2* spritePos) {
+	return CallFunc<bool, PopAnimRig*, const SexyString&, SexyVector2*>(0x9DFBD4, animRig, layerName, spritePos);
 }
 
 inline bool GetAnimRigSpriteRect(PopAnimRig* animRig, const SexyString& layerName, Rect* spriteRect) {
 	return CallFunc<bool, PopAnimRig*, const SexyString&, Rect*>(0x9E02A8, animRig, layerName, spriteRect);
 }
 
-inline bool IsAnimDone(ZombieAnimRig* animRig, int duration) {
-	return CallFunc<bool, ZombieAnimRig*, int>(0x9DCBE8, animRig, duration);
+inline bool IsAnimDone(PopAnimRig* animRig, int duration) {
+	return CallFunc<bool, PopAnimRig*, int>(0x9DCBE8, animRig, duration);
+}
+
+inline bool PlayAndContinueAnim(PopAnimRig* animRig, const SexyString& animName, int playType, const RtReflectionDelegateBase& dlgt) {
+	return CallFunc<bool>(0x9DBFB0, animRig, animName, playType, dlgt);
 }
 
 inline void SetWalkSpeed(ZombieAnimRig* animRig, float speed) {

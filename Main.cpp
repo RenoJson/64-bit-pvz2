@@ -472,17 +472,6 @@ void PatchRedStingerPF()
     ReplaceBytes(0xE7DB9C, &value, 4);
 }
 
-void PatchZombieSetCondition()
-{
-    uint32_t value = 0x7100011F; // restore damage flash for corpse
-    ReplaceBytes(0xC43898, &value, 4);
-}
-
-void PatchPlantTarget()
-{
-    uint32_t value = 0x528550BC; // restore damage flash for corpse
-    ReplaceBytes(0x7C8310, &value, 4);
-}
 
 
 typedef bool (*initZombiePianoList)(int64_t, int64_t);
@@ -759,7 +748,6 @@ void libChair_main()
     PVZ2HookFunction(0x168D580, (void*)hkLoadAndDecode, (void**)&oLoadAndDecode);
     PVZ2HookFunction(0x176D6CC, (void*)hkGetGLTextureTotalSize, (void**)&oGetGLTextureTotalSize);
 
-    ZombiePharaoh::ModInit();// free stuff
     ZombieModernSuperfanImpProps::modInit();// free stuff
     ZombieBullProps::modInit();// free stuff
     ZombieBullVeteranProps::modInit();// free stuff
@@ -790,7 +778,6 @@ void libChair_main()
     ZombieLostCityTorchGargantuar::modInit();// free stuff
     ZombieLostCityGargantuarProps::modInit();// free stuff
     PatchRedStingerPF();// free stuff
-    PatchZombieSetCondition();
 
     ZombieModernScreenDoor::ModInit();
     ZombieAnimRig_ModernScreenDoor::modInit();
@@ -802,6 +789,7 @@ void libChair_main()
     ZombieModernDolphinRider::ModInit();
     ZombieModernDolphinRiderProps::modInit();
     ZombieAnimRig_ModernDolphinRider::modInit();
+    ZombiePharaoh::ModInit();
     ZombieCamelProps::modInit();
     ZombieCamelTouchProps::modInit();
     ZombieFairyTaleImp::modInit();

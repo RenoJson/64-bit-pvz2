@@ -1,6 +1,7 @@
 ﻿#include "ZombieImp.h"
 #include "Plant.h"
 #include "DamageInfo.h"
+#include "ZombieHelper.h"
 
 typedef bool (*isDeadOrDying)(ZombieModernSuperfanImp*);
 Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc ZombieModernSuperfanImpProps::oZombieModernSuperfanImpPropsBuildSymbols = nullptr;
@@ -10,8 +11,7 @@ SuperfanAF oSuperfanAF = nullptr;
 
 void hkSuperfanImpAF(ZombieModernSuperfanImp* imp, int64_t unk1, SexyString* actionName, int64_t unk2, SexyString* currentAnim) {
 	oSuperfanAF(imp, unk1, actionName, unk2, currentAnim);
-	isDeadOrDying isDeadFunc = (isDeadOrDying)getActualOffset(0xC3E204);
-	if (isDeadFunc(imp) || ((imp->m_teamFlags) & 2) == 0) {
+	if (ZombieIsDeadOrDying(imp) || ((imp->m_teamFlags) & 2) == 0) {
 		return;
 	}
 	else if (*actionName == "explode") {
@@ -29,11 +29,9 @@ void hkSuperfanImpAF(ZombieModernSuperfanImp* imp, int64_t unk1, SexyString* act
         ExplodeRect.mHeight = props->ExplosionRect.mHeight;
 
         std::vector<BoardEntity*> entityList;
-
-        typedef void (*GetEntitiesInRectFunc)(std::vector<BoardEntity*>*, int, Rect*);
-        GetEntitiesInRectFunc getEntitiesRect = (GetEntitiesInRectFunc)getActualOffset(0x86F180);
-
-        getEntitiesRect(&entityList, 32, &ExplodeRect);
+        GetEntitiesInRectGrid(&entityList, 32, &ExplodeRect);
+        ZombieSetInvincibleStatusFlag(imp, true);
+        ZombieSetNoCollisionFlag(imp, true);
 
         for (BoardEntity* ptr : entityList) {
             if (ptr == nullptr) {

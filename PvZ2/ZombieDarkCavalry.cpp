@@ -244,9 +244,7 @@ void CavalryAttack(ZombieDarkCavalry* zombie) {
         riderAttackRect.mY = static_cast<int>((zombieY - zombieZ) - riderAttackRect.mHeight + props->RiderAttackRect.mY);
         int zombieRow = static_cast<int>((zombieY - 160.0f) / 76.0f);
         std::vector<BoardEntity*> entityList;
-        typedef void (*GetEntitiesInRectPixelFunc)(std::vector<BoardEntity*>*, int, Rect*, int, int);
-        GetEntitiesInRectPixelFunc getEntitiesRectPixel = (GetEntitiesInRectPixelFunc)getActualOffset(0x86F340);
-        getEntitiesRectPixel(&entityList, 38, &riderAttackRect, zombieRow, zombieRow);
+        GetEntitiesInRectPixel(&entityList, 38, &riderAttackRect, zombieRow, zombieRow);
         for (BoardEntity* ptr : entityList) {
             if (ptr == nullptr) continue;
             if (ptr->IsType(PlantGroup::StaticGetType()))

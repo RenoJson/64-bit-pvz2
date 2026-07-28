@@ -132,12 +132,12 @@ void RegisterEventAfterAnim(Zombie* zombie, const SexyString& animName, const Se
 	func(animRig, animName, 0, zombieEvent);
 }
 
-RtReflectionDelegateBase* RegisterDelegateEvent(Zombie* zombie, const SexyString& eventName) {
+RtReflectionDelegateBase RegisterDelegateEvent(Zombie* zombie, const SexyString& eventName) {
 	RtWeakPtr<Zombie> zombiePtr;
 	zombiePtr.FromOther((RtWeakPtr<Zombie>*) & zombie->m_thisPtr);
-	RtReflectionDelegateBase* dlgt = new RtReflectionDelegateBase();
+	RtReflectionDelegateBase dlgt;
 	auto constructFunc = (ConstructDelegateEvent)getActualOffset(DELEGATE_CONSTRUCT_ADDR);
-	constructFunc(dlgt, zombiePtr, eventName);
+	constructFunc(&dlgt, zombiePtr, eventName);
 	return dlgt;
 }
 
