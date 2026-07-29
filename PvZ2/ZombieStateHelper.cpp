@@ -29,7 +29,7 @@ typedef int (*playLoopIdleAnimWithCallback)(ZombieAnimRig*, ZombieEvent& event);
 typedef StateMachineTableBuilder* (*getStateMachine)(StateMachineTableBuilder*, Sexy::RtClass*);
 
 typedef ZombieEvent* (*ConstructEvent)(ZombieEvent*, RtWeakPtr<Zombie>& owner, const SexyString& eventName);
-typedef RtReflectionDelegateBase* (*ConstructDelegateEvent)(RtReflectionDelegateBase*, RtWeakPtr<Zombie>& owner, const SexyString& eventName);
+typedef RtReflectionDelegateBase* (*ConstructDelegateEvent)(RtReflectionDelegateBase*, RtWeakPtr<Sexy::RtObject>& owner, const SexyString& eventName);
 
 void RegisterEventCallback(Reflection::CRefManualSymbolBuilder* builder, void* rClass, const SexyString& eventName, Sexy::DelegateBase& delegate) {
 	void* voidPropType = builder->GetPropertyOfType(Reflection::Type_Void, 0);
@@ -132,9 +132,9 @@ void RegisterEventAfterAnim(Zombie* zombie, const SexyString& animName, const Se
 	func(animRig, animName, 0, zombieEvent);
 }
 
-RtReflectionDelegateBase RegisterDelegateEvent(Zombie* zombie, const SexyString& eventName) {
-	RtWeakPtr<Zombie> zombiePtr;
-	zombiePtr.FromOther((RtWeakPtr<Zombie>*) & zombie->m_thisPtr);
+RtReflectionDelegateBase RegisterDelegateEvent(GameObject* zombie, const SexyString& eventName) {
+	RtWeakPtr<Sexy::RtObject> zombiePtr;
+	zombiePtr.FromOther(&zombie->m_thisPtr);
 	RtReflectionDelegateBase dlgt;
 	auto constructFunc = (ConstructDelegateEvent)getActualOffset(DELEGATE_CONSTRUCT_ADDR);
 	constructFunc(&dlgt, zombiePtr, eventName);

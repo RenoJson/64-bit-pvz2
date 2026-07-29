@@ -11,10 +11,7 @@ public:
 	float EnragedDamageScale = 2.0f;
 	std::vector<SexyString> JamStyle; 
 	SexyString SpeakerType = "speaker";
-	SexyString SoundOnRifting = "Play_Zomb_Zomboss_Eighties_SpeakerCabinet_Flash";
 	SexyString SoundOnDebut = "Play_Zomb_Future_Zomboss_Intro_Flyby";
-	Sexy::RtWeakPtr<ProjectilePropertySheet> ShockWaveProjectile;
-	SexyVector2 ShockWaveSpawnOffset;
 	float ShockWaveSpawnInterval = 15.0f;
 	float ShockWaveSpawnIntervalWhileJamming = 5.0f;
 	static void* vftable;
@@ -30,10 +27,7 @@ public:
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieEightiesBassProps, EnragedDamageScale);
 	RT_CLASS_REGISTER_STRING_VECTOR_PROPERTY(ZombieEightiesBassProps, JamStyle);
 	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieEightiesBassProps, SpeakerType);
-	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieEightiesBassProps, SoundOnRifting);
 	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieEightiesBassProps, SoundOnDebut);
-	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(ZombieEightiesBassProps, ShockWaveProjectile, ProjectilePropertySheet)
-	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieEightiesBassProps, SexyVector2, ShockWaveSpawnOffset);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieEightiesBassProps, ShockWaveSpawnInterval);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieEightiesBassProps, ShockWaveSpawnIntervalWhileJamming);
 	RT_CLASS_BUILD_SYMBOLS_END();

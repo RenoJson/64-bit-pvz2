@@ -5,6 +5,7 @@
 #include "ObjectTypeDescriptor.h"
 #include <Reflection/ReflectionBuilder.h>
 #include "GridItemCondition.h"
+#include "DamageLifetime.h"
 
 class GridItemType;
 class PopAnimRig;
@@ -118,6 +119,11 @@ public:
 	EntityComponent_GroundEffect m_groundEffect;
 	float m_risingTime;
 };
+class GridItemSpeakerZomboss : public GridItemSpeaker
+{
+public:
+	bool m_wantsToClearLane;
+};
 class GridItemSurfboard : public GridItemGravestone
 {
 public:
@@ -197,9 +203,32 @@ static_assert(offsetof(GridItemGravestonePropertySheet, GraveBusterEatTimeOverid
 static_assert(offsetof(GridItemGravestonePropertySheet, GridExtents) == 328);
 static_assert(offsetof(GridItemGravestonePropertySheet, IsAnimated) == 336);
 
+class GridItemBreakableTargetProps : public GridItemAnimationProps
+{
+public:
+	SexyString PopAnimSpawnAnim;
+	SexyString PopAnimIdleAnim;
+	SexyString PopAnimHitAnim;
+	SexyString PopAnimDeathAnim;
+	SexyString BreakEffect;
+	SexyString BreakEffectSound;
+	bool Regenerates;
+	float HealthRegenRate;
+	float DelayBeforeRegen;
+	DamageLifetime DamagePhases;
+	char pad[24];
+};
+
+class GridItemSpeakerProps : public GridItemBreakableTargetProps
+{
+public:
+	float SonicDamageAmount;
+};
+
 class GridItemSurfboardProps : public GridItemGravestonePropertySheet
 {
 public:
 	RT_CLASS_GET_CLASS_WRAPPER(0xAD46F0);
 	int CanBeEatenByGravebusterAtLevel;
 };
+

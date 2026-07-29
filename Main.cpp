@@ -100,8 +100,7 @@
 #include <PvZ2/ZombieHelper.h>
 #include <PvZ2/ZombieAnimRig_MausoleumCursedBase.h>
 #include <PvZ2/TombraiserProjectileProps.h>
-#include <PvZ2/MessageRouter.h>
-#include <PvZ2/Messages.h>
+#include <PvZ2/GridItemSpeakerBass.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -789,6 +788,8 @@ void libChair_main()
     ZombieModernDolphinRider::ModInit();
     ZombieModernDolphinRiderProps::modInit();
     ZombieAnimRig_ModernDolphinRider::modInit();
+    GridItemSpeakerBass::modInit();
+    GridItemSpeakerBassProps::modInit();
     ZombiePharaoh::ModInit();
     ZombieCamelProps::modInit();
     ZombieCamelTouchProps::modInit();

@@ -104,6 +104,10 @@ inline bool PlayAndContinueAnim(PopAnimRig* animRig, const SexyString& animName,
 	return CallFunc<bool>(0x9DBFB0, animRig, animName, playType, dlgt);
 }
 
+inline bool PlayAndStopAnim(PopAnimRig* animRig, const SexyString& animName, int playType, const RtReflectionDelegateBase& dlgt) {
+	return CallFunc<bool>(0x9DBDB8, animRig, animName, playType, dlgt);
+}
+
 inline void SetWalkSpeed(ZombieAnimRig* animRig, float speed) {
 	return CallFunc<void, ZombieAnimRig*, float>(0x8DDAA4, animRig, speed);
 }

@@ -10,15 +10,11 @@
 #include "DamageInfo.h"
 #include "ZombieHelper.h"
 #include "AddGridItemType.h"
+#include "GridItemSpeakerBass.h"
 
 void* ZombieEightiesBass::vftable = nullptr;
 Sexy::RtClass* ZombieEightiesBass::s_rtClass = nullptr;;
-typedef Zombie* (*setEffectAnim)(Zombie*, const char*, const char*, const char*, SexyVector3*, uint, bool, bool, uint);
-typedef int (*playAnimWithCallback)(ZombieAnimRig*, const SexyString&, int, ZombieEvent& event);
-typedef ZombieEvent* (*ConstructEvent)(ZombieEvent*, RtWeakPtr<Zombie>& owner, const SexyString& eventName);
-typedef bool (*isAnimDone)(ZombieAnimRig*, int);
 
-typedef bool (*isTossedByPlant)(Zombie*, int);
 DECLARE_DELEGATES_SETUP(ZombieEightiesBass)
 
 static Sexy::DelegateBase riftingCompletedDelegate;
@@ -29,27 +25,10 @@ static Sexy::DelegateBase debutingCompletedDelegate;
 
 Zombie* BassActivateJam(ZombieEightiesBass* zombie) {
     zombie->m_isJamming = true;
-    if(zombie->m_isRifting == true){
-        setEffectAnim setAnim = (setEffectAnim)getActualOffset(0x7BF03C);
-		SexyVector3 transformOffset = { 20.0f, -30.0f, 0.0f };
-        if (zombie->m_attachedEffects.GetObjectIndex("rifting_idle") == -1) {
-            setAnim(zombie, "rifting_idle", "POPANIM_EFFECTS_ZOMBIE_POTION_EFFECT", "idle", &transformOffset, -1, false, false, 2);
-        }
-	}
     return zombie;
 }
 Zombie* BassDeactivateJam(ZombieEightiesBass* zombie) {
     zombie->m_isJamming = false;
-    if (zombie->m_isRifting == true) {
-        typedef int (*removeEffectAnim)(AttachedEffectManager*, const SexyString&);
-        removeEffectAnim removeAnim = (removeEffectAnim)getActualOffset(0x662360);
-        removeAnim(&zombie->m_attachedEffects, "rifting_idle");
-        setEffectAnim setAnim = (setEffectAnim)getActualOffset(0x7BF03C);
-        SexyVector3 transformOffset = { 20.0f, -30.0f, 0.0f };
-        if (zombie->m_attachedEffects.GetObjectIndex("rifting_end") == -1) {
-            setAnim(zombie, "rifting_end", "POPANIM_EFFECTS_ZOMBIE_POTION_EFFECT", "over", &transformOffset, -1, true, false, 2);
-        }
-    }
     return zombie;
 }
 SexyString BassGetJamStyle(ZombieEightiesBass* zombie) {
@@ -65,26 +44,7 @@ SexyString BassGetJamStyle(ZombieEightiesBass* zombie) {
     SexyString chosenStyle = props->JamStyle[randomIndex];
     return props->JamStyle[randomIndex];
 }
-bool BassIsBeingTossedByPlant(ZombieEightiesBass* zombie, int a2) {
-    if(zombie->m_entityState.m_id == 16 
-        || zombie->m_entityState.m_id == 17
-        || zombie->m_entityState.m_id == 19) {
-        return false;
-	}
-    else {
-        return ((isTossedByPlant)getActualOffset(0xC4D2EC))(zombie, a2);
-    }
-}
-void BassWalkOnLoop(ZombieEightiesBass* zombie)
-{
-    if (zombie->m_teamFlags == 0) {
-		zombie->m_teamFlags = 2;
-    }
-    else if(zombie->m_isInGrandDebut == true) {
-		zombie->m_isInGrandDebut = false;
-	}
-    CallFunc<void, ZombieEightiesBass*>(0xC506B4, zombie);
-}
+
 void BassActionFrame(ZombieEightiesBass* zombie, int64_t unk1, SexyString* actionName, int64_t unk2, SexyString* currentAnim)
 {
     if (*actionName == "kill_plant")
@@ -123,66 +83,24 @@ void BassActionFrame(ZombieEightiesBass* zombie, int64_t unk1, SexyString* actio
                     }
                     DamageInfo dmg;
                     dmg.m_attacker = zombie;
-                    void** plantVtable = *(void***)plant;
-                    typedef DamageInfo* (*PlantTakeDamageFunc)(Plant*, DamageInfo*);
-                    PlantTakeDamageFunc takeDmg = (PlantTakeDamageFunc)plantVtable[36];
-                    takeDmg(plant, &dmg);
+                    CallVirtualFunc<DamageInfo*>(plant, 36, &dmg);
                 }
             }
         }
     }
 }
 
-void ZombieEightiesBass::GuitarAttackOnEnter(ZombieEightiesBass* zombie)
+void BassOnHeadDrop(ZombieEightiesBass* zombie)
 {
-    int gX = static_cast<int>((zombie->m_position.x - 200.0f) / 64.0f);
-    int gY = static_cast<int>((zombie->m_position.y - 160.0f) / 76.0f);
-
-    if (gY > 4) gY = 4;
-    if (gY < 0) gY = 0;
-
-    Rect scanRect;
-    scanRect.mX = gX - 1;
-    scanRect.mY = gY;
-    scanRect.mWidth = 2;
-    scanRect.mHeight = 1;
-
-    std::vector<BoardEntity*> entityList; 
-    GetEntitiesInRectGrid(&entityList, 63, &scanRect);
-    GridItemSpeaker* targetSpeaker = nullptr;
-    for (BoardEntity* ptr : entityList) {
-        if (ptr == nullptr) continue;
-
-        if (ptr->IsType(GridItemSpeaker::StaticGetType())) {
-            targetSpeaker = reinterpret_cast<GridItemSpeaker*>(ptr);
-            break;
+    if (zombie->m_speaker.IsValid())
+    {
+        auto speaker = reinterpret_cast<GridItemSpeakerBass*>(zombie->m_speaker.Get());
+        if (speaker->m_speakerState == 5) {
+            GridItemSpeakerBass::SpeakerSetState(speaker, 2);
         }
     }
-    if (targetSpeaker != nullptr) {
-        auto* props = reinterpret_cast<ZombieEightiesBassProps*>(zombie->m_propertySheet.Get());
-        ZombiePlaySoundEvent(zombie, props->SoundOnRifting, 0.0f);
-        Projectile* shockwave = AddProjectile(&props->ShockWaveProjectile,
-                                                zombie,
-                                                targetSpeaker->m_position.x - props->ShockWaveSpawnOffset.x,
-                                                targetSpeaker->m_position.y - props->ShockWaveSpawnOffset.y,
-                                                0);
-        shockwave->m_teamFlags = zombie->m_teamFlags;
-        ZombieEnterState(zombie, 17, 0);
-    }
-    else {
-        ZombieEnterState(zombie, 18, 0);
-    }
 }
 
-void ZombieEightiesBass::GuitarAttackOnLoop(ZombieEightiesBass* zombie)
-{
-   
-}
-
-void ZombieEightiesBass::GuitarAttackOnExit(ZombieEightiesBass* zombie)
-{
-    
-}
 
 void ZombieEightiesBass::GuitarIdleOnEnter(ZombieEightiesBass* zombie)
 {
@@ -193,50 +111,36 @@ void ZombieEightiesBass::GuitarIdleOnEnter(ZombieEightiesBass* zombie)
 
 void ZombieEightiesBass::GuitarIdleOnLoop(ZombieEightiesBass* zombie)
 {
-    auto animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
-    bool animDone = ((isAnimDone)getActualOffset(0x9DCBE8))(animRig, zombie->m_animHandle);
-    int gX = static_cast<int>((zombie->m_position.x - 200.0f) / 64.0f);
-    int gY = static_cast<int>((zombie->m_position.y - 160.0f) / 76.0f);
-
-    if (gY > 4) gY = 4;
-    if (gY < 0) gY = 0;
-
-    Rect scanRect;
-    scanRect.mX = gX - 1;
-    scanRect.mY = gY;
-    scanRect.mWidth = 2;
-    scanRect.mHeight = 1;
-
-    std::vector<BoardEntity*> entityList;
-    GetEntitiesInRectGrid(&entityList, 63, &scanRect);
-    GridItemSpeaker* targetSpeaker = nullptr;
-    for (BoardEntity* ptr : entityList) {
-        if (ptr == nullptr) continue;
-
-        if (ptr->IsType(GridItemSpeaker::StaticGetType())) {
-            targetSpeaker = reinterpret_cast<GridItemSpeaker*>(ptr);
-            break;
+    auto* props = reinterpret_cast<ZombieEightiesBassProps*>(zombie->m_propertySheet.Get());
+    float targetCooldown = zombie->m_isJamming ?
+        props->ShockWaveSpawnIntervalWhileJamming :
+        props->ShockWaveSpawnInterval;
+    if (zombie->m_speaker.IsValid())
+    {
+        auto speaker = reinterpret_cast<GridItemSpeakerBass*>(zombie->m_speaker.Get());
+        if (zombie->m_elapsedTimeInState <= 0.01f)
+        {
+            speaker->m_nextFireTime = 0.0f;
+        }
+        if (speaker->m_speakerState == 5)
+        {
+            speaker->m_nextFireTime = zombie->m_elapsedTimeInState;
+        }
+        else if (zombie->m_elapsedTimeInState - speaker->m_nextFireTime >= targetCooldown)
+        {
+            GridItemSpeakerBass::SpeakerSetState(speaker, 5);
         }
     }
-
-    if (targetSpeaker != nullptr) {
-            auto* props = reinterpret_cast<ZombieEightiesBassProps*>(zombie->m_propertySheet.Get());
-            if (zombie->m_isJamming && zombie->m_elapsedTimeInState >= props->ShockWaveSpawnIntervalWhileJamming) {
-                ZombieEnterState(zombie, 16, 0);
-		    }
-            else if (!zombie->m_isJamming && zombie->m_elapsedTimeInState >= props->ShockWaveSpawnInterval) {
-                ZombieEnterState(zombie, 16, 0);
-		    }
-    }
-    else {
-        ZombieEnterState(zombie, 18, 0);
+    else
+    {
+        ZombieEnterState(zombie, 17, 0);
     }
 }
 void BassOnGetCondition(ZombieEightiesBass* zombie, int conditionID)
 {
     if (conditionID == zombie_condition_hypnotized)
     {
-        ZombieEnterState(zombie, 18, 0);
+        ZombieEnterState(zombie, 17, 0);
     }
 }
 void ZombieEightiesBass::GuitarIdleOnExit(ZombieEightiesBass* zombie)
@@ -246,17 +150,6 @@ void ZombieEightiesBass::GuitarIdleOnExit(ZombieEightiesBass* zombie)
 
 void ZombieEightiesBass::GuitarBreakOnEnter(ZombieEightiesBass* zombie)
 {
-    if (zombie->m_isRifting == true && zombie->m_isJamming == true) {
-        typedef int (*removeEffectAnim)(AttachedEffectManager*, const SexyString&);
-        removeEffectAnim removeAnim = (removeEffectAnim)getActualOffset(0x662360);
-        removeAnim(&zombie->m_attachedEffects, "rifting_idle");
-        setEffectAnim setAnim = (setEffectAnim)getActualOffset(0x7BF03C);
-        SexyVector3 transformOffset = { 20.0f, -30.0f, 0.0f };
-        if (zombie->m_attachedEffects.GetObjectIndex("rifting_end") == -1) {
-            setAnim(zombie, "rifting_end", "POPANIM_EFFECTS_ZOMBIE_POTION_EFFECT", "over", &transformOffset, -1, true, false, 2);
-        }
-		zombie->m_isRifting = false;
-    }
 	RegisterEventAfterAnim(zombie, "attack_off", "onBreakingCompleted");
 }
 
@@ -284,6 +177,7 @@ void ZombieEightiesBass::GrandDebutOnEnter(ZombieEightiesBass* zombie)
 
 void ZombieEightiesBass::GrandDebutOnLoop(ZombieEightiesBass* zombie)
 {
+
 }
 
 void ZombieEightiesBass::GrandDebutOnExit(ZombieEightiesBass* zombie)
@@ -313,13 +207,15 @@ void DebutCompletedCallback(Zombie* zombie) {
         if (spawnPosY < 0) spawnPosY = 0;
         if (spawnPosY > 4) spawnPosY = 4;
         auto* props = reinterpret_cast<ZombieEightiesBassProps*>(bassZombie->m_propertySheet.Get());
-        GridItemSpeaker* gridItem = (GridItemSpeaker*)AddGridItem(props->SpeakerType, spawnPosX, spawnPosY);
+        GridItemSpeakerBass* gridItem = (GridItemSpeakerBass*)AddGridItem(props->SpeakerType, spawnPosX, spawnPosY);
         gridItem->m_speakerState = 2;
+        gridItem->m_teamFlags = bassZombie->m_teamFlags;
         gridItem->m_realObjectFlags &= ~1;
         bassZombie->m_isInGrandDebut = false;
+        bassZombie->m_speaker.FromOther(&gridItem->m_thisPtr);
         ZombieSetInvincibleStatusFlag(bassZombie, false);
         ZombieSetNoCollisionFlag(bassZombie, false);
-        ZombieEnterState(bassZombie, 17, 0);
+        ZombieEnterState(bassZombie, 16, 0);
     }
 }
 void BreakingCompletedCallback(Zombie* zombie) {
@@ -336,13 +232,18 @@ void BreakingCompletedCallback(Zombie* zombie) {
 // a4 is parachute rain module
 Zombie* updateParachutePos(float mX, float mY, float mZ, void* a4, Zombie* zombie) {
 	SexyVector3 offset = { zombie->m_position.x, zombie->m_position.y, 0 };
+    int state;
     if(zombie->IsType(ZombieEightiesBass::StaticGetType())) {
         ZombieEightiesBass* bassZombie = static_cast<ZombieEightiesBass*>(zombie);
         auto* props = reinterpret_cast<ZombieEightiesBassProps*>(bassZombie->m_propertySheet.Get());
         offset.x += props->DebutOffset.x;
         offset.y += props->DebutOffset.y;
+        state = 18;
 	}
-    ZombieEnterState(zombie, 19, 0);
+    else {
+        state = 19;
+    }
+    ZombieEnterState(zombie, state, 0);
     return ZombieUpdatePosition(zombie, &offset);
 }
 void ZombieEightiesBass::ModInit() {
@@ -355,24 +256,20 @@ void ZombieEightiesBass::ModInit() {
     PatchVFTable(vftable, (void*)BassDeactivateJam, 65);
     PatchVFTable(vftable, (void*)BassGetJamStyle, 66);
     PatchVFTable(vftable, (void*)BassOnGetCondition, 71);
-    PatchVFTable(vftable, (void*)BassIsBeingTossedByPlant, 97);
     PatchVFTable(vftable, (void*)BassActionFrame, 170);
+    PatchVFTable(vftable, (void*)BassOnHeadDrop, 171);
 
-    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarAttackOnEnter, 204);
-    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarAttackOnLoop, 205);
-    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarAttackOnExit, 206);
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarIdleOnEnter, 204);
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarIdleOnLoop, 205);
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarIdleOnExit, 206);
 
-    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarIdleOnEnter, 207);
-    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarIdleOnLoop, 208);
-    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarIdleOnExit, 209);
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarBreakOnEnter, 207);
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarBreakOnLoop, 208);
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarBreakOnExit, 209);
 
-    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarBreakOnEnter, 210);
-    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarBreakOnLoop, 211);
-    PatchVFTable(vftable, (void*)ZombieEightiesBass::GuitarBreakOnExit, 212);
-
-    PatchVFTable(vftable, (void*)ZombieEightiesBass::GrandDebutOnEnter, 213);
-    PatchVFTable(vftable, (void*)ZombieEightiesBass::GrandDebutOnLoop, 214);
-    PatchVFTable(vftable, (void*)ZombieEightiesBass::GrandDebutOnExit, 215);
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GrandDebutOnEnter, 210);
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GrandDebutOnLoop, 211);
+    PatchVFTable(vftable, (void*)ZombieEightiesBass::GrandDebutOnExit, 212);
 
     ZombieEightiesBass::StaticGetType();
     LOGI("ZombieBass finish init");
@@ -399,24 +296,18 @@ void ZombieEightiesBass::buildStates()
     StateMachineTableBuilder* stateMachine = CallGetStateMachine(ZombieEightiesBass::StaticGetType());
     RegisterStateByOffsets(stateMachine,
         16,
-        (uintptr_t)ZombieEightiesBass::GuitarAttackOnEnter,
-        (uintptr_t)ZombieEightiesBass::GuitarAttackOnLoop,
-        (uintptr_t)ZombieEightiesBass::GuitarAttackOnExit,
-        "ZS_Bassist_Rifting");
-    RegisterStateByOffsets(stateMachine,
-        17,
         (uintptr_t)ZombieEightiesBass::GuitarIdleOnEnter,
         (uintptr_t)ZombieEightiesBass::GuitarIdleOnLoop,
         (uintptr_t)ZombieEightiesBass::GuitarIdleOnExit,
-        "ZS_Bassist_IdleRifting");
+        "ZS_Bassist_Rifting");
     RegisterStateByOffsets(stateMachine,
-        18,
+        17,
         (uintptr_t)ZombieEightiesBass::GuitarBreakOnEnter,
         (uintptr_t)ZombieEightiesBass::GuitarBreakOnLoop,
         (uintptr_t)ZombieEightiesBass::GuitarBreakOnExit,
-        "ZS_Bassist_BreakAGuitar");
+        "ZS_Bassist_WreckingGuitar");
     RegisterStateByOffsets(stateMachine,
-        19,
+        18,
         (uintptr_t)ZombieEightiesBass::GrandDebutOnEnter,
         (uintptr_t)ZombieEightiesBass::GrandDebutOnLoop,
         (uintptr_t)ZombieEightiesBass::GrandDebutOnExit,

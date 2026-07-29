@@ -170,6 +170,7 @@
     <ClCompile Include="PvZ2\TombraiserProjectileProps.cpp" />
     <ClCompile Include="PvZ2\ZombieConditions.cpp" />
     <ClCompile Include="PvZ2\Zombie.cpp" />
+    <ClCompile Include="PvZ2\GridItemSpeakerBass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -289,5 +290,6 @@
     <ClInclude Include="PvZ2\TombraiserProjectileProps.h" />
     <ClInclude Include="PvZ2\PlantIceBloom.h" />
     <ClInclude Include="PvZ2\DamageLifetime.h" />
+    <ClInclude Include="PvZ2\GridItemSpeakerBass.h" />
   </ItemGroup>
 </Project>
