@@ -169,7 +169,7 @@ bool ScreenDoorBlockProjectile(ZombieModernScreenDoor* thisPtr, Projectile* proj
 
         float projDirection = proj->m_velocity.x * proj->m_velocityScale.x;
 
-        bool isShotInBack = (projDirection * ZombieFacing(thisPtr)) > 0.0f;
+        bool isShotInBack = (projDirection * ZombieFacing(thisPtr)) < 0.0f;
 
         if (isShotInBack)
         {
@@ -240,15 +240,27 @@ void ScreenDoorOnCreate(ZombieModernScreenDoor* zombie) {
 float ScreenDoorGetArmDropFraction(ZombieModernScreenDoor* zombie)
 {
     auto props = reinterpret_cast<ZombiePropertySheet*>(zombie->m_propertySheet.Get());
-    if (ZombieHasArmor(zombie, "ScreenDoor") == false)
+    if (ZombieHasArmor(zombie, "ScreenDoor") || zombie->m_entityState.m_id == 3)
     {
-        return props->ArmDropFraction;
+        return -1.0f; 
     }
     else
     {
-        return -1.0f;
+        return props->ArmDropFraction;
     }
 }
+/*
+float ScreenDoorGetArmDropFraction(ZombieModernScreenDoor* zombie)
+{
+    auto props = reinterpret_cast<ZombiePropertySheet*>(zombie->m_propertySheet.Get());
+    if (ZombieHasArmor(zombie, "ScreenDoor"))
+    {
+        return -1.0f;
+    }
+    {
+        return props->ArmDropFraction;
+    }
+}*/
 void ZombieModernScreenDoor::LostDoorOnEnter(ZombieModernScreenDoor* zombie)
 {
     RegisterEventAfterAnim(zombie, "lose_screendoor", "onLostDoorCompleted");

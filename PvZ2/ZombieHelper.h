@@ -4,7 +4,7 @@
 // Zombie Helper Function Start Here
 
 inline float ZombieFacing(Zombie* zombie) {
-	if (zombie->m_facing) {
+	if (!zombie->m_facing) {
 		return 1.0f;
 	}
 	return -1.0f;
