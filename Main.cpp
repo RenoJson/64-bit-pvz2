@@ -702,6 +702,15 @@ void* hkTakeDamageNoCorpse(Zombie* thisPtr, DamageInfo* damageInfo)
     }
     return oZTakeDmg(thisPtr, damageInfo);
 }
+typedef void (*TeleportatoMineTeleport)(void*, RtWeakPtr<Zombie>*);
+TeleportatoMineTeleport oTeleportatoMineTeleport = nullptr;
+void hkFixTeleportatoMineTeleport(void* a1, RtWeakPtr<Zombie>* a2) {
+    oTeleportatoMineTeleport(a1, a2);
+    RtWeakPtr<Zombie> zombiePtr;
+    zombiePtr.FromOther(a2);
+    auto zombie = reinterpret_cast<Zombie*>(zombiePtr.Get());
+    CallFunc<Zombie*>(0xC4BC48, zombie, zombie_condition_stun);
+}
 #pragma region Build Symbol Funcs
 
 Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc PlantType::oPlantTypeBuildSymbols = nullptr;
@@ -743,6 +752,7 @@ void libChair_main()
     PVZ2HookFunction(0xC1D1FC, (void*)hkInitZombiePianoList, (void**)&oInitZombiePianoList);
     PVZ2HookFunction(0xAA0C40, (void*)hkBoardRender, (void**)&oBoardRender);
     PVZ2HookFunction(0x1273244, (void*)hkFire, (void**)&oFire);
+    PVZ2HookFunction(0x1001C04, (void*)hkFixTeleportatoMineTeleport, (void**)&oTeleportatoMineTeleport);
     //PVZ2HookFunction(0xC43B90, (void*)hkTakeDamageNoCorpse, (void**)&oZTakeDmg);
     PVZ2HookFunction(0x168D580, (void*)hkLoadAndDecode, (void**)&oLoadAndDecode);
     PVZ2HookFunction(0x176D6CC, (void*)hkGetGLTextureTotalSize, (void**)&oGetGLTextureTotalSize);
@@ -776,6 +786,9 @@ void libChair_main()
     ZombieModernBerserker::ModInit(); //free stuff
     ZombieLostCityTorchGargantuar::modInit();// free stuff
     ZombieLostCityGargantuarProps::modInit();// free stuff
+    ZombieMysticFormation::modInit();
+    ZombieMysticFormationProps::modInit();
+    ZombieAnimRig_MysticFormation::modInit();
     PatchRedStingerPF();// free stuff
 
     ZombieModernScreenDoor::ModInit();
@@ -864,8 +877,5 @@ void libChair_main()
     ZombieMausoleumGargantuarProps::modInit();
     ZombieAnimRig_MausoleumGargantuar::modInit(); 
     ProjectileActions::modInit();
-    ZombieMysticFormation::modInit();
-    ZombieMysticFormationProps::modInit();
-    ZombieAnimRig_MysticFormation::modInit();
     TombraiserProjectileProps::modInit();
 }
