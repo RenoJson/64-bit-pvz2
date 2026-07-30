@@ -8,6 +8,7 @@
 #include "ZombieModernDolphinRider.h"
 #include "DamageLifetime.h"
 #include "PlantIceBloom.h"
+#include "ZombieImp.h"
 
 
 #define VFUNC_CAN_DROP_ARM        81
@@ -85,9 +86,21 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
     if (CallVirtualFunc<bool>(thisPtr, VFUNC_CAN_DROP_ARM))
     {
         float armDropThreshold = CallVirtualFunc<float>(thisPtr, VFUNC_GET_ARM_THRESHOLD) * thisPtr->m_maxHitpoints;
+
         if (armDropThreshold >= 0.0f && thisPtr->m_hitpoints < armDropThreshold)
         {
-            CallFunc<void>(0xC47944, thisPtr); //Do Arm Drop
+            bool isFatalSpecialDeath = false;
+            if (headDropThreshold >= 0.0f && thisPtr->m_hitpoints < headDropThreshold)
+            {
+                if ((damageInfo->m_flags & damage_lightning) != 0 || (damageInfo->m_flags & damage_ash_death) != 0)
+                {
+                    isFatalSpecialDeath = true;
+                }
+            }
+            if (!isFatalSpecialDeath)
+            {
+                CallFunc<void>(0xC47944, thisPtr); // Do Arm Drop
+            }
         }
     }
     bool isIceBlocked = ZombieHasCondition(thisPtr, zombie_condition_iceblocked);
@@ -96,11 +109,19 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
         if ((thisPtr->m_zombieFlags & 0x200) == 0)
         {
             thisPtr->m_zombieFlags |= 0x200;
-            if (CallVirtualFunc<bool>(thisPtr, VFUNC_DUMMY_TRUE))
+            if ((damageInfo->m_flags & damage_lightning) != 0 || (damageInfo->m_flags & damage_ash_death) != 0)
             {
-                CallVirtualFunc<void>(thisPtr, VFUNC_ENTER_BLEEDING);
-                CallFunc<void>(0xC47BF8, thisPtr, damageInfo);
-                CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_attacker); // Do Head Drop
+                CallFunc<void>(0xC48338, thisPtr, damageInfo);
+                return;
+            }
+            else
+            {
+                if (CallVirtualFunc<bool>(thisPtr, VFUNC_DUMMY_TRUE))
+                {
+                    CallVirtualFunc<void>(thisPtr, VFUNC_ENTER_BLEEDING);
+                    CallFunc<void>(0xC47BF8, thisPtr, damageInfo);
+                    CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_attacker); // Do Head Drop
+                }
             }
         }
     }
@@ -454,7 +475,36 @@ void hkUpdate(Zombie* thisPtr) {
         ZombieRemoveCondition(thisPtr, zombie_condition_poisoned);
     }
 }
+float GetTotalArmorHealth(std::vector<Sexy::RtWeakPtr<Armor>>& armorList)
+{
+    float totalHealth = 0.0f;
 
+    for (auto& armorWeakPtr : armorList)
+    {
+        if (armorWeakPtr.IsValid())
+        {
+            Armor* armor = reinterpret_cast<Armor*>(armorWeakPtr.Get());
+
+            if (armor != nullptr && !armor->m_destroyed)
+            {
+                totalHealth += std::max(0.0f, armor->m_health);
+            }
+        }
+    }
+    return totalHealth;
+}
+int hkCalcProgressMeterHP(Zombie* zombie) {
+    if (zombie->IsType(ZombieImp::StaticGetType())) {
+        return -1;
+    }
+
+    if ((zombie->m_teamFlags & 2) != 0) {
+        float currentBaseHP = std::max(0.0f, zombie->m_hitpoints);
+        zombie->m_helmHitpoints = GetTotalArmorHealth(zombie->m_armor);
+        return (int)currentBaseHP + (int)zombie->m_helmHitpoints;
+    }
+    return 0;
+}
 void PatchZombieSetCondition()
 {
     uint32_t value = 0x7100011F; // restore damage flash for corpse by changing state cant get condition to idle
@@ -465,6 +515,7 @@ void ZombiePharaoh::ModInit() {
     LOGI("ZombiePharaoh init");
     PVZ2HookFunction(0xC3D7A0, (void*)hkUpdate, (void**)&oUpdate);
     PVZ2HookFunction(0xC56A54, (void*)hkZombieCheckConditionsFlag, nullptr);
+    PVZ2HookFunction(0xC4126C, (void*)hkCalcProgressMeterHP, nullptr);
     PVZ2HookFunction(0xC3E204, (void*)hkIsDeadOrDying, nullptr);
     PVZ2HookFunction(0xC4CED8, (void*)IsReadyToDie, nullptr);
     PVZ2HookFunction(0xC490AC, (void*)isHeadDrop, nullptr);

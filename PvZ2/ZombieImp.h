@@ -16,6 +16,7 @@ class ZombieImp : public Zombie
 public:
     // weird inherit from Zombie Basic in 64 bit instead of Zombie in 32 bit
     // so m_helmDamageIndex will keep the imp class right in struct
+    RT_CLASS_GET_CLASS_WRAPPER(0xB40DC8);
     int m_helmDamageIndex; 
     bool m_invincibleWhileInAir;
     bool m_getsUpFromLanding;
