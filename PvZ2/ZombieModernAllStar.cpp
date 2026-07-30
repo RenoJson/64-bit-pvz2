@@ -47,7 +47,7 @@ void RunOnLoop(ZombieModernBerserker* zombie)
 	float zZ = zombie->m_position.z; 
 	float facing = ZombieFacing(zombie);
 
-	attackRect.mX = static_cast<int>(zX - (attackRect.mWidth / 2.0f) + (facing * props->AttackRect.mX));
+	attackRect.mX = static_cast<int>(zX - (attackRect.mWidth / 2.0f) - (facing * props->AttackRect.mX));
 	attackRect.mY = static_cast<int>((zY - zZ) - attackRect.mHeight + props->AttackRect.mY);
 
 	typedef ZombieModernSuperfanImp* (*FindSFImpFunc)(Zombie*, Rect*);

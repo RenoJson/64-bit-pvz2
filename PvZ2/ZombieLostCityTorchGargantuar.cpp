@@ -84,7 +84,7 @@ Sexy::Rect LostCityGargantuarGetAttackRect(ZombieLostCityTorchGargantuar* zombie
         float finalReach = std::min(currentTorchReachX, maxReachLimit);
 
         int oldX = attackRect.mX;
-        attackRect.mX = static_cast<int>((facing * finalReach) + static_cast<float>(attackRect.mX));
+        attackRect.mX = static_cast<int>((facing * finalReach) - static_cast<float>(attackRect.mX));
 
     };
     return attackRect;
