@@ -467,7 +467,7 @@ typedef void (*Update)(Zombie*);
 Update oUpdate = nullptr;
 void hkUpdate(Zombie* thisPtr) {
     oUpdate(thisPtr);
-    if (((thisPtr->m_zombieFlags & 4) == 0))
+    if (((thisPtr->m_zombieFlags & 4) != 0))
     {
         ZombieRemoveCondition(thisPtr, zombie_condition_butter);
         ZombieRemoveCondition(thisPtr, zombie_condition_contagiouspoison);

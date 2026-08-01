@@ -135,7 +135,7 @@ void ZombieMausoleumArcher::WalkIntoPositionOnEnter(ZombieMausoleumArcher* zombi
 
 void ZombieMausoleumArcher::WalkIntoPositionOnLoop(ZombieMausoleumArcher* zombie)
 {
-    if (zombie->m_position.x <= 776.0f) {
+    if (zombie->m_position.x <= 744.0f) {
         ZombieEnterState(zombie, 20, 0);
     }
 }
@@ -158,7 +158,7 @@ void ZombieMausoleumArcher::WaitShootingOnLoop(ZombieMausoleumArcher* zombie)
     auto animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
 
     float hpPercentage = zombie->m_hitpoints / zombie->m_maxHitpoints;
-    if (((zombie->m_zombieFlags & 2) == 0) && !ZombieIsDeadOrDying(zombie) && zombie->m_entityState.m_id != 3) {
+    if (((zombie->m_zombieFlags & 2) != 0) && !ZombieIsDeadOrDying(zombie) && zombie->m_entityState.m_id != 3) {
         ZombieEnterState(zombie, 19, 0);
         return;
     }
@@ -208,7 +208,7 @@ void ZombieMausoleumArcher::ShootOnEnter(ZombieMausoleumArcher* zombie)
 
 void ZombieMausoleumArcher::ShootOnLoop(ZombieMausoleumArcher* zombie)
 {
-    if (((zombie->m_zombieFlags & 2) == 0) && !ZombieIsDeadOrDying(zombie) && zombie->m_entityState.m_id != 3) {
+    if (((zombie->m_zombieFlags & 2) != 0) && !ZombieIsDeadOrDying(zombie) && zombie->m_entityState.m_id != 3) {
         ZombieEnterState(zombie, 19, 0);
     }
 }

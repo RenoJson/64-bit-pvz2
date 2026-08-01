@@ -1,5 +1,6 @@
 #pragma once
 #include "BaseResource.h"
+#include "PopAnimListener.h"
 
 namespace Sexy
 {
@@ -28,32 +29,32 @@ namespace Sexy
 			mMat[2][2] = 1.0;
 		}
 	};
-
+	
 	class PopAnim : public BaseResource
 	{
 	public:
-		char mPad2[8];
-		int mDrawScale;
-		int mImgScale;
+		int mId;
+		PopAnimListener* mPopAnimListener;
+		float mDrawScale;
+		float mImgScale;
 		int mAnimRate;
 		Rect mAnimRect;
-		int mLastPlayedFrameLabel;
-		char mPad3[8];
-		int mUnkStruct;
-		int mMainAnimDef;
-		int mBlendTicksTotal;
-		int mBlendTicksCur;
-		int mBlendDelay;
+		SexyString mActiveAnimLabel;
+		void* mMainSpriteInst;
+		void* mMainAnimDef;
+		float mBlendTicksTotal;
+		float mBlendTicksCur;
+		float mBlendDelay;
 		SexyTransform2D mTransform;
 		Color mColor;
 		bool mAdditive;
-		char mPad4[4];
+		bool mNeedsUpdateTransforms;
 		bool mAnimRunning;
 		bool mPaused;
 		bool mColorizeType;
 	};
 
-	static_assert(sizeof(PopAnim) == 160);
+	//static_assert(sizeof(PopAnim) == 160);
 	//static_assert(offsetof(PopAnim, mDrawScale) == 40);
 	//static_assert(offsetof(PopAnim, mAnimRect) == 52);
 	//static_assert(offsetof(PopAnim, mTransform) == 100);

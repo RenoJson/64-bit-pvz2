@@ -6,6 +6,7 @@ namespace Sexy
 	class Image : public BaseResource
 	{
 	public:
+		char pad[8];
 		int mImageFlags;
 		char pad1[4];
 		void* mRenderData;

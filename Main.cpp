@@ -790,7 +790,8 @@ void libChair_main()
     ZombieMysticFormationProps::modInit();
     ZombieAnimRig_MysticFormation::modInit();
     PatchRedStingerPF();// free stuff
-
+    
+    ProjectileActions::modInit();
     ZombieModernScreenDoor::ModInit();
     ZombieAnimRig_ModernScreenDoor::modInit();
     ZombieAnimRig_ModernScreenDoorAlmanac::modInit();
@@ -876,6 +877,5 @@ void libChair_main()
     ZombieMausoleumGargantuar::modInit();
     ZombieMausoleumGargantuarProps::modInit();
     ZombieAnimRig_MausoleumGargantuar::modInit(); 
-    ProjectileActions::modInit();
     TombraiserProjectileProps::modInit();
 }
