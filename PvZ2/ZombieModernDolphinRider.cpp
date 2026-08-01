@@ -12,7 +12,6 @@
 
 void* ZombieModernDolphinRider::vftable = nullptr;
 Sexy::RtClass* ZombieModernDolphinRider::s_rtClass = nullptr;;
-typedef bool (*isHeadDrop)(ZombieModernDolphinRider*);
 typedef bool (*isInWaterRegion)(Board*, SexyVector3*);
 
 DECLARE_DELEGATES_SETUP(ZombieModernDolphinRider)
@@ -101,7 +100,9 @@ float DolphinRiderIsHeadDrop(ZombieModernDolphinRider* zombie)
 		return props->HeadDropFraction;
 	}
 }
-
+//bool DolphinRiderIsHeadDrop(ZombieModernDolphinRider* zombie) {
+//	return zombie->m_entityState.m_id == 20 || CallFunc<bool, ZombieModernDolphinRider*>(0xC41014, zombie);
+//}
 void ZombieModernDolphinRider::JumpOnEnter(ZombieModernDolphinRider* zombie)
 {
 	ZombieAllowMovement(zombie, true);

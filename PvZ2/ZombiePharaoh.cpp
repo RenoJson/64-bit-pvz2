@@ -467,7 +467,7 @@ typedef void (*Update)(Zombie*);
 Update oUpdate = nullptr;
 void hkUpdate(Zombie* thisPtr) {
     oUpdate(thisPtr);
-    if (thisPtr->m_entityState.m_id == 3)
+    if (((thisPtr->m_zombieFlags & 4) == 0))
     {
         ZombieRemoveCondition(thisPtr, zombie_condition_butter);
         ZombieRemoveCondition(thisPtr, zombie_condition_contagiouspoison);
@@ -487,7 +487,26 @@ float GetTotalArmorHealth(std::vector<Sexy::RtWeakPtr<Armor>>& armorList)
 
             if (armor != nullptr && !armor->m_destroyed)
             {
-                totalHealth += std::max(0.0f, armor->m_health);
+                bool hasPassDamage = false;
+
+                if (armor->m_propertySheetPtr.IsValid())
+                {
+                    ArmorPropertySheet* props = reinterpret_cast<ArmorPropertySheet*>(armor->m_propertySheetPtr.Get());
+
+                    if (props != nullptr)
+                    {
+                        auto it = std::find(props->ArmorFlags.begin(), props->ArmorFlags.end(), ArmorTypeFlags::passdamage);
+
+                        if (it != props->ArmorFlags.end())
+                        {
+                            hasPassDamage = true;
+                        }
+                    }
+                }
+                if (!hasPassDamage)
+                {
+                    totalHealth += std::max(0.0f, armor->m_health);
+                }
             }
         }
     }

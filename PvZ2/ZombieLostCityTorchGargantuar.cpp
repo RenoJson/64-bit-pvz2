@@ -74,19 +74,16 @@ Sexy::Rect LostCityGargantuarGetAttackRect(ZombieLostCityTorchGargantuar* zombie
     if (zombie->m_hasTorch == true) {
         SexyVector2 torchLitPos;
         SexyVector2 outerArmPos;
+
         auto rig = reinterpret_cast<ZombieAnimRig_Gargantuar*>(zombie->m_animRig.Get());
 
         GetAnimRigSpritePosition(rig, "torch_end_lit", &torchLitPos);
         GetAnimRigSpritePosition(rig, "Zombie_gargantuar_outerarm_hand", &outerArmPos);
-
-        float currentTorchReachX = outerArmPos.x - torchLitPos.x;
-        float maxReachLimit = props->MaxTorchReach;
-        float finalReach = std::min(currentTorchReachX, maxReachLimit);
-
-        int oldX = attackRect.mX;
-        attackRect.mX = static_cast<int>((facing * finalReach) - static_cast<float>(attackRect.mX));
-
-    };
+        float currentTorchReachX = torchLitPos.x - outerArmPos.x;
+        float maxReachLimit = -props->MaxTorchReach;
+        float finalReach = std::max(currentTorchReachX, maxReachLimit);
+        attackRect.mX = static_cast<int>((facing * finalReach) + static_cast<float>(attackRect.mX));
+    }
     return attackRect;
 }
 
@@ -96,7 +93,7 @@ void LostCityGargantuarWalkOnLoop(ZombieLostCityTorchGargantuar* zombie) {
         if (entity != nullptr) {
             if (entity->IsType(PlantGroup::StaticGetType())) {
 
-                CallFunc<void, BoardEntity*, int64_t, int, bool, ZombieLostCityTorchGargantuar*>(0x1336D2C, entity, damage_fire, 2, false, zombie);
+                CallFunc<void, BoardEntity*, int, int, bool, ZombieLostCityTorchGargantuar*>(0x1336D2C, entity, damage_fire, 2, false, zombie);
             }
             else {
                 ZombieEnterState(zombie, 16, 0);
