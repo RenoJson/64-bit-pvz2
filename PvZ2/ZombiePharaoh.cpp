@@ -124,7 +124,7 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
                 if (CallVirtualFunc<bool>(thisPtr, VFUNC_DUMMY_TRUE))
                 {
                     CallVirtualFunc<void>(thisPtr, VFUNC_ENTER_BLEEDING);
-                    CallFunc<void>(0xC47BF8, thisPtr, damageInfo);
+                    CallFunc<void>(0xC47BF8, thisPtr, damageInfo); // Somekind of Zen Garden related
                     CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_attacker); // Do Head Drop
                 }
             }
