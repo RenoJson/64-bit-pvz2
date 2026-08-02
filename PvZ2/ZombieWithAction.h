@@ -2,10 +2,6 @@
 #include "Zombie.h"
 #include <Reflection/ReflectionBuilder.h>
 using namespace Sexy;
-enum ZombieActionPhase {
-	Zombie_Action_Phase_None = 0,
-	Zombie_Action_Phase_Entering = 1
-};
 class ZombieWithActions : public Zombie {
 public:
 	int m_queueEmptyState;
@@ -24,6 +20,31 @@ static_assert(offsetof(ZombieWithActions, m_actionRepeatsLeft) == 1104);
 static_assert(offsetof(ZombieWithActions, m_lastAction) == 1112);
 static_assert(offsetof(ZombieWithActions, m_currentAction) == 1120);
 static_assert(offsetof(ZombieWithActions, m_actionQueue) == 1128);
+
+class ZombieZombossMech : public ZombieWithActions {
+public:
+	RT_CLASS_GET_CLASS_WRAPPER(0xB5905C);
+	float m_scheduledStateEndTime;
+	int m_currentStageIndex;
+	char pad2[4];
+	char m_movementCurve[48];
+	char m_effectCurves[48];
+	char m_colorCurve[24];
+	float m_zombossScaledTime;
+	bool m_dyingAnimDone;
+	bool m_exitAnimDone;
+	bool m_playingStunStart;
+	bool m_playingStunEnd;
+	bool m_takenStunAttack;
+	bool m_haveShownHalfDamagePhase;
+	bool m_cheatKillZombie;
+	bool m_slideWithStreetView;
+	bool m_canShowDamageEffects;
+	Sexy::RtWeakPtr<Sexy::RtObject> m_zombieDamageSparks;
+	int m_droppedDebrisCount;
+	std::vector<void*> m_lootForSpawnedZombies; //Loot
+};
+
 class ZombieWithActionsProps : public ZombiePropertySheet
 {
 public:
