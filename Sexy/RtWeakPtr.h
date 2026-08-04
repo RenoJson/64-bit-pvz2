@@ -9,7 +9,7 @@
 #define OFFSET_RTWEAKPTR_FROMOTHER 0x14D920C
 #define OFFSET_RTWEAKPTR_SETWEAKPTR 0x14D8B08
 #define OFFSET_RTWEAKPTR_MOVE 0x14D91C8
-
+#define NULL_RTID 0LL
 namespace Sexy
 {
     template<typename T>
@@ -23,8 +23,8 @@ namespace Sexy
 
         RtWeakPtr()
         {
-            mRtDataPtr = NULL;
-            mRtId = NULL;
+            mRtDataPtr = NULL_RTID;
+            mRtId = NULL_RTID;
         }
 
         ~RtWeakPtr()

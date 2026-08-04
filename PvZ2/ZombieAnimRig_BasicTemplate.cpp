@@ -3,7 +3,6 @@
 void* ZombieAnimRig_BasicTemplate::vftable = __null;
 Sexy::RtClass* ZombieAnimRig_BasicTemplate::s_rtClass = __null;;
 
-
 SexyString ParticleHead(ZombieAnimRig_BasicTemplate* thisPtr) {
     return thisPtr->m_ParticleHeadSpriteName;
 }
@@ -17,25 +16,21 @@ void* LowerArmList(ZombieAnimRig_BasicTemplate* thisPtr) {
     return &thisPtr->m_LowerArmLayers;
 }
 void* UpperArmList(ZombieAnimRig_BasicTemplate* thisPtr) {
-    static std::vector<SexyString> UpperArmList = {
-        "zombie_arm_outer_upper",
-        "zombie_arm_outer_upper_bone"
-    };
-    return &UpperArmList;
+    return &thisPtr->m_UpperArmLayers;
 }
 SexyString Idle(ZombieAnimRig_BasicTemplate* thisPtr) {
     return thisPtr->m_IdleAnimName;
 }
 SexyString Walk(ZombieAnimRig_BasicTemplate* thisPtr) {
-    return thisPtr->m_WalkAnimName;
-}
-SexyString Eat(ZombieAnimRig_BasicTemplate* thisPtr) {
     if (thisPtr->m_dancing == true) {
         return "dance_start";
     }
     else {
-        return thisPtr->m_EatAnimName;
+        return thisPtr->m_WalkAnimName;
     }
+}
+SexyString Eat(ZombieAnimRig_BasicTemplate* thisPtr) {
+    return thisPtr->m_EatAnimName;
 }
 SexyString Die(ZombieAnimRig_BasicTemplate* thisPtr) {
     return thisPtr->m_DieAnimName;
@@ -57,7 +52,7 @@ void ZombieAnimRig_BasicTemplate::modInit() {
 
     PatchVFTable(vftable, (void*)UpperArmList, 57);
 
-    //PatchVFTable(vftable, (void*)Idle, 58);
+    PatchVFTable(vftable, (void*)Idle, 58);
 
     PatchVFTable(vftable, (void*)Walk, 59);
 

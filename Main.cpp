@@ -101,6 +101,7 @@
 #include <PvZ2/ZombieAnimRig_MausoleumCursedBase.h>
 #include <PvZ2/TombraiserProjectileProps.h>
 #include <PvZ2/GridItemSpeakerBass.h>
+#include <PvZ2/ZombieTypeTemplate.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -711,6 +712,101 @@ void hkFixTeleportatoMineTeleport(void* a1, RtWeakPtr<Zombie>* a2) {
     auto zombie = reinterpret_cast<Zombie*>(zombiePtr.Get());
     CallFunc<Zombie*>(0xC4BC48, zombie, zombie_condition_stun);
 }
+
+typedef ZombieAnimRig* (*CreateAnimRig)(ZombieType*);
+CreateAnimRig oCreateAnimRig = nullptr;
+//5AB098 is where the rig initialize in almanac
+ZombieAnimRig* hkCreateAnimRig(ZombieType* thisPtr)
+{
+    if (!thisPtr->IsType(ZombieTypeTemplate::StaticGetType())) {
+        return oCreateAnimRig(thisPtr);
+    }
+    else {
+        auto templateType = static_cast<ZombieTypeTemplate*>(thisPtr);
+       
+        auto popAnimResPtr = ResourceManager::GetPopAnimByName(templateType->PopAnim);
+        auto popAnimRes = popAnimResPtr.Get();
+       
+        auto rigClass = CallFunc<Sexy::RtClass*>(0x163A83C, templateType->AnimRigClass.c_str());
+       
+        auto zombieRig = CallFunc<ZombieAnimRig*>(0x9DA144, popAnimRes, rigClass);
+        
+        if (zombieRig != nullptr)
+        {
+            if (zombieRig->IsType(ZombieAnimRig_BasicTemplate::StaticGetType()))
+            {
+                auto templateRig = static_cast<ZombieAnimRig_BasicTemplate*>(zombieRig);
+                auto rigProps = reinterpret_cast<ZombieAnimRigTemplateConfig*>(templateType->AnimRigProps.Get());
+                
+
+                    templateRig->m_LowerArmLayers = rigProps->LowerArmLayers;
+                    templateRig->m_UpperArmLayers = rigProps->UpperArmLayers;
+                    templateRig->m_HeadLayers = rigProps->HeadLayers;
+                    templateRig->m_IdleAnimName = rigProps->IdleAnimName;
+                    templateRig->m_WalkAnimName = rigProps->WalkAnimName;
+                    templateRig->m_EatAnimName = rigProps->EatAnimName;
+                    templateRig->m_DieAnimName = rigProps->DieAnimName;
+                    templateRig->m_ParticleArmSpriteName = rigProps->ParticleArmSpriteName;
+                    templateRig->m_ParticleHeadSpriteName = rigProps->ParticleHeadSpriteName;
+                    CallVirtualFunc<void>(templateRig, 21);
+                    CallFunc<void>(0x8DE21C, templateRig, &templateType->AnimRigClass);
+                    return templateRig;
+               
+                
+            }
+            else {
+                LOGI("[hkCreateAnimRig] ZombieType %s has AnimRigClass not derive from ZombieAnimRig_BasicTemplate",
+                    templateType->TypeName.c_str());
+            }
+            CallFunc<void>(0x8DE21C, zombieRig, &templateType->AnimRigClass);
+        }
+        return zombieRig;
+    }
+}
+typedef ZombieAnimRig* (*AlmanacCreateAnimRig)(ZombieType*, bool, bool);
+AlmanacCreateAnimRig oAlmanacCreateAnimRig = nullptr;
+
+ZombieAnimRig* hkAlmanacCreateAnimRig(ZombieType* thisPtr, bool a2, bool a3)
+{
+    ZombieAnimRig* zombieRig = oAlmanacCreateAnimRig(thisPtr, a2, a3);
+
+    if (zombieRig != nullptr && thisPtr->IsType(ZombieTypeTemplate::StaticGetType()))
+    {
+        auto templateType = static_cast<ZombieTypeTemplate*>(thisPtr);
+
+        if (zombieRig->IsType(ZombieAnimRig_BasicTemplate::StaticGetType()))
+        {
+            auto templateRig = static_cast<ZombieAnimRig_BasicTemplate*>(zombieRig);
+            auto rigProps = reinterpret_cast<ZombieAnimRigTemplateConfig*>(templateType->AnimRigProps.Get());
+            auto props = reinterpret_cast<ZombiePropertySheet*>(templateType->Properties.Get());
+            if (rigProps != nullptr)
+            {
+                templateRig->m_LowerArmLayers = rigProps->LowerArmLayers;
+                templateRig->m_UpperArmLayers = rigProps->UpperArmLayers;
+                templateRig->m_HeadLayers = rigProps->HeadLayers;
+
+                templateRig->m_IdleAnimName = rigProps->IdleAnimName;
+                templateRig->m_WalkAnimName = rigProps->WalkAnimName;
+                templateRig->m_EatAnimName = rigProps->EatAnimName;
+                templateRig->m_DieAnimName = rigProps->DieAnimName;
+                templateRig->m_ParticleArmSpriteName = rigProps->ParticleArmSpriteName;
+                templateRig->m_ParticleHeadSpriteName = rigProps->ParticleHeadSpriteName;
+
+                CallVirtualFunc<void>(templateRig, 21);
+                CallFunc<void>(0x8DE21C, templateRig, &templateType->AnimRigClass);
+                CallVirtualFunc<void>(templateRig, 52, &props->ZombieArmorProps);
+            }
+        }
+        else
+        {
+            LOGI("[hkAlmanacCreateAnimRig] ZombieType %s has AnimRigClass not derive from ZombieAnimRig_BasicTemplate",
+                templateType->TypeName.c_str());
+        }
+    }
+
+    return zombieRig;
+}
+
 #pragma region Build Symbol Funcs
 
 Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc PlantType::oPlantTypeBuildSymbols = nullptr;
@@ -753,10 +849,13 @@ void libChair_main()
     PVZ2HookFunction(0xAA0C40, (void*)hkBoardRender, (void**)&oBoardRender);
     PVZ2HookFunction(0x1273244, (void*)hkFire, (void**)&oFire);
     PVZ2HookFunction(0x1001C04, (void*)hkFixTeleportatoMineTeleport, (void**)&oTeleportatoMineTeleport);
+    PVZ2HookFunction(0x1069AC4, (void*)hkCreateAnimRig, (void**)&oCreateAnimRig);
+    PVZ2HookFunction(0x5AB098, (void*)hkAlmanacCreateAnimRig, (void**)&oAlmanacCreateAnimRig);
     //PVZ2HookFunction(0xC43B90, (void*)hkTakeDamageNoCorpse, (void**)&oZTakeDmg);
     PVZ2HookFunction(0x168D580, (void*)hkLoadAndDecode, (void**)&oLoadAndDecode);
     PVZ2HookFunction(0x176D6CC, (void*)hkGetGLTextureTotalSize, (void**)&oGetGLTextureTotalSize);
 
+    ZombieTypeTemplate::modInit();
     ZombieModernSuperfanImpProps::modInit();// free stuff
     ZombieBullProps::modInit();// free stuff
     ZombieBullVeteranProps::modInit();// free stuff

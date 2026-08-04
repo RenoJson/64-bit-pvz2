@@ -8,10 +8,6 @@
 #include "ZombieHelper.h"
 
 
-typedef void (*zombieEnterState)(ZombieZCorpEnergyDrinker*, int, int);
-
-typedef void (*LoopWalk)(ZombieZCorpEnergyDrinker*);
-typedef bool (*isDeadOrDying)(ZombieZCorpEnergyDrinker*);
 DECLARE_DELEGATES_SETUP(ZombieZCorpEnergyDrinker)
 
 static Sexy::DelegateBase drinkingCompletedDelegate;

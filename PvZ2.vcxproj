@@ -261,6 +261,7 @@
     <ClCompile Include="PvZ2\ZombieSpawnerProjectile.cpp" />
     <ClCompile Include="PvZ2\ZombieStateHelper.cpp" />
     <ClCompile Include="PvZ2\ZombieTombRaiser.cpp" />
+    <ClCompile Include="PvZ2\ZombieTypeTemplate.cpp" />
     <ClCompile Include="PvZ2\ZombieVaseGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieZcorpEnergyDrinker.cpp" />
     <ClCompile Include="PvZ2\ZombieZCorpEnergyDrinkerProps.cpp" />
@@ -420,6 +421,7 @@
     <ClInclude Include="PvZ2\ZombieStateHelper.h" />
     <ClInclude Include="PvZ2\ZombieTombRaiser.h" />
     <ClInclude Include="PvZ2\ZombieTombRaiserProps.h" />
+    <ClInclude Include="PvZ2\ZombieTypeTemplate.h" />
     <ClInclude Include="PvZ2\ZombieWithAction.h" />
     <ClInclude Include="PvZ2\Zombie_BullProps.h" />
     <ClInclude Include="PvZ2\Zombie_BullVeteran.h" />

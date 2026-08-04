@@ -24,9 +24,11 @@ public:
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(PropertySheetBase);
 	RT_CLASS_REGISTER_STRING_VECTOR_PROPERTY(ZombieAnimRigTemplateConfig, LowerArmLayers);
+	RT_CLASS_REGISTER_STRING_VECTOR_PROPERTY(ZombieAnimRigTemplateConfig, UpperArmLayers);
 	RT_CLASS_REGISTER_STRING_VECTOR_PROPERTY(ZombieAnimRigTemplateConfig, HeadLayers);
 	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieAnimRigTemplateConfig, ParticleHeadSpriteName);
 	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieAnimRigTemplateConfig, ParticleArmSpriteName);
+	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieAnimRigTemplateConfig, IdleAnimName);
 	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieAnimRigTemplateConfig, WalkAnimName);
 	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieAnimRigTemplateConfig, EatAnimName);
 	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieAnimRigTemplateConfig, DieAnimName);

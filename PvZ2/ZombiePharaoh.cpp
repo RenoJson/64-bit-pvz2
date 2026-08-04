@@ -42,7 +42,7 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
         return;
     }
 
-    bool isAlreadyHeadless = (thisPtr->m_zombieFlags & 0x200) != 0 || (thisPtr->m_entityState.m_id == 3);
+    bool isAlreadyHeadless = (thisPtr->m_zombieFlags & 4) != 0 || (thisPtr->m_entityState.m_id == 3);
 
     float expectedHp = thisPtr->m_hitpoints - damageInfo->m_damage;
 
@@ -107,12 +107,10 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
         }
     }
     bool isIceBlocked = ZombieHasCondition(thisPtr, zombie_condition_iceblocked);
-    if (headDropThreshold >= 0.0f && thisPtr->m_hitpoints < headDropThreshold && !isIceBlocked)
-    {
-        if ((thisPtr->m_zombieFlags & 0x200) == 0)
+    if (CallVirtualFunc<bool>(thisPtr, VFUNC_HAS_HEAD_DROP)) {
+        if (headDropThreshold >= 0.0f && thisPtr->m_hitpoints < headDropThreshold && !isIceBlocked)
         {
-            thisPtr->m_zombieFlags |= 0x200;
-            if ((damageInfo->m_flags & damage_lightning) != 0 
+            if ((damageInfo->m_flags & damage_lightning) != 0
                 || (damageInfo->m_flags & damage_ash_death) != 0
                 || (damageInfo->m_flags & damage_instantly_fatal) != 0)
             {
@@ -135,21 +133,21 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
     {
         if (thisPtr->IsType(ZombieZombossMech::StaticGetType()))
         {
+            thisPtr->m_hitpoints = 0.0f;
             return;
 		}
         else {
+            if ((thisPtr->m_zombieFlags & 0x200) != 0)
+            {
+                return;
+            }
             if (headDropThreshold <= 0.0f)
             {
-                if ((thisPtr->m_zombieFlags & 0x200) == 0)
-                {
-                    thisPtr->m_zombieFlags |= 0x200;
-                    CallFunc<void>(0xC47BF8, thisPtr, damageInfo);
-                }
+                CallFunc<void>(0xC47BF8, thisPtr, damageInfo);
             }
             else if (isIceBlocked)
             {
                 CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_attacker); // Do Head Drop
-                CallFunc<void>(0xC48338, thisPtr, damageInfo);
             }
             CallFunc<void>(0xC48338, thisPtr, damageInfo);
         }
@@ -353,6 +351,7 @@ void hkTakeDamage(Zombie* thisPtr, DamageInfo* damageInfo)
 bool IsReadyToDie(Zombie* thisPtr) {
     return thisPtr->m_elapsedTimeInState >= 5.0;
 }
+
 bool hkIsDeadOrDying(Zombie* thisPtr)
 {
     int stateId = thisPtr->m_entityState.m_id;

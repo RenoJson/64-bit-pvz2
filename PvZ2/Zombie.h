@@ -1,13 +1,13 @@
 ﻿#pragma once
 #include "BoardEntity.h"
 #include "PlantFramework.h"
-#include "PropertySheetBase.h"
 #include "EntityConditionTracker.h"
 #include "ZombieConditions.h"
 #include "ObjectTypeDescriptor.h"
 #include "ZombieAnimRig.h"
 #include "ArmorPropertySheet.h"
 #include "ZombieState.h"
+#include "PropertySheetBase.h"
 
 
 class ZombieConditionImmunity
@@ -167,6 +167,8 @@ public:
 	bool HideFromAlmanac;
 	ZombieFlagType FlagType = ZombieFlagType::noflag;
 	int IntegerID = 0;
+	//Sexy::RtWeakPtr<ZombieAnimRigTemplateConfig> AnimRigProps;
+	//bool AllowTemplateAnimRig = false;
 
 	static Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc oZombieTypeBuildSymbols;
 	static Reflection::CRefManualSymbolBuilder::ConstructFunc oZombieTypeConstruct;
@@ -184,10 +186,12 @@ public:
 	{
 		oZombieTypeBuildSymbols(builder, rclass);
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieType, IntegerID);
+		//RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(ZombieType, AnimRigProps, ZombieAnimRigTemplateConfig)
+		//RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieType, AllowTemplateAnimRig);
 	}
 };
 
-//static_assert(sizeof(ZombieType) == 248);
+static_assert(sizeof(ZombieType) == 248);
 static_assert(offsetof(ZombieType, ZombieClass) == 32);
 static_assert(offsetof(ZombieType, HomeWorld) == 56);
 static_assert(offsetof(ZombieType, PopAnim) == 128);
