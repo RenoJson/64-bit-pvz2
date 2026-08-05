@@ -45,6 +45,14 @@ SexyString BassGetJamStyle(ZombieEightiesBass* zombie) {
     return props->JamStyle[randomIndex];
 }
 
+void BassOnGetCondition(ZombieEightiesBass* zombie, int conditionID)
+{
+    if (conditionID == zombie_condition_hypnotized)
+    {
+        ZombieEnterState(zombie, 17, 0);
+    }
+}
+
 void BassActionFrame(ZombieEightiesBass* zombie, int64_t unk1, SexyString* actionName, int64_t unk2, SexyString* currentAnim)
 {
     if (*actionName == "kill_plant")
@@ -136,13 +144,7 @@ void ZombieEightiesBass::GuitarIdleOnLoop(ZombieEightiesBass* zombie)
         ZombieEnterState(zombie, 17, 0);
     }
 }
-void BassOnGetCondition(ZombieEightiesBass* zombie, int conditionID)
-{
-    if (conditionID == zombie_condition_hypnotized)
-    {
-        ZombieEnterState(zombie, 17, 0);
-    }
-}
+
 void ZombieEightiesBass::GuitarIdleOnExit(ZombieEightiesBass* zombie)
 {
 

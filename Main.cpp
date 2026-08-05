@@ -807,6 +807,39 @@ ZombieAnimRig* hkAlmanacCreateAnimRig(ZombieType* thisPtr, bool a2, bool a3)
     return zombieRig;
 }
 
+void hkNewspaperOnArmorDestroyed(Zombie* thisPtr, int armorIndex, const SexyString& armorName)
+{
+    if (armorName == "Newspaper" && !ZombieIsDeadOrDying(thisPtr) && thisPtr->m_entityState.m_id != 3)
+    {
+        ZombieEnterState(thisPtr, 16, 0);
+	}
+}
+
+void hkExcavatorOnArmorDestroyed(Zombie* thisPtr, int armorIndex, const SexyString& armorName)
+{
+	auto rig = reinterpret_cast<ZombieAnimRig_LostCityExcavator*>(thisPtr->m_animRig.Get());
+    rig->m_hasShovel = false;
+    if (armorName == "Shovel" && !ZombieIsDeadOrDying(thisPtr) && thisPtr->m_entityState.m_id != 3)
+    {
+        ZombieEnterState(thisPtr, 17, 0);
+    }
+}
+
+
+typedef void (*PharaohCallback)(ZombiePharaoh*);
+PharaohCallback oPharaohCallback = nullptr;
+void hkPharaohCallback(ZombiePharaoh* thisPtr)
+{
+    if ((thisPtr->m_zombieFlags & 4) != 0)
+    {
+        ZombieEnterState(thisPtr, 4, 0);
+    }
+    else {
+        oPharaohCallback(thisPtr);
+    }
+}
+
+
 #pragma region Build Symbol Funcs
 
 Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc PlantType::oPlantTypeBuildSymbols = nullptr;
@@ -851,10 +884,14 @@ void libChair_main()
     PVZ2HookFunction(0x1001C04, (void*)hkFixTeleportatoMineTeleport, (void**)&oTeleportatoMineTeleport);
     PVZ2HookFunction(0x1069AC4, (void*)hkCreateAnimRig, (void**)&oCreateAnimRig);
     PVZ2HookFunction(0x5AB098, (void*)hkAlmanacCreateAnimRig, (void**)&oAlmanacCreateAnimRig);
+    PVZ2HookFunction(0xBBE3A4, (void*)hkNewspaperOnArmorDestroyed, nullptr);
+    PVZ2HookFunction(0xBA2388, (void*)hkExcavatorOnArmorDestroyed, nullptr);
+    PVZ2HookFunction(0xB1F5CC, (void*)hkPharaohCallback, (void**)&oPharaohCallback);
     //PVZ2HookFunction(0xC43B90, (void*)hkTakeDamageNoCorpse, (void**)&oZTakeDmg);
     PVZ2HookFunction(0x168D580, (void*)hkLoadAndDecode, (void**)&oLoadAndDecode);
     PVZ2HookFunction(0x176D6CC, (void*)hkGetGLTextureTotalSize, (void**)&oGetGLTextureTotalSize);
 
+    ProjectileActions::modInit(); 
     ZombieTypeTemplate::modInit();
     ZombieModernSuperfanImpProps::modInit();// free stuff
     ZombieBullProps::modInit();// free stuff
@@ -890,7 +927,7 @@ void libChair_main()
     ZombieAnimRig_MysticFormation::modInit();
     PatchRedStingerPF();// free stuff
     
-    ProjectileActions::modInit();
+    
     ZombieModernScreenDoor::ModInit();
     ZombieAnimRig_ModernScreenDoor::modInit();
     ZombieAnimRig_ModernScreenDoorAlmanac::modInit();

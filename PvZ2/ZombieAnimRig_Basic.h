@@ -23,6 +23,12 @@ public:
 
 };
 
+class ZombieAnimRig_LostCityExcavator : public ZombieAnimRig_Basic
+{
+public:
+	bool m_hasShovel;
+};
+
 
 class ZombieAnimRig_MausoleumBasic : public ZombieAnimRig_Tutorial
 {

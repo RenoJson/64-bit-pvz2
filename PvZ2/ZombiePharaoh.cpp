@@ -108,7 +108,7 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
     }
     bool isIceBlocked = ZombieHasCondition(thisPtr, zombie_condition_iceblocked);
     if (CallVirtualFunc<bool>(thisPtr, VFUNC_HAS_HEAD_DROP)) {
-        if (headDropThreshold >= 0.0f && thisPtr->m_hitpoints < headDropThreshold && !isIceBlocked)
+        if (!isAlreadyHeadless && headDropThreshold >= 0.0f && thisPtr->m_hitpoints < headDropThreshold && !isIceBlocked)
         {
             if ((damageInfo->m_flags & damage_lightning) != 0
                 || (damageInfo->m_flags & damage_ash_death) != 0
@@ -124,6 +124,7 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
                     CallVirtualFunc<void>(thisPtr, VFUNC_ENTER_BLEEDING);
                     CallFunc<void>(0xC47BF8, thisPtr, damageInfo); // Somekind of Zen Garden related
                     CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_attacker); // Do Head Drop
+                    return;
                 }
             }
         }
@@ -131,6 +132,7 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
 
     if (thisPtr->m_hitpoints <= 0.0f)
     {
+        
         if (thisPtr->IsType(ZombieZombossMech::StaticGetType()))
         {
             thisPtr->m_hitpoints = 0.0f;
@@ -150,6 +152,7 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
                 CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_attacker); // Do Head Drop
             }
             CallFunc<void>(0xC48338, thisPtr, damageInfo);
+
         }
     }
 }
@@ -349,7 +352,7 @@ void hkTakeDamage(Zombie* thisPtr, DamageInfo* damageInfo)
     }
 }
 bool IsReadyToDie(Zombie* thisPtr) {
-    return thisPtr->m_elapsedTimeInState >= 5.0;
+    return thisPtr->m_position.x <= 100.0f;
 }
 
 bool hkIsDeadOrDying(Zombie* thisPtr)
@@ -484,7 +487,12 @@ void hkUpdate(Zombie* thisPtr) {
         ZombieRemoveCondition(thisPtr, zombie_condition_decaypoison);
         ZombieRemoveCondition(thisPtr, zombie_condition_poisoned);
     }
+    if(ZombieIsDeadOrDying(thisPtr) &&  ZombieHasCondition(thisPtr, zombie_condition_bleeding))
+    {
+        ZombieRemoveCondition(thisPtr, zombie_condition_bleeding);
+	}
 }
+
 float GetTotalArmorHealth(std::vector<Sexy::RtWeakPtr<Armor>>& armorList)
 {
     float totalHealth = 0.0f;
@@ -540,6 +548,14 @@ void PatchZombieSetCondition()
     ReplaceBytes(0xC43898, &value, 4);
 }
 
+void PatchZombieUpdate()
+{
+    uint32_t value = 0x52883E0A; 
+    ReplaceBytes(0xC3D908, &value, 4);
+    ReplaceBytes(0xC3D978, &value, 4);
+}
+
+
 void ZombiePharaoh::ModInit() {
     LOGI("ZombiePharaoh init");
     PVZ2HookFunction(0xC3D7A0, (void*)hkUpdate, (void**)&oUpdate);
@@ -554,6 +570,7 @@ void ZombiePharaoh::ModInit() {
     PVZ2HookFunction(0xC4CEC8, (void*)IsInBleedingState, nullptr);
     PVZ2HookFunction(0xC4D594, (void*)hkCanBeTargetted, nullptr);
     PVZ2HookFunction(0xAD117C, (void*)SurferIsHeadDrop, nullptr);
+    PatchZombieUpdate();
     PatchZombieSetCondition();
     LOGI("ZombiePharaoh finish init");
 }
