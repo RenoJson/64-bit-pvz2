@@ -364,7 +364,7 @@ bool hkIsDeadOrDying(Zombie* thisPtr)
         return true;
     }
     if (stateId == 3) {
-        if (thisPtr->m_position.x <= 264.0f) {
+        if (thisPtr->m_position.x <= 100.0f) {
             return true;
         }
     }
@@ -487,7 +487,19 @@ void hkUpdate(Zombie* thisPtr) {
         ZombieRemoveCondition(thisPtr, zombie_condition_decaypoison);
         ZombieRemoveCondition(thisPtr, zombie_condition_poisoned);
     }
-    if(ZombieIsDeadOrDying(thisPtr) &&  ZombieHasCondition(thisPtr, zombie_condition_bleeding))
+    if (((thisPtr->m_zombieFlags & 4) != 0) &&
+        ZombieHasCondition(thisPtr, zombie_condition_warpingIn))
+    {
+        auto rig = reinterpret_cast<ZombieAnimRig*>(thisPtr->m_animRig.Get());
+        (thisPtr->m_zombieFlags & 2) != 0;
+        CallVirtualFunc<void>(rig, 46);
+    }
+    if (((thisPtr->m_zombieFlags & 4) != 0) && 
+        ZombieHasCondition(thisPtr, zombie_condition_warpingOut))
+    {
+        ZombieEnterState(thisPtr, 4, 0);
+    }
+    if(ZombieIsDeadOrDying(thisPtr) && ZombieHasCondition(thisPtr, zombie_condition_bleeding))
     {
         ZombieRemoveCondition(thisPtr, zombie_condition_bleeding);
 	}
@@ -537,8 +549,7 @@ int hkCalcProgressMeterHP(Zombie* zombie) {
 
     if ((zombie->m_teamFlags & 2) != 0) {
         float currentBaseHP = std::max(0.0f, zombie->m_hitpoints);
-        zombie->m_helmHitpoints = GetTotalArmorHealth(zombie->m_armor);
-        return (int)currentBaseHP + (int)zombie->m_helmHitpoints;
+        return (int)currentBaseHP + (int)GetTotalArmorHealth(zombie->m_armor);
     }
     return 0;
 }

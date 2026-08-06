@@ -6,6 +6,7 @@
 class ZombieAnimRig_Basic : public ZombieAnimRig
 {
 public:
+	RT_CLASS_GET_CLASS_WRAPPER(0x1343884);
     ZombieFlagType m_flagType;
     HelmType m_helmType;
     int m_helmDamageIndex;

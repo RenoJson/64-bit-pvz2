@@ -839,7 +839,49 @@ void hkPharaohCallback(ZombiePharaoh* thisPtr)
     }
 }
 
+void hkHealHelm(Zombie* thisPtr) {
+    bool hasArmorUpdated = false; 
+    auto rig = reinterpret_cast<ZombieAnimRig*>(thisPtr->m_animRig.Get());
+    auto props = reinterpret_cast<ZombiePropertySheet*>(thisPtr->m_propertySheet.Get());
+    DamageInfo dmg;
+    dmg.m_damage = 0.0f;
+    dmg.m_attacker = thisPtr;
+    for (auto& armorWeakPtr : thisPtr->m_armor)
+    {
+        if (armorWeakPtr.IsValid())
+        {
+            Armor* armor = reinterpret_cast<Armor*>(armorWeakPtr.Get());
 
+            if (armor != nullptr && !armor->m_destroyed)
+            {
+                armor->m_health = armor->m_maxHealth;
+                armor->m_damageState = 0;
+                    if (armor->m_propertySheetPtr.IsValid())
+                    {
+                        auto armorProps = reinterpret_cast<ArmorPropertySheet*>(armor->m_propertySheetPtr.Get());
+
+                        int layerIndex = 0;
+                        for (const auto& layerName : armorProps->ArmorLayers)
+                        {
+                            if (layerIndex == 0) {
+                                SetAnimLayerVisible(rig, layerName, true);
+                            }
+                            else {
+                                SetAnimLayerVisible(rig, layerName, false);
+                            }
+                            layerIndex++;
+                        }
+                    }
+                
+                hasArmorUpdated = true;
+            }
+        }
+    }
+    if (hasArmorUpdated) {
+        CallVirtualFunc<void, void*>(thisPtr, 186, &dmg);
+        
+    }
+}
 #pragma region Build Symbol Funcs
 
 Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc PlantType::oPlantTypeBuildSymbols = nullptr;
@@ -886,6 +928,7 @@ void libChair_main()
     PVZ2HookFunction(0x5AB098, (void*)hkAlmanacCreateAnimRig, (void**)&oAlmanacCreateAnimRig);
     PVZ2HookFunction(0xBBE3A4, (void*)hkNewspaperOnArmorDestroyed, nullptr);
     PVZ2HookFunction(0xBA2388, (void*)hkExcavatorOnArmorDestroyed, nullptr);
+    PVZ2HookFunction(0xC47450, (void*)hkHealHelm, nullptr);
     PVZ2HookFunction(0xB1F5CC, (void*)hkPharaohCallback, (void**)&oPharaohCallback);
     //PVZ2HookFunction(0xC43B90, (void*)hkTakeDamageNoCorpse, (void**)&oZTakeDmg);
     PVZ2HookFunction(0x168D580, (void*)hkLoadAndDecode, (void**)&oLoadAndDecode);
