@@ -90,70 +90,76 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
 
         if (armDropThreshold >= 0.0f && thisPtr->m_hitpoints < armDropThreshold)
         {
+            uint64_t SKIP_ARM_MASK = damage_instantly_fatal | damage_lightning | damage_ash_death;
+
             bool isFatalSpecialDeath = false;
             if (headDropThreshold >= 0.0f && thisPtr->m_hitpoints < headDropThreshold)
             {
-                if ((damageInfo->m_flags & damage_lightning) != 0 
-                    || (damageInfo->m_flags & damage_ash_death) != 0
-                    || (damageInfo->m_flags & damage_instantly_fatal) != 0)
+                if ((damageInfo->m_flags & SKIP_ARM_MASK) != 0)
                 {
                     isFatalSpecialDeath = true;
                 }
             }
             if (!isFatalSpecialDeath)
             {
-                CallFunc<void>(0xC47944, thisPtr); // Do Arm Drop
+                CallFunc<void>(0xC47944, thisPtr); 
             }
         }
     }
+
     bool isIceBlocked = ZombieHasCondition(thisPtr, zombie_condition_iceblocked);
-    if (CallVirtualFunc<bool>(thisPtr, VFUNC_HAS_HEAD_DROP)) {
+
+    
+    uint64_t SPECIAL_DEATH_MASK = damage_instantly_fatal | damage_lightning | damage_ash_death |
+        damage_mower | damage_plantify_on_death | damage_no_bleed_on_death;
+
+    if (CallVirtualFunc<bool>(thisPtr, VFUNC_HAS_HEAD_DROP))
+    {
         if (!isAlreadyHeadless && headDropThreshold >= 0.0f && thisPtr->m_hitpoints < headDropThreshold && !isIceBlocked)
         {
-            if ((damageInfo->m_flags & damage_lightning) != 0
-                || (damageInfo->m_flags & damage_ash_death) != 0
-                || (damageInfo->m_flags & damage_instantly_fatal) != 0)
+            if ((damageInfo->m_flags & SPECIAL_DEATH_MASK) == 0)
             {
-                CallFunc<void>(0xC48338, thisPtr, damageInfo);
-                return;
-            }
-            else
-            {
-                if (CallVirtualFunc<bool>(thisPtr, VFUNC_DUMMY_TRUE))
+                if (CallVirtualFunc<bool>(thisPtr, VFUNC_DUMMY_TRUE)) 
                 {
-                    CallVirtualFunc<void>(thisPtr, VFUNC_ENTER_BLEEDING);
-                    CallFunc<void>(0xC47BF8, thisPtr, damageInfo); // Somekind of Zen Garden related
-                    CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_attacker); // Do Head Drop
+                    CallVirtualFunc<void>(thisPtr, VFUNC_ENTER_BLEEDING); 
+                    CallFunc<void>(0xC47BF8, thisPtr, damageInfo); 
+                    CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_flags); 
                     return;
                 }
+            }
+
+            if ((damageInfo->m_flags & damage_no_bleed_on_death) != 0)
+            {
+                CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_flags);
+                CallFunc<void>(0xC48338, thisPtr, damageInfo);
+                return;
             }
         }
     }
 
     if (thisPtr->m_hitpoints <= 0.0f)
     {
-        
         if (thisPtr->IsType(ZombieZombossMech::StaticGetType()))
         {
             thisPtr->m_hitpoints = 0.0f;
             return;
-		}
-        else {
-            if ((thisPtr->m_zombieFlags & 0x200) != 0)
-            {
-                return;
-            }
-            if (headDropThreshold <= 0.0f)
-            {
-                CallFunc<void>(0xC47BF8, thisPtr, damageInfo);
-            }
-            else if (isIceBlocked)
-            {
-                CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_attacker); // Do Head Drop
-            }
-            CallFunc<void>(0xC48338, thisPtr, damageInfo);
-
         }
+
+        if ((thisPtr->m_zombieFlags & 0x200) != 0) 
+        {
+            return;
+        }
+
+        if (headDropThreshold <= 0.0f)
+        {
+            CallFunc<void>(0xC47BF8, thisPtr, damageInfo);
+        }
+        else if (isIceBlocked)
+        {
+            CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_flags);
+        }
+
+        CallFunc<void>(0xC48338, thisPtr, damageInfo);
     }
 }
 
@@ -487,18 +493,16 @@ void hkUpdate(Zombie* thisPtr) {
         ZombieRemoveCondition(thisPtr, zombie_condition_decaypoison);
         ZombieRemoveCondition(thisPtr, zombie_condition_poisoned);
     }
-    if (((thisPtr->m_zombieFlags & 4) != 0) &&
-        ZombieHasCondition(thisPtr, zombie_condition_warpingIn))
+
+    if (((thisPtr->m_zombieFlags & 4) != 0) && 
+        ZombieHasCondition(thisPtr, zombie_condition_warpingOut))
     {
         auto rig = reinterpret_cast<ZombieAnimRig*>(thisPtr->m_animRig.Get());
         (thisPtr->m_zombieFlags & 2) != 0;
         CallVirtualFunc<void>(rig, 46);
-    }
-    if (((thisPtr->m_zombieFlags & 4) != 0) && 
-        ZombieHasCondition(thisPtr, zombie_condition_warpingOut))
-    {
         ZombieEnterState(thisPtr, 4, 0);
     }
+
     if(ZombieIsDeadOrDying(thisPtr) && ZombieHasCondition(thisPtr, zombie_condition_bleeding))
     {
         ZombieRemoveCondition(thisPtr, zombie_condition_bleeding);
