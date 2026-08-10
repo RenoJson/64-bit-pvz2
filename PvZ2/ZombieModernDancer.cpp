@@ -29,6 +29,12 @@ bool IsDancerNeedToStop(ZombieModernDancer* zombie) {
         || (zombie->m_zombieFlags & 0x400) != 0;
 }
 
+void DancerOnDestroy(ZombieModernDancer* zombie)
+{
+    CallFunc<void>(0xC40854, zombie);
+    ZombiePlaySoundEvent(zombie, "Play_Disco_Die", 0.0f);
+}
+
 void DancerOnSpawn(ZombieModernDancer* zombie) {
     ZombieOnSpawn(zombie);
     if (zombie->m_isMainDancer) {
@@ -36,20 +42,54 @@ void DancerOnSpawn(ZombieModernDancer* zombie) {
     }
 }
 void DancerWalkingOnLoop(ZombieModernDancer* zombie) {
-  
     CallFunc<void>(0xC506B4, zombie);
 
     auto isZombieStopped = [&](ZombieModernDancer* z) -> bool {
         return z != nullptr && IsDancerNeedToStop(z);
         };
 
-    ZombieModernDancer* groupLeader = nullptr;
+    if (zombie->m_isMainDancer)
+    {
+        bool shouldDisband = false;
 
+        for (int i = 0; i < 4; ++i) {
+            if (zombie->m_backupDancer[i].IsValid()) {
+                ZombieModernDancer* backup = reinterpret_cast<ZombieModernDancer*>(zombie->m_backupDancer[i].Get());
+
+                if (backup != nullptr && backup->m_teamFlags != zombie->m_teamFlags) {
+                    shouldDisband = true;
+                    break;
+                }
+            }
+        }
+
+        if (shouldDisband) {
+            for (int i = 0; i < 4; ++i) {
+                if (zombie->m_backupDancer[i].IsValid()) {
+                    ZombieModernDancer* backup = reinterpret_cast<ZombieModernDancer*>(zombie->m_backupDancer[i].Get());
+                    if (backup != nullptr) {
+                        backup->m_mainDancer = RtWeakPtr<Sexy::RtObject>();
+                    }
+                    zombie->m_backupDancer[i] = RtWeakPtr<Sexy::RtObject>();
+                }
+            }
+        }
+    }
+    else if (zombie->m_mainDancer.IsValid())
+    {
+        ZombieModernDancer* leader = reinterpret_cast<ZombieModernDancer*>(zombie->m_mainDancer.Get());
+
+        if (leader != nullptr && zombie->m_teamFlags != leader->m_teamFlags) {
+            zombie->m_mainDancer = RtWeakPtr<Sexy::RtObject>();
+        }
+    }
+
+    ZombieModernDancer* groupLeader = nullptr;
     if (zombie->m_isMainDancer) {
         groupLeader = zombie;
     }
     else if (zombie->m_mainDancer.IsValid()) {
-        groupLeader = reinterpret_cast<ZombieModernDancer*>(zombie->m_mainDancer.Get()); 
+        groupLeader = reinterpret_cast<ZombieModernDancer*>(zombie->m_mainDancer.Get());
     }
 
     bool shouldStop = false;
@@ -73,7 +113,6 @@ void DancerWalkingOnLoop(ZombieModernDancer* zombie) {
         }
     }
     else {
-        
         if (isZombieStopped(zombie)) shouldStop = true;
     }
 
@@ -125,9 +164,7 @@ void DancerWalkingOnLoop(ZombieModernDancer* zombie) {
         }
         else
         {
-            if (zombie->m_mainDancer.IsValid()) {
-                ZombieEnterState(zombie, 17, 0);
-            }
+            ZombieEnterState(zombie, 17, 0);
         }
     }
 }
@@ -143,7 +180,6 @@ void DancerOnHeadDrop(ZombieModernDancer* zombie)
 {
     if (zombie->m_isMainDancer) {
         CallFunc<int, AttachedEffectManager*, const SexyString&>(0x662360, &zombie->m_attachedEffects, "light_on");
-        ZombiePlaySoundEvent(zombie, "Play_Disco_Die", 0.0f);
     }
 }
 void ZombieModernDancer::IntroOnEnter(ZombieModernDancer* zombie)
@@ -167,6 +203,7 @@ void ZombieModernDancer::IntroOnLoop(ZombieModernDancer* zombie)
 void ZombieModernDancer::IntroOnExit(ZombieModernDancer* zombie)
 {
     ZombieAllowMovement(zombie, false);
+    ZombieSetSpeedScale(zombie, 1.0f);
 }
 
 void ZombieModernDancer::DanceOnEnter(ZombieModernDancer* zombie)
@@ -207,7 +244,6 @@ void ZombieModernDancer::SummonOnEnter(ZombieModernDancer* zombie)
                 2);
         }
     }
-    ZombieSetSpeedScale(zombie, 1.0f);
 	RegisterEventAfterAnim(zombie, summonAnim, "onSummonStart");
 }
 
@@ -290,6 +326,7 @@ void ZombieModernDancer::WaitingOnLoop(ZombieModernDancer* zombie)
                             void* hypnoData = funGetHypnoData(zombie);
                             typedef void (*ApplyHypnoDataFunc)(Zombie*, void*);
                             ApplyHypnoDataFunc funApplyHypnoData = (ApplyHypnoDataFunc)getActualOffset(0xC41290);
+                            funApplyHypnoData(backupDancer, hypnoData);
                         }
                     }
                 }
@@ -347,6 +384,7 @@ void ZombieModernDancer::WaitingOnLoop(ZombieModernDancer* zombie)
                                     void* hypnoData = funGetHypnoData(zombie);
                                     typedef void (*ApplyHypnoDataFunc)(Zombie*, void*);
                                     ApplyHypnoDataFunc funApplyHypnoData = (ApplyHypnoDataFunc)getActualOffset(0xC41290);
+                                    funApplyHypnoData(backupDancer, hypnoData);
                                 }
                             }
                         }
@@ -393,6 +431,7 @@ void ZombieModernDancer::ModInit() {
     vftable = CreateChildVFTable(204 + 15, getActualOffset(0x241D430), 204);
     PatchVFTable(vftable, (void*)ZombieModernDancer::StaticGetType, 0);
 
+    PatchVFTable(vftable, (void*)DancerOnDestroy, 12);
     PatchVFTable(vftable, (void*)DancerOnSpawn, 49);
     PatchVFTable(vftable, (void*)DancerWalkingOnLoop, 124);
     PatchVFTable(vftable, (void*)DancerOnInitialize, 169);
