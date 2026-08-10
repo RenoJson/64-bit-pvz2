@@ -102,6 +102,7 @@
 #include <PvZ2/TombraiserProjectileProps.h>
 #include <PvZ2/GridItemSpeakerBass.h>
 #include <PvZ2/ZombieTypeTemplate.h>
+#include <PvZ2/ZombieModernDancer.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -1057,4 +1058,6 @@ void libChair_main()
     ZombieMausoleumGargantuarProps::modInit();
     ZombieAnimRig_MausoleumGargantuar::modInit(); 
     TombraiserProjectileProps::modInit();
+    ZombieModernDancer::ModInit();
+    ZombieModernDancerProps::modInit();
 }

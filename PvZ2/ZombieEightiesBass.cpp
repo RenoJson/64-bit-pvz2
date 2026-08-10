@@ -170,7 +170,6 @@ void ZombieEightiesBass::GrandDebutOnEnter(ZombieEightiesBass* zombie)
     auto* props = reinterpret_cast<ZombieEightiesBassProps*>(zombie->m_propertySheet.Get());
     ZombiePlaySoundEvent(zombie, props->SoundOnDebut, 0.0f);
     auto animRig = reinterpret_cast<ZombieAnimRig_EightiesBass*>(zombie->m_animRig.Get());
-	zombie->m_isInGrandDebut = true;
 	animRig->m_hasGuitar = true;
     ZombieSetInvincibleStatusFlag(zombie, true);
     ZombieSetNoCollisionFlag(zombie, true);
@@ -213,7 +212,6 @@ void DebutCompletedCallback(Zombie* zombie) {
         gridItem->m_speakerState = 2;
         gridItem->m_teamFlags = bassZombie->m_teamFlags;
         gridItem->m_realObjectFlags &= ~1;
-        bassZombie->m_isInGrandDebut = false;
         bassZombie->m_speaker.FromOther(&gridItem->m_thisPtr);
         ZombieSetInvincibleStatusFlag(bassZombie, false);
         ZombieSetNoCollisionFlag(bassZombie, false);
