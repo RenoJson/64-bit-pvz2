@@ -146,7 +146,7 @@ void MysticOnSpawn(ZombieMysticFormation* zombie) {
     ZombieEnterState(zombie, 1, 0);
 }
 void MysticWalkOnLoop(ZombieMysticFormation* zombie) {
-    if (zombie->m_position.x > 744.0f || zombie->m_teamFlags != 2 || ZombieIsDeadOrDying(zombie) || zombie->m_entityState.m_id != 3) {
+    if (zombie->m_position.x > 744.0f || zombie->m_teamFlags != 2 || ZombieIsDeadOrDying(zombie)) {
         CallFunc<void, ZombieMysticFormation*>(0xC506B4, zombie);
         return;
     }

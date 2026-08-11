@@ -26,13 +26,22 @@ bool IsDancerNeedToStop(ZombieModernDancer* zombie) {
         || ZombieIsInState(zombie, 17)
         || ZombieIsInState(zombie, 18)
         || ZombieIsInState(zombie, 19)
+        || ZombieHasCondition(zombie, zombie_condition_freeze)
+        || ZombieHasCondition(zombie, zombie_condition_stun)
+        || ZombieHasCondition(zombie, zombie_condition_dazeystunned)
+        || ZombieHasCondition(zombie, zombie_condition_stickybombed)
+        || ZombieHasCondition(zombie, zombie_condition_butter)
+        || zombie->IsInGridItem()
+        || ZombieHasCondition(zombie, zombie_condition_gummed)
         || (zombie->m_zombieFlags & 0x400) != 0;
 }
 
 void DancerOnDestroy(ZombieModernDancer* zombie)
 {
     CallFunc<void>(0xC40854, zombie);
-    ZombiePlaySoundEvent(zombie, "Play_Disco_Die", 0.0f);
+    if (zombie->m_isMainDancer) {
+        ZombiePlaySoundEvent(zombie, "Play_Disco_Die", 0.0f);
+    }
 }
 
 void DancerOnSpawn(ZombieModernDancer* zombie) {
@@ -50,26 +59,13 @@ void DancerWalkingOnLoop(ZombieModernDancer* zombie) {
 
     if (zombie->m_isMainDancer)
     {
-        bool shouldDisband = false;
-
         for (int i = 0; i < 4; ++i) {
             if (zombie->m_backupDancer[i].IsValid()) {
                 ZombieModernDancer* backup = reinterpret_cast<ZombieModernDancer*>(zombie->m_backupDancer[i].Get());
 
                 if (backup != nullptr && backup->m_teamFlags != zombie->m_teamFlags) {
-                    shouldDisband = true;
-                    break;
-                }
-            }
-        }
+                    backup->m_mainDancer = RtWeakPtr<Sexy::RtObject>();
 
-        if (shouldDisband) {
-            for (int i = 0; i < 4; ++i) {
-                if (zombie->m_backupDancer[i].IsValid()) {
-                    ZombieModernDancer* backup = reinterpret_cast<ZombieModernDancer*>(zombie->m_backupDancer[i].Get());
-                    if (backup != nullptr) {
-                        backup->m_mainDancer = RtWeakPtr<Sexy::RtObject>();
-                    }
                     zombie->m_backupDancer[i] = RtWeakPtr<Sexy::RtObject>();
                 }
             }
