@@ -244,6 +244,8 @@
     <ClCompile Include="PvZ2\ZombieModernAllStar.cpp" />
     <ClCompile Include="PvZ2\ZombieModernBalloon.cpp" />
     <ClCompile Include="PvZ2\ZombieModernBerserkerProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernBungee.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernBungeeTarget.cpp" />
     <ClCompile Include="PvZ2\ZombieModernDancer.cpp" />
     <ClCompile Include="PvZ2\ZombieModernDolphinRider.cpp" />
     <ClCompile Include="PvZ2\ZombieModernDolphinRiderProps.cpp" />
@@ -402,6 +404,8 @@
     <ClInclude Include="PvZ2\ZombieModernAllStar.h" />
     <ClInclude Include="PvZ2\ZombieModernBalloon.h" />
     <ClInclude Include="PvZ2\ZombieJourneyToTheWestBalloonProps.h" />
+    <ClInclude Include="PvZ2\ZombieModernBungee.h" />
+    <ClInclude Include="PvZ2\ZombieModernBungeeTarget.h" />
     <ClInclude Include="PvZ2\ZombieModernDancer.h" />
     <ClInclude Include="PvZ2\ZombieModernDolphinRider.h" />
     <ClInclude Include="PvZ2\ZombieModernDolphinRiderProps.h" />

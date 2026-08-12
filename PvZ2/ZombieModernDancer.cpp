@@ -264,7 +264,7 @@ void ZombieModernDancer::WaitingOnLoop(ZombieModernDancer* zombie)
 {
     auto props = reinterpret_cast<ZombieModernDancerProps*>(zombie->m_propertySheet.Get());
 
-    if (zombie->m_elapsedTimeInState >= 3.0)
+    if (zombie->m_elapsedTimeInState >= 2.0)
     {
         float currentX = zombie->m_position.x;
         float currentY = zombie->m_position.y;
@@ -415,7 +415,7 @@ void onDancingCallback(Zombie* zombie) {
 void onWaitingCallback(Zombie* zombie) {
     auto dancer = static_cast<ZombieModernDancer*>(zombie);
     if (dancer) {
-        if (dancer->m_elapsedTimeInState >= 4.0 && !ZombieIsDeadOrDying(dancer) && dancer->m_entityState.m_id != 3) {
+        if (dancer->m_elapsedTimeInState >= 2.5 && !ZombieIsDeadOrDying(dancer) && dancer->m_entityState.m_id != 3) {
             ZombieEnterState(dancer, 1, 0);
         }
     }

@@ -10,3 +10,9 @@ public:
     RT_CLASS_GET_CLASS_WRAPPER(0xB1E4C8);
 	static void ModInit();
 };
+
+class ZombieDarkKing : public Zombie {
+public:
+	RtWeakPtr<RtObject> m_knightingTarget;
+
+};

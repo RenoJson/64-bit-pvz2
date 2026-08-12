@@ -840,6 +840,22 @@ void hkPharaohCallback(ZombiePharaoh* thisPtr)
     }
 }
 
+typedef void (*KingActionCommand)(ZombieDarkKing*, SexyString*, SexyString*, SexyString*, float);
+KingActionCommand oKingActionCommand = nullptr;
+
+void hkKingActionCommand(ZombieDarkKing* thisPtr, SexyString* currentAnim, SexyString* actionName, SexyString* param, float nextFrameTime)
+{
+    if (*actionName == "knight") {
+        auto knightTarget = reinterpret_cast<Zombie*>(thisPtr->m_knightingTarget.Get());
+        auto targetRig = reinterpret_cast<ZombieAnimRig*>(knightTarget->m_animRig.Get());
+        if (targetRig->IsType(ZombieAnimRig_Basic::StaticGetType())) {
+            auto basicRig = static_cast<ZombieAnimRig_Basic*>(targetRig);
+            basicRig->m_helmType = HelmType::crown;
+        }
+    }
+    oKingActionCommand(thisPtr, currentAnim, actionName, param, nextFrameTime);
+}
+
 void hkHealHelm(Zombie* thisPtr) {
     bool hasArmorUpdated = false; 
     auto rig = reinterpret_cast<ZombieAnimRig*>(thisPtr->m_animRig.Get());
@@ -931,6 +947,7 @@ void libChair_main()
     PVZ2HookFunction(0xBA2388, (void*)hkExcavatorOnArmorDestroyed, nullptr);
     PVZ2HookFunction(0xC47450, (void*)hkHealHelm, nullptr);
     PVZ2HookFunction(0xB1F5CC, (void*)hkPharaohCallback, (void**)&oPharaohCallback);
+    PVZ2HookFunction(0xAFAF74, (void*)hkKingActionCommand, (void**)&oKingActionCommand);
     //PVZ2HookFunction(0xC43B90, (void*)hkTakeDamageNoCorpse, (void**)&oZTakeDmg);
     PVZ2HookFunction(0x168D580, (void*)hkLoadAndDecode, (void**)&oLoadAndDecode);
     PVZ2HookFunction(0x176D6CC, (void*)hkGetGLTextureTotalSize, (void**)&oGetGLTextureTotalSize);

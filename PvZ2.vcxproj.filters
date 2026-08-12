@@ -173,6 +173,8 @@
     <ClCompile Include="PvZ2\GridItemSpeakerBass.cpp" />
     <ClCompile Include="PvZ2\ZombieTypeTemplate.cpp" />
     <ClCompile Include="PvZ2\ZombieModernDancer.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernBungee.cpp" />
+    <ClCompile Include="PvZ2\ZombieModernBungeeTarget.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -295,5 +297,7 @@
     <ClInclude Include="PvZ2\GridItemSpeakerBass.h" />
     <ClInclude Include="PvZ2\ZombieTypeTemplate.h" />
     <ClInclude Include="PvZ2\ZombieModernDancer.h" />
+    <ClInclude Include="PvZ2\ZombieModernBungee.h" />
+    <ClInclude Include="PvZ2\ZombieModernBungeeTarget.h" />
   </ItemGroup>
 </Project>
