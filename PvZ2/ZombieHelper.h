@@ -121,6 +121,18 @@ inline void GetEntitiesInRectPixel(std::vector<BoardEntity*>* entities, uint typ
 	CallFunc<void, std::vector<BoardEntity*>*, uint, Rect*, int, int>(0x86F340, entities, typeID, area, minRow, maxRow);
 }
 
+inline void GetEntitiesInGridSquare(std::vector<BoardEntity*> entities, uint typeID, Zombie* zombie) {
+	int gX = static_cast<int>((zombie->m_position.x - 200.0f) / 64.0f);
+	int gY = static_cast<int>((zombie->m_position.y - 160.0f) / 76.0f);
+
+	Rect scanRect;
+	scanRect.mX = gX;
+	scanRect.mY = gY;
+	scanRect.mWidth = 1;
+	scanRect.mHeight = 1;
+	GetEntitiesInRectGrid(&entities, 63, &scanRect);
+}
+
 // Plant helper start here
 inline void PlantSetCondition(PlantGroup* plant, int conditionID, float duration, float a4) {
 	CallFunc<void, PlantGroup*, int, float, float>(0x13399F8, plant, conditionID, duration, a4);
