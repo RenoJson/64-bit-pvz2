@@ -9,6 +9,7 @@ public:
 	RtWeakPtr<Sexy::RtObject> m_targetedPlant;
 	RtWeakPtr<Sexy::RtObject> m_attachedPlant;
 	bool m_hasSpawnTarget;
+	bool m_isStreetZombie;
 
 	static void* vftable;
 	static void* vftable1;
@@ -57,7 +58,6 @@ class ZombieModernBungeeProps : public ZombiePropertySheet
 public:
 	std::vector<SexyString> BungeeTargetExcludeList;
 	float PlantLiftingWaitTime = 4.0f;
-	float TimeToFalling = 4.0f;
 
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;
@@ -69,7 +69,6 @@ public:
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombiePropertySheet);
 	RT_CLASS_REGISTER_STRING_VECTOR_PROPERTY(ZombieModernBungeeProps, BungeeTargetExcludeList);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModernBungeeProps, PlantLiftingWaitTime);
-	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModernBungeeProps, TimeToFalling);
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieModernBungeeProps);

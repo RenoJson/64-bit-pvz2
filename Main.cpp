@@ -103,6 +103,8 @@
 #include <PvZ2/GridItemSpeakerBass.h>
 #include <PvZ2/ZombieTypeTemplate.h>
 #include <PvZ2/ZombieModernDancer.h>
+#include <PvZ2/ZombieModernBungee.h>
+#include <PvZ2/ZombieModernBungeeTarget.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -845,6 +847,7 @@ KingActionCommand oKingActionCommand = nullptr;
 
 void hkKingActionCommand(ZombieDarkKing* thisPtr, SexyString* currentAnim, SexyString* actionName, SexyString* param, float nextFrameTime)
 {
+    // apply the effect first then call the original function
     if (*actionName == "knight") {
         auto knightTarget = reinterpret_cast<Zombie*>(thisPtr->m_knightingTarget.Get());
         auto targetRig = reinterpret_cast<ZombieAnimRig*>(knightTarget->m_animRig.Get());
@@ -1077,4 +1080,7 @@ void libChair_main()
     TombraiserProjectileProps::modInit();
     ZombieModernDancer::ModInit();
     ZombieModernDancerProps::modInit();
+    ZombieModernBungee::ModInit();
+    ZombieModernBungeeProps::modInit();
+    ZombieModernBungeeTarget::ModInit();
 }

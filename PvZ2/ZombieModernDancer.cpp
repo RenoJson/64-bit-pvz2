@@ -184,7 +184,7 @@ void ZombieModernDancer::IntroOnEnter(ZombieModernDancer* zombie)
 	auto dlgt = RegisterDelegateEvent(zombie, "onWalkAnimationCycle");
 	ZombieAllowMovement(zombie, true);
 	ZombiePlaySoundEvent(zombie, "Play_Disco_Drop", 0.0f);
-    ZombieSetSpeedScale(zombie, 4.0f);
+    ZombieSetSpeedScale(zombie, 5.0f);
 	PlayAndContinueAnim(rig, "entry", 0, dlgt);
 }
 

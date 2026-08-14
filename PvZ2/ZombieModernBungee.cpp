@@ -1,4 +1,4 @@
-#include "ZombieModernBungee.h"
+﻿#include "ZombieModernBungee.h"
 #include "AddZombieType.h"
 #include "ZombieState.h"
 #include "StateMachineBuilder.h"
@@ -8,10 +8,21 @@
 #include "ZombieModernBungeeTarget.h"
 
 void* ZombieModernBungee::vftable = nullptr;
+void* ZombieModernBungee::vftable1 = nullptr;
 Sexy::RtClass* ZombieModernBungee::s_rtClass = nullptr;
 
 void* ZombieModernBungeeProps::vftable = nullptr;
 Sexy::RtClass* ZombieModernBungeeProps::s_rtClass = nullptr;
+
+DECLARE_DELEGATES_SETUP(ZombieModernBungee)
+
+static Sexy::DelegateBase fallingCompletedDelegate;
+
+static Sexy::DelegateBase grabCompletedDelegate;
+
+static Sexy::DelegateBase attachCompletedDelegate;
+
+static Sexy::DelegateBase escapeCompletedDelegate;
 
 bool BungeeCanBeTargeted(ZombieModernBungee* zombie, char a2) {
     if (ZombieIsInState(zombie, 16)
@@ -23,29 +34,115 @@ bool BungeeCanBeTargeted(ZombieModernBungee* zombie, char a2) {
         return CallFunc<bool>(0xC4D594, zombie, a2);
     }
 }
-float BungeeCalcRenderOrder(ZombieModernBungee* zombie){
 
+int BungeeCalcRenderOrder(ZombieModernBungee* zombie) {
+    if (zombie->m_isStreetZombie) {
+        return CallFunc<int>(0xC4D804, zombie);
+    }
+    else {
+        if (zombie->m_targetedPlant.IsValid()) {
+            auto pGroup = reinterpret_cast<PlantGroup*>(zombie->m_targetedPlant.Get());
+
+            if (pGroup != nullptr) {
+                return MakeRenderOrder(402000, pGroup->m_position.y, 4294967291LL);
+            }
+        }
+        //using zombie y pos instead if there are no plant
+        return MakeRenderOrder(402000, zombie->m_position.y, 4294967291LL);
+    }
 }
-int64_t BungeeThreatAlert() {
-    return 0;
-}
-bool BungeeCanBeTossedByPlant() {
-    return false;
-}
+
 void BungeeOnSpawn(ZombieModernBungee* zombie) {
     ZombieOnSpawn(zombie);
     SexyVector3 newPos = {6677.0f, zombie->m_position.y, 0};
     ZombieEnterState(zombie, 16, 0);
     ZombieUpdatePosition(zombie, &newPos);
 }
+
+void BungeeOnGetCondition(ZombieModernBungee* zombie, int condition) {
+    if (condition == zombie_condition_tossed) {
+        ZombieEnterState(zombie, 4, 0);
+        CallFunc<void>(0xC47E24, zombie, damage_fatal);
+    }
+}
+
+int64_t BungeeThreatAlert() {
+    return 0;
+}
+
+bool BungeeCanBeTargetedByPlant(ZombieModernBungee* zombie) {
+    if (ZombieIsInState(zombie, 16)
+        || ZombieIsInState(zombie, 17)
+        || ZombieIsInState(zombie, 20)) {
+        return false;
+    }
+    else {
+        return CallFunc<bool>(0xC5677C, zombie);
+    }
+}
+
+bool BungeeCanBeTossedByPlant() {
+    return false;
+}
+
+void BungeeOnPlaceOnStreet(ZombieModernBungee* zombie) {
+    CallFunc<void>(0xC3D644, zombie);
+    zombie->m_isStreetZombie = true;
+}
+
+void BungeeOnInitialize(ZombieModernBungee* zombie) {
+    zombie->m_hasSpawnTarget = false;
+    ZombieIsFlying(zombie, true);
+}
+
+
+void BungeeOnElectrocute(ZombieModernBungee* zombie) {
+    RemoveAttachedEffect(&zombie->m_attachedEffects, "hand");
+    RemoveAttachedEffect(&zombie->m_attachedEffects, "riseHand");
+    CallFunc<void>(0xC51FB0, zombie);
+}
+
+void BungeeOnAsh(ZombieModernBungee* zombie) {
+    RemoveAttachedEffect(&zombie->m_attachedEffects, "hand");
+    RemoveAttachedEffect(&zombie->m_attachedEffects, "riseHand");
+    CallFunc<void>(0xC5274C, zombie);
+}
+
+void BungeeOnTakeFatalDamage(ZombieModernBungee* zombie) {
+    if (!ZombieIsInState(zombie, ZS_Ash)
+     || !ZombieIsInState(zombie, ZS_Electrocute)
+     || !ZombieIsInState(zombie, ZS_Plantify)) {
+        CallFunc<void>(0xC47E24, zombie, damage_fatal);
+    }
+}
+SexyString GetBungeeElectrocuteAnimName() {
+    return "POPANIM_EFFECTS_ZOMBIE_BUNGEE_SHOCK";
+}
+
+SexyString GetBungeeAshAnimName() {
+    return "POPANIM_EFFECTS_ZOMBIE_BUNGEE_ASH";
+}
+
+void BungeeOnDeath(ZombieModernBungee* zombie) {
+    RemoveAttachedEffect(&zombie->m_attachedEffects, "hand");
+    RemoveAttachedEffect(&zombie->m_attachedEffects, "riseHand");
+    CallFunc<void>(0xC51A40, zombie);
+}
+
+
 void ZombieModernBungee::HuntOnEnter(ZombieModernBungee* zombie)
 {
     if (!zombie->m_hasSpawnTarget) {
         auto props = reinterpret_cast<ZombieModernBungeeProps*>(zombie->m_propertySheet.Get());
         std::vector<BoardEntity*> entityList;
-        auto board = Board::GetBoard();
 
-        GetEntitiesInRectPixel(&entityList, 63, &board->m_lawnRect, 0, 4);
+        Rect boardRect;
+        boardRect.mX = 200;
+        boardRect.mY = 160;
+        boardRect.mWidth = 576;
+        boardRect.mHeight = 380;
+
+        GetEntitiesInRectPixel(&entityList, 63, &boardRect, 0, 4);
 
         std::vector<PlantGroup*> validTargets;
 
@@ -79,13 +176,14 @@ void ZombieModernBungee::HuntOnEnter(ZombieModernBungee* zombie)
             PlantGroup* selectedGroup = validTargets[randomIndex];
 
             zombie->m_targetedPlant.FromOther(&selectedGroup->m_thisPtr);
+            zombie->m_isStreetZombie = false;
 
             auto type = reinterpret_cast<ZombieType*>(zombie->m_type.Get());
             SexyString targetTypeName = type->TypeName + "_target";
             ZombieModernBungeeTarget* target = (ZombieModernBungeeTarget*)AddZombie(targetTypeName, -1, 6, -1);
 
             ZombieSetPosition(target, &selectedGroup->m_position);
-
+            ZombieEnterState(target, 16, 0);
             zombie->m_target.FromOther(&target->m_thisPtr);
             zombie->m_hasSpawnTarget = true;
         }
@@ -95,10 +193,18 @@ void ZombieModernBungee::HuntOnEnter(ZombieModernBungee* zombie)
 
 void ZombieModernBungee::HuntOnLoop(ZombieModernBungee* zombie)
 {
-	auto target = reinterpret_cast<ZombieModernBungeeTarget*>(zombie->m_target.Get());
-	if (target->m_targeted) {
-		ZombieEnterState(zombie, 17, 0);
-	}
+    if (zombie->m_target.IsValid())
+    {
+        auto target = reinterpret_cast<ZombieModernBungeeTarget*>(zombie->m_target.Get());
+
+        if (target != nullptr && target->m_targeted) {
+            ZombieEnterState(zombie, 17, 0);
+        }
+    }
+    else
+    {
+        ZombieModernBungee::HuntOnEnter(zombie);
+    }
 }
 
 void ZombieModernBungee::HuntOnExit(ZombieModernBungee* zombie)
@@ -200,6 +306,14 @@ void ZombieModernBungee::GrabOnExit(ZombieModernBungee* zombie)
 
 void ZombieModernBungee::EscapeOnEnter(ZombieModernBungee* zombie)
 {
+    RemoveAttachedEffect(&zombie->m_attachedEffects, "hand");
+    if (zombie->m_attachedPlant.IsValid())
+    {
+        auto plant = reinterpret_cast<Plant*>(zombie->m_attachedPlant.Get());
+        SexyVector3 effectPos = { -3.0f, -35.0f, 0.0f };
+        int renderOrder = MakeRenderOrder(402000, plant->m_position.y, 1);
+        ZombieAttachEffect(zombie, "riseHand", "POPANIM_ZOMBIE_ZOMBIE_BUNGEE", "03", effectPos, renderOrder, true, false, 2);
+    }
 	RegisterEventAfterAnim(zombie, "rise", "onEscapedDone");
 }
 
@@ -209,19 +323,23 @@ void ZombieModernBungee::EscapeOnLoop(ZombieModernBungee* zombie)
     {
         auto plant = reinterpret_cast<Plant*>(zombie->m_attachedPlant.Get());
         auto rig = reinterpret_cast<ZombieAnimRig_BasicTemplate*>(zombie->m_animRig.Get());
-        auto target = reinterpret_cast<ZombieModernBungeeTarget*>(zombie->m_target.Get());
-        SexyVector2 handPos;
-        GetAnimRigSpritePosition(rig, "hand_01", &handPos);
-        plant->m_position.y = handPos.y;
-        target->m_position.y = handPos.y;
+        SexyVector2 hand02Pos;
+        GetAnimRigSpritePosition(rig, "hand_02", &hand02Pos);
+        plant->m_position.y = hand02Pos.y + (62.0f * (plant->m_row + 2));
+
         CallVirtualFunc<void>(plant, 13, &plant->m_position);
-        ZombieUpdatePosition(target, &target->m_position);
+        if (zombie->m_target.IsValid()) {
+            auto target = reinterpret_cast<ZombieModernBungeeTarget*>(zombie->m_target.Get());
+            target->m_position.y = plant->m_position.y;
+            ZombieUpdatePosition(target, &target->m_position);
+        }
     }
 }
 
 void ZombieModernBungee::EscapeOnExit(ZombieModernBungee* zombie)
 {
     ZombieSetInvincibleStatusFlag(zombie, false);
+    ZombieSetNoCollisionFlag(zombie, false);
 }
 
 void onFallingCallback(Zombie* zombie) {
@@ -236,6 +354,7 @@ void onGrabCallback(Zombie* zombie) {
 
     if (bungee && !ZombieIsDeadOrDying(zombie) && bungee->m_entityState.m_id != 3) {
         ZombieSetInvincibleStatusFlag(bungee, true);
+        ZombieSetNoCollisionFlag(bungee, true);
         if (!bungee->m_targetedPlant.IsValid()) {
             auto props = reinterpret_cast<ZombieModernBungeeProps*>(bungee->m_propertySheet.Get());
             std::vector<BoardEntity*> entityList;
@@ -269,11 +388,12 @@ void onGrabCallback(Zombie* zombie) {
                 Plant* p0 = reinterpret_cast<Plant*>(plantVector[0].Get());
 
                 bungee->m_attachedPlant.FromOther(&p0->m_thisPtr);
-
+                SexyVector3 effectPos = { -3.0f, -35.0f, 0.0f };
+                int renderOrder = MakeRenderOrder(402000, p0->m_position.y, 1);
+                ZombieAttachEffect(bungee, "hand", "POPANIM_ZOMBIE_ZOMBIE_BUNGEE", "02", effectPos, renderOrder, false, false, 2);
                 CallFunc<void>(0x1271688, p0, 2139095039, 0.0f, 0.0f);
             }
         }
-
         RegisterEventAfterAnim(zombie, "grab02", "onAttachedDone");
     }
 }
@@ -287,22 +407,88 @@ void onAttachedCallback(Zombie* zombie) {
 
 void onEscapedCallback(Zombie* zombie) {
     auto bungee = static_cast<ZombieModernBungee*>(zombie);
+
     if (bungee && !ZombieIsDeadOrDying(zombie) && bungee->m_entityState.m_id != 3) {
-        auto plant = reinterpret_cast<Plant*>(bungee->m_attachedPlant.Get());
-        auto target = reinterpret_cast<ZombieModernBungeeTarget*>(bungee->m_target.Get());
-        CallFunc<void>(0x1273244, plant, 0x8000000000LL);
+
+        // alway check attached plant and target plant is valid or the game just crash lmao
+        if (bungee->m_attachedPlant.IsValid()) {
+            auto plant = reinterpret_cast<Plant*>(bungee->m_attachedPlant.Get());
+
+            if (plant != nullptr && bungee->m_targetedPlant.IsValid()) {
+                auto pGroup = reinterpret_cast<PlantGroup*>(bungee->m_targetedPlant.Get());
+                auto& plantVector = pGroup->m_plants.m_plants;
+
+                for (auto it = plantVector.begin(); it != plantVector.end(); ) {
+                    if (it->IsValid() && it->Get() == plant) {
+                        it = plantVector.erase(it);
+                        break;
+                    }
+                    else {
+                        ++it;
+                    }
+                }
+            }
+
+            if (plant) {
+                CallFunc<void>(0x8AEB28, plant);
+            }
+        }
+
+        if (bungee->m_target.IsValid()) {
+            auto target = reinterpret_cast<ZombieModernBungeeTarget*>(bungee->m_target.Get());
+            if (target != nullptr) {
+                CallFunc<void>(0x8AEB28, target);
+            }
+        }
+
         CallFunc<void>(0x8AEB28, bungee);
-        CallFunc<void>(0x8AEB28, target);
     }
 }
-
-
 
 void ZombieModernBungee::ModInit() {
     LOGI("ZombieBungee mod init");
 
     vftable = CreateChildVFTable(204 + 15, getActualOffset(0x241D430), 204);
+    vftable1 = CopyVFTable(getActualOffset(0x241DAA0), 4);
     PatchVFTable(vftable, (void*)ZombieModernBungee::StaticGetType, 0);
+
+    PatchVFTable(vftable, (void*)BungeeCanBeTargeted, 21);
+    PatchVFTable(vftable1, (void*)BungeeCalcRenderOrder, 3);
+    PatchVFTable(vftable, (void*)BungeeOnSpawn, 49);
+    PatchVFTable(vftable, (void*)BungeeOnGetCondition, 71);
+    PatchVFTable(vftable, (void*)BungeeThreatAlert, 75);
+    PatchVFTable(vftable, (void*)BungeeCanBeTargetedByPlant, 93);
+    PatchVFTable(vftable, (void*)BungeeCanBeTossedByPlant, 97);
+    PatchVFTable(vftable, (void*)BungeeOnPlaceOnStreet, 168);
+    PatchVFTable(vftable, (void*)BungeeOnInitialize, 169);
+    PatchVFTable(vftable, (void*)BungeeOnElectrocute, 172);
+    PatchVFTable(vftable, (void*)BungeeOnAsh, 173);
+    PatchVFTable(vftable, (void*)BungeeOnTakeFatalDamage, 185);
+    PatchVFTable(vftable, (void*)GetBungeeElectrocuteAnimName, 189);
+    PatchVFTable(vftable, (void*)GetBungeeAshAnimName, 190);
+    PatchVFTable(vftable, (void*)BungeeOnTakeFatalDamage, 190);
+    PatchVFTable(vftable, (void*)BungeeOnDeath, 197);
+
+    PatchVFTable(vftable, (void*)ZombieModernBungee::HuntOnEnter, 204);
+    PatchVFTable(vftable, (void*)ZombieModernBungee::HuntOnLoop, 205);
+    PatchVFTable(vftable, (void*)ZombieModernBungee::HuntOnExit, 206);
+
+    PatchVFTable(vftable, (void*)ZombieModernBungee::FallOnEnter, 207);
+    PatchVFTable(vftable, (void*)ZombieModernBungee::FallOnLoop, 208);
+    PatchVFTable(vftable, (void*)ZombieModernBungee::FallOnExit, 209);
+
+    PatchVFTable(vftable, (void*)ZombieModernBungee::WaitingOnEnter, 210);
+    PatchVFTable(vftable, (void*)ZombieModernBungee::WaitingOnLoop, 211);
+    PatchVFTable(vftable, (void*)ZombieModernBungee::WaitingOnExit, 212);
+
+    PatchVFTable(vftable, (void*)ZombieModernBungee::GrabOnEnter, 213);
+    PatchVFTable(vftable, (void*)ZombieModernBungee::GrabOnLoop, 214);
+    PatchVFTable(vftable, (void*)ZombieModernBungee::GrabOnExit, 215);
+
+    PatchVFTable(vftable, (void*)ZombieModernBungee::EscapeOnEnter, 216);
+    PatchVFTable(vftable, (void*)ZombieModernBungee::EscapeOnLoop, 217);
+    PatchVFTable(vftable, (void*)ZombieModernBungee::EscapeOnExit, 218);
+
     ZombieModernBungee::StaticGetType();
     LOGI("ZombieBungee finish init");
 }
@@ -317,4 +503,58 @@ void ZombieModernBungeeProps::modInit() {
     ZombieModernBungeeProps::StaticGetType();
 
     LOGI("ZombieBungeeProps finish init");
+}
+
+void ZombieModernBungee::buildEventCallbacks(Reflection::CRefManualSymbolBuilder* builder, Reflection::RClass* rtClass)
+{
+    IF_CALLBACK_NOTSETUP(ZombieModernBungee) {
+        SetupLiteralDelegate(&fallingCompletedDelegate, onFallingCallback);
+        SetupLiteralDelegate(&grabCompletedDelegate, onGrabCallback);
+        SetupLiteralDelegate(&attachCompletedDelegate, onAttachedCallback);
+        SetupLiteralDelegate(&escapeCompletedDelegate, onEscapedCallback);
+        ZombieModernBungee_delegatesSetup = true;
+        LOGI("SO TRUE");
+    }
+    RegisterEventCallback(builder, rtClass, "onFallingDown", fallingCompletedDelegate);
+    RegisterEventCallback(builder, rtClass, "onGrabbingDone", grabCompletedDelegate);
+    RegisterEventCallback(builder, rtClass, "onAttachedDone", attachCompletedDelegate);
+    RegisterEventCallback(builder, rtClass, "onEscapedDone", escapeCompletedDelegate);
+    LOGI("Reg event complete");
+}
+
+
+void ZombieModernBungee::buildStates()
+{
+    StateMachineTableBuilder* stateMachine = CallGetStateMachine(ZombieModernBungee::StaticGetType());
+    RegisterStateByOffsets(stateMachine,
+        16,
+        (uintptr_t)ZombieModernBungee::HuntOnEnter,
+        (uintptr_t)ZombieModernBungee::HuntOnLoop,
+        (uintptr_t)ZombieModernBungee::HuntOnExit,
+        "ZS_Bungee_Hunting");
+    RegisterStateByOffsets(stateMachine,
+        17,
+        (uintptr_t)ZombieModernBungee::FallOnEnter,
+        (uintptr_t)ZombieModernBungee::FallOnLoop,
+        (uintptr_t)ZombieModernBungee::FallOnExit,
+        "ZS_Bungee_Falling");
+    RegisterStateByOffsets(stateMachine,
+        18,
+        (uintptr_t)ZombieModernBungee::WaitingOnEnter,
+        (uintptr_t)ZombieModernBungee::WaitingOnLoop,
+        (uintptr_t)ZombieModernBungee::WaitingOnExit,
+        "ZS_Bungee_Waiting");
+    RegisterStateByOffsets(stateMachine,
+        19,
+        (uintptr_t)ZombieModernBungee::GrabOnEnter,
+        (uintptr_t)ZombieModernBungee::GrabOnLoop,
+        (uintptr_t)ZombieModernBungee::GrabOnExit,
+        "ZS_Bungee_Grab");
+    RegisterStateByOffsets(stateMachine,
+        20,
+        (uintptr_t)ZombieModernBungee::EscapeOnEnter,
+        (uintptr_t)ZombieModernBungee::EscapeOnLoop,
+        (uintptr_t)ZombieModernBungee::EscapeOnExit,
+        "ZS_Bungee_Escape");
+    LOGI("Reg state complete");
 }

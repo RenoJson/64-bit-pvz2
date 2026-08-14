@@ -46,6 +46,35 @@ inline int ZombieSetPosition(Zombie* zombie, SexyVector3* newPos) {
 	return CallFunc<int, Zombie*, SexyVector3*>(0x628058, zombie, newPos);
 }
 
+inline Zombie* ZombieAttachEffect(Zombie* zombie,
+	const char* keyValue,
+	const char* popAnimName,
+	const char* labelName,
+	SexyVector3 effectPos,
+	int renderLayer,
+	bool playOnce,
+	bool a8,
+	int a9) {
+	return CallFunc<Zombie*>(0x7BF03C,
+		zombie,
+		keyValue,
+		popAnimName,
+		labelName,
+		&effectPos,
+		renderLayer,
+		playOnce,
+		a8,
+		a9);
+}
+
+inline int MakeRenderOrder(int a1, int a2, int a3) {
+	return a1 + a3 + 10000 * a2;
+}
+
+inline int RemoveAttachedEffect(AttachedEffectManager* attachedEffect, const SexyString& keyValue) {
+	return CallFunc<int, AttachedEffectManager*, const SexyString&>(0x662360, attachedEffect, keyValue);
+}
+
 inline void ZombieOnSpawn(Zombie* zombie) {
 	CallFunc<void, Zombie*>(0xC3D1F0, zombie);
 }
@@ -121,7 +150,7 @@ inline void GetEntitiesInRectPixel(std::vector<BoardEntity*>* entities, uint typ
 	CallFunc<void, std::vector<BoardEntity*>*, uint, Rect*, int, int>(0x86F340, entities, typeID, area, minRow, maxRow);
 }
 
-inline void GetEntitiesInGridSquare(std::vector<BoardEntity*> entities, uint typeID, Zombie* zombie) {
+inline void GetEntitiesInGridSquare(std::vector<BoardEntity*>& entities, uint typeID, Zombie* zombie) {
 	int gX = static_cast<int>((zombie->m_position.x - 200.0f) / 64.0f);
 	int gY = static_cast<int>((zombie->m_position.y - 160.0f) / 76.0f);
 
@@ -130,7 +159,7 @@ inline void GetEntitiesInGridSquare(std::vector<BoardEntity*> entities, uint typ
 	scanRect.mY = gY;
 	scanRect.mWidth = 1;
 	scanRect.mHeight = 1;
-	GetEntitiesInRectGrid(&entities, 63, &scanRect);
+	GetEntitiesInRectGrid(&entities, typeID, &scanRect);
 }
 
 // Plant helper start here

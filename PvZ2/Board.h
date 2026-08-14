@@ -255,6 +255,7 @@ public:
 	Collectable* SpawnCollectable(const SexyString& collectable, const Sexy::SexyVector2& position) {
 		return CallFunc<Collectable*, Board*, SexyString, Sexy::SexyVector2>(0xAA4180, this, collectable, position);
 	}
+
 };
 
 static_assert(sizeof(Board) == 1864);
