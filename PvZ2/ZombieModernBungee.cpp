@@ -6,6 +6,8 @@
 #include "ZombieAnimRig_Basic.h"
 #include "ZombieStateHelper.h"
 #include "ZombieModernBungeeTarget.h"
+#include "Messages.h"
+#include "MessageRouter.h"
 
 void* ZombieModernBungee::vftable = nullptr;
 void* ZombieModernBungee::vftable1 = nullptr;
@@ -35,20 +37,17 @@ bool BungeeCanBeTargeted(ZombieModernBungee* zombie, char a2) {
     }
 }
 
-int BungeeCalcRenderOrder(ZombieModernBungee* zombie) {
-    if (zombie->m_isStreetZombie) {
+int BungeeCalcRenderOrder(void* renderableThis) {
+
+    auto zombie = reinterpret_cast<ZombieModernBungee*>((uintptr_t)renderableThis - 16);
+
+    if (!zombie->m_targetedPlant.IsValid()) {
+
         return CallFunc<int>(0xC4D804, zombie);
     }
     else {
-        if (zombie->m_targetedPlant.IsValid()) {
-            auto pGroup = reinterpret_cast<PlantGroup*>(zombie->m_targetedPlant.Get());
-
-            if (pGroup != nullptr) {
-                return MakeRenderOrder(402000, pGroup->m_position.y, 4294967291LL);
-            }
-        }
-        //using zombie y pos instead if there are no plant
-        return MakeRenderOrder(402000, zombie->m_position.y, 4294967291LL);
+        auto pGroup = reinterpret_cast<PlantGroup*>(zombie->m_targetedPlant.Get());
+        return MakeRenderOrder(402000, pGroup->m_gridY + 1, 4294967291LL);
     }
 }
 
@@ -59,15 +58,20 @@ void BungeeOnSpawn(ZombieModernBungee* zombie) {
     ZombieUpdatePosition(zombie, &newPos);
 }
 
-void BungeeOnGetCondition(ZombieModernBungee* zombie, int condition) {
-    if (condition == zombie_condition_tossed) {
-        ZombieEnterState(zombie, 4, 0);
-        CallFunc<void>(0xC47E24, zombie, damage_fatal);
-    }
-}
-
 int64_t BungeeThreatAlert() {
     return 0;
+}
+
+void BungeeOnBeforeBlown(ZombieModernBungee* zombie, Plant* plant) {
+    ZombieIsFlying(zombie, false);
+    ZombieSetUnmovableStatusFlag(zombie, false);
+    ZombieEnterState(zombie, 4, 0); 
+    if (zombie->m_target.IsValid())
+    {
+        auto target = reinterpret_cast<ZombieModernBungeeTarget*>(zombie->m_target.Get());
+        ZombieEnterState(target, 4, 0);
+    }
+    CallFunc<void>(0xC47E24, zombie, damage_fatal);
 }
 
 bool BungeeCanBeTargetedByPlant(ZombieModernBungee* zombie) {
@@ -85,10 +89,6 @@ bool BungeeCanBeTossedByPlant() {
     return false;
 }
 
-void BungeeOnPlaceOnStreet(ZombieModernBungee* zombie) {
-    CallFunc<void>(0xC3D644, zombie);
-    zombie->m_isStreetZombie = true;
-}
 
 void BungeeOnInitialize(ZombieModernBungee* zombie) {
     zombie->m_hasSpawnTarget = false;
@@ -113,6 +113,11 @@ void BungeeOnTakeFatalDamage(ZombieModernBungee* zombie) {
      || !ZombieIsInState(zombie, ZS_Electrocute)
      || !ZombieIsInState(zombie, ZS_Plantify)) {
         CallFunc<void>(0xC47E24, zombie, damage_fatal);
+        if (zombie->m_target.IsValid())
+        {
+            auto target = reinterpret_cast<ZombieModernBungeeTarget*>(zombie->m_target.Get());
+            ZombieEnterState(target, 4, 0);
+        }
     }
 }
 SexyString GetBungeeElectrocuteAnimName() {
@@ -129,6 +134,9 @@ void BungeeOnDeath(ZombieModernBungee* zombie) {
     CallFunc<void>(0xC51A40, zombie);
 }
 
+bool BungeeIsImmuneToShrinking() {
+    return true;
+}
 
 void ZombieModernBungee::HuntOnEnter(ZombieModernBungee* zombie)
 {
@@ -176,7 +184,8 @@ void ZombieModernBungee::HuntOnEnter(ZombieModernBungee* zombie)
             PlantGroup* selectedGroup = validTargets[randomIndex];
 
             zombie->m_targetedPlant.FromOther(&selectedGroup->m_thisPtr);
-            zombie->m_isStreetZombie = false;
+            zombie->m_targetGridPos.mX = selectedGroup->m_gridX;
+            zombie->m_targetGridPos.mY = selectedGroup->m_gridY;
 
             auto type = reinterpret_cast<ZombieType*>(zombie->m_type.Get());
             SexyString targetTypeName = type->TypeName + "_target";
@@ -256,6 +265,8 @@ void ZombieModernBungee::WaitingOnLoop(ZombieModernBungee* zombie)
                 if (entity != nullptr && entity->IsType(PlantGroup::StaticGetType()))
                 {
                     auto pGroup = static_cast<PlantGroup*>(entity);
+                    zombie->m_targetGridPos.mX = pGroup->m_gridX;
+                    zombie->m_targetGridPos.mY = pGroup->m_gridY;
                     auto& plantVector = pGroup->m_plants.m_plants;
 
                     if (!plantVector.empty() && plantVector[0].IsValid())
@@ -297,7 +308,7 @@ void ZombieModernBungee::GrabOnEnter(ZombieModernBungee* zombie)
 
 void ZombieModernBungee::GrabOnLoop(ZombieModernBungee* zombie)
 {
-	
+
 }
 
 void ZombieModernBungee::GrabOnExit(ZombieModernBungee* zombie)
@@ -325,7 +336,7 @@ void ZombieModernBungee::EscapeOnLoop(ZombieModernBungee* zombie)
         auto rig = reinterpret_cast<ZombieAnimRig_BasicTemplate*>(zombie->m_animRig.Get());
         SexyVector2 hand02Pos;
         GetAnimRigSpritePosition(rig, "hand_02", &hand02Pos);
-        plant->m_position.y = hand02Pos.y + (62.0f * (plant->m_row + 2));
+        plant->m_position.y = hand02Pos.y + (62.0f * (zombie->m_targetRow + 2));
 
         CallVirtualFunc<void>(plant, 13, &plant->m_position);
         if (zombie->m_target.IsValid()) {
@@ -391,6 +402,11 @@ void onGrabCallback(Zombie* zombie) {
                 SexyVector3 effectPos = { -3.0f, -35.0f, 0.0f };
                 int renderOrder = MakeRenderOrder(402000, p0->m_position.y, 1);
                 ZombieAttachEffect(bungee, "hand", "POPANIM_ZOMBIE_ZOMBIE_BUNGEE", "02", effectPos, renderOrder, false, false, 2);
+                p0->m_state = 3;
+                MessageRouter::GetInstance()->ExecuteMessage((void*)getActualOffset(0x126B938), p0);
+                p0->m_isOnBoard = false;
+                bungee->m_targetRow = p0->m_row;
+                p0->m_row = -5;
                 CallFunc<void>(0x1271688, p0, 2139095039, 0.0f, 0.0f);
             }
         }
@@ -414,20 +430,6 @@ void onEscapedCallback(Zombie* zombie) {
         if (bungee->m_attachedPlant.IsValid()) {
             auto plant = reinterpret_cast<Plant*>(bungee->m_attachedPlant.Get());
 
-            if (plant != nullptr && bungee->m_targetedPlant.IsValid()) {
-                auto pGroup = reinterpret_cast<PlantGroup*>(bungee->m_targetedPlant.Get());
-                auto& plantVector = pGroup->m_plants.m_plants;
-
-                for (auto it = plantVector.begin(); it != plantVector.end(); ) {
-                    if (it->IsValid() && it->Get() == plant) {
-                        it = plantVector.erase(it);
-                        break;
-                    }
-                    else {
-                        ++it;
-                    }
-                }
-            }
 
             if (plant) {
                 CallFunc<void>(0x8AEB28, plant);
@@ -455,19 +457,18 @@ void ZombieModernBungee::ModInit() {
     PatchVFTable(vftable, (void*)BungeeCanBeTargeted, 21);
     PatchVFTable(vftable1, (void*)BungeeCalcRenderOrder, 3);
     PatchVFTable(vftable, (void*)BungeeOnSpawn, 49);
-    PatchVFTable(vftable, (void*)BungeeOnGetCondition, 71);
     PatchVFTable(vftable, (void*)BungeeThreatAlert, 75);
+    PatchVFTable(vftable, (void*)BungeeOnBeforeBlown, 79);
     PatchVFTable(vftable, (void*)BungeeCanBeTargetedByPlant, 93);
     PatchVFTable(vftable, (void*)BungeeCanBeTossedByPlant, 97);
-    PatchVFTable(vftable, (void*)BungeeOnPlaceOnStreet, 168);
     PatchVFTable(vftable, (void*)BungeeOnInitialize, 169);
     PatchVFTable(vftable, (void*)BungeeOnElectrocute, 172);
     PatchVFTable(vftable, (void*)BungeeOnAsh, 173);
     PatchVFTable(vftable, (void*)BungeeOnTakeFatalDamage, 185);
     PatchVFTable(vftable, (void*)GetBungeeElectrocuteAnimName, 189);
     PatchVFTable(vftable, (void*)GetBungeeAshAnimName, 190);
-    PatchVFTable(vftable, (void*)BungeeOnTakeFatalDamage, 190);
     PatchVFTable(vftable, (void*)BungeeOnDeath, 197);
+    PatchVFTable(vftable, (void*)BungeeIsImmuneToShrinking, 199);
 
     PatchVFTable(vftable, (void*)ZombieModernBungee::HuntOnEnter, 204);
     PatchVFTable(vftable, (void*)ZombieModernBungee::HuntOnLoop, 205);

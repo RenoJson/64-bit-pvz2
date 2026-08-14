@@ -8,8 +8,9 @@ public:
 	RtWeakPtr<Sexy::RtObject> m_target;
 	RtWeakPtr<Sexy::RtObject> m_targetedPlant;
 	RtWeakPtr<Sexy::RtObject> m_attachedPlant;
+	Point m_targetGridPos;
+	int m_targetRow;
 	bool m_hasSpawnTarget;
-	bool m_isStreetZombie;
 
 	static void* vftable;
 	static void* vftable1;

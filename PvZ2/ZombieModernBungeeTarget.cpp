@@ -16,6 +16,10 @@ static Sexy::DelegateBase fallingCompletedDelegate;
 
 static Sexy::DelegateBase markingCompletedDelegate;
 
+bool BungeeTargetCanBeTargeted() {
+    return false;
+}
+
 int64_t BungeeTargetThreatAlert() {
     return 0;
 }
@@ -26,7 +30,7 @@ bool BungeeTargetCanBeTargetedByPlant() {
 
 void BungeeTargetOnInitialize(ZombieModernBungeeTarget* zombie) {
     zombie->m_targeted = false;
-    ZombieIsFlying(zombie, true);
+    zombie->m_teamFlags = 0;
 }
 
 void ZombieModernBungeeTarget::MarkOnEnter(ZombieModernBungeeTarget* zombie)
@@ -67,6 +71,7 @@ void ZombieModernBungeeTarget::ModInit() {
     vftable = CreateChildVFTable(204 + 15, getActualOffset(0x241D430), 204);
     PatchVFTable(vftable, (void*)ZombieModernBungeeTarget::StaticGetType, 0);
 
+    PatchVFTable(vftable, (void*)BungeeTargetCanBeTargeted, 21);
     PatchVFTable(vftable, (void*)BungeeTargetThreatAlert, 75);
     PatchVFTable(vftable, (void*)BungeeTargetCanBeTargetedByPlant, 93);
     PatchVFTable(vftable, (void*)BungeeTargetOnInitialize, 169);

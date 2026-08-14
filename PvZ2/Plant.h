@@ -307,7 +307,7 @@ public:
 		getType pGetType = (getType)getActualOffset(0x133566C);
 		return pGetType();
 	};
-	char pad[4];
+	pvztime_t m_createdTime;
 	int m_gridX;
 	int m_gridY;
 	bool m_isOnBoard;
