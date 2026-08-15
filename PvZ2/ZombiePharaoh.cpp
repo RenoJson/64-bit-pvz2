@@ -357,9 +357,7 @@ void hkTakeDamage(Zombie* thisPtr, DamageInfo* damageInfo)
         }
     }
 }
-bool IsReadyToDie(Zombie* thisPtr) {
-    return thisPtr->m_position.x <= 100.0f;
-}
+bool IsReadyToDie(Zombie* thisPtr) {}
 
 bool hkIsDeadOrDying(Zombie* thisPtr)
 {

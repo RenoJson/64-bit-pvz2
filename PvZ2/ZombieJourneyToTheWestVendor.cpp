@@ -178,6 +178,9 @@ void hkJourneyToTheWestVendorActionFrame(ZombieJourneyToTheWestVendor* vendor, i
 		SpawnZombiePigAfterDie(vendor);
 	}
 }
+int64_t JTTWVendorGetEatingDamageFlag() {
+	return 0x80000;
+}
 void ZombieJourneyToTheWestVendor::ModInit() {
 	LOGI("ZombieVendor mod init");
 
@@ -188,6 +191,7 @@ void ZombieJourneyToTheWestVendor::ModInit() {
 	PatchVFTable(vftable, (void*)hkGetWalkSpeed, 118);
 	PatchVFTable(vftable, (void*)vendorWalkOnLoop, 124);
 	PatchVFTable(vftable, (void*)hkJourneyToTheWestVendorActionFrame, 170);
+	PatchVFTable(vftable, (void*)JTTWVendorGetEatingDamageFlag, 193);
 
 	PatchVFTable(vftable, (void*)ZombieJourneyToTheWestVendor::PigOnEnter, 207);
 	PatchVFTable(vftable, (void*)ZombieJourneyToTheWestVendor::PigOnLoop, 208);

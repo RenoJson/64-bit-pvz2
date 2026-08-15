@@ -22,8 +22,6 @@ static Sexy::DelegateBase fallingCompletedDelegate;
 
 static Sexy::DelegateBase grabCompletedDelegate;
 
-static Sexy::DelegateBase attachCompletedDelegate;
-
 static Sexy::DelegateBase escapeCompletedDelegate;
 
 bool BungeeCanBeTargeted(ZombieModernBungee* zombie, char a2) {
@@ -308,7 +306,37 @@ void ZombieModernBungee::GrabOnEnter(ZombieModernBungee* zombie)
 
 void ZombieModernBungee::GrabOnLoop(ZombieModernBungee* zombie)
 {
+    if (!zombie->m_targetedPlant.IsValid())
+    {
+        auto props = reinterpret_cast<ZombieModernBungeeProps*>(zombie->m_propertySheet.Get());
+        std::vector<BoardEntity*> entityList;
+        GetEntitiesInGridSquare(entityList, 63, zombie);
 
+        for (BoardEntity* entity : entityList)
+        {
+            if (entity != nullptr && entity->IsType(PlantGroup::StaticGetType()))
+            {
+                auto pGroup = static_cast<PlantGroup*>(entity);
+                zombie->m_targetGridPos.mX = pGroup->m_gridX;
+                zombie->m_targetGridPos.mY = pGroup->m_gridY;
+                auto& plantVector = pGroup->m_plants.m_plants;
+
+                if (!plantVector.empty() && plantVector[0].IsValid())
+                {
+                    Plant* p0 = reinterpret_cast<Plant*>(plantVector[0].Get());
+                    auto plantType = reinterpret_cast<PlantType*>(p0->m_type.Get());
+                    SexyString plantName = plantType->TypeName;
+                    std::vector<SexyString>& bungeeExcludeTarget = props->BungeeTargetExcludeList;
+
+                    if (std::find(bungeeExcludeTarget.begin(), bungeeExcludeTarget.end(), plantName) == bungeeExcludeTarget.end())
+                    {
+                        zombie->m_targetedPlant.FromOther(&pGroup->m_thisPtr);
+                        break;
+                    }
+                }
+            }
+        }
+    }
 }
 
 void ZombieModernBungee::GrabOnExit(ZombieModernBungee* zombie)
@@ -323,7 +351,7 @@ void ZombieModernBungee::EscapeOnEnter(ZombieModernBungee* zombie)
         auto plant = reinterpret_cast<Plant*>(zombie->m_attachedPlant.Get());
         SexyVector3 effectPos = { -3.0f, -35.0f, 0.0f };
         int renderOrder = MakeRenderOrder(402000, plant->m_position.y, 1);
-        ZombieAttachEffect(zombie, "riseHand", "POPANIM_ZOMBIE_ZOMBIE_BUNGEE", "03", effectPos, renderOrder, true, false, 2);
+        ZombieAttachEffect(zombie, "riseHand", "POPANIM_ZOMBIE_ZOMBIE_BUNGEE", "03", effectPos, renderOrder, true, true, 2);
     }
 	RegisterEventAfterAnim(zombie, "rise", "onEscapedDone");
 }
@@ -334,9 +362,12 @@ void ZombieModernBungee::EscapeOnLoop(ZombieModernBungee* zombie)
     {
         auto plant = reinterpret_cast<Plant*>(zombie->m_attachedPlant.Get());
         auto rig = reinterpret_cast<ZombieAnimRig_BasicTemplate*>(zombie->m_animRig.Get());
-        SexyVector2 hand02Pos;
-        GetAnimRigSpritePosition(rig, "hand_02", &hand02Pos);
-        plant->m_position.y = hand02Pos.y + (62.0f * (zombie->m_targetRow + 2));
+        auto pProps = reinterpret_cast<PlantPropertySheet*>(plant->m_propertySheet.Get());
+
+        SexyVector2 headPos;
+        GetAnimRigSpritePosition(rig, "tou01", &headPos);
+
+        plant->m_position.y = headPos.y + zombie->m_position.y - (pProps->ArtCenter.y / 2.0f);
 
         CallVirtualFunc<void>(plant, 13, &plant->m_position);
         if (zombie->m_target.IsValid()) {
@@ -399,7 +430,7 @@ void onGrabCallback(Zombie* zombie) {
                 Plant* p0 = reinterpret_cast<Plant*>(plantVector[0].Get());
 
                 bungee->m_attachedPlant.FromOther(&p0->m_thisPtr);
-                SexyVector3 effectPos = { -3.0f, -35.0f, 0.0f };
+                SexyVector3 effectPos = { -7.0f, -35.0f, 0.0f };
                 int renderOrder = MakeRenderOrder(402000, p0->m_position.y, 1);
                 ZombieAttachEffect(bungee, "hand", "POPANIM_ZOMBIE_ZOMBIE_BUNGEE", "02", effectPos, renderOrder, false, false, 2);
                 p0->m_state = 3;
@@ -410,16 +441,10 @@ void onGrabCallback(Zombie* zombie) {
                 CallFunc<void>(0x1271688, p0, 2139095039, 0.0f, 0.0f);
             }
         }
-        RegisterEventAfterAnim(zombie, "grab02", "onAttachedDone");
-    }
-}
-
-void onAttachedCallback(Zombie* zombie) {
-    auto bungee = static_cast<ZombieModernBungee*>(zombie);
-    if (bungee && !ZombieIsDeadOrDying(zombie) && bungee->m_entityState.m_id != 3) {
         ZombieEnterState(bungee, 20, 0);
     }
 }
+
 
 void onEscapedCallback(Zombie* zombie) {
     auto bungee = static_cast<ZombieModernBungee*>(zombie);
@@ -511,14 +536,12 @@ void ZombieModernBungee::buildEventCallbacks(Reflection::CRefManualSymbolBuilder
     IF_CALLBACK_NOTSETUP(ZombieModernBungee) {
         SetupLiteralDelegate(&fallingCompletedDelegate, onFallingCallback);
         SetupLiteralDelegate(&grabCompletedDelegate, onGrabCallback);
-        SetupLiteralDelegate(&attachCompletedDelegate, onAttachedCallback);
         SetupLiteralDelegate(&escapeCompletedDelegate, onEscapedCallback);
         ZombieModernBungee_delegatesSetup = true;
         LOGI("SO TRUE");
     }
     RegisterEventCallback(builder, rtClass, "onFallingDown", fallingCompletedDelegate);
     RegisterEventCallback(builder, rtClass, "onGrabbingDone", grabCompletedDelegate);
-    RegisterEventCallback(builder, rtClass, "onAttachedDone", attachCompletedDelegate);
     RegisterEventCallback(builder, rtClass, "onEscapedDone", escapeCompletedDelegate);
     LOGI("Reg event complete");
 }

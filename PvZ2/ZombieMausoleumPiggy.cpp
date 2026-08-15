@@ -3,6 +3,7 @@
 #include "ZombieHelper.h"
 #include "GridItemMausoleumLawnTile.h"
 #include "TimeMgr.h"
+#include "ZombieAnimRig_Basic.h"
 
 void* ZombieMausoleumPiggy::vftable = nullptr;
 Sexy::RtClass* ZombieMausoleumPiggy::s_rtClass = nullptr;;
@@ -54,7 +55,6 @@ void MausoleumPiggyLoopWalk(ZombieMausoleumPiggy* zombie)
     if (pathTile != nullptr)
     {
         ZombieAllowMovement(zombie, false);
-        ZombieSetSpeedScale(zombie, props->TunnelSpeedScale);
 
         ZombieConditionTracker* zTracker = &zombie->m_conditionTracker;
         uint8_t* cond = zTracker->m_states.data();
@@ -64,12 +64,59 @@ void MausoleumPiggyLoopWalk(ZombieMausoleumPiggy* zombie)
             *cond = 0;
         }
 
-        float baseSpeed = props->TunnelSpeed;
-        float speedScale = zTracker->m_speedScale;
-        float floatingSpeed = baseSpeed * speedScale * 64.0f;
-        float timeMoving = TimeMgr::GetInstance()->m_unkTime;
-        float stepDist = floatingSpeed * timeMoving;
+        bool wasCharmed = (zombie->m_lastPathGridY >= 50);
+        int realLastPathY = zombie->m_lastPathGridY;
+        if (wasCharmed) {
+            realLastPathY -= 100;
+        }
 
+        if (isCharmed && !wasCharmed) {
+            switch (zombie->m_currentDirection) {
+            case 0: zombie->m_currentDirection = 3; break;
+            case 1: zombie->m_currentDirection = 2; break;
+            case 2: zombie->m_currentDirection = 1; break;
+            case 3: zombie->m_currentDirection = 0; break;
+            }
+            zombie->m_lastPathGridX = -1;
+            realLastPathY = -1;
+
+            zombie->m_lastPathGridY = 99;
+
+            wasCharmed = true;
+            zombie->m_lastGroundTrackOffset = 0.0f;
+        }
+        else if (!isCharmed && wasCharmed) {
+            switch (zombie->m_currentDirection) {
+            case 0: zombie->m_currentDirection = 3; break;
+            case 1: zombie->m_currentDirection = 2; break;
+            case 2: zombie->m_currentDirection = 1; break;
+            case 3: zombie->m_currentDirection = 0; break;
+            }
+            zombie->m_lastPathGridX = -1;
+            realLastPathY = -1;
+
+            zombie->m_lastPathGridY = -1;
+
+            wasCharmed = false;
+            zombie->m_lastGroundTrackOffset = 0.0f;
+        }
+        float stepDist = 0.0f;
+        auto rig = reinterpret_cast<ZombieAnimRig_Basic*>(zombie->m_animRig.Get());
+
+        if (rig != nullptr) {
+            SetWalkSpeed(rig, props->TunnelSpeed);
+            SexyVector2 swatchPos;
+            GetAnimRigSpritePosition(rig, "ground_swatch", &swatchPos);
+            float currentSwatchX = swatchPos.x;
+
+            if (zombie->m_lastGroundTrackOffset != 0.0f) {
+                stepDist = std::abs(currentSwatchX - zombie->m_lastGroundTrackOffset);
+                if (stepDist > 30.0f) {
+                    stepDist = 0.0f;
+                }
+            }
+            zombie->m_lastGroundTrackOffset = currentSwatchX;
+        }
         float pixelCenterX = 232.0f + (gX * 64.0f);
         float pixelCenterY = 222.0f + (gY * 76.0f);
         bool reachedCenter = false;
@@ -97,7 +144,7 @@ void MausoleumPiggyLoopWalk(ZombieMausoleumPiggy* zombie)
 
         if (reachedCenter)
         {
-            if (gX != zombie->m_lastPathGridX || gY != zombie->m_lastPathGridY)
+            if (gX != zombie->m_lastPathGridX || gY != realLastPathY)
             {
                 auto* pathProps = reinterpret_cast<GridItemMausoleumLawnPathProps*>(pathTile->m_propertySheet.Get());
                 int numChoices = pathProps->DirectionType.size();
@@ -252,8 +299,9 @@ void MausoleumPiggyLoopWalk(ZombieMausoleumPiggy* zombie)
                     }
                     zombie->m_currentDirection = nextDirection;
                 }
+
                 zombie->m_lastPathGridX = gX;
-                zombie->m_lastPathGridY = gY;
+                zombie->m_lastPathGridY = gY + (wasCharmed ? 100 : 0);
             }
         }
 
@@ -270,17 +318,22 @@ void MausoleumPiggyLoopWalk(ZombieMausoleumPiggy* zombie)
     }
     else
     {
+        auto rig = reinterpret_cast<ZombieAnimRig_Basic*>(zombie->m_animRig.Get());
+        zombie->m_lastGroundTrackOffset = 0.0f;
+        SetWalkSpeed(rig, zombie->m_walkSpeed);
+
         zombie->m_currentDirection = homeDir;
         ZombieAllowMovement(zombie, true);
-        ZombieSetSpeedScale(zombie, 1.0f);
         CallFunc<void, Zombie*>(0xC506B4, zombie);
     }
 }
+
 
 void PiggyOnCreate(ZombieMausoleumPiggy* zombie) {
     zombie->m_currentDirection = 0;
     zombie->m_lastPathGridX = 0;
     zombie->m_lastPathGridY = 0;
+    zombie->m_lastGroundTrackOffset = 0.0f;
 }
 
 SexyString GetPiggyShockEffectName()

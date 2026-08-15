@@ -15,6 +15,7 @@ public:
 	int m_lastPathGridX;
 	int m_lastPathGridY;
 	int m_currentDirection;
+	float m_lastGroundTrackOffset;
 	static void* vftable; 
 	static Sexy::RtClass* s_rtClass; 
 	static void ModInit();

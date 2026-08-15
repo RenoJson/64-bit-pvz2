@@ -8,6 +8,7 @@ public:
 	int m_lastPathGridX;
 	int m_lastPathGridY;
 	int m_currentDirection;
+	float m_lastGroundTrackOffset;
 	DECLARE_STATIC_RT_CLASS_MEMBERS(ZombieMausoleumCavalry)
 
 	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(ZombieMausoleumCavalry, 0xC3AB1C);
