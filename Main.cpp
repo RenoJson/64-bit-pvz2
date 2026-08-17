@@ -241,7 +241,7 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
                        transformOffset = { headOffset.x -25.0f, headOffset.y, 0.0f };
                    }
                    else {
-                       transformOffset = { headOffset.x - 25.0f, -20.0f, 0.0f };
+                       transformOffset = { headOffset.x -15.0f, headOffset.y -20.0f, 0.0f };
                    }
                    ZombieAttachEffect(zombie, "stun", "POPANIM_EFFECTS_ZOMBIES_STUN_EFFECT", "stun_fx", transformOffset, 1, false, false, 2);
                }
@@ -263,7 +263,7 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
                     transformOffset = { headOffset.x - 25.0f, headOffset.y, 0.0f };
                 }
                 else {
-                    transformOffset = { headOffset.x - 25.0f, -20.0f, 0.0f };
+                    transformOffset = { headOffset.x - 15.0f, headOffset.y - 20.0f, 0.0f };
                 }
                 ZombieAttachEffect(zombie, "stickystun", "POPANIM_EFFECTS_ZOMBIES_STUN_EFFECT", "stun_fx", transformOffset, 1, false, false, 2);
             }
@@ -345,7 +345,7 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
                     transformOffset = { headOffset.x - 25.0f, headOffset.y, 0.0f };
                 }
                 else {
-                    transformOffset = { headOffset.x - 25.0f, -20.0f, 0.0f };
+                    transformOffset = { headOffset.x - 15.0f, headOffset.y - 20.0f, 0.0f };
                 }
                 ZombieAttachEffect(zombie, "terrified", "POPANIM_EFFECTS_ZOMBIE_TERRIFIED", "animation", transformOffset, 1, false, false, 2);
             }
