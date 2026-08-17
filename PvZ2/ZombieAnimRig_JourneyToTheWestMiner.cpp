@@ -23,9 +23,9 @@ void* hkInitModernMinerUpperArmList() {
 void* hkInitModernMinerHeadList() {
 
     static std::vector<SexyString> ModernMinerHeadList = {
-       "zombie_hat",
        "zombie_skull",
        "zombie_jaw",
+       "zombie_hat",
        "zombie_hat_back"
     };
     return &ModernMinerHeadList;
