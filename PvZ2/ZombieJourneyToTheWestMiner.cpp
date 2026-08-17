@@ -150,6 +150,12 @@ void TudigongActionFrame(ZombieModernMiner* zombie, int64_t unk1, SexyString* ac
         ((ActionFrame)getActualOffset(0xB0C858))(zombie, unk1, actionName, unk2, currentAnim);
     }
 }
+void TudigongEnterBleedingState(ZombieModernMiner* zombie) {
+    auto rig = reinterpret_cast<ZombieAnimRig_ModernMiner*>(zombie->m_animRig.Get());
+    rig->m_digging = false;
+    ZombieSetSpeedScale(zombie, 1.0f);
+    ZombieEnterState(zombie, 3, 0);
+}
 SexyString GetTudigongShockEffectName()
 {
     return "POPANIM_EFFECTS_ZOMBIE_FAT_SHOCK";
@@ -297,6 +303,7 @@ void ZombieModernMiner::modInit() {
     PatchVFTable(vftable, (void*)TudigongWalkOnLoop, 124);
     PatchVFTable(vftable, (void*)TudigongSurrender, 169);
     PatchVFTable(vftable, (void*)TudigongActionFrame, 170);
+    PatchVFTable(vftable, (void*)TudigongEnterBleedingState, 179);
     PatchVFTable(vftable, (void*)GetTudigongShockEffectName, 189);
     PatchVFTable(vftable, (void*)GetTudigongAshEffectName, 190);
 

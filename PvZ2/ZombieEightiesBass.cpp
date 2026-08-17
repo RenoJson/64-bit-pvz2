@@ -1,4 +1,5 @@
 #include "ZombieEightiesBass.h"
+#include "ZombieModernBungee.h"
 #include "ZombieStateHelper.h"
 #include "ZombieEightiesBassProps.h"
 #include "ZombieState.h"
@@ -240,6 +241,9 @@ Zombie* updateParachutePos(float mX, float mY, float mZ, void* a4, Zombie* zombi
         offset.y += props->DebutOffset.y;
         state = 18;
 	}
+    else if (zombie->IsType(ZombieModernBungee::StaticGetType())) {
+        state = 16;
+    }
     else {
         state = 19;
     }

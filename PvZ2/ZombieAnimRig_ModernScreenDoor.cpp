@@ -1,4 +1,5 @@
 #include "ZombieAnimRig_ModernScreenDoor.h"
+#include "ZombieHelper.h"
 
 void* ZombieAnimRig_ModernScreenDoor::vftable = __null;
 Sexy::RtClass* ZombieAnimRig_ModernScreenDoor::s_rtClass = __null;;
@@ -6,9 +7,6 @@ Sexy::RtClass* ZombieAnimRig_ModernScreenDoor::s_rtClass = __null;;
 void* ZombieAnimRig_ModernScreenDoorAlmanac::vftable = __null;
 Sexy::RtClass* ZombieAnimRig_ModernScreenDoorAlmanac::s_rtClass = __null;;
 
-typedef void(*ZombieAnimRig_ModernScreenDoorAlmanacCreate)(ZombieAnimRig_ModernScreenDoorAlmanac*);
-typedef bool (*setLayerVisibleFunc)(ZombieAnimRig_ModernScreenDoorAlmanac*, const SexyString&, bool);
-setLayerVisibleFunc setLayerVisible = (setLayerVisibleFunc)getActualOffset(0x9DB8D0);
 
 void* hkInitModernScreenDoorLowerArmList(ZombieAnimRig_ModernScreenDoor* thisptr) {
 
@@ -100,9 +98,9 @@ void ZombieAnimRig_ModernScreenDoor::modInit() {
 
 void CreateScreenDoorAnimRig(ZombieAnimRig_ModernScreenDoorAlmanac* thisPtr)
 {
-    ((ZombieAnimRig_ModernScreenDoorAlmanacCreate)getActualOffset(0x8DE104))(thisPtr);
-    setLayerVisible(thisPtr, "screen_door_damage01", false);
-    setLayerVisible(thisPtr, "screen_door_damage02", false);
+    CallFunc<void>(0x8DE104, thisPtr);
+    SetAnimLayerVisible(thisPtr, "screen_door_damage01", false);
+    SetAnimLayerVisible(thisPtr, "screen_door_damage02", false);
 }
 
 void ZombieAnimRig_ModernScreenDoorAlmanac::modInit() {

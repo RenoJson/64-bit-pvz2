@@ -60,6 +60,7 @@ int64_t BungeeThreatAlert() {
     return 0;
 }
 
+
 void BungeeOnBeforeBlown(ZombieModernBungee* zombie, Plant* plant) {
     ZombieIsFlying(zombie, false);
     ZombieSetUnmovableStatusFlag(zombie, false);
@@ -72,15 +73,19 @@ void BungeeOnBeforeBlown(ZombieModernBungee* zombie, Plant* plant) {
     CallFunc<void>(0xC47E24, zombie, damage_fatal);
 }
 
-bool BungeeCanBeTargetedByPlant(ZombieModernBungee* zombie) {
-    if (ZombieIsInState(zombie, 16)
-        || ZombieIsInState(zombie, 17)
+bool BungeeCanBeTargetedByPlant(ZombieModernBungee* zombie, RtWeakPtr<PlantType> pType) {
+    if (ZombieIsInState(zombie, 16) 
+        || ZombieIsInState(zombie, 17) 
         || ZombieIsInState(zombie, 20)) {
         return false;
     }
-    else {
-        return CallFunc<bool>(0xC5677C, zombie);
+    if (pType.IsValid()) {
+        auto type = reinterpret_cast<PlantType*>(pType.Get());
+        if (type != nullptr && type->TypeName == "thymewarp") {
+            return false;
+        }
     }
+    return CallFunc<bool>(0xC5677C, zombie);
 }
 
 bool BungeeCanBeTossedByPlant() {
@@ -106,16 +111,17 @@ void BungeeOnAsh(ZombieModernBungee* zombie) {
     CallFunc<void>(0xC5274C, zombie);
 }
 
-void BungeeOnTakeFatalDamage(ZombieModernBungee* zombie) {
-    if (!ZombieIsInState(zombie, ZS_Ash)
-     || !ZombieIsInState(zombie, ZS_Electrocute)
-     || !ZombieIsInState(zombie, ZS_Plantify)) {
+void BungeeOnTakeFatalDamage(ZombieModernBungee* zombie, DamageInfo* dmgInfo) {
+    if (zombie->m_target.IsValid())
+    {
+        auto target = reinterpret_cast<ZombieModernBungeeTarget*>(zombie->m_target.Get());
+        ZombieEnterState(target, 4, 0);
+    }
+    uint64_t SPECIAL_DEATH_MASK = damage_instantly_fatal | damage_lightning | damage_ash_death |
+        damage_mower | damage_plantify_on_death | damage_no_bleed_on_death;
+    if ((dmgInfo->m_flags & SPECIAL_DEATH_MASK) == 0)
+    {
         CallFunc<void>(0xC47E24, zombie, damage_fatal);
-        if (zombie->m_target.IsValid())
-        {
-            auto target = reinterpret_cast<ZombieModernBungeeTarget*>(zombie->m_target.Get());
-            ZombieEnterState(target, 4, 0);
-        }
     }
 }
 SexyString GetBungeeElectrocuteAnimName() {
@@ -182,8 +188,6 @@ void ZombieModernBungee::HuntOnEnter(ZombieModernBungee* zombie)
             PlantGroup* selectedGroup = validTargets[randomIndex];
 
             zombie->m_targetedPlant.FromOther(&selectedGroup->m_thisPtr);
-            zombie->m_targetGridPos.mX = selectedGroup->m_gridX;
-            zombie->m_targetGridPos.mY = selectedGroup->m_gridY;
 
             auto type = reinterpret_cast<ZombieType*>(zombie->m_type.Get());
             SexyString targetTypeName = type->TypeName + "_target";
@@ -263,8 +267,6 @@ void ZombieModernBungee::WaitingOnLoop(ZombieModernBungee* zombie)
                 if (entity != nullptr && entity->IsType(PlantGroup::StaticGetType()))
                 {
                     auto pGroup = static_cast<PlantGroup*>(entity);
-                    zombie->m_targetGridPos.mX = pGroup->m_gridX;
-                    zombie->m_targetGridPos.mY = pGroup->m_gridY;
                     auto& plantVector = pGroup->m_plants.m_plants;
 
                     if (!plantVector.empty() && plantVector[0].IsValid())
@@ -317,8 +319,6 @@ void ZombieModernBungee::GrabOnLoop(ZombieModernBungee* zombie)
             if (entity != nullptr && entity->IsType(PlantGroup::StaticGetType()))
             {
                 auto pGroup = static_cast<PlantGroup*>(entity);
-                zombie->m_targetGridPos.mX = pGroup->m_gridX;
-                zombie->m_targetGridPos.mY = pGroup->m_gridY;
                 auto& plantVector = pGroup->m_plants.m_plants;
 
                 if (!plantVector.empty() && plantVector[0].IsValid())
@@ -349,7 +349,7 @@ void ZombieModernBungee::EscapeOnEnter(ZombieModernBungee* zombie)
     if (zombie->m_attachedPlant.IsValid())
     {
         auto plant = reinterpret_cast<Plant*>(zombie->m_attachedPlant.Get());
-        SexyVector3 effectPos = { -3.0f, -35.0f, 0.0f };
+        SexyVector3 effectPos = { -7.0f, -35.0f, 0.0f };
         int renderOrder = MakeRenderOrder(402000, plant->m_position.y, 1);
         ZombieAttachEffect(zombie, "riseHand", "POPANIM_ZOMBIE_ZOMBIE_BUNGEE", "03", effectPos, renderOrder, true, true, 2);
     }
@@ -430,15 +430,12 @@ void onGrabCallback(Zombie* zombie) {
                 Plant* p0 = reinterpret_cast<Plant*>(plantVector[0].Get());
 
                 bungee->m_attachedPlant.FromOther(&p0->m_thisPtr);
+                auto plant = reinterpret_cast<Plant*>(bungee->m_attachedPlant.Get());
                 SexyVector3 effectPos = { -7.0f, -35.0f, 0.0f };
                 int renderOrder = MakeRenderOrder(402000, p0->m_position.y, 1);
                 ZombieAttachEffect(bungee, "hand", "POPANIM_ZOMBIE_ZOMBIE_BUNGEE", "02", effectPos, renderOrder, false, false, 2);
-                p0->m_state = 3;
-                MessageRouter::GetInstance()->ExecuteMessage((void*)getActualOffset(0x126B938), p0);
-                p0->m_isOnBoard = false;
-                bungee->m_targetRow = p0->m_row;
-                p0->m_row = -5;
-                CallFunc<void>(0x1271688, p0, 2139095039, 0.0f, 0.0f);
+                CallFunc<void, Plant*, unsigned int, float, float, float>(0x1271688, plant, 14, FLT_MAX, 0.0f, 0.0f);
+                CallFunc<void>(0x1276D04, plant);
             }
         }
         ZombieEnterState(bungee, 20, 0);
@@ -451,13 +448,13 @@ void onEscapedCallback(Zombie* zombie) {
 
     if (bungee && !ZombieIsDeadOrDying(zombie) && bungee->m_entityState.m_id != 3) {
 
-        // alway check attached plant and target plant is valid or the game just crash lmao
+        // alway check attached plant and target plant is valid or we are cooked
         if (bungee->m_attachedPlant.IsValid()) {
             auto plant = reinterpret_cast<Plant*>(bungee->m_attachedPlant.Get());
 
 
             if (plant) {
-                CallFunc<void>(0x8AEB28, plant);
+                CallFunc<void>(0x1273244, plant, 0x8000000000LL);
             }
         }
 

@@ -242,6 +242,8 @@ void LostBoxCompletedCallback(Zombie* zombie) {
 void SurpriseCompletedCallback(Zombie* zombie) {
     ZombieModernJackInTheBox* boxZombie = static_cast<ZombieModernJackInTheBox*>(zombie);
     if (boxZombie) {
+        ZombieSetInvincibleStatusFlag(boxZombie, false);
+        ZombieSetNoCollisionFlag(boxZombie, false);
         for (auto& weakArmor : zombie->m_armor)
         {
             Armor* armor = weakArmor.Get();

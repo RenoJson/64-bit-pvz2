@@ -944,14 +944,14 @@ void libChair_main()
     PVZ2HookFunction(0xAA0C40, (void*)hkBoardRender, (void**)&oBoardRender);
     PVZ2HookFunction(0x1273244, (void*)hkFire, (void**)&oFire);
     PVZ2HookFunction(0x1001C04, (void*)hkFixTeleportatoMineTeleport, (void**)&oTeleportatoMineTeleport);
-    PVZ2HookFunction(0x1069AC4, (void*)hkCreateAnimRig, (void**)&oCreateAnimRig);
-    PVZ2HookFunction(0x5AB098, (void*)hkAlmanacCreateAnimRig, (void**)&oAlmanacCreateAnimRig);
     PVZ2HookFunction(0xBBE3A4, (void*)hkNewspaperOnArmorDestroyed, nullptr);
     PVZ2HookFunction(0xBA2388, (void*)hkExcavatorOnArmorDestroyed, nullptr);
-    PVZ2HookFunction(0xC47450, (void*)hkHealHelm, nullptr);
     PVZ2HookFunction(0xB1F5CC, (void*)hkPharaohCallback, (void**)&oPharaohCallback);
     PVZ2HookFunction(0xAFAF74, (void*)hkKingActionCommand, (void**)&oKingActionCommand);
     //PVZ2HookFunction(0xC43B90, (void*)hkTakeDamageNoCorpse, (void**)&oZTakeDmg);
+    PVZ2HookFunction(0x1069AC4, (void*)hkCreateAnimRig, (void**)&oCreateAnimRig);
+    PVZ2HookFunction(0x5AB098, (void*)hkAlmanacCreateAnimRig, (void**)&oAlmanacCreateAnimRig);
+    PVZ2HookFunction(0xC47450, (void*)hkHealHelm, nullptr);
     PVZ2HookFunction(0x168D580, (void*)hkLoadAndDecode, (void**)&oLoadAndDecode);
     PVZ2HookFunction(0x176D6CC, (void*)hkGetGLTextureTotalSize, (void**)&oGetGLTextureTotalSize);
 

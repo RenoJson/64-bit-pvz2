@@ -357,7 +357,9 @@ void hkTakeDamage(Zombie* thisPtr, DamageInfo* damageInfo)
         }
     }
 }
-bool IsReadyToDie(Zombie* thisPtr) {}
+bool IsReadyToDie(Zombie* thisPtr) {
+    return thisPtr->m_position.x <= 0.0f;
+}
 
 bool hkIsDeadOrDying(Zombie* thisPtr)
 {
@@ -367,10 +369,8 @@ bool hkIsDeadOrDying(Zombie* thisPtr)
     {
         return true;
     }
-    if (stateId == 3) {
-        if (thisPtr->m_position.x <= 100.0f) {
-            return true;
-        }
+    if (stateId == 3 && thisPtr->m_position.x <= 232.0f) {
+        return true;
     }
 
     if (stateId == 10 || stateId == 11)
@@ -455,7 +455,7 @@ bool IsInBleedingState(Zombie* thisPtr) {
 }
 
 bool hkZombieCheckConditionsFlag(Zombie* zombie, int flag) {
-   
+    
     if ((flag & 1) == 0 || !hkIsDeadOrDying(zombie))
     {
         if ((flag & 0x10) == 0 || ((zombie->m_zombieFlags & zombiegrabbedbyptero) != 0) || zombie->IsInGridItem())
