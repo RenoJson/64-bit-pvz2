@@ -220,9 +220,8 @@ int64_t hkBossProgressMeterInit()
 typedef Zombie* (*effectCondition)(Zombie*, ZombieConditions);
 effectCondition oEffCond = nullptr;
 Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
-    typedef Zombie* (*setEffectAnim)(Zombie*, const char*, const char*, const char*, SexyVector3*, uint, bool, bool, uint);
-    setEffectAnim setAnim = (setEffectAnim)getActualOffset(0x7BF03C);
     auto* props = reinterpret_cast<ZombiePropertySheet*>(zombie->m_propertySheet.Get());
+    auto rig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
     switch (cond)
     {
         case zombie_condition_dazeystunned:
@@ -230,20 +229,21 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
         {
            if (zombie->m_attachedEffects.GetObjectIndex("stickystun") == -1) {
                if (zombie->m_attachedEffects.GetObjectIndex("stun") == -1) {
+                   SexyVector2 headOffset = CallVirtualFunc<SexyVector2>(rig, 43);
                    SexyVector3 transformOffset;
                    if (props->Size == ZombieSize::large) {
-                       transformOffset = { -25.0f, -100.0f, 0.0f };
+                       transformOffset = { headOffset.x -25.0f, headOffset.y -100.0f, 0.0f };
                    }
                    else if (props->Size == ZombieSize::imp) {
-                       transformOffset = { -25.0f, -10.0f, 0.0f };
+                       transformOffset = { headOffset.x -25.0f, headOffset.y -10.0f, 0.0f };
                    }
                    else if (props->Size == ZombieSize::chicken) {
-                       transformOffset = { -25.0f, 0.0f, 0.0f };
+                       transformOffset = { headOffset.x -25.0f, headOffset.y, 0.0f };
                    }
                    else {
-                       transformOffset = { -25.0f, -20.0f, 0.0f };
+                       transformOffset = { headOffset.x - 25.0f, -20.0f, 0.0f };
                    }
-                   setAnim(zombie, "stun", "POPANIM_EFFECTS_ZOMBIES_STUN_EFFECT", "stun_fx", &transformOffset, 1, false, false, 2);
+                   ZombieAttachEffect(zombie, "stun", "POPANIM_EFFECTS_ZOMBIES_STUN_EFFECT", "stun_fx", transformOffset, 1, false, false, 2);
                }
            }
            break;
@@ -251,20 +251,21 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
         case zombie_condition_stickybombed:
         {
             if (zombie->m_attachedEffects.GetObjectIndex("stickystun") == -1) {
+                SexyVector2 headOffset = CallVirtualFunc<SexyVector2>(rig, 43);
                 SexyVector3 transformOffset;
                 if (props->Size == ZombieSize::large) {
-                    transformOffset = { -25.0f, -100.0f, 0.0f };
+                    transformOffset = { headOffset.x - 25.0f, headOffset.y - 100.0f, 0.0f };
                 }
                 else if (props->Size == ZombieSize::imp) {
-                    transformOffset = { -25.0f, -10.0f, 0.0f };
+                    transformOffset = { headOffset.x - 25.0f, headOffset.y - 10.0f, 0.0f };
                 }
                 else if (props->Size == ZombieSize::chicken) {
-                    transformOffset = { -25.0f, 0.0f, 0.0f };
+                    transformOffset = { headOffset.x - 25.0f, headOffset.y, 0.0f };
                 }
                 else {
-                    transformOffset = { -25.0f, -20.0f, 0.0f };
+                    transformOffset = { headOffset.x - 25.0f, -20.0f, 0.0f };
                 }
-                setAnim(zombie, "stickystun", "POPANIM_EFFECTS_ZOMBIES_STUN_EFFECT", "stun_fx", &transformOffset, 1, false, false, 2);
+                ZombieAttachEffect(zombie, "stickystun", "POPANIM_EFFECTS_ZOMBIES_STUN_EFFECT", "stun_fx", transformOffset, 1, false, false, 2);
             }
             break;
         }
@@ -272,7 +273,7 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
         {
             if (zombie->m_attachedEffects.GetObjectIndex("zombossstun") == -1) {
                 SexyVector3 transformOffset = { 60.0f, -200.0f, 0.0f };
-                setAnim(zombie, "zombossstun", "POPANIM_EFFECTS_ZOMBOSS_STUN_EFFECT", "stun", &transformOffset, 1, false, false, 2);
+                ZombieAttachEffect(zombie, "zombossstun", "POPANIM_EFFECTS_ZOMBOSS_STUN_EFFECT", "stun", transformOffset, 1, false, false, 2);
             }
             break;
         }
@@ -283,7 +284,7 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
         {
             if (zombie->m_attachedEffects.GetObjectIndex("slow") == -1) {
                 SexyVector3 transformOffset = { 10.0f, -30.0f, 0.0f };
-                setAnim(zombie, "slow", "POPANIM_EFFECTS_ZOMBIE_SLOWDOWN", "anim", &transformOffset, 1, false, false, 2);
+                ZombieAttachEffect(zombie, "slow", "POPANIM_EFFECTS_ZOMBIE_SLOWDOWN", "anim", transformOffset, 1, false, false, 2);
             }
             break;
         }
@@ -295,7 +296,7 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
             if (zombie->m_attachedEffects.GetObjectIndex("slow") == -1) {
                 if (zombie->m_attachedEffects.GetObjectIndex("plantslow") == -1) {
                     SexyVector3 transformOffset = { 10.0f, -30.0f, 0.0f };
-                    setAnim(zombie, "plantslow", "POPANIM_EFFECTS_ZOMBIE_SLOWDOWN", "anim", &transformOffset, 1, false, false, 2);
+                    ZombieAttachEffect(zombie, "plantslow", "POPANIM_EFFECTS_ZOMBIE_SLOWDOWN", "anim", transformOffset, 1, false, false, 2);
                 }
             }
             break;
@@ -308,7 +309,7 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
         {
             if (zombie->m_attachedEffects.GetObjectIndex("zombiespeedup") == -1) {
                 SexyVector3 transformOffset = { 0.0f, -20.0f, 0.0f };
-                setAnim(zombie, "zombiespeedup", "POPANIM_EFFECTS_ZOMBIE_SPEEDUP", "zombie_speedup", &transformOffset, 1, false, false, 2);
+                ZombieAttachEffect(zombie, "zombiespeedup", "POPANIM_EFFECTS_ZOMBIE_SPEEDUP", "zombie_speedup", transformOffset, 1, false, false, 2);
             }
             break;
         }
@@ -324,7 +325,7 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
         {
             if (zombie->m_attachedEffects.GetObjectIndex("potion") == -1) {
                 SexyVector3 transformOffset = { 20.0f, -30.0f, 0.0f };
-                setAnim(zombie, "potion", "POPANIM_EFFECTS_ZOMBIE_POTION_EFFECT", "idle", &transformOffset, -1, false, false, 2);
+                ZombieAttachEffect(zombie, "potion", "POPANIM_EFFECTS_ZOMBIE_POTION_EFFECT", "idle", transformOffset, -1, false, false, 2);
             }
             break;
         }
@@ -332,20 +333,21 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
         case zombie_condition_terrified:
         {
             if (zombie->m_attachedEffects.GetObjectIndex("terrified") == -1) {
+                SexyVector2 headOffset = CallVirtualFunc<SexyVector2>(rig, 43);
                 SexyVector3 transformOffset;
                 if (props->Size == ZombieSize::large) {
-                    transformOffset = { -20.0f, -300.0f, 0.0f };
+                    transformOffset = { headOffset.x - 25.0f, headOffset.y - 100.0f, 0.0f };
                 }
                 else if (props->Size == ZombieSize::imp) {
-                    transformOffset = { -20.0f, -50.0f, 0.0f };
+                    transformOffset = { headOffset.x - 25.0f, headOffset.y - 10.0f, 0.0f };
                 }
                 else if (props->Size == ZombieSize::chicken) {
-                    transformOffset = { 0.0f, -30.0f, 0.0f };
+                    transformOffset = { headOffset.x - 25.0f, headOffset.y, 0.0f };
                 }
                 else {
-                    transformOffset = { -20.0f, -150.0f, 0.0f };
+                    transformOffset = { headOffset.x - 25.0f, -20.0f, 0.0f };
                 }
-                setAnim(zombie, "terrified", "POPANIM_EFFECTS_ZOMBIE_TERRIFIED", "animation", &transformOffset, 1, false, false, 2);
+                ZombieAttachEffect(zombie, "terrified", "POPANIM_EFFECTS_ZOMBIE_TERRIFIED", "animation", transformOffset, 1, false, false, 2);
             }
             break;
         }
@@ -355,34 +357,26 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
 typedef Zombie* (*removeeffectCondition)(Zombie*, ZombieConditions);
 removeeffectCondition oRemoveEffCond = nullptr;
 Zombie* hkRemoveEffectCondition(Zombie* zombie, ZombieConditions cond) {
-    typedef int (*removeEffectAnim)(AttachedEffectManager*, SexyString*);
-    removeEffectAnim removeAnim = (removeEffectAnim)getActualOffset(0x662360);
-    typedef Zombie* (*setEffectAnim)(Zombie*, const char*, const char*, const char*, SexyVector3*, uint, bool, bool, uint);
-    setEffectAnim setAnim = (setEffectAnim)getActualOffset(0x7BF03C);
     switch (cond) {
         case zombie_condition_dazeystunned:
         case zombie_condition_stun:
         {
-            std::string stun = "stun";
-            removeAnim(&zombie->m_attachedEffects, &stun);
+            RemoveAttachedEffect(&zombie->m_attachedEffects, "stun");
             break;
         }
         case zombie_condition_stickybombed:
         {
-            std::string stun = "stickystun";
-            removeAnim(&zombie->m_attachedEffects, &stun);
+            RemoveAttachedEffect(&zombie->m_attachedEffects, "stickystun");
             break;
         }
         case zombie_condition_zombossstun:
         {
-            std::string zombossstun = "zombossstun";
-            removeAnim(&zombie->m_attachedEffects, &zombossstun);
+            RemoveAttachedEffect(&zombie->m_attachedEffects, "zombossstun");
             break;
         }
         case zombie_condition_terrified:
         {
-            std::string zombossstun = "terrified";
-            removeAnim(&zombie->m_attachedEffects, &zombossstun);
+            RemoveAttachedEffect(&zombie->m_attachedEffects, "terrified");
             break;
         }
         case zombie_condition_speeddown1:
@@ -390,8 +384,7 @@ Zombie* hkRemoveEffectCondition(Zombie* zombie, ZombieConditions cond) {
         case zombie_condition_speeddown3:
         case zombie_condition_speeddown4:
         {
-            std::string slow = "slow";
-            removeAnim(&zombie->m_attachedEffects, &slow);
+            RemoveAttachedEffect(&zombie->m_attachedEffects, "slow");
             break;
         }
         case zombie_condition_sapped:
@@ -399,8 +392,7 @@ Zombie* hkRemoveEffectCondition(Zombie* zombie, ZombieConditions cond) {
         case zombie_condition_stackableslow:
         case zombie_condition_stalled:
         {
-            std::string plantslow = "plantslow";
-            removeAnim(&zombie->m_attachedEffects, &plantslow);
+            RemoveAttachedEffect(&zombie->m_attachedEffects, "plantslow");
             break;
         }
         case zombie_condition_hungered:
@@ -409,8 +401,7 @@ Zombie* hkRemoveEffectCondition(Zombie* zombie, ZombieConditions cond) {
         case zombie_condition_speedup3:
         case zombie_condition_speedup4:
         {
-            std::string speedup = "zombiespeedup";
-            removeAnim(&zombie->m_attachedEffects, &speedup);
+            RemoveAttachedEffect(&zombie->m_attachedEffects, "zombiespeedup");
             break;
         }
         case zombie_condition_potionspeed1:
@@ -423,11 +414,10 @@ Zombie* hkRemoveEffectCondition(Zombie* zombie, ZombieConditions cond) {
         case zombie_condition_potionsuper2:
         case zombie_condition_potionsuper3:
         {
-            std::string zombossstun = "potion";
-            removeAnim(&zombie->m_attachedEffects, &zombossstun); 
+            RemoveAttachedEffect(&zombie->m_attachedEffects, "potion");
             if (zombie->m_attachedEffects.GetObjectIndex("potion_end") == -1) {
                 SexyVector3 transformOffset = { 20.0f, -30.0f, 0.0f };
-                setAnim(zombie, "potion_end", "POPANIM_EFFECTS_ZOMBIE_POTION_EFFECT", "over", &transformOffset, -1, true, false, 2);
+                ZombieAttachEffect(zombie, "potion_end", "POPANIM_EFFECTS_ZOMBIE_POTION_EFFECT", "over", transformOffset, -1, true, false, 2);
             }
             break;
         }
