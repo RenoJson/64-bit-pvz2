@@ -223,6 +223,15 @@ effectCondition oEffCond = nullptr;
 Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
     auto* props = reinterpret_cast<ZombiePropertySheet*>(zombie->m_propertySheet.Get());
     auto rig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
+    typedef void (*GetHeadPosFunc)(ZombieAnimRig* rig, SexyVector2* out_result);
+
+    SexyVector2 headOffset = { 0.0f, 0.0f };
+    if (rig != nullptr) {
+        void*** vtable = reinterpret_cast<void***>(rig);
+        GetHeadPosFunc getHeadPos = reinterpret_cast<GetHeadPosFunc>((*vtable)[43]);
+
+        getHeadPos(rig, &headOffset); 
+    }
     switch (cond)
     {
         case zombie_condition_dazeystunned:
@@ -230,7 +239,7 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
         {
            if (zombie->m_attachedEffects.GetObjectIndex("stickystun") == -1) {
                if (zombie->m_attachedEffects.GetObjectIndex("stun") == -1) {
-                   SexyVector2 headOffset = CallVirtualFunc<SexyVector2>(rig, 43);
+                   
                    SexyVector3 transformOffset;
                    if (props->Size == ZombieSize::large) {
                        transformOffset = { headOffset.x -25.0f, headOffset.y -100.0f, 0.0f };
@@ -252,7 +261,7 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
         case zombie_condition_stickybombed:
         {
             if (zombie->m_attachedEffects.GetObjectIndex("stickystun") == -1) {
-                SexyVector2 headOffset = CallVirtualFunc<SexyVector2>(rig, 43);
+                
                 SexyVector3 transformOffset;
                 if (props->Size == ZombieSize::large) {
                     transformOffset = { headOffset.x - 25.0f, headOffset.y - 100.0f, 0.0f };
@@ -334,7 +343,7 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
         case zombie_condition_terrified:
         {
             if (zombie->m_attachedEffects.GetObjectIndex("terrified") == -1) {
-                SexyVector2 headOffset = CallVirtualFunc<SexyVector2>(rig, 43);
+                
                 SexyVector3 transformOffset;
                 if (props->Size == ZombieSize::large) {
                     transformOffset = { headOffset.x - 25.0f, headOffset.y - 100.0f, 0.0f };
@@ -989,7 +998,7 @@ void libChair_main()
     ZombieAnimRig_MysticFormation::modInit();
     PatchRedStingerPF();// free stuff
     
-    
+    ZombieSpawnWeight::modInit();
     ZombieModernScreenDoor::ModInit();
     ZombieAnimRig_ModernScreenDoor::modInit();
     ZombieAnimRig_ModernScreenDoorAlmanac::modInit();

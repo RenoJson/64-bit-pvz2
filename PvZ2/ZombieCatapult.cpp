@@ -411,7 +411,6 @@ void ZombieCatapult::buildEventCallbacks(Reflection::CRefManualSymbolBuilder* bu
     LOGI("Reg event complete");
 }
 
-
 void ZombieCatapult::buildStates()
 {
     StateMachineTableBuilder* stateMachine = CallGetStateMachine(ZombieCatapult::StaticGetType());

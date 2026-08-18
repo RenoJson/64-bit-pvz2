@@ -41,11 +41,33 @@ public:
 	static void WaitingOnExit(ZombieModernDancer* zombie);
 };
 
+class ZombieSpawnWeight : public PropertySheetBase {
+public:
+	SexyString ZombieTypeName;
+	float Weight;
+
+	static void* vftable;
+	static Sexy::RtClass* s_rtClass;
+	static void modInit();
+
+	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(ZombieSpawnWeight, 0x8AE3A8);
+	RT_CLASS_CONSTRUCT_FUNCTION_END();
+
+	RT_CLASS_BUILD_SYMBOLS_BEGIN(PropertySheetBase);
+	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieSpawnWeight, ZombieTypeName);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieSpawnWeight, Weight);
+	RT_CLASS_BUILD_SYMBOLS_END();
+
+	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieSpawnWeight);
+	RT_CLASS_GET_CLASS_FUNCTION(ZombieSpawnWeight, 0xD1FB60);
+};
+
 class ZombieModernDancerProps : public ZombiePropertySheet
 {
 public:
-	SexyString DancerType = "modern_backup_dancer";
 	int DanceCount = 3;
+	float ActionInterval = 3;
+	std::vector<ZombieSpawnWeight> DancerSpawnList;
 	bool IsMainDancer = false;
 
 	static void* vftable;
@@ -56,8 +78,9 @@ public:
 	RT_CLASS_CONSTRUCT_FUNCTION_END();
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombiePropertySheet);
-	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieModernDancerProps, DancerType);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModernDancerProps, DanceCount);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModernDancerProps, ActionInterval);
+	RT_CLASS_REGISTER_CLASS_VECTOR_PROPERTY(ZombieModernDancerProps, DancerSpawnList, ZombieSpawnWeight);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModernDancerProps, IsMainDancer);
 	RT_CLASS_BUILD_SYMBOLS_END();
 

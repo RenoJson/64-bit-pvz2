@@ -124,8 +124,8 @@ void DancerWalkingOnLoop(ZombieModernDancer* zombie) {
             }
         }
     }
-
-    if (zombie->m_elapsedTimeInState >= 6.0)
+    auto props = reinterpret_cast<ZombieModernDancerProps*>(zombie->m_propertySheet.Get());
+    if (zombie->m_elapsedTimeInState >= props->ActionInterval)
     {
         if (zombie->m_isMainDancer)
         {
@@ -264,124 +264,95 @@ void ZombieModernDancer::WaitingOnLoop(ZombieModernDancer* zombie)
 {
     auto props = reinterpret_cast<ZombieModernDancerProps*>(zombie->m_propertySheet.Get());
 
-    if (zombie->m_elapsedTimeInState >= 2.0)
+    if (zombie->m_elapsedTimeInState >= 1.0)
     {
-        float currentX = zombie->m_position.x;
-        float currentY = zombie->m_position.y;
-        int zRow = (int)(((currentY - 160.0f) / 76.0f));
-
         if (zombie->m_entrySummon)
         {
             zombie->m_backupDancer.clear();
             zombie->m_backupDancer.resize(4);
-
-            for (int i = 0; i < 4; ++i)
-            {
-                int targetRow = zRow;
-                float targetX = currentX;
-                float targetY = currentY;
-
-                switch (i)
-                {
-                case 0:
-                    targetY -= 76.0f; targetRow -= 1; break;
-                case 1:
-                    targetY += 76.0f; targetRow += 1; break;
-                case 2:
-                    targetX -= 64.0f; break;
-                case 3:
-                    targetX += 64.0f; break;
-                }
-
-                if (targetRow >= 0 && targetRow <= 4)
-                {
-                    SexyVector3 backupPos = { targetX, targetY, 0 };
-                    ZombieModernDancer* backupDancer = (ZombieModernDancer*)AddZombie(props->DancerType, -1, 6, 1);
-
-                    if (backupDancer != nullptr)
-                    {
-                        ZombieSetPosition(backupDancer, &backupPos);
-                        CallFunc<int64_t>(0xC4CAD4, backupDancer, &backupPos, true);
-                        zombie->m_backupDancer[i].FromOther(&backupDancer->m_thisPtr);
-                        backupDancer->m_mainDancer.FromOther(&zombie->m_thisPtr); 
-                        if (ZombieHasCondition(zombie, zombie_condition_shrinking) || ZombieHasCondition(zombie, zombie_condition_shrunken)) {
-
-                            ZombieSetCondition(backupDancer, zombie_condition_shrunken, 0, 3.4028e38f, 0.0f);
-                        }
-                        if (ZombieHasCondition(zombie, zombie_condition_hypnotized)) {
-
-                            ZombieSetCondition(backupDancer, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
-
-                            int teamflag = zombie->m_teamFlags;
-                            typedef void (*func10B013C)(Zombie*, int);
-                            auto* setTeamFlag = ((func10B013C)getActualOffset(0x10B013C));
-                            setTeamFlag(backupDancer, teamflag);
-                            typedef void* (*GetHypnoDataFunc)(Zombie*);
-                            GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
-
-                            void* hypnoData = funGetHypnoData(zombie);
-                            typedef void (*ApplyHypnoDataFunc)(Zombie*, void*);
-                            ApplyHypnoDataFunc funApplyHypnoData = (ApplyHypnoDataFunc)getActualOffset(0xC41290);
-                            funApplyHypnoData(backupDancer, hypnoData);
-                        }
-                    }
-                }
-            }
-
             zombie->m_entrySummon = false;
         }
-        else
-        {
-            if (zombie->m_backupDancer.size() == 4)
-            {
-                for (int i = 0; i < 4; ++i)
-                {
-                    if (!zombie->m_backupDancer[i].IsValid())
-                    {
-                        int targetRow = zRow;
-                        float targetX = currentX;
-                        float targetY = currentY;
 
-                        switch (i)
+        float currentX = zombie->m_position.x;
+        float currentY = zombie->m_position.y;
+        int zRow = (int)(((currentY - 160.0f) / 76.0f));
+
+        if (zombie->m_backupDancer.size() == 4)
+        {
+            for (int i = 0; i < 4; ++i)
+            {
+                if (!zombie->m_backupDancer[i].IsValid())
+                {
+                    int targetRow = zRow;
+                    float targetX = currentX;
+                    float targetY = currentY;
+
+                    switch (i)
+                    {
+                    case 0: targetY -= 76.0f; targetRow -= 1; break;
+                    case 1: targetY += 76.0f; targetRow += 1; break;
+                    case 2: targetX -= 64.0f; break;
+                    case 3: targetX += 64.0f; break;
+                    }
+
+                    if (targetRow >= 0 && targetRow <= 4)
+                    {
+                        SexyString selectedTypeName = "";
+
+                        if (!props->DancerSpawnList.empty())
                         {
-                        case 0: targetY -= 76.0f; targetRow -= 1; break;
-                        case 1: targetY += 76.0f; targetRow += 1; break;
-                        case 2: targetX -= 64.0f; break;
-                        case 3: targetX += 64.0f; break;
+                            float totalWeight = 0.0f;
+                            for (const auto& w : props->DancerSpawnList) {
+                                totalWeight += w.Weight;
+                            }
+
+                            float randomPoint = static_cast<float>(rand()) / static_cast<float>(RAND_MAX) * totalWeight;
+
+                            float currentWeight = 0.0f;
+                            for (const auto& w : props->DancerSpawnList) {
+                                currentWeight += w.Weight;
+                                if (randomPoint <= currentWeight) {
+                                    selectedTypeName = w.ZombieTypeName;
+                                    break;
+                                }
+                            }
                         }
 
-                        if (targetRow >= 0 && targetRow <= 4)
+                        if (selectedTypeName.empty() && !props->DancerSpawnList.empty()) {
+                            selectedTypeName = props->DancerSpawnList[0].ZombieTypeName;
+                        }
+
+                        SexyVector3 backupPos = { targetX, targetY, 0 };
+
+                        ZombieModernDancer* backupDancer = (ZombieModernDancer*)AddZombie(selectedTypeName, -1, 6, 1);
+
+                        if (backupDancer != nullptr)
                         {
-                            SexyVector3 backupPos = { targetX, targetY, 0 };
-                            ZombieModernDancer* backupDancer = (ZombieModernDancer*)AddZombie(props->DancerType, -1, 6, 1);
+                            ZombieSetPosition(backupDancer, &backupPos);
+                            CallFunc<int64_t>(0xC4CAD4, backupDancer, &backupPos, true);
 
-                            if (backupDancer != nullptr)
-                            {
-                                ZombieSetPosition(backupDancer, &backupPos);
-                                CallFunc<int64_t>(0xC4CAD4, backupDancer, &backupPos, true);
-                                zombie->m_backupDancer[i].FromOther(&backupDancer->m_thisPtr);
-                                backupDancer->m_mainDancer.FromOther(&zombie->m_thisPtr);
-                                backupDancer->m_mainDancer.FromOther(&zombie->m_thisPtr);
-                                if (ZombieHasCondition(zombie, zombie_condition_shrinking) || ZombieHasCondition(zombie, zombie_condition_shrunken)) {
+                            zombie->m_backupDancer[i].FromOther(&backupDancer->m_thisPtr);
+                            backupDancer->m_mainDancer.FromOther(&zombie->m_thisPtr);
 
-                                    ZombieSetCondition(backupDancer, zombie_condition_shrunken, 0, 3.4028e38f, 0.0f);
-                                }
-                                if (ZombieHasCondition(zombie, zombie_condition_hypnotized)) {
+                            if (ZombieHasCondition(zombie, zombie_condition_shrinking) || ZombieHasCondition(zombie, zombie_condition_shrunken)) {
+                                ZombieSetCondition(backupDancer, zombie_condition_shrunken, 0, 3.4028e38f, 0.0f);
+                            }
 
-                                    ZombieSetCondition(backupDancer, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
+                            if (ZombieHasCondition(zombie, zombie_condition_hypnotized)) {
+                                ZombieSetCondition(backupDancer, zombie_condition_hypnotized, 0, 3.4028e38f, 0.0f);
 
-                                    int teamflag = zombie->m_teamFlags;
-                                    typedef void (*func10B013C)(Zombie*, int);
-                                    auto* setTeamFlag = ((func10B013C)getActualOffset(0x10B013C));
-                                    setTeamFlag(backupDancer, teamflag);
-                                    typedef void* (*GetHypnoDataFunc)(Zombie*);
-                                    GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
+                                int teamflag = zombie->m_teamFlags;
+                                typedef void (*func10B013C)(Zombie*, int);
+                                auto* setTeamFlag = ((func10B013C)getActualOffset(0x10B013C));
+                                setTeamFlag(backupDancer, teamflag);
 
-                                    void* hypnoData = funGetHypnoData(zombie);
-                                    typedef void (*ApplyHypnoDataFunc)(Zombie*, void*);
-                                    ApplyHypnoDataFunc funApplyHypnoData = (ApplyHypnoDataFunc)getActualOffset(0xC41290);
-                                    funApplyHypnoData(backupDancer, hypnoData);
-                                }
+                                typedef void* (*GetHypnoDataFunc)(Zombie*);
+                                GetHypnoDataFunc funGetHypnoData = (GetHypnoDataFunc)getActualOffset(0xC3E6DC);
+                                void* hypnoData = funGetHypnoData(zombie);
+
+                                typedef void (*ApplyHypnoDataFunc)(Zombie*, void*);
+                                ApplyHypnoDataFunc funApplyHypnoData = (ApplyHypnoDataFunc)getActualOffset(0xC41290);
+                                funApplyHypnoData(backupDancer, hypnoData);
                             }
                         }
                     }
@@ -415,10 +386,26 @@ void onDancingCallback(Zombie* zombie) {
 void onWaitingCallback(Zombie* zombie) {
     auto dancer = static_cast<ZombieModernDancer*>(zombie);
     if (dancer) {
-        if (dancer->m_elapsedTimeInState >= 2.5 && !ZombieIsDeadOrDying(dancer) && dancer->m_entityState.m_id != 3) {
+        if (dancer->m_elapsedTimeInState >= 2.0 && !ZombieIsDeadOrDying(dancer) && dancer->m_entityState.m_id != 3) {
             ZombieEnterState(dancer, 1, 0);
         }
     }
+}
+
+void* ZombieSpawnWeight::vftable = __null;
+Sexy::RtClass* ZombieSpawnWeight::s_rtClass = __null;
+
+
+void ZombieSpawnWeight::modInit() {
+    LOGI("ZombieSpawnWeight init");
+
+    vftable = CopyVFTable(getActualOffset(0x2428660), 14);
+
+    PatchVFTable(vftable, (void*)ZombieSpawnWeight::StaticGetType, 0);
+
+    ZombieSpawnWeight::StaticGetType();
+
+    LOGI("ZombieSpawnWeight finish init");
 }
 
 void ZombieModernDancer::ModInit() {
