@@ -208,6 +208,7 @@
     <ClCompile Include="PvZ2\ZombieBasicProps.cpp" />
     <ClCompile Include="PvZ2\ZombieBasicTemplate.cpp" />
     <ClCompile Include="PvZ2\ZombieCamel.cpp" />
+    <ClCompile Include="PvZ2\ZombieCatapult.cpp" />
     <ClCompile Include="PvZ2\ZombieCavalryProps.cpp" />
     <ClCompile Include="PvZ2\ZombieConditions.cpp" />
     <ClCompile Include="PvZ2\ZombieCowboyBasic.cpp" />
@@ -335,6 +336,7 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumAssasin.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumCursedBase.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumDrunkard.h" />
+    <ClInclude Include="PvZ2\ZombieCatapult.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumArcher.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumAssasin.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumBasic.h" />

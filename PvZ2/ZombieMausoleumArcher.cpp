@@ -16,9 +16,6 @@ Sexy::RtClass* ZombieMausoleumArcher::s_rtClass = nullptr;
 void* ZombieMausoleumArcherProps::vftable = nullptr;
 Sexy::RtClass* ZombieMausoleumArcherProps::s_rtClass = nullptr;
 
-typedef int (*playAnimWithoutCallback)(ZombieAnimRig*, const SexyString&, int, DelegateBase&);
-typedef int (*playAnimWithCallback)(ZombieAnimRig*, const SexyString&, int, ZombieEvent& event);
-typedef ZombieEvent* (*ConstructEvent)(ZombieEvent*, RtWeakPtr<Zombie>& owner, const SexyString& eventName);
 
 DECLARE_DELEGATES_SETUP(ZombieMausoleumArcher)
 
@@ -155,9 +152,7 @@ void ZombieMausoleumArcher::WaitShootingOnEnter(ZombieMausoleumArcher* zombie)
 void ZombieMausoleumArcher::WaitShootingOnLoop(ZombieMausoleumArcher* zombie)
 {
     auto* props = reinterpret_cast<ZombieMausoleumArcherProps*>(zombie->m_propertySheet.Get());
-    auto animRig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
 
-    float hpPercentage = zombie->m_hitpoints / zombie->m_maxHitpoints;
     if (((zombie->m_zombieFlags & 2) != 0) && !ZombieIsDeadOrDying(zombie) && zombie->m_entityState.m_id != 3) {
         ZombieEnterState(zombie, 19, 0);
         return;

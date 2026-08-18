@@ -105,6 +105,7 @@
 #include <PvZ2/ZombieModernDancer.h>
 #include <PvZ2/ZombieModernBungee.h>
 #include <PvZ2/ZombieModernBungeeTarget.h>
+#include <PvZ2/ZombieCatapult.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -892,6 +893,12 @@ void hkHealHelm(Zombie* thisPtr) {
         
     }
 }
+typedef void (*ZombieHypnotize)(Zombie*, bool, Plant*, float);
+ZombieHypnotize oZombieHypnotize = nullptr;
+void hkZombieHypnotized(Zombie* zombie, bool healOnHypnotism, Plant* instigator, float healPercent) {
+    oZombieHypnotize(zombie, healOnHypnotism, instigator, healPercent);
+    hkHealHelm(zombie);
+}
 #pragma region Build Symbol Funcs
 
 Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc PlantType::oPlantTypeBuildSymbols = nullptr;
@@ -938,6 +945,7 @@ void libChair_main()
     PVZ2HookFunction(0xBA2388, (void*)hkExcavatorOnArmorDestroyed, nullptr);
     PVZ2HookFunction(0xB1F5CC, (void*)hkPharaohCallback, (void**)&oPharaohCallback);
     PVZ2HookFunction(0xAFAF74, (void*)hkKingActionCommand, (void**)&oKingActionCommand);
+    PVZ2HookFunction(0xC41D3C, (void*)hkZombieHypnotized, (void**)&oZombieHypnotize);
     //PVZ2HookFunction(0xC43B90, (void*)hkTakeDamageNoCorpse, (void**)&oZTakeDmg);
     PVZ2HookFunction(0x1069AC4, (void*)hkCreateAnimRig, (void**)&oCreateAnimRig);
     PVZ2HookFunction(0x5AB098, (void*)hkAlmanacCreateAnimRig, (void**)&oAlmanacCreateAnimRig);
@@ -1073,4 +1081,7 @@ void libChair_main()
     ZombieModernBungee::ModInit();
     ZombieModernBungeeProps::modInit();
     ZombieModernBungeeTarget::ModInit();
+    ZombieCatapult::modInit();
+    ZombieCatapultProps::modInit();
+    ZombieAnimRig_Catapult::modInit();
 }
