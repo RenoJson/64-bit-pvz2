@@ -176,6 +176,7 @@
     <ClCompile Include="PvZ2\ZombieModernBungee.cpp" />
     <ClCompile Include="PvZ2\ZombieModernBungeeTarget.cpp" />
     <ClCompile Include="PvZ2\ZombieCatapult.cpp" />
+    <ClCompile Include="PvZ2\ZombieLadder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PvZ2\Chairracer.h" />
@@ -301,5 +302,6 @@
     <ClInclude Include="PvZ2\ZombieModernBungee.h" />
     <ClInclude Include="PvZ2\ZombieModernBungeeTarget.h" />
     <ClInclude Include="PvZ2\ZombieCatapult.h" />
+    <ClInclude Include="PvZ2\ZombieLadder.h" />
   </ItemGroup>
 </Project>

@@ -230,6 +230,7 @@
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestPiggyProps.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestVendor.cpp" />
     <ClCompile Include="PvZ2\ZombieJourneyToTheWestVendorProps.cpp" />
+    <ClCompile Include="PvZ2\ZombieLadder.cpp" />
     <ClCompile Include="PvZ2\ZombieLostCityTorchGargantuar.cpp" />
     <ClCompile Include="PvZ2\ZombieMausoleumArcher.cpp" />
     <ClCompile Include="PvZ2\ZombieMausoleumAssasin.cpp" />
@@ -337,6 +338,7 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumCursedBase.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumDrunkard.h" />
     <ClInclude Include="PvZ2\ZombieCatapult.h" />
+    <ClInclude Include="PvZ2\ZombieLadder.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumArcher.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumAssasin.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumBasic.h" />

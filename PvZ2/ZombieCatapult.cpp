@@ -222,11 +222,19 @@ void CatapultOnTakeFatalDamage(ZombieCatapult* zombie, DamageInfo* dmgInfo) {
     RemoveAttachedEffect(&zombie->m_attachedEffects, "injured");
 }
 
-SexyString GetCatapultElectrocuteAnim() {
+SexyString GetCatapultElectrocuteAnim(ZombieCatapult* zombie) {
+    auto type = reinterpret_cast<ZombieType*>(zombie->m_type.Get());
+    if (type->TypeName == "western_catapult") {
+        return "POPANIM_EFFECTS_ZOMBIE_JOURNEY_TO_THE_WEST_CATAPULT_SHOCK";
+    }
     return "POPANIM_EFFECTS_ZOMBIE_CATAPULT_SHOCK";
 }
 
-SexyString GetCatapultAshAnim() {
+SexyString GetCatapultAshAnim(ZombieCatapult* zombie) {
+    auto type = reinterpret_cast<ZombieType*>(zombie->m_type.Get());
+    if (type->TypeName == "western_catapult") {
+        return "POPANIM_EFFECTS_ZOMBIE_JOURNEY_TO_THE_WEST_CATAPULT_ASH";
+    }
     return "POPANIM_EFFECTS_ZOMBIE_CATAPULT_ASH";
 }
 
