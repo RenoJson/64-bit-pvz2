@@ -164,6 +164,52 @@ void DancerWalkingOnLoop(ZombieModernDancer* zombie) {
         }
     }
 }
+
+void DancerEatOnLoop(ZombieModernDancer* zombie)
+{
+    CallFunc<void>(0xC5082C, zombie);
+    auto props = reinterpret_cast<ZombieModernDancerProps*>(zombie->m_propertySheet.Get());
+    if (zombie->m_elapsedTimeInState >= props->ActionInterval)
+    {
+        if (zombie->m_isMainDancer)
+        {
+            bool needSummon = false;
+            float currentY = zombie->m_position.y;
+            int zRow = (int)(((currentY - 160.0f) / 76.0f));
+
+            if (zombie->m_backupDancer.size() < 4) {
+                needSummon = true;
+            }
+            else {
+                for (int i = 0; i < 4; ++i) {
+                    if (!zombie->m_backupDancer[i].IsValid()) {
+                        bool isSlotOnBoard = true;
+                        if (i == 0 && (zRow - 1 < 0)) isSlotOnBoard = false;
+                        if (i == 1 && (zRow + 1 > 4)) isSlotOnBoard = false;
+
+                        if (isSlotOnBoard) {
+                            needSummon = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (needSummon) {
+                ZombieEnterState(zombie, 18, 0);
+            }
+            else {
+                ZombieEnterState(zombie, 17, 0);
+            }
+        }
+        else
+        {
+            ZombieEnterState(zombie, 17, 0);
+        }
+    }
+}
+
+
 void DancerOnInitialize(ZombieModernDancer* zombie) {
     auto props = reinterpret_cast<ZombieModernDancerProps*>(zombie->m_propertySheet.Get());
     zombie->m_danceCount = 0;
@@ -175,7 +221,7 @@ void DancerOnInitialize(ZombieModernDancer* zombie) {
 void DancerOnHeadDrop(ZombieModernDancer* zombie)
 {
     if (zombie->m_isMainDancer) {
-        CallFunc<int, AttachedEffectManager*, const SexyString&>(0x662360, &zombie->m_attachedEffects, "light_on");
+        RemoveAttachedEffect(&zombie->m_attachedEffects, "light_on");
     }
 }
 void ZombieModernDancer::IntroOnEnter(ZombieModernDancer* zombie)
@@ -229,11 +275,11 @@ void ZombieModernDancer::SummonOnEnter(ZombieModernDancer* zombie)
     if (zombie->m_entrySummon) {
         SexyVector3 pos = { 20.0f, -20.0f, 0.0f };
         if (zombie->m_attachedEffects.GetObjectIndex("light_on") == -1) {
-            CallFunc<Zombie*>(0x7BF03C, zombie,
+            ZombieAttachEffect(zombie,
                 "light_on",
                 "POPANIM_EFFECTS_ZOMBIE_MODERN_DISCO_EFFECT",
                 "idle",
-                &pos,
+                pos,
                 1,
                 false,
                 false,
@@ -417,6 +463,7 @@ void ZombieModernDancer::ModInit() {
     PatchVFTable(vftable, (void*)DancerOnDestroy, 12);
     PatchVFTable(vftable, (void*)DancerOnSpawn, 49);
     PatchVFTable(vftable, (void*)DancerWalkingOnLoop, 124);
+    PatchVFTable(vftable, (void*)DancerEatOnLoop, 127);
     PatchVFTable(vftable, (void*)DancerOnInitialize, 169);
     PatchVFTable(vftable, (void*)DancerOnHeadDrop, 171);
 

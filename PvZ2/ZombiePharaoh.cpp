@@ -389,7 +389,7 @@ bool hkCanBeTargetted(Zombie* thisPtr, char targetingFlags) {
 
     if ((targetingFlags & 4) == 0)
     {
-        if ((state >= 4 && state <= 8) || state == 14)
+        if ((state >= 4 && state <= 9) || state == 14)
         {
             return false; 
         }

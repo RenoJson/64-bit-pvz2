@@ -221,60 +221,50 @@ int64_t hkBossProgressMeterInit()
 typedef Zombie* (*effectCondition)(Zombie*, ZombieConditions);
 effectCondition oEffCond = nullptr;
 Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
-    auto* props = reinterpret_cast<ZombiePropertySheet*>(zombie->m_propertySheet.Get());
-    auto rig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
-    typedef void (*GetHeadPosFunc)(ZombieAnimRig* rig, SexyVector2* out_result);
+        auto* props = reinterpret_cast<ZombiePropertySheet*>(zombie->m_propertySheet.Get());
+        auto rig = reinterpret_cast<ZombieAnimRig*>(zombie->m_animRig.Get());
+        auto type = reinterpret_cast<ZombieType*>(zombie->m_type.Get());
 
-    SexyVector2 headOffset = { 0.0f, 0.0f };
-    if (rig != nullptr) {
-        void*** vtable = reinterpret_cast<void***>(rig);
-        GetHeadPosFunc getHeadPos = reinterpret_cast<GetHeadPosFunc>((*vtable)[43]);
+        float adjustX = 0.0f;
+        float adjustY = 0.0f;
 
-        getHeadPos(rig, &headOffset); 
-    }
-    switch (cond)
-    {
+        if (type && type->IsType(ZombieTypeTemplate::StaticGetType())) {
+            auto tempType = static_cast<ZombieTypeTemplate*>(type);
+
+            adjustX = tempType->HeadEffectOffsetAdjust.x;
+            adjustY = tempType->HeadEffectOffsetAdjust.y;
+        }
+
+        SexyVector2 headOffset = { -15.0f, -20.0f };
+
+        switch (cond)
+        {
         case zombie_condition_dazeystunned:
         case zombie_condition_stun:
         {
-           if (zombie->m_attachedEffects.GetObjectIndex("stickystun") == -1) {
-               if (zombie->m_attachedEffects.GetObjectIndex("stun") == -1) {
-                   
-                   SexyVector3 transformOffset;
-                   if (props->Size == ZombieSize::large) {
-                       transformOffset = { headOffset.x -25.0f, headOffset.y -100.0f, 0.0f };
-                   }
-                   else if (props->Size == ZombieSize::imp) {
-                       transformOffset = { headOffset.x -25.0f, headOffset.y -10.0f, 0.0f };
-                   }
-                   else if (props->Size == ZombieSize::chicken) {
-                       transformOffset = { headOffset.x -25.0f, headOffset.y, 0.0f };
-                   }
-                   else {
-                       transformOffset = { headOffset.x -15.0f, headOffset.y -20.0f, 0.0f };
-                   }
-                   ZombieAttachEffect(zombie, "stun", "POPANIM_EFFECTS_ZOMBIES_STUN_EFFECT", "stun_fx", transformOffset, 1, false, false, 2);
-               }
-           }
-           break;
+            if (zombie->m_attachedEffects.GetObjectIndex("stickystun") == -1) {
+                if (zombie->m_attachedEffects.GetObjectIndex("stun") == -1) {
+
+                    SexyVector3 transformOffset = {
+                        headOffset.x - adjustX,
+                        headOffset.y - adjustY, 
+                        0.0f
+                    };
+
+                    ZombieAttachEffect(zombie, "stun", "POPANIM_EFFECTS_ZOMBIES_STUN_EFFECT", "stun_fx", transformOffset, 1, false, false, 2);
+                }
+            }
+            break;
         }
         case zombie_condition_stickybombed:
         {
             if (zombie->m_attachedEffects.GetObjectIndex("stickystun") == -1) {
                 
-                SexyVector3 transformOffset;
-                if (props->Size == ZombieSize::large) {
-                    transformOffset = { headOffset.x - 25.0f, headOffset.y - 100.0f, 0.0f };
-                }
-                else if (props->Size == ZombieSize::imp) {
-                    transformOffset = { headOffset.x - 25.0f, headOffset.y - 10.0f, 0.0f };
-                }
-                else if (props->Size == ZombieSize::chicken) {
-                    transformOffset = { headOffset.x - 25.0f, headOffset.y, 0.0f };
-                }
-                else {
-                    transformOffset = { headOffset.x - 15.0f, headOffset.y - 20.0f, 0.0f };
-                }
+                SexyVector3 transformOffset = {
+                       headOffset.x - adjustX,
+                       headOffset.y - adjustY,
+                       0.0f
+                };
                 ZombieAttachEffect(zombie, "stickystun", "POPANIM_EFFECTS_ZOMBIES_STUN_EFFECT", "stun_fx", transformOffset, 1, false, false, 2);
             }
             break;
@@ -344,19 +334,11 @@ Zombie* hkEffectCondition(Zombie* zombie, ZombieConditions cond) {
         {
             if (zombie->m_attachedEffects.GetObjectIndex("terrified") == -1) {
                 
-                SexyVector3 transformOffset;
-                if (props->Size == ZombieSize::large) {
-                    transformOffset = { headOffset.x - 25.0f, headOffset.y - 100.0f, 0.0f };
-                }
-                else if (props->Size == ZombieSize::imp) {
-                    transformOffset = { headOffset.x - 25.0f, headOffset.y - 10.0f, 0.0f };
-                }
-                else if (props->Size == ZombieSize::chicken) {
-                    transformOffset = { headOffset.x - 25.0f, headOffset.y, 0.0f };
-                }
-                else {
-                    transformOffset = { headOffset.x - 15.0f, headOffset.y - 20.0f, 0.0f };
-                }
+                SexyVector3 transformOffset = {
+                       headOffset.x - adjustX,
+                       headOffset.y - adjustY,
+                       0.0f
+                };
                 ZombieAttachEffect(zombie, "terrified", "POPANIM_EFFECTS_ZOMBIE_TERRIFIED", "animation", transformOffset, 1, false, false, 2);
             }
             break;

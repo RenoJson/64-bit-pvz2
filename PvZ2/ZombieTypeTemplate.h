@@ -6,6 +6,7 @@ class ZombieTypeTemplate : public ZombieType
 {
 public:
 	Sexy::RtWeakPtr<ZombieAnimRigTemplateConfig> AnimRigProps;
+	SexyVector2 HeadEffectOffsetAdjust = { 0.0f, 0.0f };
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;
@@ -15,6 +16,7 @@ public:
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombieType);
 	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(ZombieTypeTemplate, AnimRigProps, ZombieAnimRigTemplateConfig)
+	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieTypeTemplate, SexyVector2, HeadEffectOffsetAdjust)
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieTypeTemplate);
