@@ -173,6 +173,7 @@
     <ClCompile Include="PvZ2\FairyTaleWitchProjectile.cpp" />
     <ClCompile Include="PvZ2\GridItemHaystack.cpp" />
     <ClCompile Include="PvZ2\GridItemSpeakerBass.cpp" />
+    <ClCompile Include="PvZ2\Ladder.cpp" />
     <ClCompile Include="PvZ2\MausoleumGrid.cpp" />
     <ClCompile Include="PvZ2\PlantDinoGrass.cpp" />
     <ClCompile Include="PvZ2\PlantUnchartedHaystack.cpp" />
@@ -310,6 +311,7 @@
     <ClInclude Include="PvZ2\GridItemHaystack.h" />
     <ClInclude Include="PvZ2\GridItemMausoleumLawnTile.h" />
     <ClInclude Include="PvZ2\GridItemSpeakerBass.h" />
+    <ClInclude Include="PvZ2\Ladder.h" />
     <ClInclude Include="PvZ2\LevelDefinition.h" />
     <ClInclude Include="PvZ2\LevelModule.h" />
     <ClInclude Include="PvZ2\LevelModuleManager.h" />

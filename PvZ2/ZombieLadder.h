@@ -38,6 +38,7 @@ public:
 	Rect AttackRectWhenHaveLadder;
 	Rect HitRectWhenHaveLadder;
 	PlantRestrictionSet PlantsWhichPlaceLadderInsteadEating;
+	float SpeedWhenHaveLadder = 0.75f;
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;
@@ -51,6 +52,7 @@ public:
 	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieModernLadderProps, PlantRestrictionSet, PlantsWhichPlaceLadderInsteadEating);
 	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieModernLadderProps, Rect, AttackRectWhenHaveLadder);
 	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieModernLadderProps, Rect, HitRectWhenHaveLadder);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModernLadderProps, SpeedWhenHaveLadder);
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieModernLadderProps);
@@ -60,7 +62,7 @@ public:
 class ZombieAnimRig_ModernLadder : public ZombieAnimRig
 {
 public:
-	bool m_hasLadder;
+	bool m_hasLadder = true;
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;
@@ -69,18 +71,9 @@ public:
 	RT_CLASS_CONSTRUCT_FUNCTION_END();
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombieAnimRig);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieAnimRig_ModernLadder, m_hasLadder);
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieAnimRig_ModernLadder);
 	RT_CLASS_GET_CLASS_FUNCTION(ZombieAnimRig_ModernLadder, 0x8DBB70);
-};
-
-class GridItemLadder : public GridItemSurfboard {
-public:
-
-};
-
-class GridItemLadderProps : public GridItemSurfboardProps {
-public:
-	std::vector<SexyString> UnclimbableZombies;
 };

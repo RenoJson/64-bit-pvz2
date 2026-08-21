@@ -106,6 +106,8 @@
 #include <PvZ2/ZombieModernBungee.h>
 #include <PvZ2/ZombieModernBungeeTarget.h>
 #include <PvZ2/ZombieCatapult.h>
+#include <PvZ2/ZombieLadder.h>
+#include <PvZ2/Ladder.h>
 
 
 // TODO: Make every typedef function became a wrapper ig
@@ -1075,4 +1077,10 @@ void libChair_main()
     ZombieCatapult::modInit();
     ZombieCatapultProps::modInit();
     ZombieAnimRig_Catapult::modInit();
+    ZombieLadder::ModInit();
+    ZombieLadderProps::modInit();
+    ZombieAnimRig_Ladder::modInit();
+    ZombieModernLadder::ModInit();
+    ZombieModernLadderProps::modInit();
+    ZombieAnimRig_ModernLadder::modInit();
 }

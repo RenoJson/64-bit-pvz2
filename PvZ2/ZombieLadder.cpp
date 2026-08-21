@@ -7,12 +7,9 @@
 #include "Board.h"
 #include "Plant.h"
 #include "AddGridItemType.h"
+#include "Ladder.h"
+#include "AddZombieType.h"
 
-DECLARE_DELEGATES_SETUP(ZombieModernLadder)
-
-static Sexy::DelegateBase placeLadderCompletedDelegate;
-
-static Sexy::DelegateBase lostLadderCompletedDelegate;
 
 void* ZombieModernLadder::vftable = nullptr;
 Sexy::RtClass* ZombieModernLadder::s_rtClass = nullptr;;
@@ -20,6 +17,14 @@ Sexy::RtClass* ZombieModernLadder::s_rtClass = nullptr;;
 void* ZombieModernLadderProps::vftable = __null;
 Sexy::RtClass* ZombieModernLadderProps::s_rtClass = __null;
 
+void* ZombieAnimRig_ModernLadder::vftable = __null;
+Sexy::RtClass* ZombieAnimRig_ModernLadder::s_rtClass = __null;;
+
+DECLARE_DELEGATES_SETUP(ZombieModernLadder)
+
+static Sexy::DelegateBase placeLadderCompletedDelegate;
+
+static Sexy::DelegateBase lostLadderCompletedDelegate;
 
 typedef uint64_t(*VirtualGetDamageFlagsFunc)(Projectile*);
 typedef bool (*VirtualIsValidTargetFunc)(Zombie*, uint64_t);
@@ -193,6 +198,12 @@ bool LadderBlockProjectile(ZombieModernLadder* thisPtr, Projectile* proj)
         return false;
     }
 }
+void LadderOnSpawn(ZombieModernLadder* zombie) {
+    ZombieOnSpawn(zombie);
+    auto rig = reinterpret_cast<ZombieAnimRig_ModernLadder*>(zombie->m_animRig.Get());
+    auto props = reinterpret_cast<ZombieModernLadderProps*>(zombie->m_propertySheet.Get());
+    SetWalkSpeed(rig, props->SpeedWhenHaveLadder);
+}
 Sexy::Rect LadderGetAttackRect(ZombieModernLadder* zombie) {
     auto props = reinterpret_cast<ZombieModernLadderProps*>(zombie->m_propertySheet.Get());
     Rect attackRect;
@@ -228,6 +239,57 @@ void LadderOnArmorDestroyed(ZombieModernLadder* zombie, int a2, SexyString* armo
     }
 }
 
+void LadderWalkOnLoop(ZombieModernLadder* zombie)
+{
+    CallFunc<void>(0xC506B4, zombie);
+    auto rig = reinterpret_cast<ZombieAnimRig_ModernLadder*>(zombie->m_animRig.Get());
+    if (rig->m_hasLadder) {
+        BoardEntity* entity = CallVirtualFunc<BoardEntity*>(zombie, 108);
+        if (entity != nullptr && entity->IsType(PlantGroup::StaticGetType()))
+        {
+            auto pGroup = reinterpret_cast<PlantGroup*>(entity);
+            auto& plantVector = pGroup->m_plants.m_plants;
+
+            if (!plantVector.empty() && plantVector[0].IsValid())
+            {
+                Plant* p0 = reinterpret_cast<Plant*>(plantVector[0].Get());
+                auto props = reinterpret_cast<ZombieModernLadderProps*>(zombie->m_propertySheet.Get());
+                if (CallFunc<bool>(0x1364888, &props->PlantsWhichPlaceLadderInsteadEating, p0))
+                {
+                    zombie->m_eatTarget.FromOther(&p0->m_thisPtr);
+                    ZombieEnterState(zombie, 16, 0);
+                }
+            }
+        }
+    }
+}
+
+void LadderEatOnLoop(ZombieModernLadder* zombie)
+{
+    BoardEntity* entity = CallVirtualFunc<BoardEntity*>(zombie, 108);
+    auto rig = reinterpret_cast<ZombieAnimRig_ModernLadder*>(zombie->m_animRig.Get());
+    if (rig->m_hasLadder) {
+        if (entity != nullptr && entity->IsType(PlantGroup::StaticGetType()))
+        {
+            auto pGroup = reinterpret_cast<PlantGroup*>(entity);
+            auto& plantVector = pGroup->m_plants.m_plants;
+
+            if (!plantVector.empty() && plantVector[0].IsValid())
+            {
+                Plant* p0 = reinterpret_cast<Plant*>(plantVector[0].Get());
+                auto props = reinterpret_cast<ZombieModernLadderProps*>(zombie->m_propertySheet.Get());
+                if (CallFunc<bool>(0x1364888, &props->PlantsWhichPlaceLadderInsteadEating, p0))
+                {
+                    zombie->m_eatTarget.FromOther(&p0->m_thisPtr);
+                    ZombieEnterState(zombie, 16, 0);
+                    return;
+                }
+            }
+        }
+    }
+    CallFunc<void>(0xC5082C, zombie);
+}
+
 void LadderOnCreate(ZombieModernLadder* zombie) {
     auto rig = reinterpret_cast<ZombieAnimRig_ModernLadder*>(zombie->m_animRig.Get());
     rig->m_hasLadder = true;
@@ -239,11 +301,11 @@ void LadderActionFrame(ZombieModernLadder* zombie, SexyString* currentAnim, Sexy
     {
         if (!zombie->m_eatTarget.IsValid()) return;
 
-        auto pGroup = reinterpret_cast<PlantGroup*>(zombie->m_eatTarget.Get());
         if (ZombieHasArmor(zombie, "Ladder"))
         {
-            GridItemLadder* ladder = (GridItemLadder*)AddGridItem("ladder", pGroup->m_gridX, pGroup->m_gridY);
-            if (ladder == nullptr) return;
+            ZombieLadder* ladder = (ZombieLadder*)AddZombie("ladder", -1, 6, 1);
+
+            ladder->m_attachedPlant.FromOther(&zombie->m_eatTarget);
 
             for (auto& armorWeakPtr : zombie->m_armor)
             {
@@ -256,12 +318,18 @@ void LadderActionFrame(ZombieModernLadder* zombie, SexyString* currentAnim, Sexy
 
                     if (props != nullptr && props->ArmorType == "Ladder")
                     {
-                        ladder->m_currDamageState = armor->m_damageState;
-                        ladder->m_health = armor->m_health;
-                        ladder->m_healthMax = armor->m_maxHealth;
-                        armor->m_destroyed = true;
+                        if (ladder->m_attachedPlant.IsValid())
+                        {
+                            auto attachTarg = reinterpret_cast<Plant*>(ladder->m_attachedPlant.Get());
 
-                        break;
+                            SexyVector3 ladderPos = { attachTarg->m_position.x + 30.0f, attachTarg->m_position.y, 0 };
+                            ZombieSetPosition(ladder, &ladderPos);
+                            ladder->m_damageIndex = armor->m_damageState;
+                            ladder->m_hitpoints = armor->m_health;
+                            ladder->m_maxHitpoints = armor->m_maxHealth;
+                            armor->m_destroyed = true;
+                            break;
+                        }
                     }
                 }
             }
@@ -301,6 +369,10 @@ void ZombieModernLadder::LostLadderOnExit(ZombieModernLadder* zombie)
 void LostLadderCompletedCallback(Zombie* zombie) {
     ZombieModernLadder* LadderZombie = static_cast<ZombieModernLadder*>(zombie);
     if (LadderZombie) {
+        auto rig = reinterpret_cast<ZombieAnimRig_ModernLadder*>(LadderZombie->m_animRig.Get());
+        auto props = reinterpret_cast<ZombieModernLadderProps*>(LadderZombie->m_propertySheet.Get());
+        rig->m_hasLadder = false;
+        SetWalkSpeed(rig, LadderZombie->m_walkSpeed);
         ZombieEnterState(LadderZombie, 1, 0);
     }
 }
@@ -308,6 +380,10 @@ void LostLadderCompletedCallback(Zombie* zombie) {
 void PlaceLadderCompletedCallback(Zombie* zombie) {
     ZombieModernLadder* LadderZombie = static_cast<ZombieModernLadder*>(zombie);
     if (LadderZombie) {
+        auto rig = reinterpret_cast<ZombieAnimRig_ModernLadder*>(LadderZombie->m_animRig.Get());
+        auto props = reinterpret_cast<ZombieModernLadderProps*>(LadderZombie->m_propertySheet.Get());
+        rig->m_hasLadder = false;
+        SetWalkSpeed(rig, LadderZombie->m_walkSpeed);
         ZombieEnterState(LadderZombie, 1, 0);
     }
 }
@@ -320,14 +396,21 @@ void ZombieModernLadder::ModInit() {
     PatchVFTable(vftable, (void*)LadderGetHitRect, 20);
     PatchVFTable(vftable, (void*)LadderTakeDamage, 35);
     PatchVFTable(vftable, (void*)LadderBlockProjectile, 43);
+    PatchVFTable(vftable, (void*)LadderOnSpawn, 49);
     PatchVFTable(vftable, (void*)LadderGetAttackRect, 88);
     PatchVFTable(vftable, (void*)LadderOnArmorDestroyed, 115);
+    PatchVFTable(vftable, (void*)LadderWalkOnLoop, 124);
+    PatchVFTable(vftable, (void*)LadderEatOnLoop, 127);
     PatchVFTable(vftable, (void*)LadderOnCreate, 169);
-    PatchVFTable(vftable, (void*)LadderActionFrame, 169);
+    PatchVFTable(vftable, (void*)LadderActionFrame, 170);
 
-    PatchVFTable(vftable, (void*)ZombieModernLadder::LostLadderOnEnter, 204);
-    PatchVFTable(vftable, (void*)ZombieModernLadder::LostLadderOnLoop, 205);
-    PatchVFTable(vftable, (void*)ZombieModernLadder::LostLadderOnExit, 206);
+    PatchVFTable(vftable, (void*)ZombieModernLadder::PlaceLadderOnEnter, 204);
+    PatchVFTable(vftable, (void*)ZombieModernLadder::PlaceLadderOnLoop, 205);
+    PatchVFTable(vftable, (void*)ZombieModernLadder::PlaceLadderOnExit, 206);
+
+    PatchVFTable(vftable, (void*)ZombieModernLadder::LostLadderOnEnter, 207);
+    PatchVFTable(vftable, (void*)ZombieModernLadder::LostLadderOnLoop, 208);
+    PatchVFTable(vftable, (void*)ZombieModernLadder::LostLadderOnExit, 209);
 
     ZombieModernLadder::StaticGetType();
     LOGI("ZombieLadder finish init");
@@ -375,5 +458,97 @@ void ZombieModernLadderProps::modInit() {
     ZombieModernLadderProps::StaticGetType();
 
     LOGI("ZombieModernLadderProps finish init");
+}
+
+void* hkInitModernLadderLowerArmList(ZombieAnimRig_ModernLadder* thisptr) {
+
+    static std::vector<SexyString> ModernScreenNoLadderLowerArmList = {
+       "zombie_arm_outer_lower",
+       "zombie_arm_outer_lower_02",
+       "zombie_arm_outer_lower_03",
+       "zombie_hand_outer_01",
+       "zombie_hand_outer_02",
+       "zombie_hand_outer_03",
+       "zombie_hand_grip",
+       "zombie_hand_outer",
+       "zombie_hand_outer_no_shovel"
+    };
+    return &ModernScreenNoLadderLowerArmList;
+}
+void* hkInitModernLadderUpperArmList() {
+
+    static std::vector<SexyString> ModernLadderUpperArmList = {
+        "zombie_arm_outer_upper",
+        "zombie_arm_outer_upper_bone"
+    };
+    return &ModernLadderUpperArmList;
+
+}
+void* hkInitModernLadderHeadList() {
+
+    static std::vector<SexyString> ModernLadderHeadList = {
+       "zombie_skull",
+       "zombie_jaw"
+    };
+    return &ModernLadderHeadList;
+}
+SexyString hkIdleAnim(ZombieAnimRig_ModernLadder* thisptr) {
+    if (thisptr->m_hasLadder == true) {
+        return "idle";
+    }
+    else {
+        return "idle_no_ladder";
+    }
+}
+SexyString hkWalkAnim(ZombieAnimRig_ModernLadder* thisptr) {
+    if (thisptr->m_hasLadder == true) {
+        return "walk";
+    }
+    else {
+        return "walk_no_ladder";
+    }
+}
+SexyString hkEatAnim(ZombieAnimRig_ModernLadder* thisptr) {
+    if (thisptr->m_hasLadder == true) {
+        return "eat_ladder";
+    }
+    else {
+        return "eat";
+    }
+}
+SexyString hkDieAnim(ZombieAnimRig_ModernLadder* thisptr) {
+    if (thisptr->m_hasLadder == true) {
+        return "die_ladder";
+    }
+    else {
+        return "die";
+    }
+}
+
+void CreateLadderAnimRig(ZombieAnimRig_ModernLadder* thisPtr)
+{
+    CallFunc<void>(0x8DE104, thisPtr);
+    SetAnimLayerVisible(thisPtr, "ladder_damage1", false);
+    SetAnimLayerVisible(thisPtr, "ladder_damage2", false);
+}
+
+void ZombieAnimRig_ModernLadder::modInit() {
+    LOGI("ZombieAnimRig_ModernLadder init");
+
+    vftable = CopyVFTable(getActualOffset(0x23ABF70), 67);
+
+    PatchVFTable(vftable, (void*)ZombieAnimRig_ModernLadder::StaticGetType, 0);
+    PatchVFTable(vftable, (void*)CreateLadderAnimRig, 21);
+    PatchVFTable(vftable, (void*)hkInitModernLadderHeadList, 55);
+    PatchVFTable(vftable, (void*)hkInitModernLadderLowerArmList, 56);
+    PatchVFTable(vftable, (void*)hkInitModernLadderUpperArmList, 57);
+    PatchVFTable(vftable, (void*)hkIdleAnim, 58);
+    PatchVFTable(vftable, (void*)hkWalkAnim, 59);
+    PatchVFTable(vftable, (void*)hkEatAnim, 61);
+    PatchVFTable(vftable, (void*)hkDieAnim, 63);
+
+    ZombieAnimRig_ModernLadder::StaticGetType();
+
+    LOGI("ZombieAnimRig_ModernLadder finish init");
 }
 

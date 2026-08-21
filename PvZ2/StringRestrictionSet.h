@@ -38,6 +38,9 @@ class BoardEntityRestrictionSet : public StringRestrictionSet
 class PlantRestrictionSet : public StringRestrictionSet
 {};
 
+class ClassRestrictionSet : public StringRestrictionSet
+{};
+
 class PlantingRestrictionSet : public StringRestrictionSet
 {
 public:
