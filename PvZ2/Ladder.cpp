@@ -27,9 +27,6 @@ inline int GetRowFromY(float y) {
 }
 
 void ProcessClimbingZombies(ZombieLadder* ladder) {
-    float ladderX = ladder->m_position.x;
-    float ladderY = ladder->m_position.y;
-
     float climbStartX = 30.0f;
     float climbEndX = -80.0f;
     float totalClimbWidth = climbStartX - climbEndX;
@@ -41,6 +38,41 @@ void ProcessClimbingZombies(ZombieLadder* ladder) {
     auto props = reinterpret_cast<ZombieLadderProps*>(ladder->m_propertySheet.Get());
     bool isPlantDead = !ladder->m_attachedPlant.IsValid() || reinterpret_cast<Plant*>(ladder->m_attachedPlant.Get())->m_isDead;
     bool isLadderDead = ZombieIsDeadOrDying(ladder) || isPlantDead;
+
+    if (!isPlantDead) {
+        Plant* attachedPlant = reinterpret_cast<Plant*>(ladder->m_attachedPlant.Get());
+        if (attachedPlant != nullptr) {
+
+            float targetLadderX = attachedPlant->m_position.x + 30.0f;
+            float targetLadderY = attachedPlant->m_position.y;
+
+            float deltaX = targetLadderX - ladder->m_position.x;
+            float deltaY = targetLadderY - ladder->m_position.y;
+
+            if (deltaX != 0.0f || deltaY != 0.0f) {
+                ladder->m_position.x = targetLadderX;
+                ladder->m_position.y = targetLadderY;
+
+                for (auto it = ladder->m_climbingZombies.begin(); it != ladder->m_climbingZombies.end(); ++it) {
+                    if (it->IsValid()) {
+                        Zombie* z = reinterpret_cast<Zombie*>(it->Get());
+                        if (!ZombieIsDeadOrDying(z)) {
+                            SexyVector3 newSyncPos;
+                            newSyncPos.x = z->m_position.x + deltaX;
+                            newSyncPos.y = z->m_position.y + deltaY;
+                            newSyncPos.z = z->m_position.z;
+
+                            // Giao việc cho Engine lo phần hàng lối!
+                            ZombieUpdatePosition(z, &newSyncPos);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    float ladderX = ladder->m_position.x;
+    float ladderY = ladder->m_position.y;
 
     if (!isLadderDead) {
         std::vector<BoardEntity*> entities;
@@ -109,8 +141,7 @@ void ProcessClimbingZombies(ZombieLadder* ladder) {
         bool isForcedToDrop = isLadderDead || isKnockedOut;
 
         if (justFinishedClimbing || isForcedToDrop) {
-
-            z->m_position.z = 0.0f; 
+            z->m_position.z = 0.0f;
             z->m_realObjectFlags &= ~2;
             ZombieAllowMovement(z, true);
             ZombieSetUnmovableStatusFlag(z, false);
