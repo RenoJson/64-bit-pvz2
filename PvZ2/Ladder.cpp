@@ -1,4 +1,4 @@
-#include "ZombieLadder.h"
+﻿#include "ZombieLadder.h"
 #include "ZombieStateHelper.h"
 #include "TimeMgr.h"
 #include "DamageInfo.h"
@@ -26,134 +26,126 @@ inline int GetRowFromY(float y) {
     return static_cast<int>((y - 160.0f) / 76.0f);
 }
 
-bool LadderrCanBeTargeted() {
-    return false;
-}
-
 void ProcessClimbingZombies(ZombieLadder* ladder) {
-    std::vector<BoardEntity*> entities;
-
-    int gX = static_cast<int>((ladder->m_position.x - 200.0f) / 64.0f);
-    int gY = static_cast<int>((ladder->m_position.y - 160.0f) / 76.0f);
-
-    Rect scanRect;
-    scanRect.mX = gX - 2;
-    scanRect.mY = gY - 1;
-    scanRect.mWidth = 4;
-    scanRect.mHeight = 2;
-
-    GetEntitiesInRectGrid(&entities, 63, &scanRect);
-
     float ladderX = ladder->m_position.x;
     float ladderY = ladder->m_position.y;
 
-    float climbStartX = 20.0f;
-    float climbEndX = -90.0f;
+    float climbStartX = 30.0f;
+    float climbEndX = -80.0f;
     float totalClimbWidth = climbStartX - climbEndX;
-
     float climbHeight = 70.0f;
+
+    float entryMaxX = 30.0f;
+    float entryMinX = 20.0f;
 
     auto props = reinterpret_cast<ZombieLadderProps*>(ladder->m_propertySheet.Get());
     bool isPlantDead = !ladder->m_attachedPlant.IsValid() || reinterpret_cast<Plant*>(ladder->m_attachedPlant.Get())->m_isDead;
     bool isLadderDead = ZombieIsDeadOrDying(ladder) || isPlantDead;
 
-    for (BoardEntity* entity : entities) {
-        if (entity == nullptr || !entity->IsType(Zombie::StaticGetType())) continue;
+    if (!isLadderDead) {
+        std::vector<BoardEntity*> entities;
+        int gX = static_cast<int>((ladder->m_position.x - 200.0f) / 64.0f);
+        int gY = static_cast<int>((ladder->m_position.y - 160.0f) / 76.0f);
 
-        Zombie* z = reinterpret_cast<Zombie*>(entity);
+        Rect scanRect;
+        scanRect.mX = gX - 2;
+        scanRect.mY = gY;
+        scanRect.mWidth = 4;
+        scanRect.mHeight = 1;
 
-        if (z == ladder || ZombieIsDeadOrDying(z)) continue;
+        GetEntitiesInRectGrid(&entities, 63, &scanRect);
 
-        if (CallFunc<bool>(0x1366D8C, props->UnclimbableZombies, z)
-            || ZombieHasCondition(z, zombie_condition_freeze)
-            || z->IsInGridItem()
-            || (CallFunc<bool>(0xC4D588, z) & 1) != 0
-            || (CallFunc<bool>(0xC3E430, z) & 1) != 0) continue;
+        for (BoardEntity* entity : entities) {
+            if (entity == nullptr || !entity->IsType(Zombie::StaticGetType())) continue;
+            Zombie* z = reinterpret_cast<Zombie*>(entity);
+            if (z == ladder || ZombieIsDeadOrDying(z)) continue;
+
+            if (z->m_entityState.m_id != 1) continue;
+            bool hasHoverFlag = (z->m_realObjectFlags & 2) != 0;
+            if (hasHoverFlag) continue;
+
+            float distY = std::abs(z->m_position.y - ladderY);
+            if (distY > 10.0f) continue;
+
+            if (CallFunc<bool>(0x1366D8C, props->UnclimbableZombies, z)
+                || ZombieHasCondition(z, zombie_condition_freeze)
+                || z->IsInGridItem()
+                || (CallFunc<bool>(0xC4D588, z) & 1) != 0
+                || (CallFunc<bool>(0xC3E430, z) & 1) != 0) continue;
+
+            float distX = z->m_position.x - ladderX;
+
+            bool isAtLadderBase = (distX <= entryMaxX && distX >= entryMinX);
+
+            if (isAtLadderBase) {
+                ZombieAllowMovement(z, false);
+                z->m_realObjectFlags |= 2;
+
+                RtWeakPtr<RtObject> weakZ;
+                weakZ.FromOther(&z->m_thisPtr);
+                ladder->m_climbingZombies.push_back(weakZ);
+            }
+        }
+    }
+
+    for (auto it = ladder->m_climbingZombies.begin(); it != ladder->m_climbingZombies.end(); ) {
+        if (!it->IsValid()) {
+            it = ladder->m_climbingZombies.erase(it);
+            continue;
+        }
+
+        Zombie* z = reinterpret_cast<Zombie*>(it->Get());
+        if (ZombieIsDeadOrDying(z)) {
+            it = ladder->m_climbingZombies.erase(it);
+            continue;
+        }
 
         float distX = z->m_position.x - ladderX;
-        float distY = ladderY - z->m_position.y;
-
-        float progress = (climbStartX - distX) / totalClimbWidth;
-        progress = std::max(0.0f, std::min(progress, 1.0f));
-        float expectedDistY = std::sin(progress * 3.14159f) * climbHeight;
-
-        float virtualBaseY = z->m_position.y + expectedDistY;
-        float virtualDistY = ladderY - virtualBaseY;
-
-        bool isWalkingOnGround = (z->m_entityState.m_id == 1 && std::abs(ladderY - z->m_position.y) <= 25.0f);
-
-        bool isAlreadyClimbing = (z->m_entityState.m_id == 0 && std::abs(virtualDistY) <= 25.0f);
-
-        if (!isWalkingOnGround && !isAlreadyClimbing) continue;
 
         bool isInClimbZone = (distX <= climbStartX && distX >= climbEndX);
         bool justFinishedClimbing = (distX < climbEndX && distX >= (climbEndX - 15.0f));
-        bool isForcedToDrop = ZombieIsInState(z, 3) || isLadderDead;
 
-        if (justFinishedClimbing || (isInClimbZone && isForcedToDrop && isAlreadyClimbing)) {
+        bool isKnockedOut = !isInClimbZone && !justFinishedClimbing;
+        bool isForcedToDrop = isLadderDead || isKnockedOut;
 
-            z->m_position.y = virtualBaseY;
+        if (justFinishedClimbing || isForcedToDrop) {
 
+            z->m_position.z = 0.0f; 
+            z->m_realObjectFlags &= ~2;
             ZombieAllowMovement(z, true);
-
-            if (z->m_entityState.m_id != 1) {
-                ZombieEnterState(z, 1, 0);
-            }
+            ZombieSetUnmovableStatusFlag(z, false);
+            it = ladder->m_climbingZombies.erase(it);
         }
-        else if (!isLadderDead && isInClimbZone) {
-
-            ZombieAllowMovement(z, false);
-
-            if (z->m_entityState.m_id != 0) {
-                ZombieEnterState(z, 0, 0);
-            }
-
+        else {
+            ZombieSetUnmovableStatusFlag(z, true);
             float baseClimbSpeed = 48.0f;
             float speedScale = z->m_conditionTracker.m_speedScale;
             float facing = ZombieFacing(z);
             float timeMoving = TimeMgr::GetInstance()->m_unkTime;
 
             float moveDeltaX = facing * baseClimbSpeed * speedScale * timeMoving;
+            float nextX = z->m_position.x - moveDeltaX;
+            float nextDistX = nextX - ladderX;
 
-            SexyVector3 newPos;
-            newPos.x = z->m_position.x - moveDeltaX;
-
-            float nextDistX = newPos.x - ladderX;
             float nextProgress = (climbStartX - nextDistX) / totalClimbWidth;
             nextProgress = std::max(0.0f, std::min(nextProgress, 1.0f));
-            float nextExpectedDistY = std::sin(nextProgress * 3.14159f) * climbHeight;
 
-            newPos.y = virtualBaseY - nextExpectedDistY;
-            newPos.z = 0.0f;
+            float nextExpectedZ = std::sin(nextProgress * 3.14159f) * climbHeight;
+
+            SexyVector3 newPos;
+            newPos.x = nextX;
+            newPos.y = z->m_position.y;
+            newPos.z = nextExpectedZ;
 
             ZombieUpdatePosition(z, &newPos);
+
+            ++it;
         }
     }
 }
 
-void InitLadderDamageLayers(ZombieLadder* zombie, int damageState) {
-    auto rig = reinterpret_cast<ZombieAnimRig_Ladder*>(zombie->m_animRig.Get());
-    SetAnimLayerVisible(rig, "ladder", damageState == 0);
-    SetAnimLayerVisible(rig, "ladder_damage1", damageState == 1);
-    SetAnimLayerVisible(rig, "ladder_damage2", damageState == 2);
-}
-
 void LadderrUpdate(ZombieLadder* zombie) {
-    auto props = reinterpret_cast<ZombieLadderProps*>(zombie->m_propertySheet.Get());
-
-    int hpStage = props->Hitpoints / 3;
-    if (hpStage <= 0) hpStage = 2;
-
-    int curState = (props->Hitpoints - static_cast<int>(zombie->m_hitpoints)) / hpStage;
-    curState = std::max(0, std::min(curState, 2));
-
-    if (curState != zombie->m_damageIndex) {
-        auto rig = reinterpret_cast<ZombieAnimRig_Ladder*>(zombie->m_animRig.Get());
-        zombie->m_damageIndex = curState;
-        rig->m_damageIndex = zombie->m_damageIndex;
-        InitLadderDamageLayers(zombie, zombie->m_damageIndex);
-    }
-
+   
     ProcessClimbingZombies(zombie);
 
     bool isPlantDead = !zombie->m_attachedPlant.IsValid() || reinterpret_cast<Plant*>(zombie->m_attachedPlant.Get())->m_isDead;
@@ -168,34 +160,56 @@ int64_t LadderrThreatAlert() {
     return 0;
 }
 
-bool LadderrCanBeTargetedByPlant(ZombieLadder* zombie, RtWeakPtr<PlantType> pType) {
-   
+void LadderrOnGetCondition(ZombieLadder* zombie, int conditionID)
+{
+    ZombieRemoveCondition(zombie, conditionID);
+}
+
+bool LadderrCanBeTargetedByPlant(ZombieLadder* zombie, RtWeakPtr<PlantType>* pType) {
+
     auto props = reinterpret_cast<ZombieLadderProps*>(zombie->m_propertySheet.Get());
-    if (CallFunc<bool>(0x1364888, &props->PlantsWhichCanTargetLadder, pType)) {
-       return true;
-    }
-    return CallFunc<bool>(0xC5677C, zombie);
+    bool isRestricted = CallFunc<bool>(0x1364D84, &props->PlantsWhichCanTargetLadder, pType);
+    return !isRestricted;
 }
 
 bool LadderrCanBeTossedByPlant() {
     return false;
 }
 
-bool LadderrCanTargetPlant() {
+bool LadderrCanTargetAtHeight() {
+    return false;
+}
+
+bool ZombieCanTargetEntitiesAtHeight(Zombie* thisPtr, BoardEntityHeight entityHeight) {
+    if ((thisPtr->m_realObjectFlags & 2) != 0) {
+        return false;
+    }
+    return entityHeight > BoardEntityHeight::ground;
+}
+
+
+bool LadderrCanBeElectrocuted() {
+    return false;
+}
+
+bool LadderrCanBeAshed() {
     return false;
 }
 
 
 void ZombieLadder::ModInit() {
     LOGI("ZombieLadder mod init");
+    PVZ2HookFunction(0xC4146C, (void*)ZombieCanTargetEntitiesAtHeight, nullptr);
     vftable = CreateChildVFTable(204 + 9, getActualOffset(0x241D430), 204);
     PatchVFTable(vftable, (void*)ZombieLadder::StaticGetType, 0);
-    PatchVFTable(vftable, (void*)LadderrCanBeTargeted, 21);
     PatchVFTable(vftable, (void*)LadderrUpdate, 29);
+    PatchVFTable(vftable, (void*)LadderrOnGetCondition, 71);
     PatchVFTable(vftable, (void*)LadderrThreatAlert, 75);
     PatchVFTable(vftable, (void*)LadderrCanBeTargetedByPlant, 93);
     PatchVFTable(vftable, (void*)LadderrCanBeTossedByPlant, 97);
-    PatchVFTable(vftable, (void*)LadderrCanTargetPlant, 103);
+    PatchVFTable(vftable, (void*)LadderrCanTargetAtHeight, 103);
+    PatchVFTable(vftable, (void*)LadderrCanBeElectrocuted, 191);
+    PatchVFTable(vftable, (void*)LadderrCanBeAshed, 192);
     ZombieLadder::StaticGetType();
     LOGI("ZombieLadder finish init");
 }
@@ -214,13 +228,7 @@ void ZombieLadderProps::modInit() {
 }
 
 SexyString GetLadderParticle(ZombieAnimRig_Ladder* thisPtr) {
-    if (thisPtr->m_damageIndex == 0) {
-        return "ladder";
-    }
-    else {
-        SexyString ladderParticle = "ladder_damage" + std::to_string(thisPtr->m_damageIndex);
-        return ladderParticle;
-    }
+    return "ladder";
 }
 
 SexyString GetIdleAnim() {

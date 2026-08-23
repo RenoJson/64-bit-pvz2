@@ -324,10 +324,9 @@ void LadderActionFrame(ZombieModernLadder* zombie, SexyString* currentAnim, Sexy
 
                             SexyVector3 ladderPos = { attachTarg->m_position.x + 30.0f, attachTarg->m_position.y, 0 };
                             ZombieSetPosition(ladder, &ladderPos);
-                            ladder->m_damageIndex = armor->m_damageState;
-                            ladder->m_hitpoints = armor->m_health;
-                            ladder->m_maxHitpoints = armor->m_maxHealth;
                             armor->m_destroyed = true;
+                            auto rig = reinterpret_cast<ZombieAnimRig_ModernLadder*>(zombie->m_animRig.Get());
+                            rig->m_hasLadder = false;
                             break;
                         }
                     }
@@ -551,4 +550,3 @@ void ZombieAnimRig_ModernLadder::modInit() {
 
     LOGI("ZombieAnimRig_ModernLadder finish init");
 }
-

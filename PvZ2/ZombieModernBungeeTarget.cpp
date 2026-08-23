@@ -28,6 +28,10 @@ bool BungeeTargetCanBeTargetedByPlant() {
     return false;
 }
 
+bool BungeeTargetCanBeTossedByPlant() {
+    return false;
+}
+
 void BungeeTargetOnInitialize(ZombieModernBungeeTarget* zombie) {
     zombie->m_targeted = false;
     zombie->m_teamFlags = 0;
@@ -74,6 +78,7 @@ void ZombieModernBungeeTarget::ModInit() {
     PatchVFTable(vftable, (void*)BungeeTargetCanBeTargeted, 21);
     PatchVFTable(vftable, (void*)BungeeTargetThreatAlert, 75);
     PatchVFTable(vftable, (void*)BungeeTargetCanBeTargetedByPlant, 93);
+    PatchVFTable(vftable, (void*)BungeeTargetCanBeTossedByPlant, 97);
     PatchVFTable(vftable, (void*)BungeeTargetOnInitialize, 169);
 
     PatchVFTable(vftable, (void*)ZombieModernBungeeTarget::MarkOnEnter, 204);

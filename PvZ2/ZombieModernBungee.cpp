@@ -85,7 +85,7 @@ bool BungeeCanBeTargetedByPlant(ZombieModernBungee* zombie, RtWeakPtr<PlantType>
             return false;
         }
     }
-    return CallFunc<bool>(0xC5677C, zombie);
+    return CallFunc<bool>(0xC5677C, zombie, pType);
 }
 
 bool BungeeCanBeTossedByPlant() {

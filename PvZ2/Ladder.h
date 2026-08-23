@@ -6,7 +6,7 @@ class ZombieLadder : public Zombie
 {
 public:
 	RtWeakPtr<RtObject> m_attachedPlant;
-	int m_damageIndex;
+	std::vector<RtWeakPtr<RtObject>> m_climbingZombies;
 	DECLARE_STATIC_RT_CLASS_MEMBERS(ZombieLadder)
 
 	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(ZombieLadder, 0xC3AB1C);
