@@ -28,7 +28,6 @@ inline int GetRowFromY(float y) {
 
 void ProcessClimbingZombies(ZombieLadder* ladder) {
     float climbStartX = 20.0f;
-    float climbEndX = -80.0f;
     float climbHeight = 70.0f;
 
     float entryMaxX = 20.0f;
@@ -54,18 +53,33 @@ void ProcessClimbingZombies(ZombieLadder* ladder) {
                 ladder->m_position.x = targetLadderX;
                 ladder->m_position.y = targetLadderY;
 
-                for (auto it = ladder->m_climbingZombies.begin(); it != ladder->m_climbingZombies.end(); ++it) {
-                    if (it->IsValid()) {
-                        Zombie* z = reinterpret_cast<Zombie*>(it->Get());
-                        if (!ZombieIsDeadOrDying(z)) {
-                            SexyVector3 newSyncPos;
-                            newSyncPos.x = z->m_position.x + deltaX;
+                if (deltaX != 0.0f) {
+                    for (auto it = ladder->m_climbingZombies.begin(); it != ladder->m_climbingZombies.end(); ++it) {
+                        if (it->IsValid()) {
+                            Zombie* z = reinterpret_cast<Zombie*>(it->Get());
+                            if (!ZombieIsDeadOrDying(z)) {
+                                z->m_position.z = 0.0f;
+                                z->m_realObjectFlags &= ~2;
 
-                            newSyncPos.y = targetLadderY;
+                                ZombieAllowMovement(z, true);
+                                ZombieSetUnmovableStatusFlag(z, false);
+                            }
+                        }
+                    }
+                    ladder->m_climbingZombies.clear();
+                }
+                else {
+                    for (auto it = ladder->m_climbingZombies.begin(); it != ladder->m_climbingZombies.end(); ++it) {
+                        if (it->IsValid()) {
+                            Zombie* z = reinterpret_cast<Zombie*>(it->Get());
+                            if (!ZombieIsDeadOrDying(z)) {
+                                SexyVector3 newSyncPos;
+                                newSyncPos.x = z->m_position.x;
+                                newSyncPos.y = targetLadderY;
+                                newSyncPos.z = z->m_position.z;
 
-                            newSyncPos.z = z->m_position.z;
-
-                            ZombieUpdatePosition(z, &newSyncPos);
+                                ZombieUpdatePosition(z, &newSyncPos);
+                            }
                         }
                     }
                 }
@@ -116,6 +130,34 @@ void ProcessClimbingZombies(ZombieLadder* ladder) {
         }
     }
 
+    bool hasNextLadder = false;
+
+    if (!isLadderDead) {
+        int currentGridX = static_cast<int>((ladderX - 200.0f) / 64.0f);
+        int currentGridY = static_cast<int>((ladderY - 160.0f) / 76.0f);
+
+        Rect checkRect;
+        checkRect.mX = currentGridX - 1;
+        checkRect.mY = currentGridY;
+        checkRect.mWidth = 1;
+        checkRect.mHeight = 1;
+
+        std::vector<BoardEntity*> checkEntities;
+        GetEntitiesInRectGrid(&checkEntities, 63, &checkRect);
+
+        for (BoardEntity* checkEnt : checkEntities) {
+            if (checkEnt != nullptr && checkEnt->IsType(ZombieLadder::StaticGetType())) {
+                ZombieLadder* potentialLadder = reinterpret_cast<ZombieLadder*>(checkEnt);
+                if (potentialLadder != ladder && !ZombieIsDeadOrDying(potentialLadder)) {
+                    hasNextLadder = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    float dynamicClimbEndX = hasNextLadder ? -45.0f : -80.0f;
+
     for (auto it = ladder->m_climbingZombies.begin(); it != ladder->m_climbingZombies.end(); ) {
         if (!it->IsValid()) {
             it = ladder->m_climbingZombies.erase(it);
@@ -129,30 +171,6 @@ void ProcessClimbingZombies(ZombieLadder* ladder) {
         }
 
         float distX = z->m_position.x - ladderX;
-
-        int currentGridX = static_cast<int>((ladderX - 200.0f) / 64.0f);
-        int currentGridY = static_cast<int>((ladderY - 160.0f) / 76.0f);
-        Rect checkRect;
-        checkRect.mX = currentGridX - 1;
-        checkRect.mY = currentGridY;
-        checkRect.mWidth = 1;
-        checkRect.mHeight = 1;
-
-        std::vector<BoardEntity*> checkEntities;
-        GetEntitiesInRectGrid(&checkEntities, 63, &checkRect);
-
-        bool hasNextLadder = false;
-        for (BoardEntity* checkEnt : checkEntities) {
-            if (checkEnt != nullptr && checkEnt->IsType(ZombieLadder::StaticGetType())) {
-                ZombieLadder* potentialLadder = reinterpret_cast<ZombieLadder*>(checkEnt);
-                if (potentialLadder != ladder && !ZombieIsDeadOrDying(potentialLadder)) {
-                    hasNextLadder = true;
-                    break;
-                }
-            }
-        }
-
-        float dynamicClimbEndX = hasNextLadder ? -45.0f : -80.0f;
 
         bool isInClimbZone = (distX <= climbStartX && distX >= dynamicClimbEndX);
         bool justFinishedClimbing = (distX < dynamicClimbEndX && distX >= (dynamicClimbEndX - 15.0f));
@@ -172,18 +190,17 @@ void ProcessClimbingZombies(ZombieLadder* ladder) {
         else {
             ZombieSetUnmovableStatusFlag(z, true);
             z->m_realObjectFlags |= 2;
-            auto props = reinterpret_cast<ZombiePropertySheet*>(z->m_propertySheet.Get());
-            float baseClimbSpeed = props->Speed * 100.0f;
+
+            float baseClimbSpeed = props->Speed * 50.0f;
             float speedScale = z->m_conditionTracker.m_speedScale;
             float facing = ZombieFacing(z);
             float timeMoving = TimeMgr::GetInstance()->m_unkTime;
 
             float moveDeltaX = facing * baseClimbSpeed * speedScale * timeMoving;
-
             float nextX = z->m_position.x - moveDeltaX;
             float nextDistX = nextX - ladderX;
 
-            float climbUpDist = 60.0f;
+            float climbUpDist = 40.0f;
             float peakX = climbStartX - climbUpDist;
             float nextExpectedZ = 0.0f;
 
