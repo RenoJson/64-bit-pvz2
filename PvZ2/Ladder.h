@@ -7,10 +7,20 @@ class ZombieLadder : public Zombie
 public:
 	RtWeakPtr<RtObject> m_attachedPlant;
 	std::vector<RtWeakPtr<RtObject>> m_climbingZombies;
-	DECLARE_STATIC_RT_CLASS_MEMBERS(ZombieLadder)
+	static void* vftable;
+	static void* vftable1;
+	static Sexy::RtClass* s_rtClass; 
+	static void ModInit();
 
-	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(ZombieLadder, 0xC3AB1C);
-	RT_CLASS_CONSTRUCT_FUNCTION_END();
+	static void* Construct() {
+		auto* instance = new ZombieLadder(); 
+		typedef void* (*ctorWithThisPtr)(void*); 
+		ctorWithThisPtr baseCtor = (ctorWithThisPtr)getActualOffset(0xC3AB1C);
+		baseCtor(instance);;
+		SetVFTable(instance, (uintptr_t)vftable);
+		instance->renderableVftable = (void**)vftable1;
+		return instance;
+	};
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(Zombie);
 	RT_CLASS_BUILD_SYMBOLS_END();

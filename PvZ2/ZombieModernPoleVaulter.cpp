@@ -60,97 +60,98 @@ void PoleWalkOnLoop(ZombieModernPoleVaulter* zombie)
 	if (rig != nullptr && rig->m_hasPole == true)
 	{
 		SetWalkSpeed(rig, PoleGetWalkSpeed(zombie));
+		if ((zombie->m_realObjectFlags & 2) == 0) {
+			auto* props = reinterpret_cast<ZombieModernPoleVaulterProps*>(zombie->m_propertySheet.Get());
+			float zX = zombie->m_position.x;
+			float zY = zombie->m_position.y;
+			float zZ = zombie->m_position.z;
 
-		auto* props = reinterpret_cast<ZombieModernPoleVaulterProps*>(zombie->m_propertySheet.Get());
-		float zX = zombie->m_position.x;
-		float zY = zombie->m_position.y;
-		float zZ = zombie->m_position.z;
+			Rect jumpRect;
+			jumpRect.mWidth = props->JumpingRect.mWidth;
+			jumpRect.mHeight = props->JumpingRect.mHeight;
+			jumpRect.mX = static_cast<int>(zX - (jumpRect.mWidth / 2.0f) + props->JumpingRect.mX);
+			jumpRect.mY = static_cast<int>((zY - zZ) - jumpRect.mHeight + props->JumpingRect.mY);
+			int zRow = static_cast<int>((zY - 160.0f) / 76.0f);
 
-		Rect jumpRect;
-		jumpRect.mWidth = props->JumpingRect.mWidth;
-		jumpRect.mHeight = props->JumpingRect.mHeight;
-		jumpRect.mX = static_cast<int>(zX - (jumpRect.mWidth / 2.0f) + props->JumpingRect.mX);
-		jumpRect.mY = static_cast<int>((zY - zZ) - jumpRect.mHeight + props->JumpingRect.mY);
-		int zRow = static_cast<int>((zY - 160.0f) / 76.0f);
+			std::vector<BoardEntity*> entityList;
+			GetEntitiesInRectPixel(&entityList, 38, &jumpRect, zRow, zRow);
+			bool foundObstacle = false;
+			BoardEntityHeight finalHeight = BoardEntityHeight::ground;
 
-		std::vector<BoardEntity*> entityList;
-		GetEntitiesInRectPixel(&entityList, 38, &jumpRect, zRow, zRow);
-		bool foundObstacle = false;
-		BoardEntityHeight finalHeight = BoardEntityHeight::ground;
+			for (BoardEntity* entity : entityList) {
+				if (entity == nullptr) continue;
 
-		for (BoardEntity* entity : entityList) {
-			if (entity == nullptr) continue;
+				BoardEntityHeight currentHeight = BoardEntityHeight::ground;
+				bool isValidObstacle = false;
 
-			BoardEntityHeight currentHeight = BoardEntityHeight::ground;
-			bool isValidObstacle = false;
+				if (entity->IsType(PlantGroup::StaticGetType())) {
+					PlantGroup* plantGroup = reinterpret_cast<PlantGroup*>(entity);
 
-			if (entity->IsType(PlantGroup::StaticGetType())) {
-				PlantGroup* plantGroup = reinterpret_cast<PlantGroup*>(entity);
+					for (auto& weakPlant : plantGroup->m_plants.m_plants) {
+						Plant* p = weakPlant.Get();
+						if (p != nullptr) {
+							auto* pProps = reinterpret_cast<PlantPropertySheet*>(p->m_propertySheet.Get());
 
-				for (auto& weakPlant : plantGroup->m_plants.m_plants) {
-					Plant* p = weakPlant.Get();
-					if (p != nullptr) {
-						auto* pProps = reinterpret_cast<PlantPropertySheet*>(p->m_propertySheet.Get());
+							if (pProps != nullptr && pProps->Height != BoardEntityHeight::ground) {
+								isValidObstacle = true;
 
-						if (pProps != nullptr && pProps->Height != BoardEntityHeight::ground) {
-							isValidObstacle = true;
-
-							if (pProps->Height == BoardEntityHeight::tall) {
-								currentHeight = BoardEntityHeight::tall;
-								break;
-							}
-							else if (pProps->Height == BoardEntityHeight::normal && currentHeight != BoardEntityHeight::tall) {
-								currentHeight = BoardEntityHeight::normal;
-							}
-							else if (pProps->Height == BoardEntityHeight::low && currentHeight == BoardEntityHeight::ground) {
-								currentHeight = BoardEntityHeight::low;
+								if (pProps->Height == BoardEntityHeight::tall) {
+									currentHeight = BoardEntityHeight::tall;
+									break;
+								}
+								else if (pProps->Height == BoardEntityHeight::normal && currentHeight != BoardEntityHeight::tall) {
+									currentHeight = BoardEntityHeight::normal;
+								}
+								else if (pProps->Height == BoardEntityHeight::low && currentHeight == BoardEntityHeight::ground) {
+									currentHeight = BoardEntityHeight::low;
+								}
 							}
 						}
 					}
 				}
-			}
-			else if (entity->IsType(GridItem::StaticGetType())) {
+				else if (entity->IsType(GridItem::StaticGetType())) {
 
-				if (entity->m_teamFlags == 1 && zombie->m_teamFlags == 2) {
+					if (entity->m_teamFlags == 1 && zombie->m_teamFlags == 2) {
 
-					GridItem* gridItem = reinterpret_cast<GridItem*>(entity);
+						GridItem* gridItem = reinterpret_cast<GridItem*>(entity);
 						auto* gridProps = reinterpret_cast<GridItemPropertySheet*>(gridItem->m_propertySheet.Get());
 						if (gridProps->Height != BoardEntityHeight::ground) {
 							isValidObstacle = true;
 							currentHeight = gridProps->Height;
 						}
+					}
 				}
-			}
-			if (isValidObstacle) {
-				foundObstacle = true;
+				if (isValidObstacle) {
+					foundObstacle = true;
 
-				if (currentHeight == BoardEntityHeight::tall) {
-					finalHeight = BoardEntityHeight::tall;
-					break;
-				}
-				else if (currentHeight == BoardEntityHeight::normal && finalHeight != BoardEntityHeight::tall) {
-					finalHeight = BoardEntityHeight::normal;
-				}
-				else if (currentHeight == BoardEntityHeight::low && finalHeight == BoardEntityHeight::ground) {
-					finalHeight = BoardEntityHeight::low;
+					if (currentHeight == BoardEntityHeight::tall) {
+						finalHeight = BoardEntityHeight::tall;
+						break;
+					}
+					else if (currentHeight == BoardEntityHeight::normal && finalHeight != BoardEntityHeight::tall) {
+						finalHeight = BoardEntityHeight::normal;
+					}
+					else if (currentHeight == BoardEntityHeight::low && finalHeight == BoardEntityHeight::ground) {
+						finalHeight = BoardEntityHeight::low;
+					}
 				}
 			}
-		}
 
-		if (foundObstacle) {
-			if (finalHeight == BoardEntityHeight::tall) {
-				ZombieEnterState(zombie, 17, 0); 
-			}
-			else if (finalHeight == BoardEntityHeight::normal || finalHeight == BoardEntityHeight::low) {
-				if (props->Feastivus == true) {
-					ZombieEnterState(zombie, (rand() % 2 == 0) ? 16 : 18, 0); 
+			if (foundObstacle) {
+				if (finalHeight == BoardEntityHeight::tall) {
+					ZombieEnterState(zombie, 17, 0);
 				}
-				else {
-					ZombieEnterState(zombie, 16, 0);
+				else if (finalHeight == BoardEntityHeight::normal || finalHeight == BoardEntityHeight::low) {
+					if (props->Feastivus == true) {
+						ZombieEnterState(zombie, (rand() % 2 == 0) ? 16 : 18, 0);
+					}
+					else {
+						ZombieEnterState(zombie, 16, 0);
+					}
 				}
 			}
+			return;
 		}
-		return;
 	}
 	else {
 		CallFunc<void, ZombieModernPoleVaulter*>(0xC506B4, zombie);
