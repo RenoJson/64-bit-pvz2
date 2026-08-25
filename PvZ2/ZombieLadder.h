@@ -35,7 +35,7 @@ class ZombieModernLadderProps : public ZombiePropertySheet
 public:
 	std::vector<Sexy::RtWeakPtr<ProjectilePropertySheet>> PierceableProjectiles;
 	std::vector<SexyString> PlantBlacklist;
-	Rect AttackRectWhenHaveLadder;
+	Rect LadderRect;
 	Rect HitRectWhenHaveLadder;
 	PlantRestrictionSet PlantsWhichPlaceLadderInsteadEating;
 	float SpeedWhenHaveLadder = 0.75f;
@@ -50,7 +50,7 @@ public:
 	RT_CLASS_REGISTER_RTWEAKPTR_VECTOR_PROPERTY(ZombieModernLadderProps, PierceableProjectiles, ProjectilePropertySheet);
 	RT_CLASS_REGISTER_STRING_VECTOR_PROPERTY(ZombieModernLadderProps, PlantBlacklist);
 	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieModernLadderProps, PlantRestrictionSet, PlantsWhichPlaceLadderInsteadEating);
-	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieModernLadderProps, Rect, AttackRectWhenHaveLadder);
+	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieModernLadderProps, Rect, LadderRect);
 	RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieModernLadderProps, Rect, HitRectWhenHaveLadder);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModernLadderProps, SpeedWhenHaveLadder);
 	RT_CLASS_BUILD_SYMBOLS_END();

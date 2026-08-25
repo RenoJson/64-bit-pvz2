@@ -1,5 +1,6 @@
 #pragma once
 #include "PvZ2/Zombie.h"
+#include "PvZ2/StringRestrictionSet.h"
 #include <Reflection/ReflectionBuilder.h>
 
 class ZombieLadder : public Zombie

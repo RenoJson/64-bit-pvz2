@@ -7,6 +7,7 @@
 #include "StateMachineBuilder.h"
 #include "ZombieAnimRig_ModernPoleVaulter.h"
 #include "Plant.h"
+#include "Ladder.h"
 #include "GridItem.h"
 
 void* ZombieModernPoleVaulter::vftable = nullptr; 
@@ -61,6 +62,23 @@ void PoleWalkOnLoop(ZombieModernPoleVaulter* zombie)
 	{
 		SetWalkSpeed(rig, PoleGetWalkSpeed(zombie));
 		if ((zombie->m_realObjectFlags & 2) == 0) {
+			int currentGridX = static_cast<int>((zombie->m_position.x - 200.0f) / 64.0f);
+			int currentGridY = static_cast<int>((zombie->m_position.y - 160.0f) / 76.0f);
+
+			Rect checkRect;
+			checkRect.mX = currentGridX - 1;
+			checkRect.mY = currentGridY;
+			checkRect.mWidth = 2;
+			checkRect.mHeight = 1;
+
+			std::vector<BoardEntity*> checkEntities;
+			GetEntitiesInRectGrid(&checkEntities, 63, &checkRect);
+
+			for (BoardEntity* checkEnt : checkEntities) {
+				if (checkEnt != nullptr && checkEnt->IsType(ZombieLadder::StaticGetType())) {
+					return;
+				}
+			}
 			auto* props = reinterpret_cast<ZombieModernPoleVaulterProps*>(zombie->m_propertySheet.Get());
 			float zX = zombie->m_position.x;
 			float zY = zombie->m_position.y;
