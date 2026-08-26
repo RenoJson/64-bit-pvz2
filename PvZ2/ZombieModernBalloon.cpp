@@ -8,64 +8,6 @@ void* ZombieJourneyToTheWestBalloon::vftable = __null;
 Sexy::RtClass* ZombieJourneyToTheWestBalloon::s_rtClass = __null;;
 
 
-void* BallonTakeDamage(ZombieJourneyToTheWestBalloon* thisPtr, DamageInfo* damageInfo)
-{
-    auto* props = reinterpret_cast<ZombieJourneyToTheWestBalloonProps*>(thisPtr->m_propertySheet.Get());
-
-    DamageInfo newDmgInfo = *damageInfo;
-
-    float balloonHP = 0.0f;
-    for (size_t i = 0; i < thisPtr->m_armor.size(); i++)
-    {
-        Armor* armorInstance = thisPtr->m_armor[i].Get();
-        if (armorInstance != nullptr && !armorInstance->m_destroyed && armorInstance->m_health > 0)
-        {
-            balloonHP = armorInstance->m_health;
-            break;
-        }
-    }
-
-    if (newDmgInfo.m_damage >= props->DamageAmountWhichAlsoKillsBasic)
-    {
-        newDmgInfo.m_flags |= DamageTypeFlags::damage_bypass_shield;
-
-        if (balloonHP > 0)
-        {
-            thisPtr->m_hasTakenCatastrophicDamage = true;
-        }
-    }
-    else
-    {
-        if (balloonHP > 0)
-        {
-            if (newDmgInfo.m_damage >= balloonHP)
-            {
-                newDmgInfo.m_flags &= ~DamageTypeFlags::damage_bypass_shield;
-                newDmgInfo.m_flags &= ~DamageTypeFlags::damage_hits_shield_and_body;
-                newDmgInfo.m_flags |= DamageTypeFlags::damage_hits_only_shield;
-                float calculatedDamage = balloonHP;
-
-                float effDamageScale = thisPtr->m_damageScale;
-                calculatedDamage /= effDamageScale;
-
-                bool isShrunken = ZombieHasCondition(thisPtr, zombie_condition_shrinking)
-                    || ZombieHasCondition(thisPtr, zombie_condition_shrunken);
-
-                if (isShrunken && thisPtr->m_shrunkenDamageScale > 0.001f)
-                {
-                    calculatedDamage /= thisPtr->m_shrunkenDamageScale;
-                }
-                newDmgInfo.m_damage = calculatedDamage;
-            }
-        }
-    }
-
-    typedef void* (*funcC43B90)(ZombieJourneyToTheWestBalloon*, DamageInfo*);
-    static auto* ZTakeDmg = ((funcC43B90)getActualOffset(0xC43B90));
-
-    return ZTakeDmg(thisPtr, &newDmgInfo);
-}
-
 void BallonOnArmorDestroyed(ZombieJourneyToTheWestBalloon* zombie, int a2, SexyString* armorName)
 {
     auto rig = reinterpret_cast<ZombieAnimRig_ModernBalloon*>(zombie->m_animRig.Get());
@@ -80,22 +22,24 @@ void BallonOnHealthChanged(ZombieJourneyToTheWestBalloon* zombie) {
 }
 
 SexyString hkJFixAnimShock(ZombieJourneyToTheWestBalloon* zombie) {
-	auto* getProps = reinterpret_cast<ZombieJourneyToTheWestBalloonProps*>(zombie->m_propertySheet.Get());
-	if (zombie->m_hasTakenCatastrophicDamage == true) {
+    auto* getProps = reinterpret_cast<ZombieJourneyToTheWestBalloonProps*>(zombie->m_propertySheet.Get());
+    auto rig = reinterpret_cast<ZombieAnimRig_ModernBalloon*>(zombie->m_animRig.Get());
+    if (rig->m_hasBalloon == true) {
 		return getProps->OnAirShockAnimName;
 	}
 	else {
-		return "POPANIM_EFFECTS_ZOMBIE_SHOCK";
+		return getProps->ShockAnimName;
 	}
 }
 
 SexyString hkJFixAnimAsh(ZombieJourneyToTheWestBalloon* zombie) {
-	auto* getProps = reinterpret_cast<ZombieJourneyToTheWestBalloonProps*>(zombie->m_propertySheet.Get());
-	if (zombie->m_hasTakenCatastrophicDamage == true) {
+	auto* getProps = reinterpret_cast<ZombieJourneyToTheWestBalloonProps*>(zombie->m_propertySheet.Get()); 
+    auto rig = reinterpret_cast<ZombieAnimRig_ModernBalloon*>(zombie->m_animRig.Get());
+    if (rig->m_hasBalloon == true) {
 		return getProps->OnAirAshAnimName;
 	}
 	else {
-		return "POPANIM_EFFECTS_ZOMBIE_ASH";
+		return getProps->AshAnimName;
 	}
 }
 
@@ -105,8 +49,6 @@ void ZombieJourneyToTheWestBalloon::modInit() {
 	vftable = CopyVFTable(getActualOffset(0x23F39D8), 216);
 
 	PatchVFTable(vftable, (void*)ZombieJourneyToTheWestBalloon::StaticGetType, 0);
-
-	PatchVFTable(vftable, (void*)BallonTakeDamage, 35);
 
     PatchVFTable(vftable, (void*)BallonOnArmorDestroyed, 115);
 

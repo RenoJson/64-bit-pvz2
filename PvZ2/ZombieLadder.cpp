@@ -382,7 +382,7 @@ void ZombieModernLadder::LostLadderOnExit(ZombieModernLadder* zombie)
 }
 void LostLadderCompletedCallback(Zombie* zombie) {
     ZombieModernLadder* LadderZombie = static_cast<ZombieModernLadder*>(zombie);
-    if (LadderZombie) {
+    if (LadderZombie && !ZombieIsDeadOrDying(LadderZombie) && !ZombieIsInState(LadderZombie, 3)) {
         ZombieSetUnmovableStatusFlag(LadderZombie, false);
         auto rig = reinterpret_cast<ZombieAnimRig_ModernLadder*>(LadderZombie->m_animRig.Get());
         auto props = reinterpret_cast<ZombieModernLadderProps*>(LadderZombie->m_propertySheet.Get());
@@ -394,7 +394,7 @@ void LostLadderCompletedCallback(Zombie* zombie) {
 
 void PlaceLadderCompletedCallback(Zombie* zombie) {
     ZombieModernLadder* LadderZombie = static_cast<ZombieModernLadder*>(zombie);
-    if (LadderZombie) {
+    if (LadderZombie && !ZombieIsDeadOrDying(LadderZombie) && !ZombieIsInState(LadderZombie, 3)) {
         ZombieSetUnmovableStatusFlag(LadderZombie, false);
         auto rig = reinterpret_cast<ZombieAnimRig_ModernLadder*>(LadderZombie->m_animRig.Get());
         auto props = reinterpret_cast<ZombieModernLadderProps*>(LadderZombie->m_propertySheet.Get());

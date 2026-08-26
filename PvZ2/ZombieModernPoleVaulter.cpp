@@ -9,6 +9,8 @@
 #include "Plant.h"
 #include "Ladder.h"
 #include "GridItem.h"
+#include "Sexy/LawnApp.h"
+#include "AddProjectileType.h"
 
 void* ZombieModernPoleVaulter::vftable = nullptr; 
 Sexy::RtClass* ZombieModernPoleVaulter::s_rtClass = nullptr;
@@ -20,6 +22,8 @@ static Sexy::DelegateBase jumpingCompletedDelegate;
 static Sexy::DelegateBase bonkingCompletedDelegate;
 
 static Sexy::DelegateBase farJumpingCompletedDelegate;
+
+static Sexy::DelegateBase throwingCompletedDelegate;
 
 float PoleGetWalkSpeed(ZombieModernPoleVaulter* zombie)
 {
@@ -176,6 +180,86 @@ void PoleWalkOnLoop(ZombieModernPoleVaulter* zombie)
 	}
 }
 
+void PoleActionFrame(ZombieModernPoleVaulter* self, SexyString* currentAnim, SexyString* actionName, SexyString* param, float nextFrameTime)
+{
+	if (*actionName == "use_action")
+	{
+		auto* props = reinterpret_cast<ZombieModernPoleVaulterProps*>(self->m_propertySheet.Get());
+
+		int zX = static_cast<int>((self->m_position.x - 200.0f) / 64.0f);
+		int zY = static_cast<int>((self->m_position.y - 160.0f) / 76.0f);
+
+		Rect ExplodeRect;
+		ExplodeRect.mX = (zX - 8 > 0) ? (zX - 8) : 0;
+		ExplodeRect.mY = zY;
+		ExplodeRect.mWidth = 8;
+		ExplodeRect.mHeight = 1;
+
+		std::vector<BoardEntity*> entityList;
+		GetEntitiesInRectGrid(&entityList, 63, &ExplodeRect);
+
+		PlantGroup* closestPlant = nullptr;
+		float minDistance = 99999.0f;
+
+		for (BoardEntity* ptr : entityList) {
+			if (ptr != nullptr && ptr->IsType(PlantGroup::StaticGetType()))
+			{
+				PlantGroup* plant = static_cast<PlantGroup*>(ptr);
+				float distance = self->m_position.x - plant->m_position.x;
+
+				if (distance > 0.0f && distance < minDistance)
+				{
+					minDistance = distance;
+					closestPlant = plant;
+				}
+			}
+		}
+
+		if (closestPlant != nullptr)
+		{
+			auto props = reinterpret_cast<ZombieModernPoleVaulterProps*>(self->m_propertySheet.Get());
+			auto rig = reinterpret_cast<ZombieAnimRig_ModernPoleVaulter*>(self->m_animRig.Get());
+
+			Rect projRect;
+			GetAnimRigSpriteRect(rig, "Pole", &projRect);
+
+			ZombieConditionTracker* zTracker = &self->m_conditionTracker;
+			uint8_t* cond = zTracker->m_states.data();
+
+			if (cond != nullptr && *cond != 0) {
+				typedef void (*UpdateConditionsFunc)(ZombieConditionTracker*);
+				((UpdateConditionsFunc)(*(void***)zTracker)[3])(zTracker);
+				*cond = 0;
+			}
+
+			float scale = zTracker->m_scale;
+			auto sexyApp = SexyApp::GetInstance();
+
+			int spriteXPos = sexyApp->ScaleRender(projRect.mX + (projRect.mWidth / 2));
+			int spriteYPos = sexyApp->ScaleRender(projRect.mY + (projRect.mHeight / 2));
+
+			SexyVector2 artCenter = props->ArtCenter;
+			SexyVector3 shadowOffset = props->ShadowOffset;
+			float spawnPosX = self->m_position.x + (scale * ((float)spriteXPos - artCenter.x));
+			float spawnPosY = self->m_position.y - self->m_position.z;
+			float spawnPosZ = scale * ((float)spriteYPos - shadowOffset.x);
+			auto projectileToSpawn = props->PoleProjectile;
+
+			auto projectile = AddProjectile(&projectileToSpawn, self, spawnPosX, spawnPosY, spawnPosZ);
+			FirePultProjectile(projectile,
+				closestPlant->m_position,
+				250.0f,
+				1.5f);
+		}
+	}
+}
+void PoleOnArmDrop(ZombieModernPoleVaulter* zombie) {
+	auto rig = reinterpret_cast<ZombieAnimRig_ModernPoleVaulter*>(zombie->m_animRig.Get());
+	auto props = reinterpret_cast<ZombieModernPoleVaulterProps*>(zombie->m_propertySheet.Get());
+	if (rig->m_hasPole == true && props->Throw == true) {
+		ZombieEnterState(zombie, 19, 0);
+	}
+}
 void ZombieModernPoleVaulter::JumpOnEnter(ZombieModernPoleVaulter* zombie)
 {
 	ZombieAllowMovement(zombie, true);
@@ -218,10 +302,23 @@ void ZombieModernPoleVaulter::FarJumpOnExit(ZombieModernPoleVaulter* zombie)
 {
 
 }
+void ZombieModernPoleVaulter::ThrowOnEnter(ZombieModernPoleVaulter* zombie)
+{
+	RegisterEventAfterAnim(zombie, "throw_pole", "onThrowingPoleCompleted");
+}
+void ZombieModernPoleVaulter::ThrowOnLoop(ZombieModernPoleVaulter* zombie)
+{
+
+}
+void ZombieModernPoleVaulter::ThrowOnExit(ZombieModernPoleVaulter* zombie)
+{
+
+}
+
 void JumpingCompletedCallback(Zombie* zombie) {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPoleVaulter*>(zombie->m_animRig.Get());
 	ZombieModernPoleVaulter* poleZombie = static_cast<ZombieModernPoleVaulter*>(zombie);
-	if (poleZombie && !ZombieIsDeadOrDying(poleZombie)) {
+	if (poleZombie && !ZombieIsDeadOrDying(poleZombie) && !ZombieIsInState(poleZombie, 3)) {
 		rig->m_hasPole = false;
 		ZombieEnterState(poleZombie, 1, 0);
 		SetWalkSpeed(rig, PoleGetWalkSpeed(poleZombie));
@@ -230,7 +327,7 @@ void JumpingCompletedCallback(Zombie* zombie) {
 void BonkingCompletedCallback(Zombie* zombie) {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPoleVaulter*>(zombie->m_animRig.Get());
 	ZombieModernPoleVaulter* poleZombie = static_cast<ZombieModernPoleVaulter*>(zombie);
-	if (poleZombie && !ZombieIsDeadOrDying(poleZombie)) {
+	if (poleZombie && !ZombieIsDeadOrDying(poleZombie) && !ZombieIsInState(poleZombie, 3)) {
 		rig->m_hasPole = false;
 		ZombieEnterState(poleZombie, 1, 0);
 		SetWalkSpeed(rig, PoleGetWalkSpeed(poleZombie));
@@ -239,7 +336,16 @@ void BonkingCompletedCallback(Zombie* zombie) {
 void FarJumpingCompletedCallback(Zombie* zombie) {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPoleVaulter*>(zombie->m_animRig.Get());
 	ZombieModernPoleVaulter* poleZombie = static_cast<ZombieModernPoleVaulter*>(zombie);
-	if (poleZombie && !ZombieIsDeadOrDying(poleZombie)) {
+	if (poleZombie && !ZombieIsDeadOrDying(poleZombie) && !ZombieIsInState(poleZombie, 3)) {
+		rig->m_hasPole = false;
+		ZombieEnterState(poleZombie, 1, 0);
+		SetWalkSpeed(rig, PoleGetWalkSpeed(poleZombie));
+	}
+}
+void ThrowingCompletedCallback(Zombie* zombie) {
+	auto rig = reinterpret_cast<ZombieAnimRig_ModernPoleVaulter*>(zombie->m_animRig.Get());
+	ZombieModernPoleVaulter* poleZombie = static_cast<ZombieModernPoleVaulter*>(zombie);
+	if (poleZombie && !ZombieIsDeadOrDying(poleZombie) && !ZombieIsInState(poleZombie, 3)) {
 		rig->m_hasPole = false;
 		ZombieEnterState(poleZombie, 1, 0);
 		SetWalkSpeed(rig, PoleGetWalkSpeed(poleZombie));
@@ -255,6 +361,8 @@ void ZombieModernPoleVaulter::ModInit() {
 	PatchVFTable(vftable, (void*)PoleIsBeingTossedByPlant, 97);
 	PatchVFTable(vftable, (void*)PoleGetWalkSpeed, 118);
 	PatchVFTable(vftable, (void*)PoleWalkOnLoop, 124);
+	PatchVFTable(vftable, (void*)PoleActionFrame, 170);
+	PatchVFTable(vftable, (void*)PoleOnArmDrop, 174);
 
 	PatchVFTable(vftable, (void*)ZombieModernPoleVaulter::JumpOnEnter, 204);
 	PatchVFTable(vftable, (void*)ZombieModernPoleVaulter::JumpOnLoop, 205);
@@ -278,12 +386,14 @@ void ZombieModernPoleVaulter::buildEventCallbacks(Reflection::CRefManualSymbolBu
 		SetupLiteralDelegate(&jumpingCompletedDelegate, JumpingCompletedCallback);
 		SetupLiteralDelegate(&bonkingCompletedDelegate, BonkingCompletedCallback);
 		SetupLiteralDelegate(&farJumpingCompletedDelegate, FarJumpingCompletedCallback);
+		SetupLiteralDelegate(&throwingCompletedDelegate, ThrowingCompletedCallback);
 		ZombieModernPoleVaulter_delegatesSetup = true;
 		LOGI("SO TRUE");
 	}
 	RegisterEventCallback(builder, rtClass, "onJumpingCompleted", jumpingCompletedDelegate);
 	RegisterEventCallback(builder, rtClass, "onBonkingCompleted", bonkingCompletedDelegate);
 	RegisterEventCallback(builder, rtClass, "onFarJumpingCompleted", farJumpingCompletedDelegate);
+	RegisterEventCallback(builder, rtClass, "onThrowingPoleCompleted", throwingCompletedDelegate);
 	LOGI("Reg event complete");
 }
 
@@ -309,5 +419,11 @@ void ZombieModernPoleVaulter::buildStates()
 		(uintptr_t)ZombieModernPoleVaulter::FarJumpOnLoop,
 		(uintptr_t)ZombieModernPoleVaulter::FarJumpOnExit,
 		"ZS_PoleVaulter_FarJumping");
+	RegisterStateByOffsets(stateMachine,
+		19,
+		(uintptr_t)ZombieModernPoleVaulter::ThrowOnEnter,
+		(uintptr_t)ZombieModernPoleVaulter::ThrowOnLoop,
+		(uintptr_t)ZombieModernPoleVaulter::ThrowOnExit,
+		"ZS_PoleVaulter_Throwing");
 	LOGI("Reg state complete");
 }

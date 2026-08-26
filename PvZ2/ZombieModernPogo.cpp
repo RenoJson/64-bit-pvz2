@@ -33,61 +33,7 @@ float PogoGetWalkSpeed(ZombieModernPogo* zombie)
 		return zombie->m_walkSpeed;
 	}
 }
-void* PogoTakeDamage(ZombieModernPogo* thisPtr, DamageInfo* damageInfo)
-{
-	auto* props = reinterpret_cast<ZombieModernPogoProps*>(thisPtr->m_propertySheet.Get());
-	DamageInfo newDmgInfo = *damageInfo;
 
-	float balloonHP = 0.0f;
-	for (size_t i = 0; i < thisPtr->m_armor.size(); i++)
-	{
-		Armor* armorInstance = thisPtr->m_armor[i].Get();
-		if (armorInstance != nullptr && !armorInstance->m_destroyed && armorInstance->m_health > 0)
-		{
-			balloonHP = armorInstance->m_health;
-			break;
-		}
-	}
-	if (newDmgInfo.m_damage >= props->DamageAmountWhichAlsoKillsBasic)
-	{
-		newDmgInfo.m_flags |= DamageTypeFlags::damage_bypass_shield;
-
-		if (balloonHP > 0)
-		{
-			thisPtr->m_hasTakenCatastrophicDamage = true;
-		}
-	}
-	else
-	{
-		if (balloonHP > 0)
-		{
-			if (newDmgInfo.m_damage >= balloonHP)
-			{
-				newDmgInfo.m_flags &= ~DamageTypeFlags::damage_bypass_shield;
-				newDmgInfo.m_flags &= ~DamageTypeFlags::damage_hits_shield_and_body;
-				newDmgInfo.m_flags |= DamageTypeFlags::damage_hits_only_shield;
-				float calculatedDamage = balloonHP;
-
-				float effDamageScale = thisPtr->m_damageScale;
-				calculatedDamage /= effDamageScale;
-
-				bool isShrunken = CallFunc<bool, Zombie*, int>(0xC3E44C, thisPtr, zombie_condition_shrinking)
-					|| CallFunc<bool, Zombie*, int>(0xC3E44C, thisPtr, zombie_condition_shrunken);
-
-				if (isShrunken && thisPtr->m_shrunkenDamageScale > 0.001f)
-				{
-					calculatedDamage /= thisPtr->m_shrunkenDamageScale;
-				}
-				newDmgInfo.m_damage = calculatedDamage;
-			}
-		}
-	}
-
-	typedef void* (*funcC43B90)(ZombieModernPogo*, DamageInfo*);
-	static auto* ZTakeDmg = ((funcC43B90)getActualOffset(0xC43B90));
-
-	return ZTakeDmg(thisPtr, &newDmgInfo);
-}
 void PogoOnSpawn(ZombieModernPogo* zombie)
 {
 	zombie->m_hasTakenCatastrophicDamage = false;
@@ -125,8 +71,9 @@ void PogoOnArmorDestroyed(ZombieModernPogo* zombie, int a2, SexyString* armorNam
 		ZombieEnterState(zombie, 18, 0);
 	}
 }
-SexyString GetPogoAnimShock(ZombieModernPogo* zombie, DamageInfo* damage) {
-	if (zombie->m_hasTakenCatastrophicDamage == true) {
+SexyString GetPogoAnimShock(ZombieModernPogo* zombie) {
+	auto rig = reinterpret_cast<ZombieAnimRig_ModernPogo*>(zombie->m_animRig.Get());
+	if (rig->m_hasPogo) {
 		return "POPANIM_EFFECTS_ZOMBIE_POGO_SHOCK";
 	}
 	else {
@@ -134,8 +81,9 @@ SexyString GetPogoAnimShock(ZombieModernPogo* zombie, DamageInfo* damage) {
 	}
 }
 
-SexyString GetPogoAnimAsh(ZombieModernPogo* zombie, DamageInfo* damage) {
-	if (zombie->m_hasTakenCatastrophicDamage == true) {
+SexyString GetPogoAnimAsh(ZombieModernPogo* zombie) {
+	auto rig = reinterpret_cast<ZombieAnimRig_ModernPogo*>(zombie->m_animRig.Get());
+	if (rig->m_hasPogo) {
 		return "POPANIM_EFFECTS_ZOMBIE_POGO_ASH";
 	}
 	else {
@@ -340,7 +288,6 @@ void ZombieModernPogo::ModInit() {
 	vftable = CreateChildVFTable(204 + 15, getActualOffset(0x241D430), 204);
 	PatchVFTable(vftable, (void*)ZombieModernPogo::StaticGetType, 0);
 
-	PatchVFTable(vftable, (void*)PogoTakeDamage, 35);
 	PatchVFTable(vftable, (void*)PogoOnSpawn, 49);
 	PatchVFTable(vftable, (void*)PogoEnterWalk, 62);
 	PatchVFTable(vftable, (void*)PogoIsBeingTossedByPlant, 97);

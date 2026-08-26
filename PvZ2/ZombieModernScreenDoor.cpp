@@ -227,7 +227,10 @@ GooPeaApplyPoisonFunc oGooPeaApply = nullptr;
 
 void hkGooPeaApplyPoison(void* proj, Zombie* zombie)
 {
-    if (ZombieHasArmor(zombie, "ScreenDoor") == true || ZombieHasArmor(zombie, "Newspaper"))
+    if (ZombieHasArmor(zombie, "ScreenDoor") 
+        || ZombieHasArmor(zombie, "Newspaper")
+        || ZombieHasArmor(zombie, "Scroll")
+        || ZombieHasArmor(zombie, "Ladder"))
     {
         return;
     }
@@ -277,7 +280,7 @@ void ZombieModernScreenDoor::LostDoorOnExit(ZombieModernScreenDoor* zombie)
 }
 void LostDoorCompletedCallback(Zombie* zombie) {
     ZombieModernScreenDoor* doorZombie = static_cast<ZombieModernScreenDoor*>(zombie);
-    if (doorZombie) {
+    if (doorZombie && !ZombieIsDeadOrDying(doorZombie) && !ZombieIsInState(doorZombie, 3)) {
         ZombieEnterState(doorZombie, 1, 0);
     }
 }

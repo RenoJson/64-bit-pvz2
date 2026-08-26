@@ -137,7 +137,9 @@ bool hkMuteImpSound(Zombie* imp)
         && !ZombieIsInState(imp, 19)
         && !ZombieIsDeadOrDying(imp)
         && !ZombieIsInState(imp, 3)
-        && !imp->IsInGridItem()
+        && !ZombieHasCondition(imp, zombie_condition_icecubed)
+        && !ZombieHasCondition(imp, zombie_condition_present_boxed)
+        && !ZombieHasCondition(imp, zombie_condition_stoneblocked)
         && !imp->IsType(ZombieZcorpRacerZombie::StaticGetType())
         && !imp->IsType(ZombiePirateBoomBarrel::StaticGetType());
 }
