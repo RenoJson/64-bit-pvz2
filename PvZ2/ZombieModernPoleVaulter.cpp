@@ -252,6 +252,11 @@ void PoleActionFrame(ZombieModernPoleVaulter* self, SexyString* currentAnim, Sex
 				1.5f);
 		}
 	}
+	if (*actionName == "jumping_done")
+	{
+		auto rig = reinterpret_cast<ZombieAnimRig_ModernPoleVaulter*>(self->m_animRig.Get());
+		rig->m_hasPole = false;
+	}
 }
 void PoleOnArmDrop(ZombieModernPoleVaulter* zombie) {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPoleVaulter*>(zombie->m_animRig.Get());

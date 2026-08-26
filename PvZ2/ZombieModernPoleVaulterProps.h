@@ -1,5 +1,6 @@
 #pragma once
 #include "PvZ2/Zombie.h"
+#include "Projectile.h"
 #include <Reflection/ReflectionBuilder.h>
 
 class ZombieModernPoleVaulterProps : public ZombiePropertySheet

@@ -305,5 +305,7 @@
     <ClInclude Include="PvZ2\ZombieCatapult.h" />
     <ClInclude Include="PvZ2\ZombieLadder.h" />
     <ClInclude Include="PvZ2\Ladder.h" />
+    <ClInclude Include="PvZ2\ZombieZomboni.h" />
+    <ClInclude Include="PvZ2\ZombieBobsled.h" />
   </ItemGroup>
 </Project>

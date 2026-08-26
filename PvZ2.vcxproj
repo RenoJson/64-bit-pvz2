@@ -339,6 +339,7 @@
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumAssasin.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumCursedBase.h" />
     <ClInclude Include="PvZ2\ZombieAnimRig_MausoleumDrunkard.h" />
+    <ClInclude Include="PvZ2\ZombieBobsled.h" />
     <ClInclude Include="PvZ2\ZombieCatapult.h" />
     <ClInclude Include="PvZ2\ZombieLadder.h" />
     <ClInclude Include="PvZ2\ZombieMausoleumArcher.h" />
@@ -435,6 +436,7 @@
     <ClInclude Include="PvZ2\ZombieTombRaiserProps.h" />
     <ClInclude Include="PvZ2\ZombieTypeTemplate.h" />
     <ClInclude Include="PvZ2\ZombieWithAction.h" />
+    <ClInclude Include="PvZ2\ZombieZomboni.h" />
     <ClInclude Include="PvZ2\Zombie_BullProps.h" />
     <ClInclude Include="PvZ2\Zombie_BullVeteran.h" />
     <ClInclude Include="Reflection\CRefManualSymbolBuilder.h" />
