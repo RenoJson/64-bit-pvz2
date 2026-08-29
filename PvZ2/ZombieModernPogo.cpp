@@ -66,9 +66,33 @@ bool PogoIsBeingTossedByPlant(ZombieModernPogo* zombie, int a2) {
 void PogoOnArmorDestroyed(ZombieModernPogo* zombie, int a2, SexyString* armorName)
 {
 	if (*armorName == "Pogo" && !ZombieIsDeadOrDying(zombie) && zombie->m_entityState.m_id != 3) {
-		auto rig = reinterpret_cast<ZombieAnimRig_ModernPogo*>(zombie->m_animRig.Get());
-		rig->m_hasPogo = false;
 		ZombieEnterState(zombie, 18, 0);
+	}
+}
+void PogoActionFrame(ZombieModernPogo* self, SexyString* currentAnim, SexyString* actionName, SexyString* param, float nextFrameTime)
+{
+	if (*actionName == "jumping_start")
+	{
+		
+		ZombieIsFlying(self, true);
+		ZombieSetUnmovableStatusFlag(self, true);
+	}
+	if (*actionName == "jumping_end")
+	{
+		ZombieIsFlying(self, false);
+		ZombieSetUnmovableStatusFlag(self, false);
+	}
+	if (*currentAnim == "jump_tallnut" && *actionName == "bonk") {
+		auto rig = reinterpret_cast<ZombieAnimRig_ModernPogo*>(self->m_animRig.Get());
+		rig->m_hasPogo = false;
+		for (auto& weakArmor : self->m_armor)
+		{
+			Armor* armor = weakArmor.Get();
+			if (armor != nullptr && !armor->m_destroyed)
+			{
+				armor->m_destroyed = true;
+			}
+		}
 	}
 }
 SexyString GetPogoAnimShock(ZombieModernPogo* zombie) {
@@ -108,8 +132,6 @@ void ZombieModernPogo::JumpOnExit(ZombieModernPogo* zombie)
 
 void ZombieModernPogo::BonkOnEnter(ZombieModernPogo* zombie)
 {
-	auto rig = reinterpret_cast<ZombieAnimRig_ModernPogo*>(zombie->m_animRig.Get());
-	rig->m_hasPogo = false;
 	ZombieAllowMovement(zombie, true);
 	return RegisterEventAfterAnim(zombie, "jump_tallnut", "onBonkingCompleted");
 }
@@ -258,15 +280,7 @@ void PogoBonkingCompletedCallback(Zombie* zombie) {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPogo*>(zombie->m_animRig.Get());
 	ZombieModernPogo* PogoZombie = static_cast<ZombieModernPogo*>(zombie);
 	if (PogoZombie && !ZombieIsDeadOrDying(PogoZombie) && PogoZombie->m_entityState.m_id != 3) {
-		rig->m_hasPogo = false;
-		for (auto& weakArmor : zombie->m_armor)
-		{
-			Armor* armor = weakArmor.Get();
-			if (armor != nullptr && !armor->m_destroyed)
-			{
-				armor->m_destroyed = true;
-			}
-		}
+		
 		ZombieEnterState(PogoZombie, 1, 0);
 		SetWalkSpeed(rig, PogoGetWalkSpeed(PogoZombie));
 	}
@@ -293,6 +307,7 @@ void ZombieModernPogo::ModInit() {
 	PatchVFTable(vftable, (void*)PogoIsBeingTossedByPlant, 97);
 	PatchVFTable(vftable, (void*)PogoOnArmorDestroyed, 115);
 	PatchVFTable(vftable, (void*)PogoGetWalkSpeed, 118);
+	PatchVFTable(vftable, (void*)PogoActionFrame, 170);
 	PatchVFTable(vftable, (void*)GetPogoAnimShock, 189);
 	PatchVFTable(vftable, (void*)GetPogoAnimAsh, 190);
 

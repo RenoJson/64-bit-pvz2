@@ -10,10 +10,7 @@ Sexy::RtClass* ZombieJourneyToTheWestBalloon::s_rtClass = __null;;
 
 void BallonOnArmorDestroyed(ZombieJourneyToTheWestBalloon* zombie, int a2, SexyString* armorName)
 {
-    auto rig = reinterpret_cast<ZombieAnimRig_ModernBalloon*>(zombie->m_animRig.Get());
-    if (rig->m_hasBalloon && !ZombieIsDeadOrDying(zombie) && zombie->m_entityState.m_id != 3) {
-        ZombieEnterState(zombie, 19, 0);
-    }
+
 }
 void BallonOnHealthChanged(ZombieJourneyToTheWestBalloon* zombie) {
     if (!ZombieIsDeadOrDying(zombie) && zombie->m_entityState.m_id != 3) {

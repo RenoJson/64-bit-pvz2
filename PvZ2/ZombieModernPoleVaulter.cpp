@@ -252,10 +252,17 @@ void PoleActionFrame(ZombieModernPoleVaulter* self, SexyString* currentAnim, Sex
 				1.5f);
 		}
 	}
-	if (*actionName == "jumping_done")
+	if (*actionName == "jumping_start")
 	{
 		auto rig = reinterpret_cast<ZombieAnimRig_ModernPoleVaulter*>(self->m_animRig.Get());
 		rig->m_hasPole = false;
+		ZombieIsFlying(self, true);
+		ZombieSetUnmovableStatusFlag(self, true);
+	}
+	if (*actionName == "jumping_end")
+	{
+		ZombieIsFlying(self, false);
+		ZombieSetUnmovableStatusFlag(self, false);
 	}
 }
 void PoleOnArmDrop(ZombieModernPoleVaulter* zombie) {

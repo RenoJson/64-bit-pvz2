@@ -66,8 +66,8 @@ void CatapultUpdate(ZombieCatapult* zombie) {
         InitCatapultDamageLayers(zombie, zombie->m_damageIndex);
     }
     if (zombie->m_damageIndex == 1 && !ZombieIsDeadOrDying(zombie)) {
-        auto type = reinterpret_cast<ZombieType*>(zombie->m_type.Get());
         if (zombie->m_attachedEffects.GetObjectIndex("injured") == -1) {
+            auto type = reinterpret_cast<ZombieType*>(zombie->m_type.Get());
             SexyVector3 effectOffset = { 0.0f, 0.0f, 40.0f };
             ZombieAttachEffect(zombie, 
                                 "injured", 
@@ -83,6 +83,14 @@ void CatapultUpdate(ZombieCatapult* zombie) {
     CallFunc<void>(0xC3D7A0, zombie);
 }
 
+void CatapultOnGetCondition(ZombieCatapult* zombie, int conditionID)
+{
+    if (conditionID == zombie_condition_hypnotized)
+    {
+        ZombieEnterState(zombie, 1, 0);
+    }
+}
+
 bool CatapultCanTargetGroundPlant() {
     return true;
 }
@@ -91,7 +99,7 @@ void CatapultWalkOnLoop(ZombieCatapult* zombie)
 {
     CallFunc<void>(0xC506B4, zombie);
 
-    if (zombie->m_position.x <= 700.0f && zombie->m_remainingAmmo > 0)
+    if (zombie->m_position.x <= 700.0f && zombie->m_remainingAmmo > 0 && zombie->m_teamFlags == 2)
     {
         if (CatapultHasTarget(zombie))
         {
@@ -360,6 +368,7 @@ void ZombieCatapult::modInit() {
     PatchVFTable(vftable, (void*)ZombieCatapult::StaticGetType, 0);
 
     PatchVFTable(vftable, (void*)CatapultUpdate, 29);
+    PatchVFTable(vftable, (void*)CatapultOnGetCondition, 71);
     PatchVFTable(vftable, (void*)CatapultCanTargetGroundPlant, 103);
     PatchVFTable(vftable, (void*)CatapultWalkOnLoop, 124);
     PatchVFTable(vftable, (void*)CatapultEatOnLoop, 127);

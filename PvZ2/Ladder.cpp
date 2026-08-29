@@ -21,6 +21,51 @@ Sexy::RtClass* ZombieLadderProps::s_rtClass = __null;
 void* ZombieAnimRig_Ladder::vftable = __null;
 Sexy::RtClass* ZombieAnimRig_Ladder::s_rtClass = __null;;
 
+void* LadderTakeDamage(ZombieLadder* ladder, DamageInfo* dmgInfo) {
+    DamageInfo damageInfo = *dmgInfo;
+    auto* props = reinterpret_cast<ZombieLadderProps*>(ladder->m_propertySheet.Get());
+
+    bool isIncludeList = (props->PlantsWhichCanTargetLadder.ListType == includelist);
+
+    bool blockDamage = isIncludeList;
+
+    if (damageInfo.m_attacker != nullptr)
+    {
+        if (damageInfo.m_attacker->IsType(Plant::StaticGetType()))
+        {
+            Plant* plant = static_cast<Plant*>(damageInfo.m_attacker);
+
+            if (plant->m_type.IsValid())
+            {
+                auto* plantType = reinterpret_cast<PlantType*>(plant->m_type.Get());
+
+                bool isPlantInList = false;
+                for (const SexyString& listedPlant : props->PlantsWhichCanTargetLadder.List)
+                {
+                    if (plantType->TypeName == listedPlant)
+                    {
+                        isPlantInList = true;
+                        break;
+                    }
+                }
+
+                if (isIncludeList && isPlantInList) {
+                    blockDamage = false; 
+                }
+                else if (!isIncludeList && isPlantInList) {
+                    blockDamage = true; 
+                }
+            }
+        }
+    }
+    if (blockDamage) {
+        damageInfo.m_damage = 0.0f;
+    }
+
+    typedef void* (*funcC43B90)(ZombieLadder*, DamageInfo*);
+    static auto* ZTakeDmg = ((funcC43B90)getActualOffset(0xC43B90));
+    return ZTakeDmg(ladder, &damageInfo);
+}
 
 inline int GetRowFromY(float y) {
     return static_cast<int>((y - 160.0f) / 76.0f);
@@ -296,6 +341,11 @@ int LadderrCalcRenderOrder(void* renderableThis) {
     return 0 + 406990 + (16000 * GetRowFromY(zombie->m_position.y));
 }
 
+void LadderrOnInitialize(ZombieLadder* zombie) {
+    ZombieSetUnmovableStatusFlag(zombie, true);
+    ZombieIsFlying(zombie, true);
+}
+
 void ZombieLadder::ModInit() {
     LOGI("ZombieLadder mod init");
     PVZ2HookFunction(0xC4146C, (void*)ZombieCanTargetEntitiesAtHeight, nullptr);
@@ -303,6 +353,7 @@ void ZombieLadder::ModInit() {
     vftable1 = CopyVFTable(getActualOffset(0x241DAA0), 4);
     PatchVFTable(vftable, (void*)ZombieLadder::StaticGetType, 0);
     PatchVFTable(vftable, (void*)LadderrUpdate, 29);
+    PatchVFTable(vftable, (void*)LadderTakeDamage, 35);
     PatchVFTable(vftable1, (void*)LadderrCalcRenderOrder, 3);
     PatchVFTable(vftable, (void*)LadderrOnGetCondition, 71);
     PatchVFTable(vftable, (void*)LadderrThreatAlert, 75);
