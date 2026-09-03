@@ -202,7 +202,8 @@ enum ZombieFlags
 { // add to this as I learn more
 	zombiecanmove = 1,
 	zombienoarmdrop = 1 << 1,
-	zombiekillafterstorm = 1 << 2, // if this flag is on it also instantly dies after sandstorms? I think this zombiehasnoheaddrop is not its name.
+	zombiekillafterstorm = 1 << 2,// if this flag is on it also instantly dies after sandstorms? I think this zombiehasnoheaddrop is not its name.
+	zombieisbleeding = 1 << 3, 
 	cannotdroploot = 0x10,
 	zombieisairborne = 0x40,
 	zombierenderontop = 0x80,

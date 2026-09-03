@@ -222,19 +222,25 @@ void DoorOnArmorDestroyed(ZombieModernScreenDoor* zombie, int a2, SexyString* ar
     }
 }
 
-typedef void* (*GooPeaApplyPoisonFunc)(void* proj, Zombie* zombie);
+typedef void* (*GooPeaApplyPoisonFunc)(void* proj, BoardEntity* ent);
 GooPeaApplyPoisonFunc oGooPeaApply = nullptr;
 
-void hkGooPeaApplyPoison(void* proj, Zombie* zombie)
+void hkGooPeaApplyPoison(void* proj, BoardEntity* ent)
 {
-    if (ZombieHasArmor(zombie, "ScreenDoor") 
-        || ZombieHasArmor(zombie, "Newspaper")
-        || ZombieHasArmor(zombie, "Scroll")
-        || ZombieHasArmor(zombie, "Ladder"))
-    {
-        return;
+    if (ent->IsType(Zombie::StaticGetType())) {
+		auto zombie = static_cast<Zombie*>(ent);
+        if (ZombieHasArmor(zombie, "ScreenDoor")
+            || ZombieHasArmor(zombie, "Newspaper")
+            || ZombieHasArmor(zombie, "Scroll")
+            || ZombieHasArmor(zombie, "Ladder")
+            || ZombieHasArmor(zombie, "Shovel")
+            || ZombieHasArmor(zombie, "Sarcophagus")
+            || ((zombie->m_zombieFlags & 4) != 0))
+        {
+            return;
+        }
     }
-    oGooPeaApply(proj, zombie);
+    oGooPeaApply(proj, ent);
 }
 void ScreenDoorOnCreate(ZombieModernScreenDoor* zombie) {
     auto rig = reinterpret_cast<ZombieAnimRig_ModernScreenDoor*>(zombie->m_animRig.Get());

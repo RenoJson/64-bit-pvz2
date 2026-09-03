@@ -46,6 +46,53 @@ uintptr_t GetOriginalOffset(uintptr_t actualOffset) {
     return actualOffset - g_libAddress;
 }
 
+struct BacktraceState {
+    void** current;
+    void** end;
+};
+
+static _Unwind_Reason_Code unwindCallback(struct _Unwind_Context* context, void* arg) {
+    BacktraceState* state = static_cast<BacktraceState*>(arg);
+    uintptr_t pc = _Unwind_GetIP(context);
+
+    if (pc) {
+        if (state->current == state->end) {
+            return _URC_END_OF_STACK;
+        }
+        else {
+            *state->current++ = reinterpret_cast<void*>(pc);
+        }
+    }
+    return _URC_NO_REASON;
+}
+
+void LogCallStack(int maxDepth) {
+    void* buffer[30];
+    int actualDepth = (maxDepth > 30) ? 30 : maxDepth;
+
+    BacktraceState state = { buffer, buffer + actualDepth };
+    _Unwind_Backtrace(unwindCallback, &state);
+
+    int count = state.current - buffer; 
+
+    LOGI("[TRACE] ====== BAT DAU TRUY VET CALL STACK (%d LOP) ======", count);
+
+    for (int i = 0; i < count; ++i) {
+        uintptr_t actualAddr = (uintptr_t)buffer[i];
+
+        uintptr_t idaOffset = GetOriginalOffset(actualAddr);
+
+        Dl_info info;
+        const char* libName = "Unknown";
+        if (dladdr((void*)actualAddr, &info) && info.dli_fname) {
+            libName = info.dli_fname;
+        }
+
+        LOGI("[TRACE] Lop [%d]: Offset IDA = 0x%lX | (Lib: %s)", i, idaOffset, libName);
+    }
+    LOGI("[TRACE] ==================================================");
+}
+
 uintptr_t* GetMemberPtr(void* obj, uintptr_t memberOffset)
 {
     uintptr_t member = *(uintptr_t*)(*(int64_t*)obj + memberOffset);

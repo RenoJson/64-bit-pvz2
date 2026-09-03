@@ -742,8 +742,8 @@ ZombieAnimRig* hkCreateAnimRig(ZombieType* thisPtr)
                 
             }
             else {
-                LOGI("[hkCreateAnimRig] ZombieType %s has AnimRigClass not derive from ZombieAnimRig_BasicTemplate",
-                    templateType->TypeName.c_str());
+                LOGI("AnimRigClass %s was not derive from ZombieAnimRig_BasicTemplate",
+                    templateType->AnimRigClass.c_str());
             }
             CallFunc<void>(0x8DE21C, zombieRig, &templateType->AnimRigClass);
         }
@@ -786,8 +786,8 @@ ZombieAnimRig* hkAlmanacCreateAnimRig(ZombieType* thisPtr, bool a2, bool a3)
         }
         else
         {
-            LOGI("[hkAlmanacCreateAnimRig] ZombieType %s has AnimRigClass not derive from ZombieAnimRig_BasicTemplate",
-                templateType->TypeName.c_str());
+            LOGI("AnimRigClass %s was not derive from ZombieAnimRig_BasicTemplate",
+                templateType->AnimRigClass.c_str());
         }
     }
 
@@ -804,10 +804,10 @@ void hkNewspaperOnArmorDestroyed(Zombie* thisPtr, int armorIndex, const SexyStri
 
 void hkExcavatorOnArmorDestroyed(Zombie* thisPtr, int armorIndex, const SexyString& armorName)
 {
-	auto rig = reinterpret_cast<ZombieAnimRig_LostCityExcavator*>(thisPtr->m_animRig.Get());
-    rig->m_hasShovel = false;
     if (armorName == "Shovel" && !ZombieIsDeadOrDying(thisPtr) && thisPtr->m_entityState.m_id != 3)
     {
+        auto rig = reinterpret_cast<ZombieAnimRig_LostCityExcavator*>(thisPtr->m_animRig.Get());
+        rig->m_hasShovel = false;
         ZombieEnterState(thisPtr, 17, 0);
     }
 }
@@ -833,11 +833,13 @@ void hkKingActionCommand(ZombieDarkKing* thisPtr, SexyString* currentAnim, SexyS
 {
     // apply the effect first then call the original function
     if (*actionName == "knight") {
-        auto knightTarget = reinterpret_cast<Zombie*>(thisPtr->m_knightingTarget.Get());
-        auto targetRig = reinterpret_cast<ZombieAnimRig*>(knightTarget->m_animRig.Get());
-        if (targetRig->IsType(ZombieAnimRig_Basic::StaticGetType())) {
-            auto basicRig = static_cast<ZombieAnimRig_Basic*>(targetRig);
-            basicRig->m_helmType = HelmType::crown;
+		if (thisPtr->m_knightingTarget.IsValid()) {
+            auto knightTarget = reinterpret_cast<Zombie*>(thisPtr->m_knightingTarget.Get());
+            auto targetRig = reinterpret_cast<ZombieAnimRig*>(knightTarget->m_animRig.Get());
+            if (targetRig->IsType(ZombieAnimRig_Basic::StaticGetType())) {
+                auto basicRig = static_cast<ZombieAnimRig_Basic*>(targetRig);
+                basicRig->m_helmType = HelmType::crown;
+            }
         }
     }
     oKingActionCommand(thisPtr, currentAnim, actionName, param, nextFrameTime);

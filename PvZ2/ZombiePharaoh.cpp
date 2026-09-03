@@ -149,7 +149,6 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
         {
             return;
         }
-
         if (headDropThreshold <= 0.0f)
         {
             CallFunc<void>(0xC47BF8, thisPtr, damageInfo);
@@ -358,18 +357,15 @@ void hkTakeDamage(Zombie* thisPtr, DamageInfo* damageInfo)
     }
 }
 bool IsReadyToDie(Zombie* thisPtr) {
-    return thisPtr->m_position.x <= 100.0f;
+    return thisPtr->m_position.x <= 150.0f;
 }
 
 bool hkIsDeadOrDying(Zombie* thisPtr)
 {
     int stateId = thisPtr->m_entityState.m_id;
 
-    if ((stateId >= 4 && stateId <= 8) || stateId == 14)
+    if ((stateId >= 3 && stateId <= 8) || stateId == 14)
     {
-        return true;
-    }
-    if (stateId == 3 && thisPtr->m_position.x <= 232.0f) {
         return true;
     }
 
@@ -451,35 +447,9 @@ float SurferIsHeadDrop(ZombieBeachSurfer* zombie)
     }
 }
 bool IsInBleedingState(Zombie* thisPtr) {
-    return thisPtr->m_entityState.m_id == 3;
+    return thisPtr->m_entityState.m_id == 99;
 }
 
-bool hkZombieCheckConditionsFlag(Zombie* zombie, int flag) {
-    
-    if ((flag & 1) == 0 || !hkIsDeadOrDying(zombie))
-    {
-        if ((flag & 0x10) == 0 || ((zombie->m_zombieFlags & zombiegrabbedbyptero) != 0) || zombie->IsInGridItem())
-        {
-            if ((flag & 0x20) == 0 || (!((zombie->m_zombieFlags & zombiegrabbedbyptero) != 0) && !zombie->IsInGridItem()))
-            {
-                auto board = Board::GetBoard();
-                auto boardProps = CallFunc<BoardPropertySheet*>(0xAA1EF4, board);
-                if ((flag & 0x200) == 0 || (zombie->m_position.x <= boardProps->PlantTargetingXThreshold))
-                {
-                   if ((flag & 0x100) == 0 || (zombie->m_position.x > boardProps->PlantTargetingXThreshold))
-                   {
-                         if ((flag & 0x10000) == 0 || (zombie->m_zombieFlags & 0x2000000) == 0)
-                         {
-                            return false;
-                         }
-                   }
-                }
-            }
-        }
-    }
-
-    return true;
-}
 typedef void (*Update)(Zombie*);
 Update oUpdate = nullptr;
 void hkUpdate(Zombie* thisPtr) {
@@ -500,11 +470,6 @@ void hkUpdate(Zombie* thisPtr) {
         CallVirtualFunc<void>(rig, 46);
         ZombieEnterState(thisPtr, 4, 0);
     }
-
-    if(ZombieIsDeadOrDying(thisPtr) && ZombieHasCondition(thisPtr, zombie_condition_bleeding))
-    {
-        ZombieRemoveCondition(thisPtr, zombie_condition_bleeding);
-	}
 }
 
 float GetTotalArmorHealth(std::vector<Sexy::RtWeakPtr<Armor>>& armorList)
@@ -566,13 +531,63 @@ void PatchZombieUpdate()
     uint32_t value = 0x52883E0A; 
     ReplaceBytes(0xC3D908, &value, 4);
     ReplaceBytes(0xC3D978, &value, 4);
+    uint32_t flag = 0x52801008;
+    ReplaceBytes(0xC3DCBC, &flag, 4);
+
+    uint32_t patch_Else_W28 = 0x5285519C;
+    ReplaceBytes(0x7C8310, &patch_Else_W28, 4);
+
+    uint32_t patch_If_W8 = 0x52855088;
+    ReplaceBytes(0x7C8320, &patch_If_W8, 4);
+
+    uint32_t patch_NOP = 0xD503201F;
+    ReplaceBytes(0x7C8344, &patch_NOP, 4);
 }
 
 
+BoardEntity* FindKnightTarget(ZombieDarkKing* thisPtr)
+{
+    int gridX = static_cast<int>(((thisPtr->m_position.x - 200.0f) * 0.015625f));
+    int gridY = static_cast<int>(((thisPtr->m_position.y - 160.0f) / 76.0f));
+
+    auto* kingProps = reinterpret_cast<ZombieDarkKingProps*>(thisPtr->m_propertySheet.Get());
+
+    Rect searchRect;
+    searchRect.mX = gridX + 1 - kingProps->KnightingAreaX;
+    searchRect.mY = gridY - (kingProps->KnightingAreaY / 2);
+    searchRect.mWidth = kingProps->KnightingAreaX;
+    searchRect.mHeight = kingProps->KnightingAreaY;
+
+    std::vector<BoardEntity*> foundZombies;
+    GetEntitiesInRectGrid(&foundZombies, 2, &searchRect);
+
+    BoardEntity* bestTarget = nullptr;
+
+    for (BoardEntity* target : foundZombies)
+    {
+        if (target->IsType(Zombie::StaticGetType())) {
+            Zombie* zombie = static_cast<Zombie*>(target);
+            if (CallVirtualFunc<bool>(thisPtr, 52, zombie)
+                && zombie->m_teamFlags == 2
+                && !ZombieIsInState(zombie, 3)
+                && zombie->m_thisPtr.IsValid()
+                && !ZombieIsDeadOrDying(zombie))
+            {
+                if (bestTarget == nullptr || zombie->m_position.x < bestTarget->m_position.x)
+                {
+                    bestTarget = zombie;
+                }
+            }
+        }
+    }
+
+    return bestTarget;
+}
+
 void ZombiePharaoh::ModInit() {
     LOGI("ZombiePharaoh init");
+    PVZ2HookFunction(0xAFAE10, (void*)FindKnightTarget, nullptr);
     PVZ2HookFunction(0xC3D7A0, (void*)hkUpdate, (void**)&oUpdate);
-    PVZ2HookFunction(0xC56A54, (void*)hkZombieCheckConditionsFlag, nullptr);
     PVZ2HookFunction(0xC4126C, (void*)hkCalcProgressMeterHP, nullptr);
     PVZ2HookFunction(0xC3E204, (void*)hkIsDeadOrDying, nullptr);
     PVZ2HookFunction(0xC4CED8, (void*)IsReadyToDie, nullptr);

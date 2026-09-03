@@ -1,4 +1,6 @@
 #pragma once
+#include <unwind.h>
+#include <dlfcn.h>
 #include <unistd.h>
 #include <cstdlib>
 #include <stdio.h>
@@ -28,6 +30,8 @@ void SetVFTable(void* obj, uintptr_t newVftablePtr);
 void* GetVirtualFunc(void* obj, int index);
 //Modify bytes in libPVZ2.so
 bool ReplaceBytes(uintptr_t offset, const void* data, size_t size);
+static _Unwind_Reason_Code unwindCallback(struct _Unwind_Context* context, void* arg);
+void LogCallStack(int maxDepth);
 // Call a virtual function from libPVZ2.so. The vfunc index should be correct (ex: it usually should be divided by 4 in 32 bit and 8 in 64 bit)
 template<typename R, typename... Args>
 R CallVirtualFunc(void* obj, int index, Args... args)

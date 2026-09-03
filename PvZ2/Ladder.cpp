@@ -168,6 +168,7 @@ void ProcessClimbingZombies(ZombieLadder* ladder) {
             if (isAtLadderBase) {
                 ZombieAllowMovement(z, false);
                 z->m_realObjectFlags |= 2;
+                z->m_zombieFlags |= (1 << 27);
                 RtWeakPtr<RtObject> weakZ;
                 weakZ.FromOther(&z->m_thisPtr);
                 ladder->m_climbingZombies.push_back(weakZ);
@@ -226,7 +227,7 @@ void ProcessClimbingZombies(ZombieLadder* ladder) {
         if (justFinishedClimbing || isForcedToDrop) {
             z->m_position.z = 0.0f;
             z->m_realObjectFlags &= ~2;
-
+            z->m_zombieFlags &= ~(1 << 27);
             ZombieAllowMovement(z, true);
             ZombieSetUnmovableStatusFlag(z, false);
 
@@ -235,7 +236,7 @@ void ProcessClimbingZombies(ZombieLadder* ladder) {
         else {
             ZombieSetUnmovableStatusFlag(z, true);
             z->m_realObjectFlags |= 2;
-
+            z->m_zombieFlags |= (1 << 27);
             float baseClimbSpeed = props->Speed * 50.0f;
             float speedScale = z->m_conditionTracker.m_speedScale;
             float facing = ZombieFacing(z);
@@ -342,8 +343,8 @@ int LadderrCalcRenderOrder(void* renderableThis) {
 }
 
 void LadderrOnInitialize(ZombieLadder* zombie) {
-    ZombieSetUnmovableStatusFlag(zombie, true);
-    ZombieIsFlying(zombie, true);
+    zombie->m_teamFlags = 0;
+    ZombieSetNoCollisionFlag(zombie, true);
 }
 
 void ZombieLadder::ModInit() {
@@ -360,6 +361,7 @@ void ZombieLadder::ModInit() {
     PatchVFTable(vftable, (void*)LadderrCanBeTargetedByPlant, 93);
     PatchVFTable(vftable, (void*)LadderrCanBeTossedByPlant, 97);
     PatchVFTable(vftable, (void*)LadderrCanTargetAtHeight, 103);
+    PatchVFTable(vftable, (void*)LadderrOnInitialize, 169);
     PatchVFTable(vftable, (void*)LadderrCanBeElectrocuted, 191);
     PatchVFTable(vftable, (void*)LadderrCanBeAshed, 192);
     ZombieLadder::StaticGetType();

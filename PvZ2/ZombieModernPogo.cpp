@@ -36,7 +36,6 @@ float PogoGetWalkSpeed(ZombieModernPogo* zombie)
 
 void PogoOnSpawn(ZombieModernPogo* zombie)
 {
-	zombie->m_hasTakenCatastrophicDamage = false;
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPogo*>(zombie->m_animRig.Get());
 	if (ZombieHasArmor(zombie, "Pogo")) {
 		rig->m_hasPogo = true;

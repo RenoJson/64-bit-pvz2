@@ -5,7 +5,6 @@
 class ZombieModernPogo : public Zombie
 {
 public:
-	bool m_hasTakenCatastrophicDamage;
 	DECLARE_STATIC_RT_CLASS_MEMBERS(ZombieModernPogo)
 
 	RT_CLASS_CONSTRUCT_FUNCTION_BEGIN(ZombieModernPogo, 0xC3AB1C);
@@ -13,7 +12,6 @@ public:
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(Zombie);
 	ZombieModernPogo::buildEventCallbacks(builder, rclass);
-	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModernPogo, m_hasTakenCatastrophicDamage);
 	RT_CLASS_BUILD_SYMBOLS_END();
 	RT_CLASS_REGISTER_CLASS_AND_STATES_FUNCTION(ZombieModernPogo)
 

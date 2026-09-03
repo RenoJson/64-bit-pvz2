@@ -14,5 +14,15 @@ public:
 class ZombieDarkKing : public Zombie {
 public:
 	RtWeakPtr<RtObject> m_knightingTarget;
+};
 
+class ZombieDarkKingProps : public ZombiePropertySheet {
+public:
+	float DelayBetweenKnightings;
+	int KnightingAreaX;
+	int KnightingAreaY;
+	HelmType KnightHelm = HelmType::none;
+	float KnightHelmHitpoints;
+	std::vector<SexyString> ValidKnightTargets;
+	std::vector<SexyString> PlantablePlants;
 };

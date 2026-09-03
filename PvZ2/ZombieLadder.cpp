@@ -363,7 +363,7 @@ void ZombieModernLadder::PlaceLadderOnLoop(ZombieModernLadder* zombie)
 
 void ZombieModernLadder::PlaceLadderOnExit(ZombieModernLadder* zombie)
 {
-
+    ZombieSetUnmovableStatusFlag(zombie, false);
 }
 
 void ZombieModernLadder::LostLadderOnEnter(ZombieModernLadder* zombie)
@@ -383,7 +383,6 @@ void ZombieModernLadder::LostLadderOnExit(ZombieModernLadder* zombie)
 void LostLadderCompletedCallback(Zombie* zombie) {
     ZombieModernLadder* LadderZombie = static_cast<ZombieModernLadder*>(zombie);
     if (LadderZombie && !ZombieIsDeadOrDying(LadderZombie) && !ZombieIsInState(LadderZombie, 3)) {
-        ZombieSetUnmovableStatusFlag(LadderZombie, false);
         auto rig = reinterpret_cast<ZombieAnimRig_ModernLadder*>(LadderZombie->m_animRig.Get());
         auto props = reinterpret_cast<ZombieModernLadderProps*>(LadderZombie->m_propertySheet.Get());
         rig->m_hasLadder = false;
@@ -413,7 +412,6 @@ void ZombieModernLadder::ModInit() {
     PatchVFTable(vftable, (void*)LadderTakeDamage, 35);
     PatchVFTable(vftable, (void*)LadderBlockProjectile, 43);
     PatchVFTable(vftable, (void*)LadderOnSpawn, 49);
-    //PatchVFTable(vftable, (void*)LadderGetAttackRect, 88);
     PatchVFTable(vftable, (void*)LadderOnArmorDestroyed, 115);
     PatchVFTable(vftable, (void*)LadderWalkOnLoop, 124);
     PatchVFTable(vftable, (void*)LadderEatOnLoop, 127);
