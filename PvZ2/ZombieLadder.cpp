@@ -338,6 +338,7 @@ void LadderActionFrame(ZombieModernLadder* zombie, SexyString* currentAnim, Sexy
 
                             SexyVector3 ladderPos = { attachTarg->m_position.x + 30.0f, attachTarg->m_position.y, 0 };
                             ZombieSetPosition(ladder, &ladderPos);
+							ZombieEnterState(ladder, 1, 0);
                             armor->m_destroyed = true;
                             auto rig = reinterpret_cast<ZombieAnimRig_ModernLadder*>(zombie->m_animRig.Get());
                             rig->m_hasLadder = false;

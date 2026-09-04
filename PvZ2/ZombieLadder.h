@@ -16,6 +16,7 @@ public:
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(Zombie);
 	ZombieModernLadder::buildEventCallbacks(builder, rclass);
+	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(ZombieModernLadder, m_eatTarget, Sexy::RtObject);
 	RT_CLASS_BUILD_SYMBOLS_END();
 	RT_CLASS_REGISTER_CLASS_AND_STATES_FUNCTION(ZombieModernLadder)
 

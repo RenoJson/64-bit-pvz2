@@ -13,6 +13,7 @@ public:
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(Zombie);
 	ZombieModernBungeeTarget::buildEventCallbacks(builder, rclass);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModernBungeeTarget, m_targeted);
 	RT_CLASS_BUILD_SYMBOLS_END();
 	RT_CLASS_REGISTER_CLASS_AND_STATES_FUNCTION(ZombieModernBungeeTarget)
 		RT_CLASS_GET_CLASS_FUNCTION(ZombieModernBungeeTarget, 0xC36FE4);

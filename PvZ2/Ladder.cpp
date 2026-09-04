@@ -71,6 +71,7 @@ inline int GetRowFromY(float y) {
     return static_cast<int>((y - 160.0f) / 76.0f);
 }
 
+
 void ProcessClimbingZombies(ZombieLadder* ladder) {
     float climbStartX = 20.0f;
     float climbHeight = 70.0f;
@@ -107,7 +108,6 @@ void ProcessClimbingZombies(ZombieLadder* ladder) {
                                 z->m_realObjectFlags &= ~2;
 
                                 ZombieAllowMovement(z, true);
-                                ZombieSetUnmovableStatusFlag(z, false);
                             }
                         }
                     }
@@ -229,12 +229,10 @@ void ProcessClimbingZombies(ZombieLadder* ladder) {
             z->m_realObjectFlags &= ~2;
             z->m_zombieFlags &= ~(1 << 27);
             ZombieAllowMovement(z, true);
-            ZombieSetUnmovableStatusFlag(z, false);
 
             it = ladder->m_climbingZombies.erase(it);
         }
         else {
-            ZombieSetUnmovableStatusFlag(z, true);
             z->m_realObjectFlags |= 2;
             z->m_zombieFlags |= (1 << 27);
             float baseClimbSpeed = props->Speed * 50.0f;
@@ -283,18 +281,6 @@ void ProcessClimbingZombies(ZombieLadder* ladder) {
     }
 }
 
-void LadderrUpdate(ZombieLadder* zombie) {
-   
-    ProcessClimbingZombies(zombie);
-
-    bool isPlantDead = !zombie->m_attachedPlant.IsValid() || reinterpret_cast<Plant*>(zombie->m_attachedPlant.Get())->m_isDead;
-    if (isPlantDead) {
-        ZombieEnterState(zombie, 4, 0);
-    }
-
-    CallFunc<void>(0xC3D7A0, zombie);
-}
-
 int64_t LadderrThreatAlert() {
     return 0;
 }
@@ -311,12 +297,93 @@ bool LadderrCanBeTargetedByPlant(ZombieLadder* zombie, RtWeakPtr<PlantType>* pTy
     return !isRestricted;
 }
 
+bool LadderrBlockProjectile(ZombieLadder* zombie, Projectile* proj)
+{
+    return !LadderrCanBeTargetedByPlant(zombie, &proj->m_instigatorType);
+}
+
 bool LadderrCanBeTossedByPlant() {
     return false;
 }
 
 bool LadderrCanTargetAtHeight() {
     return false;
+}
+void LadderrUpdate(ZombieLadder* zombie) {
+
+    ProcessClimbingZombies(zombie);
+
+    bool isPlantDead = !zombie->m_attachedPlant.IsValid() || reinterpret_cast<Plant*>(zombie->m_attachedPlant.Get())->m_isDead;
+    if (isPlantDead) {
+        ZombieEnterState(zombie, 4, 0);
+    }
+
+    float ladderX = zombie->m_position.x;
+    float ladderY = zombie->m_position.y;
+    int currentGridX = static_cast<int>((ladderX - 200.0f) / 64.0f);
+    int currentGridY = static_cast<int>((ladderY - 160.0f) / 76.0f);
+
+    Rect checkRect;
+    checkRect.mX = 0;
+    checkRect.mY = currentGridY - 1;
+    checkRect.mWidth = 9;
+    checkRect.mHeight = 3;
+
+    std::vector<BoardEntity*> checkEntities;
+    GetEntitiesInRectGrid(&checkEntities, 63, &checkRect);
+
+    bool foundThreat = false;
+
+    for (BoardEntity* entity : checkEntities) {
+        if (entity == nullptr) continue;
+
+        if (entity->IsType(PlantGroup::StaticGetType())) {
+
+            PlantGroup* plantGroup = static_cast<PlantGroup*>(entity);
+            size_t plantCount = plantGroup->m_plants.m_plants.size();
+
+            if (plantCount > 20) continue;
+
+            for (size_t j = 0; j < plantCount; ++j) {
+                auto& weakPlant = plantGroup->m_plants.m_plants[j];
+                if (weakPlant.IsValid()) {
+                    Plant* plant = reinterpret_cast<Plant*>(weakPlant.Get());
+                    if (plant != nullptr && !plant->m_isDead) {
+                        if (LadderrCanBeTargetedByPlant(zombie, &plant->m_type)) {
+                            foundThreat = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        else if (entity->IsType(Plant::StaticGetType())) {
+
+            Plant* plant = static_cast<Plant*>(entity);
+
+            if (!plant->m_isDead) {
+                if (LadderrCanBeTargetedByPlant(zombie, &plant->m_type)) {
+                    foundThreat = true;
+                }
+            }
+        }
+        else {
+            continue;
+        }
+
+        if (foundThreat) {
+            break;
+        }
+    }
+
+    if (foundThreat) {
+        zombie->m_teamFlags = 2;
+    }
+    else {
+        zombie->m_teamFlags = 0;
+    }
+
+    CallFunc<void>(0xC3D7A0, zombie);
 }
 
 bool ZombieCanTargetEntitiesAtHeight(Zombie* thisPtr, BoardEntityHeight entityHeight) {
@@ -343,7 +410,11 @@ int LadderrCalcRenderOrder(void* renderableThis) {
 }
 
 void LadderrOnInitialize(ZombieLadder* zombie) {
-    zombie->m_teamFlags = 0;
+    Board* board = Board::GetBoard();
+    Sexy::RtClass* surrSub = ZombieSurrenderSubsystem::StaticGetType();
+    typedef GameSubsystem* (*getSubsystem)(Board*, Sexy::RtClass*);
+    ((getSubsystem)getActualOffset(0xAAB864))(board, surrSub);
+    ZombieSetGrabbedByPtero(zombie, true);
     ZombieSetNoCollisionFlag(zombie, true);
 }
 
@@ -353,15 +424,15 @@ void ZombieLadder::ModInit() {
     vftable = CreateChildVFTable(204 + 9, getActualOffset(0x241D430), 204);
     vftable1 = CopyVFTable(getActualOffset(0x241DAA0), 4);
     PatchVFTable(vftable, (void*)ZombieLadder::StaticGetType, 0);
-    PatchVFTable(vftable, (void*)LadderrUpdate, 29);
     PatchVFTable(vftable, (void*)LadderTakeDamage, 35);
+    PatchVFTable(vftable, (void*)LadderrBlockProjectile, 43);
     PatchVFTable(vftable1, (void*)LadderrCalcRenderOrder, 3);
     PatchVFTable(vftable, (void*)LadderrOnGetCondition, 71);
     PatchVFTable(vftable, (void*)LadderrThreatAlert, 75);
     PatchVFTable(vftable, (void*)LadderrCanBeTargetedByPlant, 93);
     PatchVFTable(vftable, (void*)LadderrCanBeTossedByPlant, 97);
     PatchVFTable(vftable, (void*)LadderrCanTargetAtHeight, 103);
-    PatchVFTable(vftable, (void*)LadderrOnInitialize, 169);
+    PatchVFTable(vftable, (void*)LadderrUpdate, 29);
     PatchVFTable(vftable, (void*)LadderrCanBeElectrocuted, 191);
     PatchVFTable(vftable, (void*)LadderrCanBeAshed, 192);
     ZombieLadder::StaticGetType();

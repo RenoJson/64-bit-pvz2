@@ -16,6 +16,7 @@ public:
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(Zombie);
 	ZombieEightiesBass::buildEventCallbacks(builder, rclass);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieEightiesBass, m_isJamming);
+	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(ZombieEightiesBass, m_speaker, Sexy::RtObject)
 	RT_CLASS_BUILD_SYMBOLS_END();
 	RT_CLASS_REGISTER_CLASS_AND_STATES_FUNCTION(ZombieEightiesBass)
 	RT_CLASS_GET_CLASS_FUNCTION(ZombieEightiesBass, 0xC36FE4);

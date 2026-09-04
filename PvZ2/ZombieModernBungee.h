@@ -27,6 +27,10 @@ public:
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(Zombie);
 	ZombieModernBungee::buildEventCallbacks(builder, rclass);
+	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(ZombieModernBungee, m_target, Sexy::RtObject);
+	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(ZombieModernBungee, m_targetedPlant, Sexy::RtObject);
+	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(ZombieModernBungee, m_attachedPlant, Sexy::RtObject);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieModernBungee, m_hasSpawnTarget);
 	RT_CLASS_BUILD_SYMBOLS_END();
 	RT_CLASS_REGISTER_CLASS_AND_STATES_FUNCTION(ZombieModernBungee)
 		RT_CLASS_GET_CLASS_FUNCTION(ZombieModernBungee, 0xC36FE4);

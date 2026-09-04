@@ -23,7 +23,6 @@ public:
 	static void StartShootOnEnter(ZombieMausoleumArcher* zombie);
 	static void StartShootOnLoop(ZombieMausoleumArcher* zombie);
 	static void StartShootOnExit(ZombieMausoleumArcher* zombie);
-	int m_animHandle;
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;

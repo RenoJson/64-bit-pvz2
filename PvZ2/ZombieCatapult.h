@@ -26,6 +26,8 @@ public:
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(Zombie);
 	ZombieCatapult::buildEventCallbacks(builder, rclass);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieCatapult, m_remainingAmmo);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieCatapult, m_damageIndex);
 	RT_CLASS_BUILD_SYMBOLS_END();
 	RT_CLASS_REGISTER_CLASS_AND_STATES_FUNCTION(ZombieCatapult)
 		RT_CLASS_GET_CLASS_FUNCTION(ZombieCatapult, 0xB532A8);

@@ -18,6 +18,7 @@ public:
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumPiggy, m_lastPathGridX);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumPiggy, m_lastPathGridY);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumPiggy, m_currentDirection);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumPiggy, m_lastGroundTrackOffset);
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieMausoleumPiggy);

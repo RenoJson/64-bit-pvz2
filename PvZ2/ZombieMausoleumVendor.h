@@ -29,6 +29,7 @@ public:
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumVendor, m_lastPathGridX);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumVendor, m_lastPathGridY);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumVendor, m_currentDirection);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumVendor, m_lastGroundTrackOffset);
 	ZombieMausoleumVendor::buildEventCallbacks(builder, rclass);
 	RT_CLASS_BUILD_SYMBOLS_END();
 	RT_CLASS_REGISTER_CLASS_AND_STATES_FUNCTION(ZombieMausoleumVendor)

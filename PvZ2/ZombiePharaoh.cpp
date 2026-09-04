@@ -357,7 +357,7 @@ void hkTakeDamage(Zombie* thisPtr, DamageInfo* damageInfo)
     }
 }
 bool IsReadyToDie(Zombie* thisPtr) {
-    return thisPtr->m_position.x <= 150.0f;
+    return thisPtr->m_hitpoints <= 0.0f;
 }
 
 bool hkIsDeadOrDying(Zombie* thisPtr)
@@ -400,6 +400,10 @@ bool hkCanBeTargetted(Zombie* thisPtr, char targetingFlags) {
     }
 
     if ((zombieFlags & 0x80000) != 0) {
+        return false;
+    }
+
+    if ((zombieFlags & 0x200000) != 0) {
         return false;
     }
 
@@ -447,7 +451,7 @@ float SurferIsHeadDrop(ZombieBeachSurfer* zombie)
     }
 }
 bool IsInBleedingState(Zombie* thisPtr) {
-    return thisPtr->m_entityState.m_id == 99;
+    return thisPtr->m_entityState.m_id == 3;
 }
 
 typedef void (*Update)(Zombie*);

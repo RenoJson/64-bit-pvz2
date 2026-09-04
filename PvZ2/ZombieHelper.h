@@ -30,6 +30,10 @@ inline Zombie* ZombieSetInvincibleStatusFlag(Zombie* zombie, bool isAllowed) {
 	return CallFunc<Zombie*, Zombie*, bool>(0xC3CDC4, zombie, isAllowed);
 }
 
+inline Zombie* ZombieSetGrabbedByPtero(Zombie* zombie, bool isAllowed) {
+	return CallFunc<Zombie*, Zombie*, bool>(0xC4C80C, zombie, isAllowed);
+}
+
 inline Zombie* ZombieSetUnmovableStatusFlag(Zombie* zombie, bool isAllowed) {
 	return CallFunc<Zombie*, Zombie*, bool>(0xC4BBB4, zombie, isAllowed);
 }
