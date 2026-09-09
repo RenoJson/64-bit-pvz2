@@ -64,7 +64,7 @@ void* LadderTakeDamage(ZombieLadder* ladder, DamageInfo* dmgInfo) {
             }
         }
     }
-    if (blockDamage) {
+    if (blockDamage || damageInfo.m_attacker == nullptr) {
         damageInfo.m_damage = 0.0f;
     }
 
@@ -306,6 +306,10 @@ bool LadderrCanBeTargetedByPlant(ZombieLadder* zombie, RtWeakPtr<PlantType>* pTy
 
 bool LadderrBlockProjectile(ZombieLadder* zombie, Projectile* proj)
 {
+	// this should be fix any projectile from zombies or powerups, but allow plants to target the ladder if they are in the allowed list
+    if (!proj->m_instigatorType.IsValid()) {
+		return true;
+    }
     return !LadderrCanBeTargetedByPlant(zombie, &proj->m_instigatorType);
 }
 
