@@ -35,7 +35,7 @@ void hkZombieChairThrowRacer(ZombieZCorpRacer* self)
 
         ZombieImp* spawnedRider = (ZombieImp*)AddZombie(racerType, -1, 6, -1);
 
-        spawnedRider->m_getsUpFromLanding = true;
+        spawnedRider->m_getsUpFromLanding = props->UseGetUpAnim;
 
         if (ZombieHasCondition(self, zombie_condition_shrinking) || ZombieHasCondition(self, zombie_condition_shrunken)) {
 

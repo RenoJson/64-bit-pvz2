@@ -174,12 +174,22 @@ void ProcessClimbingZombies(ZombieLadder* ladder) {
             bool isAtLadderBase = (distX <= entryMaxX && distX >= entryMinX);
 
             if (isAtLadderBase) {
-                ZombieAllowMovement(z, false);
-                z->m_realObjectFlags |= 2;
-                z->m_zombieFlags |= (1 << 27);
-                RtWeakPtr<RtObject> weakZ;
-                weakZ.FromOther(&z->m_thisPtr);
-                ladder->m_climbingZombies.push_back(weakZ);
+                bool isAlreadyClimbing = false;
+                for (auto& climbingZ : ladder->m_climbingZombies) {
+                    if (climbingZ.IsValid() && reinterpret_cast<Zombie*>(climbingZ.Get()) == z) {
+                        isAlreadyClimbing = true;
+                        break;
+                    }
+                }
+
+                if (!isAlreadyClimbing) {
+                    ZombieAllowMovement(z, false);
+                    z->m_realObjectFlags |= 2;
+                    z->m_zombieFlags |= (1 << 27);
+                    RtWeakPtr<RtObject> weakZ;
+                    weakZ.FromOther(&z->m_thisPtr);
+                    ladder->m_climbingZombies.push_back(weakZ);
+                }
             }
         }
     }
@@ -242,7 +252,7 @@ void ProcessClimbingZombies(ZombieLadder* ladder) {
             ZombieAllowMovement(z, false);
             z->m_realObjectFlags |= 2;
             z->m_zombieFlags |= (1 << 27);
-            float baseClimbSpeed = props->Speed * 50.0f;
+            float baseClimbSpeed = props->Speed * 300.0f;
             float speedScale = z->m_conditionTracker.m_speedScale;
             float facing = ZombieFacing(z);
             float timeMoving = TimeMgr::GetInstance()->m_unkTime;

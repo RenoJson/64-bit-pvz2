@@ -23,6 +23,7 @@ public:
 	float LaunchAirTime = 0.75f;
 	SexyVector3 RiderSpawnOffset = { 60.0f, 0.0f, 50.0f };
 	bool isCavalry = false;
+	bool UseGetUpAnim = true;
 
 	static Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc oZombieBullPropsBuildSymbols;
 	static void modInit();
@@ -51,6 +52,7 @@ public:
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullProps, LaunchAirTime);
 		RT_CLASS_REGISTER_CLASS_PROPERTY(ZombieBullProps, SexyVector3, RiderSpawnOffset);
 		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullProps, isCavalry);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieBullProps, UseGetUpAnim);
 	};
 };
 

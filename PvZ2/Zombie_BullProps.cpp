@@ -95,7 +95,7 @@ void hkZombieBullThrowRider(ZombieBull* self)
         HideCustomRiderLayer(self, rig);
         ZombieImp* spawnedRider = (ZombieImp*)AddZombie(name, -1, 6, -1);
 
-        spawnedRider->m_getsUpFromLanding = true;
+        spawnedRider->m_getsUpFromLanding = props->UseGetUpAnim;
         bool isHypnotized = ZombieHasCondition(self, zombie_condition_hypnotized);
         float newX = self->m_position.x - riderOffset.x;
         if (isHypnotized)
@@ -179,8 +179,8 @@ void hkZombieCavalryThrowRider(ZombieBull* self)
     {
         auto* rig = reinterpret_cast<ZombieAnimRig_Bull*>(self->m_animRig.Get());
         HideCustomRiderLayer(self, rig);
-        Zombie* spawnedRider = AddZombie(name, -1, 6, -1);
-
+        ZombieImp* spawnedRider = (ZombieImp*)AddZombie(name, -1, 6, -1);
+        spawnedRider->m_getsUpFromLanding = props->UseGetUpAnim;
         if (ZombieHasCondition(self, zombie_condition_shrinking) || ZombieHasCondition(self, zombie_condition_shrunken)) {
 
             ZombieSetCondition(spawnedRider, zombie_condition_shrunken, 0, 3.4028e38f, 0.0f);

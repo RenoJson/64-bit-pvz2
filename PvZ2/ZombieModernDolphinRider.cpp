@@ -92,11 +92,11 @@ bool DolphinIsBeingTossedByPlant(ZombieModernDolphinRider* zombie, int a2) {
 }
 float DolphinRiderIsHeadDrop(ZombieModernDolphinRider* zombie)
 {
-	if (zombie->m_entityState.m_id == 20) {
+	auto props = reinterpret_cast<ZombieModernDolphinRiderProps*>(zombie->m_propertySheet.Get());
+	if (zombie->m_entityState.m_id == 20 || props->SkipHeadDropState) {
 		return -1.0f;
 	}
 	else {
-		auto props = reinterpret_cast<ZombieModernDolphinRiderProps*>(zombie->m_propertySheet.Get());
 		return props->HeadDropFraction;
 	}
 }

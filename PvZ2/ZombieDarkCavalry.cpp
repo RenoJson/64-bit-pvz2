@@ -162,7 +162,8 @@ void CavalryThrowRider(ZombieDarkCavalry* self)
     {
         auto* rig = reinterpret_cast<ZombieAnimRig_Bull*>(self->m_animRig.Get());
         HideCustomKnightLayer(self, rig);
-        Zombie* spawnedRider = AddZombie(name, -1, 6, -1);
+        ZombieImp* spawnedRider = (ZombieImp*)AddZombie(name, -1, 6, -1);
+        spawnedRider->m_getsUpFromLanding = props->UseGetUpAnim;
 
         if (ZombieHasCondition(self, zombie_condition_shrinking) || ZombieHasCondition(self, zombie_condition_shrunken)) {
 

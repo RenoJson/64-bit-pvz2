@@ -16,6 +16,7 @@ public:
 	float LaunchZombieTimeToLand = 2.5f;
 	float ChairCollideDamage = 5000.0f;	
 	SexyString RacerType = "zcorp_racer";
+	bool UseGetUpAnim = true;
 
 	static Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc oZombieZcorpRacerPropsBuildSymbols;
 	static void modInit();
@@ -36,6 +37,7 @@ public:
 	{
 		oZombieZcorpRacerPropsBuildSymbols(builder, rclass);
 		RT_CLASS_REGISTER_STRING_PROPERTY(ZombieZcorpRacerProps, RacerType);
+		RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieZcorpRacerProps, UseGetUpAnim);
 	};
 };
 

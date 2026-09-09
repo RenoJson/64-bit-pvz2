@@ -84,9 +84,9 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
 
     CallVirtualFunc<void>(thisPtr, VFUNC_ON_TAKE_DAMAGE, damageInfo);
 
+    float armDropThreshold = CallVirtualFunc<float>(thisPtr, VFUNC_GET_ARM_THRESHOLD) * thisPtr->m_maxHitpoints;
     if (CallVirtualFunc<bool>(thisPtr, VFUNC_CAN_DROP_ARM))
     {
-        float armDropThreshold = CallVirtualFunc<float>(thisPtr, VFUNC_GET_ARM_THRESHOLD) * thisPtr->m_maxHitpoints;
 
         if (armDropThreshold >= 0.0f && thisPtr->m_hitpoints < armDropThreshold)
         {
@@ -155,7 +155,15 @@ void hkZombieTakeRealDamage(Zombie* thisPtr, DamageInfo* damageInfo)
         }
         else if (isIceBlocked)
         {
-            CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_flags);
+            if (armDropThreshold >= 0.0f)
+            {
+                CallFunc<void>(0xC47944, thisPtr);
+            }
+
+            if (headDropThreshold >= 0.0f)
+            {
+                CallFunc<void>(0xC47E24, thisPtr, damageInfo->m_flags);
+            }
         }
 
         CallFunc<void>(0xC48338, thisPtr, damageInfo);
