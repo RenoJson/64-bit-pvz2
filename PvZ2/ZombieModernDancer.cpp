@@ -44,6 +44,31 @@ void DancerOnDestroy(ZombieModernDancer* zombie)
     }
 }
 
+void DancerUpdate(ZombieModernDancer* zombie) {
+    CallFunc<void>(0xC3D7A0, zombie);
+    if (zombie->m_isMainDancer && 
+        !ZombieIsInState(zombie, 0) &&
+        !ZombieIsInState(zombie, 16) &&
+        !ZombieIsInState(zombie, 8) &&
+        !ZombieIsDeadOrDying(zombie) &&
+		(zombie->m_realObjectFlags & 4) == 0 &&
+        zombie->m_entityState.m_id != 3)
+    {
+        if (zombie->m_attachedEffects.GetObjectIndex("light_on") == -1) {
+            SexyVector3 pos = { 20.0f, -20.0f, 0.0f };
+            ZombieAttachEffect(zombie,
+                "light_on",
+                "POPANIM_EFFECTS_ZOMBIE_MODERN_DISCO_EFFECT",
+                "idle",
+                pos,
+                1,
+                false,
+                false,
+                2);
+        }
+    }
+}
+
 void DancerOnSpawn(ZombieModernDancer* zombie) {
     ZombieOnSpawn(zombie);
     if (zombie->m_isMainDancer) {
@@ -230,7 +255,7 @@ void ZombieModernDancer::IntroOnEnter(ZombieModernDancer* zombie)
 	auto dlgt = RegisterDelegateEvent(zombie, "onWalkAnimationCycle");
 	ZombieAllowMovement(zombie, true);
 	ZombiePlaySoundEvent(zombie, "Play_Disco_Drop", 0.0f);
-    ZombieSetSpeedScale(zombie, 5.0f);
+    ZombieSetSpeedScale(zombie, 7.0f);
 	PlayAndContinueAnim(rig, "entry", 0, dlgt);
 }
 
@@ -310,8 +335,6 @@ void ZombieModernDancer::WaitingOnLoop(ZombieModernDancer* zombie)
 {
     auto props = reinterpret_cast<ZombieModernDancerProps*>(zombie->m_propertySheet.Get());
 
-    if (zombie->m_elapsedTimeInState >= 1.0)
-    {
         if (zombie->m_entrySummon)
         {
             zombie->m_backupDancer.clear();
@@ -405,7 +428,7 @@ void ZombieModernDancer::WaitingOnLoop(ZombieModernDancer* zombie)
                 }
             }
         }
-    }
+    
 }
 
 void ZombieModernDancer::WaitingOnExit(ZombieModernDancer* zombie)
@@ -461,6 +484,7 @@ void ZombieModernDancer::ModInit() {
     PatchVFTable(vftable, (void*)ZombieModernDancer::StaticGetType, 0);
 
     PatchVFTable(vftable, (void*)DancerOnDestroy, 12);
+    PatchVFTable(vftable, (void*)DancerUpdate, 29);
     PatchVFTable(vftable, (void*)DancerOnSpawn, 49);
     PatchVFTable(vftable, (void*)DancerWalkingOnLoop, 124);
     PatchVFTable(vftable, (void*)DancerEatOnLoop, 127);

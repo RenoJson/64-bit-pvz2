@@ -4,36 +4,70 @@ void* ZombieAnimRig_BasicTemplate::vftable = __null;
 Sexy::RtClass* ZombieAnimRig_BasicTemplate::s_rtClass = __null;;
 
 SexyString ParticleHead(ZombieAnimRig_BasicTemplate* thisPtr) {
-    return thisPtr->m_ParticleHeadSpriteName;
+    auto rigProps = reinterpret_cast<ZombieAnimRigTemplateConfig*>(thisPtr->m_rigProps.Get());
+    if (rigProps == nullptr) return "";
+    return rigProps->ParticleHeadSpriteName;
 }
+
 SexyString ParticleArm(ZombieAnimRig_BasicTemplate* thisPtr) {
-    return thisPtr->m_ParticleArmSpriteName;
+    auto rigProps = reinterpret_cast<ZombieAnimRigTemplateConfig*>(thisPtr->m_rigProps.Get());
+    if (rigProps == nullptr) return "";
+    return rigProps->ParticleArmSpriteName;
 }
-void* HeadList(ZombieAnimRig_BasicTemplate* thisPtr) {
-    return &thisPtr->m_HeadLayers;
-}
-void* LowerArmList(ZombieAnimRig_BasicTemplate* thisPtr) {
-    return &thisPtr->m_LowerArmLayers;
-}
-void* UpperArmList(ZombieAnimRig_BasicTemplate* thisPtr) {
-    return &thisPtr->m_UpperArmLayers;
-}
+
 SexyString Idle(ZombieAnimRig_BasicTemplate* thisPtr) {
-    return thisPtr->m_IdleAnimName;
+    auto rigProps = reinterpret_cast<ZombieAnimRigTemplateConfig*>(thisPtr->m_rigProps.Get());
+    if (rigProps == nullptr) return "";
+    return rigProps->IdleAnimName;
 }
+
 SexyString Walk(ZombieAnimRig_BasicTemplate* thisPtr) {
-    if (thisPtr->m_dancing == true) {
+    auto rigProps = reinterpret_cast<ZombieAnimRigTemplateConfig*>(thisPtr->m_rigProps.Get());
+    if (rigProps == nullptr) return "";
+
+    if (thisPtr->m_dancing) {
         return "dance_start";
     }
-    else {
-        return thisPtr->m_WalkAnimName;
-    }
+    return rigProps->WalkAnimName;
 }
+
 SexyString Eat(ZombieAnimRig_BasicTemplate* thisPtr) {
-    return thisPtr->m_EatAnimName;
+    auto rigProps = reinterpret_cast<ZombieAnimRigTemplateConfig*>(thisPtr->m_rigProps.Get());
+    if (rigProps == nullptr) return "";
+    return rigProps->EatAnimName;
 }
+
 SexyString Die(ZombieAnimRig_BasicTemplate* thisPtr) {
-    return thisPtr->m_DieAnimName;
+    auto rigProps = reinterpret_cast<ZombieAnimRigTemplateConfig*>(thisPtr->m_rigProps.Get());
+    if (rigProps == nullptr) return "";
+    return rigProps->DieAnimName;
+}
+
+std::vector<SexyString>* HeadList(ZombieAnimRig_BasicTemplate* thisPtr) {
+    auto rigProps = reinterpret_cast<ZombieAnimRigTemplateConfig*>(thisPtr->m_rigProps.Get());
+    if (rigProps == nullptr) {
+        static std::vector<SexyString> emptyList; 
+        return &emptyList;
+    }
+    return &rigProps->HeadLayers;
+}
+
+std::vector<SexyString>* LowerArmList(ZombieAnimRig_BasicTemplate* thisPtr) {
+    auto rigProps = reinterpret_cast<ZombieAnimRigTemplateConfig*>(thisPtr->m_rigProps.Get());
+    if (rigProps == nullptr) {
+        static std::vector<SexyString> emptyList;
+        return &emptyList;
+    }
+    return &rigProps->LowerArmLayers;
+}
+
+std::vector<SexyString>* UpperArmList(ZombieAnimRig_BasicTemplate* thisPtr) {
+    auto rigProps = reinterpret_cast<ZombieAnimRigTemplateConfig*>(thisPtr->m_rigProps.Get());
+    if (rigProps == nullptr) {
+        static std::vector<SexyString> emptyList;
+        return &emptyList;
+    }
+    return &rigProps->UpperArmLayers;
 }
 void ZombieAnimRig_BasicTemplate::modInit() {
     LOGI("ZombieAnimRig_BasicTemplate init");

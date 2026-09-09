@@ -10,15 +10,6 @@ Zombie* BInitialize(ZombieBasicTemplate* zombie) {
 	auto props = reinterpret_cast<ZombieBasicProps*>(zombie->m_propertySheet.Get());
 	auto rigProps = reinterpret_cast<ZombieAnimRigTemplateConfig*>(props->AnimRigProps.Get());
 	auto rig = reinterpret_cast<ZombieAnimRig_BasicTemplate*>(zombie->m_animRig.Get());
-	rig->m_UpperArmLayers = rigProps->UpperArmLayers;
-	rig->m_IdleAnimName = rigProps->IdleAnimName;
-	rig->m_LowerArmLayers = rigProps->LowerArmLayers;
-	rig->m_HeadLayers = rigProps->HeadLayers;
-	rig->m_ParticleArmSpriteName = rigProps->ParticleArmSpriteName;
-	rig->m_ParticleHeadSpriteName = rigProps->ParticleHeadSpriteName;
-	rig->m_WalkAnimName = rigProps->WalkAnimName;
-	rig->m_EatAnimName = rigProps->EatAnimName;
-	rig->m_DieAnimName = rigProps->DieAnimName;
 	typedef Zombie* (*update)(ZombieBasicTemplate*);
 	return ((update)getActualOffset(0xB53770))(zombie);
 

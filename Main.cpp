@@ -723,28 +723,18 @@ ZombieAnimRig* hkCreateAnimRig(ZombieType* thisPtr)
             if (zombieRig->IsType(ZombieAnimRig_BasicTemplate::StaticGetType()))
             {
                 auto templateRig = static_cast<ZombieAnimRig_BasicTemplate*>(zombieRig);
-                auto rigProps = reinterpret_cast<ZombieAnimRigTemplateConfig*>(templateType->AnimRigProps.Get());
-                
 
-                    templateRig->m_LowerArmLayers = rigProps->LowerArmLayers;
-                    templateRig->m_UpperArmLayers = rigProps->UpperArmLayers;
-                    templateRig->m_HeadLayers = rigProps->HeadLayers;
-                    templateRig->m_IdleAnimName = rigProps->IdleAnimName;
-                    templateRig->m_WalkAnimName = rigProps->WalkAnimName;
-                    templateRig->m_EatAnimName = rigProps->EatAnimName;
-                    templateRig->m_DieAnimName = rigProps->DieAnimName;
-                    templateRig->m_ParticleArmSpriteName = rigProps->ParticleArmSpriteName;
-                    templateRig->m_ParticleHeadSpriteName = rigProps->ParticleHeadSpriteName;
+                templateRig->m_rigProps.FromOther((Sexy::RtWeakPtr<Sexy::RtObject>*) & templateType->AnimRigProps);
                     CallVirtualFunc<void>(templateRig, 21);
                     CallFunc<void>(0x8DE21C, templateRig, &templateType->AnimRigClass);
+
                     return templateRig;
-               
-                
             }
             else {
                 LOGI("AnimRigClass %s was not derive from ZombieAnimRig_BasicTemplate",
                     templateType->AnimRigClass.c_str());
             }
+
             CallFunc<void>(0x8DE21C, zombieRig, &templateType->AnimRigClass);
         }
         return zombieRig;
@@ -756,33 +746,17 @@ AlmanacCreateAnimRig oAlmanacCreateAnimRig = nullptr;
 ZombieAnimRig* hkAlmanacCreateAnimRig(ZombieType* thisPtr, bool a2, bool a3)
 {
     ZombieAnimRig* zombieRig = oAlmanacCreateAnimRig(thisPtr, a2, a3);
-
     if (zombieRig != nullptr && thisPtr->IsType(ZombieTypeTemplate::StaticGetType()))
     {
         auto templateType = static_cast<ZombieTypeTemplate*>(thisPtr);
-
         if (zombieRig->IsType(ZombieAnimRig_BasicTemplate::StaticGetType()))
         {
             auto templateRig = static_cast<ZombieAnimRig_BasicTemplate*>(zombieRig);
-            auto rigProps = reinterpret_cast<ZombieAnimRigTemplateConfig*>(templateType->AnimRigProps.Get());
             auto props = reinterpret_cast<ZombiePropertySheet*>(templateType->Properties.Get());
-            if (rigProps != nullptr)
-            {
-                templateRig->m_LowerArmLayers = rigProps->LowerArmLayers;
-                templateRig->m_UpperArmLayers = rigProps->UpperArmLayers;
-                templateRig->m_HeadLayers = rigProps->HeadLayers;
-
-                templateRig->m_IdleAnimName = rigProps->IdleAnimName;
-                templateRig->m_WalkAnimName = rigProps->WalkAnimName;
-                templateRig->m_EatAnimName = rigProps->EatAnimName;
-                templateRig->m_DieAnimName = rigProps->DieAnimName;
-                templateRig->m_ParticleArmSpriteName = rigProps->ParticleArmSpriteName;
-                templateRig->m_ParticleHeadSpriteName = rigProps->ParticleHeadSpriteName;
-
-                CallVirtualFunc<void>(templateRig, 21);
-                CallFunc<void>(0x8DE21C, templateRig, &templateType->AnimRigClass);
-                CallVirtualFunc<void>(templateRig, 52, &props->ZombieArmorProps);
-            }
+            templateRig->m_rigProps.FromOther((Sexy::RtWeakPtr<Sexy::RtObject>*) & templateType->AnimRigProps);
+            CallVirtualFunc<void>(templateRig, 21);
+            CallFunc<void>(0x8DE21C, templateRig, &templateType->AnimRigClass);
+            CallVirtualFunc<void>(templateRig, 52, &props->ZombieArmorProps);
         }
         else
         {
@@ -790,7 +764,6 @@ ZombieAnimRig* hkAlmanacCreateAnimRig(ZombieType* thisPtr, bool a2, bool a3)
                 templateType->AnimRigClass.c_str());
         }
     }
-
     return zombieRig;
 }
 

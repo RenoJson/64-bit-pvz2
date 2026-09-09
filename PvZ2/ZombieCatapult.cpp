@@ -80,6 +80,35 @@ void CatapultUpdate(ZombieCatapult* zombie) {
                                 2);
         }
     }
+    if (!ZombieIsDeadOrDying(zombie)) {
+        BoardEntity* entity = CallVirtualFunc<BoardEntity*>(zombie, 108);
+        if (entity != nullptr) {
+            if (entity->IsType(PlantGroup::StaticGetType())) {
+                auto pGroup = reinterpret_cast<PlantGroup*>(entity);
+                auto& plantVector = pGroup->m_plants.m_plants;
+
+                if (!plantVector.empty() && plantVector[0].IsValid()) {
+                    Plant* p0 = reinterpret_cast<Plant*>(plantVector[0].Get());
+                    auto props = reinterpret_cast<ZombieCatapultProps*>(zombie->m_propertySheet.Get());
+                    if (CallFunc<bool>(0x1364888, &props->PlantsWhichBreakCatapultOnCollision, p0)) {
+                        DamageInfo dmg;
+                        dmg.m_attacker = p0;
+                        dmg.m_damage = 100000.0f;
+                        dmg.m_flags = DamageTypeFlags::damage_fatal;
+                        CallVirtualFunc<void>(zombie, 35, &dmg);
+                        CallFunc<void>(0x12796DC, p0);
+                        return;
+                    }
+                    else {
+                        DamageInfo dmg;
+                        dmg.m_attacker = p0;
+                        CallVirtualFunc<void>(p0, 36, &dmg);
+                        return;
+                    }
+                }
+            }
+        }
+    }
     CallFunc<void>(0xC3D7A0, zombie);
 }
 
@@ -97,8 +126,6 @@ bool CatapultCanTargetGroundPlant() {
 
 void CatapultWalkOnLoop(ZombieCatapult* zombie)
 {
-    CallFunc<void>(0xC506B4, zombie);
-
     if (zombie->m_position.x <= 700.0f && zombie->m_remainingAmmo > 0 && zombie->m_teamFlags == 2)
     {
         if (CatapultHasTarget(zombie))
@@ -107,42 +134,6 @@ void CatapultWalkOnLoop(ZombieCatapult* zombie)
         }
     }
 }
-
-void CatapultEatOnLoop(ZombieCatapult* zombie)
-{
-    BoardEntity* entity = CallVirtualFunc<BoardEntity*>(zombie, 108);
-    if (entity != nullptr) {
-        if (entity->IsType(PlantGroup::StaticGetType())) {
-            auto pGroup = reinterpret_cast<PlantGroup*>(entity);
-            auto& plantVector = pGroup->m_plants.m_plants;
-
-            if (!plantVector.empty() && plantVector[0].IsValid()) {
-                Plant* p0 = reinterpret_cast<Plant*>(plantVector[0].Get());
-                auto props = reinterpret_cast<ZombieCatapultProps*>(zombie->m_propertySheet.Get());
-                if (CallFunc<bool>(0x1364888, &props->PlantsWhichBreakCatapultOnCollision, p0)) {
-                    DamageInfo dmg;
-                    dmg.m_attacker = p0;
-                    dmg.m_damage = 100000.0f;
-                    dmg.m_flags = DamageTypeFlags::damage_fatal;
-                    CallVirtualFunc<void>(zombie, 35, &dmg);
-                    CallFunc<void>(0x12796DC, p0);
-                    return;
-                }
-                else {
-                    CallFunc<void>(0xC5082C, zombie);
-                    return;
-                }
-            }
-        }
-        else {
-            CallFunc<void>(0xC5082C, zombie);
-            return;
-        }
-    }
-    CallFunc<void>(0xC5082C, zombie);
-}
-
-
 
 void CatapultOnInitialize(ZombieCatapult* zombie) {
     auto props = reinterpret_cast<ZombieCatapultProps*>(zombie->m_propertySheet.Get());
@@ -263,7 +254,7 @@ void ZombieCatapult::WaitingOnEnter(ZombieCatapult* zombie)
 
 void ZombieCatapult::WaitingOnLoop(ZombieCatapult* zombie)
 {
-    if (!CatapultHasTarget(zombie))
+    if (!CatapultHasTarget(zombie) || zombie->m_position.x >= 700.0f)
     {
         ZombieEnterState(zombie, 1, 0); 
         return;
@@ -273,27 +264,6 @@ void ZombieCatapult::WaitingOnLoop(ZombieCatapult* zombie)
     if (zombie->m_elapsedTimeInState >= props->FireInterval)
     {
         ZombieEnterState(zombie, 17, 0); 
-    }
-    BoardEntity* entity = CallVirtualFunc<BoardEntity*>(zombie, 108);
-    if (entity != nullptr) {
-        if (entity->IsType(PlantGroup::StaticGetType())) {
-            auto pGroup = reinterpret_cast<PlantGroup*>(entity);
-            auto& plantVector = pGroup->m_plants.m_plants;
-
-            if (!plantVector.empty() && plantVector[0].IsValid()) {
-                Plant* p0 = reinterpret_cast<Plant*>(plantVector[0].Get());
-                auto props = reinterpret_cast<ZombieCatapultProps*>(zombie->m_propertySheet.Get());
-                if (CallFunc<bool>(0x1364888, &props->PlantsWhichBreakCatapultOnCollision, p0)) {
-                    DamageInfo dmg;
-                    dmg.m_attacker = p0;
-                    dmg.m_damage = 100000.0f;
-                    dmg.m_flags = DamageTypeFlags::damage_fatal;
-                    CallVirtualFunc<void>(zombie, 35, &dmg);
-                    CallFunc<void>(0x12796DC, p0);
-                    return;
-                }
-            }
-        }
     }
 }
 
@@ -309,27 +279,6 @@ void ZombieCatapult::AttackOnEnter(ZombieCatapult* zombie)
 
 void ZombieCatapult::AttackOnLoop(ZombieCatapult* zombie)
 {
-    BoardEntity* entity = CallVirtualFunc<BoardEntity*>(zombie, 108);
-    if (entity != nullptr) {
-        if (entity->IsType(PlantGroup::StaticGetType())) {
-            auto pGroup = reinterpret_cast<PlantGroup*>(entity);
-            auto& plantVector = pGroup->m_plants.m_plants;
-
-            if (!plantVector.empty() && plantVector[0].IsValid()) {
-                Plant* p0 = reinterpret_cast<Plant*>(plantVector[0].Get());
-                auto props = reinterpret_cast<ZombieCatapultProps*>(zombie->m_propertySheet.Get());
-                if (CallFunc<bool>(0x1364888, &props->PlantsWhichBreakCatapultOnCollision, p0)) {
-                    DamageInfo dmg;
-                    dmg.m_attacker = p0;
-                    dmg.m_damage = 100000.0f;
-                    dmg.m_flags = DamageTypeFlags::damage_fatal;
-                    CallVirtualFunc<void>(zombie, 35, &dmg);
-                    CallFunc<void>(0x12796DC, p0);
-                    return;
-                }
-            }
-        }
-    }
 }
 
 void ZombieCatapult::AttackOnExit(ZombieCatapult* zombie)
@@ -371,7 +320,6 @@ void ZombieCatapult::modInit() {
     PatchVFTable(vftable, (void*)CatapultOnGetCondition, 71);
     PatchVFTable(vftable, (void*)CatapultCanTargetGroundPlant, 103);
     PatchVFTable(vftable, (void*)CatapultWalkOnLoop, 124);
-    PatchVFTable(vftable, (void*)CatapultEatOnLoop, 127);
     PatchVFTable(vftable, (void*)CatapultOnInitialize, 169);
     PatchVFTable(vftable, (void*)CatapultActionFrame, 170);
     PatchVFTable(vftable, (void*)CatapultOnTakeFatalDamage, 185);

@@ -12,7 +12,7 @@ public:
 	float m_needsToDieRequestedTime;
 	bool m_readyToDie;
 	int m_state;
-	SexyString m_zombieType;
+	SexyString m_zombieType; // name of ZombieAnimRig class in Zombie Type
 
 	virtual void LoopIdleWithCallback(ZombieEvent*) {}
 	virtual void LoopWalkWithCallback(ZombieEvent*) {}

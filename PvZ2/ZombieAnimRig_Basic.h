@@ -2,6 +2,7 @@
 #include "ZombieAnimRig.h"
 #include <Reflection/ReflectionBuilder.h>
 #include "Zombie.h"
+#include "ZombieAnimRigBasicTemplateProps.h"
 
 class ZombieAnimRig_Basic : public ZombieAnimRig
 {
@@ -61,15 +62,7 @@ public:
 class ZombieAnimRig_BasicTemplate : public ZombieAnimRig_CowboyBasic
 {
 public:
-	std::vector<SexyString> m_LowerArmLayers;
-	std::vector<SexyString> m_UpperArmLayers;
-	std::vector<SexyString> m_HeadLayers;
-	SexyString m_ParticleHeadSpriteName;
-	SexyString m_ParticleArmSpriteName;
-	SexyString m_IdleAnimName;
-	SexyString m_WalkAnimName;
-	SexyString m_EatAnimName;
-	SexyString m_DieAnimName;
+	Sexy::RtWeakPtr<Sexy::RtObject> m_rigProps;
 	static void* vftable;
 	static Sexy::RtClass* s_rtClass;
 	static void modInit();;
@@ -78,15 +71,7 @@ public:
 	RT_CLASS_CONSTRUCT_FUNCTION_END();
 
 	RT_CLASS_BUILD_SYMBOLS_BEGIN(ZombieAnimRig_CowboyBasic);
-	RT_CLASS_REGISTER_STRING_VECTOR_PROPERTY(ZombieAnimRig_BasicTemplate, m_LowerArmLayers);
-	RT_CLASS_REGISTER_STRING_VECTOR_PROPERTY(ZombieAnimRig_BasicTemplate, m_UpperArmLayers);
-	RT_CLASS_REGISTER_STRING_VECTOR_PROPERTY(ZombieAnimRig_BasicTemplate, m_HeadLayers);
-	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieAnimRig_BasicTemplate, m_ParticleHeadSpriteName);
-	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieAnimRig_BasicTemplate, m_ParticleArmSpriteName);
-	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieAnimRig_BasicTemplate, m_IdleAnimName);
-	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieAnimRig_BasicTemplate, m_WalkAnimName);
-	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieAnimRig_BasicTemplate, m_EatAnimName);
-	RT_CLASS_REGISTER_STRING_PROPERTY(ZombieAnimRig_BasicTemplate, m_DieAnimName);
+	RT_CLASS_REGISTER_CLASS_RTWEAKPTR_PROPERTY(ZombieAnimRig_BasicTemplate, m_rigProps, Sexy::RtObject)
 	RT_CLASS_BUILD_SYMBOLS_END();
 
 	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieAnimRig_BasicTemplate);

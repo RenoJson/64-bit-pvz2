@@ -143,33 +143,73 @@ void* GetVirtualFunc(void* obj, int index)
     return vtable[index];
 }
 
-bool ReplaceBytes(uintptr_t offset, const void* data, size_t size)
+static void BarrierICache(void* addr, size_t size)
 {
-    uintptr_t addr = getActualOffset(offset);
-    size_t pagesize = sysconf(_SC_PAGESIZE);
-
-    uintptr_t pageStart = addr & ~(pagesize - 1);
-    uintptr_t pageEnd = (addr + size + pagesize - 1) & ~(pagesize - 1);
-    size_t totalSize = pageEnd - pageStart;
-    if (mprotect((void*)pageStart, totalSize, PROT_READ | PROT_WRITE | PROT_EXEC) != 0) {
-        return false;
-    }
-
-    memcpy((void*)addr, data, size);
-    __clear_cache((char*)addr, (char*)addr + size);
-
+    __clear_cache(reinterpret_cast<char*>(addr), reinterpret_cast<char*>(addr) + size);
 #if defined(__aarch64__) || defined(__arm__)
     __asm__ __volatile__("dmb ish" ::: "memory");
     __asm__ __volatile__("isb" ::: "memory");
 #endif
+}
 
-    if (mprotect((void*)pageStart, totalSize, PROT_READ | PROT_EXEC) != 0) {
+
+static bool ReplaceBytesViaRemap(uintptr_t addr, const void* data, size_t size)
+{
+    size_t pagesize = static_cast<size_t>(sysconf(_SC_PAGESIZE));
+    uintptr_t pageStart = addr & ~(pagesize - 1);
+    size_t pageOff = static_cast<size_t>(addr - pageStart);
+    if (pageOff + size > pagesize) {
+        __android_log_print(ANDROID_LOG_ERROR, LIB_TAG,
+            "ReplaceBytesViaRemap: patch crosses page boundary");
         return false;
     }
 
-#if defined(__aarch64__) || defined(__arm__)
-    __asm__ __volatile__("isb" ::: "memory");
-#endif
+    void* copy = mmap(nullptr, pagesize, PROT_READ | PROT_WRITE,
+        MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (copy == MAP_FAILED) {
+        __android_log_print(ANDROID_LOG_ERROR, LIB_TAG,
+            "ReplaceBytesViaRemap: mmap copy failed errno=%d", errno);
+        return false;
+    }
 
+    memcpy(copy, reinterpret_cast<void*>(pageStart), pagesize);
+    memcpy(reinterpret_cast<char*>(copy) + pageOff, data, size);
+
+    if (mprotect(copy, pagesize, PROT_READ | PROT_EXEC) != 0) {
+        if (mprotect(copy, pagesize, PROT_READ | PROT_WRITE | PROT_EXEC) != 0) {
+            __android_log_print(ANDROID_LOG_ERROR, LIB_TAG,
+                "ReplaceBytesViaRemap: mprotect RX/RWX failed errno=%d", errno);
+            munmap(copy, pagesize);
+            return false;
+        }
+    }
+
+    void* remapped = mremap(copy, pagesize, pagesize,
+        MREMAP_MAYMOVE | MREMAP_FIXED,
+        reinterpret_cast<void*>(pageStart));
+    if (remapped == MAP_FAILED) {
+        __android_log_print(ANDROID_LOG_ERROR, LIB_TAG,
+            "ReplaceBytesViaRemap: mremap FIXED failed errno=%d", errno);
+        munmap(copy, pagesize);
+        return false;
+    }
+
+    BarrierICache(reinterpret_cast<void*>(addr), size);
+    __android_log_print(ANDROID_LOG_INFO, LIB_TAG,
+        "ReplaceBytesViaRemap: OK page @%p",
+        reinterpret_cast<void*>(pageStart));
     return true;
+}
+
+bool ReplaceBytes(uintptr_t offset, const void* data, size_t size)
+{
+    uintptr_t addr = getActualOffset(offset);
+
+    if (ReplaceBytesViaRemap(addr, data, size)) {
+        return true;
+    }
+
+    __android_log_print(ANDROID_LOG_ERROR, LIB_TAG,
+        "ReplaceBytes: all strategies failed errno=%d", errno);
+    return false;
 }

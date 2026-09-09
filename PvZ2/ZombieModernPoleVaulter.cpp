@@ -250,6 +250,7 @@ void PoleActionFrame(ZombieModernPoleVaulter* self, SexyString* currentAnim, Sex
 				closestPlant->m_position,
 				250.0f,
 				1.5f);
+			rig->m_hasPole = false;
 		}
 	}
 	if (*actionName == "jumping_start")
@@ -268,7 +269,10 @@ void PoleActionFrame(ZombieModernPoleVaulter* self, SexyString* currentAnim, Sex
 void PoleOnArmDrop(ZombieModernPoleVaulter* zombie) {
 	auto rig = reinterpret_cast<ZombieAnimRig_ModernPoleVaulter*>(zombie->m_animRig.Get());
 	auto props = reinterpret_cast<ZombieModernPoleVaulterProps*>(zombie->m_propertySheet.Get());
-	if (rig->m_hasPole == true && props->Throw == true) {
+	if (rig->m_hasPole == true 
+		&& props->Throw == true 
+		&& zombie->m_teamFlags == 2 
+		&& !ZombieIsDeadOrDying(zombie)) {
 		ZombieEnterState(zombie, 19, 0);
 	}
 }

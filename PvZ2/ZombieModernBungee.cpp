@@ -24,6 +24,9 @@ static Sexy::DelegateBase grabCompletedDelegate;
 
 static Sexy::DelegateBase escapeCompletedDelegate;
 
+bool BungeeShouldDrawShadow() {
+	return false;
+}
 bool BungeeCanBeTargeted(ZombieModernBungee* zombie, char a2) {
     if (ZombieIsInState(zombie, 16)
         || ZombieIsInState(zombie, 17)
@@ -92,6 +95,9 @@ bool BungeeCanBeTossedByPlant() {
     return false;
 }
 
+int BungeeGetTideEffect() {
+	return 4;
+}
 
 void BungeeOnInitialize(ZombieModernBungee* zombie) {
     zombie->m_hasSpawnTarget = false;
@@ -476,6 +482,7 @@ void ZombieModernBungee::ModInit() {
     vftable1 = CopyVFTable(getActualOffset(0x241DAA0), 4);
     PatchVFTable(vftable, (void*)ZombieModernBungee::StaticGetType, 0);
 
+    PatchVFTable(vftable, (void*)BungeeShouldDrawShadow, 16);
     PatchVFTable(vftable, (void*)BungeeCanBeTargeted, 21);
     PatchVFTable(vftable1, (void*)BungeeCalcRenderOrder, 3);
     PatchVFTable(vftable, (void*)BungeeOnSpawn, 49);
@@ -483,6 +490,7 @@ void ZombieModernBungee::ModInit() {
     PatchVFTable(vftable, (void*)BungeeOnBeforeBlown, 79);
     PatchVFTable(vftable, (void*)BungeeCanBeTargetedByPlant, 93);
     PatchVFTable(vftable, (void*)BungeeCanBeTossedByPlant, 97);
+    PatchVFTable(vftable, (void*)BungeeGetTideEffect, 107);
     PatchVFTable(vftable, (void*)BungeeOnInitialize, 169);
     PatchVFTable(vftable, (void*)BungeeOnElectrocute, 172);
     PatchVFTable(vftable, (void*)BungeeOnAsh, 173);
