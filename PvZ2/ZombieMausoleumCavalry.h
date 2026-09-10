@@ -18,6 +18,7 @@ public:
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumCavalry, m_lastPathGridX);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumCavalry, m_lastPathGridY);
 	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumCavalry, m_currentDirection);
+	RT_CLASS_REGISTER_STANDARD_PROPERTY(ZombieMausoleumCavalry, m_lastGroundTrackOffset);
 	RT_CLASS_BUILD_SYMBOLS_END();
 	RT_CLASS_REGISTER_CLASS_FUNCTION(ZombieMausoleumCavalry)
 	RT_CLASS_GET_CLASS_FUNCTION(ZombieMausoleumCavalry, 0xC36FE4);

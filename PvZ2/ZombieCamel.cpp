@@ -9,8 +9,6 @@ GetType oGetType = nullptr;
 
 typedef Sexy::RtClass* (*TGetType)();
 TGetType oTGetType = nullptr;
-typedef void* (*oCamel)(Zombie* thisPtr, int64_t a2, bool a3);
-oCamel oCmn = nullptr;
 
 void hkCamelZombieFunc(Zombie* thisPtr, int64_t a2, bool a3)
 {
@@ -100,83 +98,51 @@ ZombieCamel* ZombieCamelOnSpawn(ZombieCamel* zombie)
     }
     return zombie;
 }
-typedef ZombieCamelTouch* (*Func_SpawnTFollowers)(ZombieCamelTouch*, int, int);
-Func_SpawnTFollowers SpawnTFollowers = (Func_SpawnTFollowers)getActualOffset(0xB16770);
 
-typedef void (*Func_ApplyCardType)(ZombieCamelTouch*, int);
-Func_ApplyCardType ApplyCardType = (Func_ApplyCardType)getActualOffset(0xB1A4B4);
-
-typedef ZombieCamelTouch* (*Func_InitCardState)(ZombieCamelTouch*);
-Func_InitCardState InitCardState = (Func_InitCardState)getActualOffset(0xB1AD14);
-
-void BroadcastZombieSpawnEvent(ZombieCamelTouch* zombie)
+ZombieCamel* CamelOnPlaceOnStreet(ZombieCamel* thisPtr)
 {
-    void** pMessageRouter = (void**)getActualOffset(0x2513070);
+    CallFunc<void>(0xC3D644, thisPtr);
 
-    if (pMessageRouter != nullptr && *pMessageRouter != nullptr)
-    {
-        void* messageRouter = *pMessageRouter;
+    auto* props = reinterpret_cast<ZombieCamelProps*>(thisPtr->m_propertySheet.Get());
 
-        int* pLockDepth = (int*)((uintptr_t)messageRouter + 0x50);
-        (*pLockDepth)++;
+    int followersToSpawn = props->SegmentCount;
+    if (followersToSpawn > 0) {
+        RtWeakPtr<ZombieType> currentType;
+        currentType.FromOther(&thisPtr->m_type);
 
-        uintptr_t vtable = *(uintptr_t*)messageRouter;
-        typedef int64_t* (*Func_GetListeners)(void*, void*);
+        RtWeakPtr<ZombieType> bodyType = CallFunc<Sexy::RtWeakPtr<ZombieType>>(0xB16C5C, thisPtr, 2);
 
-        Func_GetListeners GetListeners = (Func_GetListeners)(*(uintptr_t*)(vtable + 24));
-
-        void* dummy = nullptr;
-        int64_t* listenerList = GetListeners(messageRouter, &dummy);
-
-        if (listenerList != nullptr)
+        if (currentType.Equals(&bodyType))
         {
-            uintptr_t currentItem = listenerList[0];
-            uintptr_t endItem = listenerList[1];
-
-            int listenerCount = (endItem - currentItem) / 48;
-
-            int broadcastCount = 0;
-            while (currentItem != endItem)
-            {
-                typedef void (*Func_OnSpawned)(uintptr_t, ZombieCamelTouch*);
-
-                Func_OnSpawned OnSpawned = (Func_OnSpawned)(*(uintptr_t*)(currentItem + 40));
-
-                OnSpawned(currentItem, zombie);
-                currentItem += 48;
-                broadcastCount++;
-            }
+            return thisPtr;
         }
 
-        (*pLockDepth)--;
+        RtWeakPtr<ZombieType> tailType = CallFunc<Sexy::RtWeakPtr<ZombieType>>(0xB16C5C, thisPtr, 3);
 
-        if (*pLockDepth == 0)
+        if (!currentType.Equals(&tailType))
         {
-            typedef void (*Func_FlushRouter)(void*);
-            Func_FlushRouter FlushRouter = (Func_FlushRouter)getActualOffset(0x96C98C);
-            FlushRouter(messageRouter);
+            float yShiftAmount = followersToSpawn * 25.0f;
+
+            float newY = thisPtr->m_position.y + yShiftAmount;
+
+            if (newY > 500.0f) {
+                newY = 500.0f;
+            }
+
+            thisPtr->m_position.y = newY;
+			ZombieUpdatePosition(thisPtr, &thisPtr->m_position);
+            RtWeakPtr<Zombie> zombiePtr;
+            zombiePtr.FromOther((RtWeakPtr<Zombie>*) & thisPtr->m_thisPtr);
+            SetCamelLeaderFlag(thisPtr, 1, &zombiePtr);
+
+            ZombieCamel* result = SpawnFollowers(thisPtr, followersToSpawn, 1);
+
+            return result;
         }
     }
+    return thisPtr;
 }
-typedef void (*zombieEnterState)(ZombieCamelTouch*, int, int);
-ZombieCamelTouch* ZombieCamelTouchOnSpawn(ZombieCamelTouch* zombie)
-{
-    BroadcastZombieSpawnEvent(zombie);
-        auto* props = reinterpret_cast<ZombieCamelTouchProps*>(zombie->m_propertySheet.Get());
-        int followersToSpawn = props->SegmentCount;
 
-        if (followersToSpawn > 0)
-        {
-            RtWeakPtr<Zombie> zombiePtr;
-            zombiePtr.FromOther((RtWeakPtr<Zombie>*) & zombie->m_thisPtr);
-            SetCamelLeaderFlag(zombie, 1, &zombiePtr);
-            SpawnTFollowers(zombie, followersToSpawn, 0);
-        }
-    
-    ApplyCardType(zombie, static_cast<int>(zombie->m_cardType));
-    ((zombieEnterState)getActualOffset(0xC3D428))(zombie, 19, 0);
-    return InitCardState(zombie);
-}
 Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc ZombieCamelProps::oZombieCamelPropsBuildSymbols = nullptr;
 Reflection::CRefManualSymbolBuilder::BuildSymbolsFunc ZombieCamelTouchProps::oZombieCamelTouchPropsBuildSymbols = nullptr;
 
@@ -187,6 +153,7 @@ void ZombieCamelProps::modInit() {
     PVZ2HookFunction(0xC02CC8, (void*)GetZombieTypeName, nullptr);
     PVZ2HookFunction(0xB162A8, (void*)ZombieCamelOnSpawn, nullptr);
     PVZ2HookFunction(0xB170D0, (void*)CamelApplyArmor, nullptr);
+    PVZ2HookFunction(0xB16A9C, (void*)CamelOnPlaceOnStreet, nullptr);
     //Roman
     PVZ2HookFunction(0xC10498, (void*)GetSegmentName, nullptr);
     PVZ2HookFunction(0xC104F8, (void*)GetZombieTypeName, nullptr);
@@ -209,7 +176,6 @@ void ZombieCamelTouchProps::modInit() {
     LOGI("init CamelTouch class");
     PVZ2HookFunction(0xB18DC4, (void*)hkCamelZombieFunc, nullptr);
     PVZ2HookFunction(0xB1BDBC, (void*)GetSegmentTouchName, nullptr);
-    //PVZ2HookFunction(0xB1BAF0, (void*)ZombieCamelTouchOnSpawn, nullptr);
     LOGI("init CamelTouch class complete");
     LOGI("init CamelTouch props");
     PVZ2HookFunction(0xDABED8, (void*)StaticGetType, (void**)&oTGetType);
