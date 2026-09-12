@@ -141,8 +141,6 @@ public:
 	int m_sunCurrency;
 	char m_pad2[4];
 
-	// I won't be using C-style arrays
-	// fuck you Jay and Tenfoldedly ;3
 	std::array<int, 5> m_chooseRowUnk;
 	std::array<float, 5> m_timeRowGotLawnMowered;
 	std::array<RowPickingItem, 5> m_rowPickingArray;
