@@ -10,7 +10,7 @@
 
 # Note
 
-This repository is the example of how to implementing custom class, specially zombie stuff into the game. Though it's fine to using them in the game, some still unfinished and memory leaks might happen as destructor arent overriden on all of them, and some are just junk and leftover code that i haven't delete it yet. And if you want to using this with Snowie Lib, please comment ALL of Camel and PlantType/ZombieType hook first or it will make conflict and crash the game.
+This repository is the example of how to implementing custom class, specially zombie stuff into the game. Though it's fine to using them in the game, some still unfinished and memory leaks might happen as destructor arent overriden on all of them, and some are just junk and leftover code that i haven't delete it yet. And if you want to using this with Snowie Lib, please comment ALL of Camel, Piano, Board Wave and PlantType/ZombieType hook first or it will make conflict and crash the game.
 
 # What is this?
 To Be Continued...
